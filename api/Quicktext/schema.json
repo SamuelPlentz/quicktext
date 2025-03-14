@@ -57,6 +57,12 @@
             "type": "string"
           }
         ]
+      },
+      {
+        "name": "openSetting",
+        "type": "function",
+        "async": true,
+        "parameters": []
       }
     ]
   }

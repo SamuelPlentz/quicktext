@@ -3,8 +3,8 @@
   "applications": {
     "gecko": {
       "id": "{8845E3B3-E8FB-40E2-95E9-EC40294818C4}",
-      "strict_min_version": "102.0",
-      "strict_max_version": "118.*"
+      "strict_min_version": "128.0",
+      "strict_max_version": "128.*"
     }
   },
   "name": "Quicktext",
@@ -48,7 +48,8 @@
     "<all_urls>"
   ],
   "background": {
-    "page": "background.html"
+    "type": "module",
+    "scripts": ["scripts/background.js"]
   },
   "options_ui": {
     "page": "options/options.html",
@@ -81,6 +82,14 @@
           ]
         ],
         "script": "api/LegacyPrefs/implementation.js"
+      }
+    },
+    "LegacyHelper": {
+      "schema": "api/LegacyHelper/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "paths": [["LegacyHelper"]],
+        "script": "api/LegacyHelper/implementation.js"
       }
     }
   }

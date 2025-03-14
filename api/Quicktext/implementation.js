@@ -99,6 +99,19 @@
             } else {
               return null;
             }
+          },
+          openSetting() {
+            const window = Services.wm.getMostRecentWindow("mail:3pane");
+            const extUrl = context.extension.baseURI.resolve("/chrome/content/settings/settings.xhtml");
+            const chromeUrl = "chrome://quicktext/content/settings/settings.xhtml"
+            console.log({extUrl, chromeUrl});
+        
+            var settingsHandle = window.open(
+              chromeUrl,
+              "quicktextConfig",
+              "chrome,resizable,centerscreen"
+            );
+            settingsHandle.focus();
           }
         }
       };

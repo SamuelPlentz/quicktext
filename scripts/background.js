@@ -5,7 +5,11 @@ import * as preferences from "/modules/preferences.mjs";
 
 const HOMEPAGE = "https://github.com/jobisoft/quicktext/wiki/";
 
-(async () => {
+await browser.LegacyHelper.registerGlobalUrls([
+  ["content",  "quicktext", "chrome/content/"],
+  ["resource", "quicktext", "chrome/"],
+]);
+
   // Define prefs, which can be overridden by system admins.
   const managedPrefs = [
     "defaultImport",
@@ -69,6 +73,10 @@ const HOMEPAGE = "https://github.com/jobisoft/quicktext/wiki/";
 
   // React to open composer tabs.
   async function prepareComposeTab(tab) {
+    if (tab.type != "messageCompose") {
+      return;
+    }
+
     // BUG: Thunderbird should wait with executeScript until tab is ready.
     //      Getting the compose details works around this.
     await messenger.compose.getComposeDetails(tab.id);
@@ -111,6 +119,3 @@ const HOMEPAGE = "https://github.com/jobisoft/quicktext/wiki/";
     await menus.updateTemplateMenus();
     messenger.menus.refresh();
   });
-
-})();
-

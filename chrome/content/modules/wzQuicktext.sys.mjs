@@ -1,8 +1,6 @@
-var { wzQuicktextGroup } = ChromeUtils.import("chrome://quicktext/content/modules/wzQuicktextGroup.jsm");
-var { wzQuicktextTemplate } = ChromeUtils.import("chrome://quicktext/content/modules/wzQuicktextTemplate.jsm");
-var { wzQuicktextScript } = ChromeUtils.import("chrome://quicktext/content/modules/wzQuicktextScript.jsm");
-
-var EXPORTED_SYMBOLS = ["gQuicktext"];
+var { wzQuicktextGroup } = ChromeUtils.importESModule("chrome://quicktext/content/modules/wzQuicktextGroup.sys.mjs");
+var { wzQuicktextTemplate } = ChromeUtils.importESModule("chrome://quicktext/content/modules/wzQuicktextTemplate.sys.mjs");
+var { wzQuicktextScript } = ChromeUtils.importESModule("chrome://quicktext/content/modules/wzQuicktextScript.sys.mjs");
 
 const kDebug        = true;
 const kSepChar1a    = String.fromCharCode(65533, 65533);
@@ -12,7 +10,7 @@ const kIllegalChars = String.fromCharCode(1) +"-"+ String.fromCharCode(8) + Stri
 const kFileShortcuts = ['ProfD', 'UsrDocs', 'Home', 'Desk', 'Pers'];
 const kHomepage     = "https://github.com/jobisoft/quicktext/wiki/";
 
-var gQuicktext = {
+export var gQuicktext = {
   mSettingsLoaded:       false,
   mGroup:                [],
   mTexts:                [],
@@ -1072,17 +1070,6 @@ var gQuicktext = {
   }
 }
 
-
-var debug = kDebug ?  function(m) {dump("\t *** wzQuicktext: " + m + "\n");} : function(m) {};
-
-
-
-
-function TrimString(aStr)
-{
-  if (!aStr) return "";
-  return aStr.replace(/(^\s+)|(\s+$)/g, '')
-}
-
+const debug = kDebug ?  function(m) {dump("\t *** wzQuicktext: " + m + "\n");} : function(m) {};
 Services.scriptloader.loadSubScript("chrome://quicktext/content/notifyTools/notifyTools.js", gQuicktext, "UTF-8");
 

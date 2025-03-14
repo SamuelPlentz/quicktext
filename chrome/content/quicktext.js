@@ -1,9 +1,9 @@
-var { gQuicktext } = ChromeUtils.import("chrome://quicktext/content/modules/wzQuicktext.jsm");
-var { wzQuicktextVar } = ChromeUtils.import("chrome://quicktext/content/modules/wzQuicktextVar.jsm");
+var { gQuicktext } = ChromeUtils.importESModule("chrome://quicktext/content/modules/wzQuicktext.sys.mjs");
+var { wzQuicktextVar } = ChromeUtils.importESModule("chrome://quicktext/content/modules/wzQuicktextVar.sys.mjs");
 var gQuicktextVar = new wzQuicktextVar();
 
-var { quicktextUtils } = ChromeUtils.import("chrome://quicktext/content/modules/utils.jsm");
-var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+var { quicktextUtils } = ChromeUtils.importESModule("chrome://quicktext/content/modules/utils.sys.mjs");
+var { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
 
 var quicktextStateListener = {
   NotifyComposeBodyReady: function()

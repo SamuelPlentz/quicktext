@@ -13,7 +13,7 @@
  * Version: 1.2
  * - Bugfix: move to a different saving scheme, as storage.local.get() without
  *   providing a value to get them all, may cause an TransactionInactiveError in
- *   IndexedDB.jsm
+ *   IndexedDB.sys.mjs
  *
  * Version: 1.1
  * - Bugfix: use messenger.storage instead of browser.storage

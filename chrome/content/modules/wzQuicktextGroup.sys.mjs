@@ -1,8 +1,4 @@
-var EXPORTED_SYMBOLS = ["wzQuicktextGroup"];
-
-const kDebug        = true;
-
-class wzQuicktextGroup {
+export class wzQuicktextGroup {
   constructor() {
     this.mName = "";
     this.mType = "";
@@ -15,13 +11,10 @@ class wzQuicktextGroup {
   set type(aType) { if (typeof aType != 'undefined') return this.mType = aType; }
 
   clone() {
-    let newGroup = new wzQuicktextGroup();
+    const newGroup = new wzQuicktextGroup();
     newGroup.name = this.mName;
     newGroup.type = this.mType;
 
     return newGroup;
   }
 }
-
-
-var debug = kDebug ?  function(m) {dump("\t *** wzQuicktext: " + m + "\n");} : function(m) {};

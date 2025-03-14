@@ -1,8 +1,6 @@
 "use strict";
 
-var EXPORTED_SYMBOLS = ["quicktextUtils"]
-
-var quicktextUtils = {
+export var quicktextUtils = {
   get dateTimeFormat() {
     if (Services.vc.compare(Services.appinfo.platformVersion, "59.0-1") >= 0) {
       return (format, timeStamp) => {

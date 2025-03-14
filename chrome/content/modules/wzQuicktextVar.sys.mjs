@@ -1,20 +1,14 @@
-var EXPORTED_SYMBOLS = ["wzQuicktextVar"];
+var { quicktextUtils } = ChromeUtils.importESModule("chrome://quicktext/content/modules/utils.sys.mjs");
+var { gQuicktext } = ChromeUtils.importESModule("chrome://quicktext/content/modules/wzQuicktext.sys.mjs");
+var { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
 
-var { quicktextUtils } = ChromeUtils.import("chrome://quicktext/content/modules/utils.jsm");
-var { gQuicktext } = ChromeUtils.import("chrome://quicktext/content/modules/wzQuicktext.jsm");
-var { MailServices } = ChromeUtils.import("resource:///modules/MailServices.jsm");
+const lazy = {}
 
-var { XPCOMUtils } = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-XPCOMUtils.defineLazyModuleGetters(this, {
-  newUID: "resource:///modules/AddrBookUtils.jsm",
-  AddrBookCard: "resource:///modules/AddrBookCard.jsm",
-  BANISHED_PROPERTIES: "resource:///modules/VCardUtils.jsm",
-  VCardProperties: "resource:///modules/VCardUtils.jsm",
-  VCardUtils: "resource:///modules/VCardUtils.jsm",
-  MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.jsm"
+ChromeUtils.defineESModuleGetters(lazy, {
+  VCardProperties: "resource:///modules/VCardUtils.sys.mjs",
+  MsgHdrToMimeMessage: "resource:///modules/gloda/MimeMessage.sys.mjs"
 });
 
-const kDebug          = true;
 const persistentTags  = ['COUNTER', 'ORGATT', 'ORGHEADER', 'VERSION'];
 const allowedTags     = ['ATT', 'CLIPBOARD', 'COUNTER', 'DATE', 'FILE', 'IMAGE', 'FROM', 'INPUT', 'ORGATT', 'ORGHEADER', 'SCRIPT', 'SUBJECT', 'TEXT', 'TIME', 'TO', 'URL', 'VERSION', 'SELECTION', 'HEADER'];
 
@@ -26,27 +20,24 @@ function getThunderbirdVersion() {
   }
 }
 
-function wzQuicktextVar()
-{
-  this.mData        = {};
-  this.mWindow      = null;
+export class wzQuicktextVar {
+  constructor() {
+    this.mData        = {};
+    this.mWindow      = null;
 
-  // Need the Main Quicktext component
-  this.mQuicktext = gQuicktext;
-}
+    // Need the Main Quicktext component
+    this.mQuicktext = gQuicktext;
+  }
 
-wzQuicktextVar.prototype = {
-  init: function(aWindow)
-  {
+  init(aWindow) {
     // Save the window we are in
     this.mWindow = aWindow;
 
     // New mail so we need to destroy all tag-data
     this.mData = {};
   }
-,
-  cleanTagData: function()
-  {
+
+  cleanTagData() {
     // Just save some of the tag-data.
     var tmpData = {};
     for (var i in this.mData)
@@ -56,9 +47,8 @@ wzQuicktextVar.prototype = {
     }
     this.mData = tmpData;
   }
-,
-  parse: async function(aStr, aType)
-  {
+
+  async parse(aStr, aType) {
     // Reparse the text until there is no difference in the text
     // or that we parse 100 times (so we don't make an infinitive loop)
     var oldStr;
@@ -72,9 +62,8 @@ wzQuicktextVar.prototype = {
 
     return aStr;
   }
-,
-  parseText: async function(aStr, aType)
-  {
+
+  async parseText(aStr, aType) {
     var tags = this.getTags(aStr);
 
     // If we don't find any tags there will be no changes to the string so return.
@@ -135,9 +124,8 @@ wzQuicktextVar.prototype = {
 
     return aStr;
   }
-,
-  getTags: function(aStr)
-  {
+
+  getTags(aStr) {
     // We only get the beginning of the tag.
     // This is because we want to handle recursive use of tags.
     var rexp = new RegExp("\\[\\[(("+ allowedTags.join("|") +")(\\_[a-z]+)?)", "ig");
@@ -228,11 +216,10 @@ wzQuicktextVar.prototype = {
     hits.reverse();
     return hits;
   }
-,
+
   // Checks if the tag isn't added before.
   // We just want to handle all unique tags once
-  addTag: function(aTags, aNewTag)
-  {
+  addTag(aTags, aNewTag) {
     for (var i = 0; i < aTags.length; i++)
       if (aTags[i].tag == aNewTag.tag)
         return aTags;
@@ -240,18 +227,15 @@ wzQuicktextVar.prototype = {
     aTags.push(aNewTag);
     return aTags;
   }
-,
 
   // The get-functions takes the data from the process-functions and
   // returns string depending of what aVariables is
 
-  get_file: function(aVariables)
-  {
+  get_file(aVariables) {
     return this.process_file(aVariables);
   }
-,
-  get_image: function(aVariables, aType)
-  {
+
+  get_image(aVariables, aType) {
     if (aType == 1) {
       // image tag may only be added in html mode
       return this.process_image_content(aVariables);
@@ -259,19 +243,16 @@ wzQuicktextVar.prototype = {
       return "";
     }
   }
-,
-  get_text: function(aVariables)
-  {
+
+  get_text(aVariables) {
     return this.process_text(aVariables);
   }
-,
-  get_script: async function(aVariables)
-  {
+
+  async get_script(aVariables) {
     return await this.process_script(aVariables);
   }
-,
-  get_att: function(aVariables)
-  {
+
+  get_att(aVariables) {
     var data = this.process_att(aVariables);
 
     if (data.length > 0)
@@ -295,9 +276,8 @@ wzQuicktextVar.prototype = {
 
     return "";
   }
-,
-  get_input: function(aVariables)
-  {
+
+  get_input(aVariables) {
     var data = this.process_input(aVariables);
 
     if (typeof data[aVariables[0]] != "undefined")
@@ -305,26 +285,22 @@ wzQuicktextVar.prototype = {
 
     return "";
   }
-,
-  get_header: function(aVariables)
-  {
+
+  get_header(aVariables) {
     gQuicktext.mCurrentTemplate.addHeader(aVariables[0], aVariables[1]);
     // return an empty string, to remove the header tags from the body.
     return "";
   }
-,
-  get_clipboard: function(aVariables, aType)
-  {
+
+  get_clipboard(aVariables, aType) {
     return TrimString(this.process_clipboard(aVariables, aType));
   }
-,  
-  get_selection: function(aVariables, aType)
-  {
+  
+  get_selection(aVariables, aType) {
     return this.process_selection(aVariables, aType);
   }
-,
-  get_from: function(aVariables)
-  {
+
+  get_from(aVariables) {
    var data = this.process_from(aVariables);
 
     if (typeof data[aVariables[0]] != 'undefined')
@@ -332,9 +308,8 @@ wzQuicktextVar.prototype = {
 
     return "";
   }
-,
-  get_to: function(aVariables)
-  {
+
+  get_to(aVariables) {
     var data = this.process_to(aVariables);
 
     if (typeof data[aVariables[0]] != 'undefined')
@@ -356,14 +331,12 @@ wzQuicktextVar.prototype = {
     else
       return "";
   }
-,
-  get_url: async function(aVariables)
-  {
+
+  async get_url(aVariables) {
     return await this.process_url(aVariables);
   }
-,
-  get_version: function(aVariables)
-  {
+
+  get_version(aVariables) {
     var data = this.process_version(aVariables);
 
     if (aVariables.length < 1)
@@ -373,19 +346,16 @@ wzQuicktextVar.prototype = {
 
     return "";
   }
-,
-  get_counter: async function(aVariables)
-  {
+
+  async get_counter(aVariables) {
     return await this.process_counter(aVariables);
   }
-,
-  get_subject: function(aVariables)
-  {
+
+  get_subject(aVariables) {
     return this.process_subject(aVariables);
   }
-,
-  get_date: function(aVariables)
-  {
+
+  get_date(aVariables) {
     var data = this.process_date(aVariables);
 
     if (aVariables.length < 1)
@@ -395,9 +365,8 @@ wzQuicktextVar.prototype = {
 
     return "";
   }
-,
-  get_time: function(aVariables)
-  {
+
+  get_time(aVariables) {
     var data = this.process_time(aVariables);
     if (aVariables.length < 1)
       aVariables[0] = "noseconds";
@@ -406,9 +375,8 @@ wzQuicktextVar.prototype = {
 
     return "";
   }
-,
-  get_orgheader: async function(aVariables)
-  {
+
+  async get_orgheader(aVariables) {
     var data = await this.process_orgheader(aVariables);
 
     aVariables[0] = aVariables[0].toLowerCase();
@@ -422,9 +390,8 @@ wzQuicktextVar.prototype = {
     else
       return "";
   }
-,
-  get_orgatt: async function(aVariables)
-  {
+
+  async get_orgatt(aVariables) {
     var data = await this.process_orgatt(aVariables);
 
     if (typeof data != 'undefined')
@@ -436,12 +403,11 @@ wzQuicktextVar.prototype = {
 
     return "";
   }
-,
+
   // These process functions get the data and mostly saves it
   // in this.mData so if the data is requested again it is quick
 
-  process_file: function(aVariables)
-  {
+  process_file(aVariables) {
     if (aVariables.length > 0 && aVariables[0] != "")
     {
       // Tries to open the file and returning the content
@@ -459,9 +425,8 @@ wzQuicktextVar.prototype = {
 
     return "";
   }
-,
-  process_image_content: function(aVariables)
-  {
+
+  process_image_content(aVariables) {
     let rv = "";
     
     if (aVariables.length > 0 && aVariables[0] != "")
@@ -487,9 +452,8 @@ wzQuicktextVar.prototype = {
 
     return rv;
   }
-,
-  process_text: function(aVariables)
-  {
+
+  process_text(aVariables) {
     if (aVariables.length != 2)
       return "";
 
@@ -514,9 +478,8 @@ wzQuicktextVar.prototype = {
 
     return "";
   }
-,
-  process_script: async function(aVariables)
-  {
+
+  async process_script(aVariables) {
     if (aVariables.length == 0)
       return "";
     
@@ -567,9 +530,8 @@ wzQuicktextVar.prototype = {
     this.mWindow.alert(gQuicktext.mStringBundle.formatStringFromName("scriptNotFound", [scriptName], 1))
     return "";
   }
-,
-  process_att: function(aVariables)
-  {
+
+  process_att(aVariables) {
     if (this.mData['ATT'] && this.mData['ATT'].checked)
       return this.mData['ATT'].data;
 
@@ -603,9 +565,8 @@ wzQuicktextVar.prototype = {
 
     return this.mData['ATT'].data;
   }
-,
-  process_input: function(aVariables)
-  {
+
+  process_input(aVariables) {
     if (typeof this.mData['INPUT'] == 'undefined')
       this.mData['INPUT'] = {};
     if (typeof this.mData['INPUT'].data == 'undefined')
@@ -641,9 +602,8 @@ wzQuicktextVar.prototype = {
 
     return this.mData['INPUT'].data;
   }
-,
-  process_selection: function(aVariables, aType)
-  {
+
+  process_selection(aVariables, aType) {
     if (aType == 0) {
       // return selected text as plain text
       return this.mQuicktext.mSelectionContent;
@@ -652,9 +612,8 @@ wzQuicktextVar.prototype = {
       return this.mQuicktext.mSelectionContentHtml;
     }
   }
-,
-  process_clipboard: function(aVariables, aType)
-  {
+
+  process_clipboard(aVariables, aType) {
     if (this.mData['CLIPBOARD'] && this.mData['CLIPBOARD'].checked)
       return this.mData['CLIPBOARD'].data;
 
@@ -716,28 +675,27 @@ wzQuicktextVar.prototype = {
 
     return this.mData['CLIPBOARD'].data;
   }
-,
-/**
- * Gets the VCardProperties of the given card either directly or by reconstructing
- * from a set of flat standard properties.
- *
- * @param {nsIAbCard/AddrBookCard} card
- * @returns {VCardProperties}
- */
- vCardPropertiesFromCard: function (card) {
-  if (card.supportsVCard) {
-    return card.vCardProperties;
+
+  /**
+   * Gets the VCardProperties of the given card either directly or by reconstructing
+   * from a set of flat standard properties.
+   *
+   * @param {nsIAbCard/AddrBookCard} card
+   * @returns {VCardProperties}
+   */
+  vCardPropertiesFromCard (card) {
+    if (card.supportsVCard) {
+      return card.vCardProperties;
+    }
+    return lazy.VCardProperties.fromPropertyMap(
+      new Map(Array.from(card.properties, p => [p.name, p.value]))
+    );
   }
-  return VCardProperties.fromPropertyMap(
-    new Map(Array.from(card.properties, p => [p.name, p.value]))
-  );
-}
-,
-getcarddata_from: function(aData, aIdentity)
-  {
+
+  getcarddata_from(aData, aIdentity) {
     let passStandardCheck = false;
     try {
-      let cardbookRepository = ChromeUtils.import("chrome://cardbook/content/cardbookRepository.js").cardbookRepository;
+      let cardbookRepository = ChromeUtils.importESModule("chrome://cardbook/content/cardbookRepository.js").cardbookRepository;
       let card = cardbookRepository.cardbookUtils.getCardFromEmail(aIdentity.email.toLowerCase());
       if (card)
       {
@@ -789,9 +747,8 @@ getcarddata_from: function(aData, aIdentity)
 
     return aData;
   }
-,
-  process_from: function(aVariables)
-  {
+
+  process_from(aVariables) {
     if (this.mData['FROM'] && this.mData['FROM'].checked)
       return this.mData['FROM'].data;
 
@@ -810,12 +767,11 @@ getcarddata_from: function(aData, aIdentity)
 
     return this.mData['FROM'].data;
   }
-,
-  getcarddata_to: function(aData, aIndex)
-  {
+
+  getcarddata_to(aData, aIndex) {
     let passStandardCheck = false;
     try {
-      let cardbookRepository = ChromeUtils.import("chrome://cardbook/content/cardbookRepository.js").cardbookRepository;
+      let cardbookRepository = ChromeUtils.importESModule("chrome://cardbook/content/cardbookRepository.js").cardbookRepository;
       let card = cardbookRepository.cardbookUtils.getCardFromEmail(aData['TO'].data['email'][aIndex]);
       if (card)
       {
@@ -879,9 +835,8 @@ getcarddata_from: function(aData, aIdentity)
     }
     return aData;
   }
-,
-  process_to: function(aVariables)
-  {
+
+  process_to(aVariables) {
     if (this.mData['TO'] && this.mData['TO'].checked)
       return this.mData['TO'].data;
 
@@ -937,9 +892,8 @@ getcarddata_from: function(aData, aIdentity)
 
     return this.mData['TO'].data;
   }
-,
-  process_url: async function(aVariables)
-  {
+
+  async process_url(aVariables) {
     if (aVariables.length == 0)
       return "";
 
@@ -1040,9 +994,8 @@ getcarddata_from: function(aData, aIdentity)
 
     return "";
   }
-,
-  process_version: function(aVariables)
-  {
+
+  process_version(aVariables) {
     if (this.mData['VERSION'] && this.mData['VERSION'].checked)
       return this.mData['VERSION'].data;
 
@@ -1054,9 +1007,8 @@ getcarddata_from: function(aData, aIdentity)
 
     return this.mData['VERSION'].data;
   }
-,
-  process_counter: async function(aVariables)
-  {
+
+  async process_counter(aVariables) {
     if (this.mData['COUNTER'] && this.mData['COUNTER'].checked)
       return this.mData['COUNTER'].data;
 
@@ -1068,9 +1020,8 @@ getcarddata_from: function(aData, aIdentity)
 
     return this.mData['COUNTER'].data;
   }
-,
-  process_subject: function(aVariables)
-  {
+
+  process_subject(aVariables) {
     if (this.mData['SUBJECT'] && this.mData['SUBJECT'].checked)
       return this.mData['SUBJECT'].data;
 
@@ -1083,45 +1034,40 @@ getcarddata_from: function(aData, aIdentity)
 
     return this.mData['SUBJECT'].data;
   }
-,
-  process_date: function(aVariables)
-  {
+
+  process_date(aVariables) {
     if (this.mData['DATE'] && this.mData['DATE'].checked)
       return this.mData['DATE'].data;
 
     this.preprocess_datetime();
     return this.mData['DATE'].data;
   }
-,
-  process_time: function(aVariables)
-  {
+
+  process_time(aVariables) {
     if (this.mData['TIME'] && this.mData['TIME'].checked)
       return this.mData['TIME'].data;
 
     this.preprocess_datetime();
     return this.mData['TIME'].data;
   }
-,
-  process_orgheader: async function(aVariables)
-  {
+
+  async process_orgheader(aVariables) {
     if (this.mData['ORGHEADER'] && this.mData['ORGHEADER'].checked)
       return this.mData['ORGHEADER'].data;
 
     await this.preprocess_org();
     return this.mData['ORGHEADER'].data;
   }
-,
-  process_orgatt: async function(aVariables)
-  {
+
+  async process_orgatt(aVariables) {
     if (this.mData['ORGATT'] && this.mData['ORGATT'].checked)
       return this.mData['ORGATT'].data;
 
     await this.preprocess_org();
     return this.mData['ORGATT'].data;
   }
-,
-  preprocess_datetime: function()
-  {
+
+  preprocess_datetime() {
     this.mData['DATE'] = {};
     this.mData['DATE'].checked = true;
     this.mData['DATE'].data = {};
@@ -1137,95 +1083,93 @@ getcarddata_from: function(aData, aIdentity)
         this.mData[fieldinfo[0]].data[fieldinfo[1]] = TrimString(quicktextUtils.dateTimeFormat(field, timeStamp));
     }
  }
-,
-preprocess_org: async function () {
 
-  this.mData['ORGHEADER'] = {};
-  this.mData['ORGHEADER'].checked = true;
-  this.mData['ORGHEADER'].data = {};
+  async preprocess_org () {
 
-  this.mData['ORGATT'] = {};
-  this.mData['ORGATT'].checked = true;
-  this.mData['ORGATT'].data = { contentType: [], url: [], displayName: [], uri: [], isExternal: [] };
+    this.mData['ORGHEADER'] = {};
+    this.mData['ORGHEADER'].checked = true;
+    this.mData['ORGHEADER'].data = {};
 
-  let msgURI = this.mWindow.gMsgCompose.originalMsgURI;
-  if (!msgURI || msgURI == "") {
-    return;
-  }
+    this.mData['ORGATT'] = {};
+    this.mData['ORGATT'].checked = true;
+    this.mData['ORGATT'].data = { contentType: [], url: [], displayName: [], uri: [], isExternal: [] };
 
-  let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
-  let relatedMsgHdr = messenger.msgHdrFromURI(msgURI);
-  
-  let mimeMsg;
-  try {
-    mimeMsg = await new Promise(resolve => {
-      MsgHdrToMimeMessage(
-        relatedMsgHdr,
-        null,
-        (_msgHdr, mimeMsg) => {
-          if (!mimeMsg) {
-            reject();
-          } else {
-            mimeMsg.attachments = mimeMsg.allInlineAttachments;
-            resolve(mimeMsg);
-          }
-        },
-        true,
-        { examineEncryptedParts: true }
-      );
-    });
-  } catch (ex) {
-    // Something went wrong. Return null, which will inform the user that the
-    return;
-  }
+    let msgURI = this.mWindow.gMsgCompose.originalMsgURI;
+    if (!msgURI || msgURI == "") {
+      return;
+    }
 
-  if (!mimeMsg) {
-    return;
-  }
-
-  // Decode headers. This also takes care of headers, which still include
-  // encoded words and need to be RFC 2047 decoded.
-  if ("headers" in mimeMsg) {
-    for (let header of Object.keys(mimeMsg.headers)) {
-      let name = header.toLowerCase();
-      let value = mimeMsg.headers[header].map(h =>
-        MailServices.mimeConverter.decodeMimeHeader(
-          h,
+    let messenger = Cc["@mozilla.org/messenger;1"].createInstance(Ci.nsIMessenger);
+    let relatedMsgHdr = messenger.msgHdrFromURI(msgURI);
+    
+    let mimeMsg;
+    try {
+      mimeMsg = await new Promise(resolve => {
+        lazy.MsgHdrToMimeMessage(
+          relatedMsgHdr,
           null,
-          false /* override_charset */,
-          true /* eatContinuations */
-        )
-      );
+          (_msgHdr, mimeMsg) => {
+            if (!mimeMsg) {
+              reject();
+            } else {
+              mimeMsg.attachments = mimeMsg.allInlineAttachments;
+              resolve(mimeMsg);
+            }
+          },
+          true,
+          { examineEncryptedParts: true }
+        );
+      });
+    } catch (ex) {
+      // Something went wrong. Return null, which will inform the user that the
+      return;
+    }
 
-      // Store header in the mData-variable
-      if (typeof this.mData['ORGHEADER'].data[name] == 'undefined') {
-        this.mData['ORGHEADER'].data[name] = [];
+    if (!mimeMsg) {
+      return;
+    }
+
+    // Decode headers. This also takes care of headers, which still include
+    // encoded words and need to be RFC 2047 decoded.
+    if ("headers" in mimeMsg) {
+      for (let header of Object.keys(mimeMsg.headers)) {
+        let name = header.toLowerCase();
+        let value = mimeMsg.headers[header].map(h =>
+          MailServices.mimeConverter.decodeMimeHeader(
+            h,
+            null,
+            false /* override_charset */,
+            true /* eatContinuations */
+          )
+        );
+
+        // Store header in the mData-variable
+        if (typeof this.mData['ORGHEADER'].data[name] == 'undefined') {
+          this.mData['ORGHEADER'].data[name] = [];
+        }
+        this.mData['ORGHEADER'].data[name].push(value);
       }
-      this.mData['ORGHEADER'].data[name].push(value);
+    }
+
+    if ("attachments" in mimeMsg) {
+      for (let attachment of mimeMsg.attachments) {
+        if (attachment.contentType == "text/html") return;
+
+        // Store attachments in the mData-variable
+        this.mData['ORGATT'].data.contentType = attachment.contentType;
+        this.mData['ORGATT'].data.url = attachment.url;
+        this.mData['ORGATT'].data.displayName = attachment.displayName;
+        this.mData['ORGATT'].data.uri = attachment.uri;
+        this.mData['ORGATT'].data.isExternal = attachment.isExternal;
+      }
     }
   }
 
-  if ("attachments" in mimeMsg) {
-    for (let attachment of mimeMsg.attachments) {
-      if (attachment.contentType == "text/html") return;
-
-      // Store attachments in the mData-variable
-      this.mData['ORGATT'].data.contentType = attachment.contentType;
-      this.mData['ORGATT'].data.url = attachment.url;
-      this.mData['ORGATT'].data.displayName = attachment.displayName;
-      this.mData['ORGATT'].data.uri = attachment.uri;
-      this.mData['ORGATT'].data.isExternal = attachment.isExternal;
-    }
-  }
-}
-,
-  escapeRegExp: function(aStr)
-  {
+  escapeRegExp(aStr) {
     return aStr.replace(/([\^\$\_\.\\\[\]\(\)\|\+\?])/g, "\\$1");
   }
-,
-  replaceText: function(tag, value, text)
-  {
+
+  replaceText(tag, value, text) {
     var replaceRegExp;
     if (value != "")
       replaceRegExp = new RegExp(this.escapeRegExp(tag), 'g');
@@ -1233,9 +1177,8 @@ preprocess_org: async function () {
       replaceRegExp = new RegExp("( )?"+ this.escapeRegExp(tag), 'g');
     return text.replace(replaceRegExp, value);
   }
-,
-  niceFileSize: function(size)
-  {
+
+  niceFileSize(size) {
     var unit = ["B", "kB", "MB", "GB", "TB"];
     var i = 0;
     while (size > 1024)
@@ -1245,8 +1188,8 @@ preprocess_org: async function () {
     }
     return (Math.round(size * 100) / 100) + " " + unit[i];
   }
-,
-  getCardForEmail: function(aAddress) {
+
+  getCardForEmail(aAddress) {
     let directories = MailServices.ab.directories;
     for (let addrbook of directories)
     {
@@ -1257,9 +1200,8 @@ preprocess_org: async function () {
     }
     return null;
   }
-,
-  getPropertiesFromCard: function(card)
-  {
+
+  getPropertiesFromCard(card) {
     var retval = {}
     var props = card.properties;
     for (let prop of props)
@@ -1268,9 +1210,8 @@ preprocess_org: async function () {
     }
     return retval;
   }
-,
-  removeBadHTML: function (aStr)
-  {
+
+  removeBadHTML (aStr) {
     // Remove the head-tag
     aStr = aStr.replace(/<head(| [^>]*)>.*<\/head>/gim, '');
 
@@ -1281,12 +1222,7 @@ preprocess_org: async function () {
   }
 }
 
-
-var debug = kDebug ?  function(m) {dump("\t *** wzQuicktext: " + m + "\n");} : function(m) {};
-
-
-function TrimString(aStr)
-{
+function TrimString(aStr) {
   if (!aStr) return "";
   return aStr.toString().replace(/(^\s+)|(\s+$)/g, '')
 }

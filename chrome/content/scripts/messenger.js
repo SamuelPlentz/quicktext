@@ -1,4 +1,4 @@
-var { gQuicktext } = ChromeUtils.import("chrome://quicktext/content/modules/wzQuicktext.jsm");
+var { gQuicktext } = ChromeUtils.importESModule("chrome://quicktext/content/modules/wzQuicktext.sys.mjs");
 
 // Load an additional JavaScript file.
 Services.scriptloader.loadSubScript("chrome://quicktext/content/main.js", window, "UTF-8");

@@ -61,21 +61,17 @@
   await browser.LegacyHelper.registerGlobalUrls([
     ["content", "quicktext", "chrome/content/"],
     ["resource", "quicktext", "chrome/"],
-    ["locale", "quicktext", "de", "chrome/locale/de/"],
-    ["locale", "quicktext", "pt-BR", "chrome/locale/pt_BR/"],
-    ["locale", "quicktext", "en-US", "chrome/locale/en-US/"],
-    ["locale", "quicktext", "es", "chrome/locale/es/"],
-    ["locale", "quicktext", "fr", "chrome/locale/fr/"],
-    ["locale", "quicktext", "hu", "chrome/locale/hu/"],
-    ["locale", "quicktext", "ja", "chrome/locale/ja/"],
-    ["locale", "quicktext", "ru", "chrome/locale/ru/"],
-    ["locale", "quicktext", "sv-SE", "chrome/locale/sv-SE/"],
-    ["locale", "quicktext", "cs", "chrome/locale/cs/"],
   ]);
 
+  // Load templates and settings.
   await browser.Quicktext.loadSettings();
 
-  // TODO: Add menu entry to tools menu, when locales are converted
+  // Add entry to tools menu
+  browser.menus.create({
+    contexts: ["tools_menu"],
+    onclick: () => browser.LegacyHelper.openDialog("quicktextConfig", "chrome://quicktext/content/settings.xhtml"),
+    title: browser.i18n.getMessage("quicktext.label"),
+  })
 
   // Manipulate all already open compose windows.
   let windows = await browser.windows.getAll({ windowTypes: ["messageCompose"] })
@@ -89,8 +85,6 @@
       await browser.Quicktext.manipulateComposeWindow(window.id);
     }
   });
-
-
 
   browser.composeAction.onClicked.addListener(tab => { browser.LegacyHelper.openDialog("quicktextConfig", "chrome://quicktext/content/settings.xhtml"); });
   browser.browserAction.onClicked.addListener(tab => { browser.LegacyHelper.openDialog("quicktextConfig", "chrome://quicktext/content/settings.xhtml"); });

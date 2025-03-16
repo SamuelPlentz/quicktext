@@ -1,5 +1,15 @@
-var { gQuicktext } = ChromeUtils.importESModule("chrome://quicktext/content/modules/wzQuicktext.sys.mjs");
-var { quicktextUtils } = ChromeUtils.importESModule("chrome://quicktext/content/modules/utils.sys.mjs");
+var { gQuicktext } = ChromeUtils.importESModule(
+  "chrome://quicktext/content/modules/wzQuicktext.sys.mjs"
+);
+var { quicktextUtils } = ChromeUtils.importESModule(
+  "chrome://quicktext/content/modules/utils.sys.mjs"
+);
+var { ExtensionParent } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionParent.sys.mjs"
+);
+var extension = ExtensionParent.GlobalManager.getExtension(
+  "{8845E3B3-E8FB-40E2-95E9-EC40294818C4}"
+);
 
 var quicktext = {
   mChangesMade:         false,
@@ -15,6 +25,8 @@ var quicktext = {
 ,
   init: async function()
   {
+    await window.i18n.updateDocument({ extension });
+
     if (!this.mLoaded)
     {
       this.mLoaded = true;
@@ -1428,3 +1440,16 @@ var quicktext = {
     }
   }
 }
+
+window.addEventListener("DOMContentLoaded", () => quicktext.init());
+window.addEventListener("unload", () => quicktext.unload());
+
+/*
+TODO:
+
+- dialog -> window
+- manually add (save + cancel) buttons (ondialogcancel="return quicktext.close(false);")
+- check for property files still being used
+- at least two locales are missing
+- tools menu filled twice in composer
+*/

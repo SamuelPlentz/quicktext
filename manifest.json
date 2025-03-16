@@ -36,10 +36,10 @@
       "32": "chrome/skin/icon.png"
     }
   }, 
-  "permissions" : ["storage"],
+  "permissions" : ["storage", "menus"],
   "background": {
     "scripts": [
-      "/chrome/content/scripts/preferences.js", 
+      "/chrome/content/preferences.js", 
       "background.js"
     ]
   },

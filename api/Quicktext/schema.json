@@ -1,0 +1,24 @@
+[
+  {
+    "namespace": "Quicktext",
+    "functions": [
+      {
+        "name": "manipulateComposeWindow",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "windowId",
+            "type": "integer"
+          }
+        ]
+      },
+      {
+        "name": "loadSettings",
+        "type": "function",
+        "async": true,
+        "parameters": []
+      }
+    ]
+  }
+]

@@ -44,12 +44,12 @@
     ]
   },
   "experiment_apis": {
-    "WindowListener": {
-      "schema": "api/WindowListener/schema.json",
+    "LegacyHelper": {
+      "schema": "api/LegacyHelper/schema.json",
       "parent": {
         "scopes": ["addon_parent"],
-        "paths": [["WindowListener"]],
-        "script": "api/WindowListener/implementation.js"
+        "paths": [["LegacyHelper"]],
+        "script": "api/LegacyHelper/implementation.js"
       }
     },
     "NotifyTools": {
@@ -67,6 +67,14 @@
         "scopes": ["addon_parent"],
         "paths": [["LegacyPrefs"]],
         "script": "api/LegacyPrefs/implementation.js"
+      }
+    },
+    "Quicktext": {
+      "schema": "api/Quicktext/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "paths": [["Quicktext"]],
+        "script": "api/Quicktext/implementation.js"
       }
     }
   }

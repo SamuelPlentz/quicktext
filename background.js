@@ -66,7 +66,7 @@
   // Load templates and settings.
   await browser.Quicktext.loadSettings();
 
-  // Add entry to tools menu
+  // Add entry to tools menu.
   browser.menus.create({
     contexts: ["tools_menu"],
     onclick: () => browser.LegacyHelper.openDialog("quicktextConfig", "chrome://quicktext/content/settings.xhtml"),

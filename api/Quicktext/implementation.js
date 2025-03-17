@@ -8,8 +8,16 @@
 
 // Using a closure to not leak anything but the API to the outside world.
 (function (exports) {
-
-  var { gQuicktext } = ChromeUtils.importESModule("chrome://quicktext/content/modules/wzQuicktext.sys.mjs");
+  
+  var { ExtensionParent } = ChromeUtils.importESModule(
+    "resource://gre/modules/ExtensionParent.sys.mjs"
+  );
+  var extension = ExtensionParent.GlobalManager.getExtension(
+    "{8845E3B3-E8FB-40E2-95E9-EC40294818C4}"
+  );
+  var { gQuicktext } = ChromeUtils.importESModule(
+    `chrome://quicktext/content/modules/wzQuicktext.sys.mjs?v=${extension.manifest.version}`
+  );
   
   // Helper function to inject a legacy XUL string into the DOM of Thunderbird.
   // All injected elements will get the data attribute "data-extension-injected"
@@ -184,12 +192,6 @@
     <menuitem id="quicktext-view" type="checkbox" label="__MSG_quicktext.label__" oncommand="quicktext.toogleToolbar();" />
   </menupopup>
 
-  <menupopup id="taskPopup">
-    <menuitem id="quicktext-settings" label="__MSG_quicktext.label__" oncommand="quicktext.openSettings();"
-      insertafter="tasksMenuAddressBook" class="menu-iconic quicktext-icon menuitem-iconic" />
-    <menuseparator insertafter="tasksMenuAddressBook" />
-  </menupopup>
-
   <toolbar id="quicktext-toolbar" insertbefore="messageEditor">
     <html:div id="quicktext-templates-toolbar" />
     <spacer flex="1" />
@@ -204,7 +206,7 @@
               <menuitem label="__MSG_quicktext.displayname.label__" oncommand="quicktext.insertVariable('TO=displayname');" />
               <menuitem label="__MSG_quicktext.nickname.label__" oncommand="quicktext.insertVariable('TO=nickname');" />
               <menuitem label="__MSG_quicktext.email.label__" oncommand="quicktext.insertVariable('TO=email');" />
-              <menuitem label="__MSG_quicktext.worknumber.label__" oncommand="quicktext.insertVariable('TO=workphone');" />
+              <menuitem label="__MSG_quicktext.workphone.label__" oncommand="quicktext.insertVariable('TO=workphone');" />
               <menuitem label="__MSG_quicktext.faxnumber.label__" oncommand="quicktext.insertVariable('TO=faxnumber');" />
               <menuitem label="__MSG_quicktext.cellularnumber.label__"
                 oncommand="quicktext.insertVariable('TO=cellularnumber');" />
@@ -223,7 +225,7 @@
               <menuitem label="__MSG_quicktext.displayname.label__" oncommand="quicktext.insertVariable('FROM=displayname');" />
               <menuitem label="__MSG_quicktext.nickname.label__" oncommand="quicktext.insertVariable('FROM=nickname');" />
               <menuitem label="__MSG_quicktext.email.label__" oncommand="quicktext.insertVariable('FROM=email');" />
-              <menuitem label="__MSG_quicktext.worknumber.label__" oncommand="quicktext.insertVariable('FROM=workphone');" />
+              <menuitem label="__MSG_quicktext.workphone.label__" oncommand="quicktext.insertVariable('FROM=workphone');" />
               <menuitem label="__MSG_quicktext.faxnumber.label__" oncommand="quicktext.insertVariable('FROM=faxnumber');" />
               <menuitem label="__MSG_quicktext.cellularnumber.label__"
                 oncommand="quicktext.insertVariable('FROM=cellularnumber');" />
@@ -293,7 +295,7 @@
           }
           if (window.quicktext) {
             window.quicktext.unload();
-            delete window.quicktext;
+            window.quicktext = null;
           }
         }
       }

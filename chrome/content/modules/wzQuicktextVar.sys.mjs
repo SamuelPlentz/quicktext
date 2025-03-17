@@ -1,6 +1,18 @@
-var { quicktextUtils } = ChromeUtils.importESModule("chrome://quicktext/content/modules/utils.sys.mjs");
-var { gQuicktext } = ChromeUtils.importESModule("chrome://quicktext/content/modules/wzQuicktext.sys.mjs");
-var { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
+var { ExtensionParent } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionParent.sys.mjs"
+);
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
+var extension = ExtensionParent.GlobalManager.getExtension(
+  "{8845E3B3-E8FB-40E2-95E9-EC40294818C4}"
+);
+var { quicktextUtils } = ChromeUtils.importESModule(
+  `chrome://quicktext/content/modules/utils.sys.mjs?v=${extension.manifest.version}`
+);
+var { gQuicktext } = ChromeUtils.importESModule(
+  `chrome://quicktext/content/modules/wzQuicktext.sys.mjs?v=${extension.manifest.version}`
+);
 
 const lazy = {}
 
@@ -527,7 +539,7 @@ export class wzQuicktextVar {
     }
 
     //if we reach this point, the user requested an non-existing script
-    this.mWindow.alert(gQuicktext.mStringBundle.formatStringFromName("scriptNotFound", [scriptName], 1))
+    this.mWindow.alert(gQuicktext.mStringBundle.formatStringFromName("scriptNotFound", [scriptName]))
     return "";
   }
 
@@ -583,18 +595,22 @@ export class wzQuicktextVar {
       var value = {};
       if (typeof aVariables[2] != 'undefined')
          value.value = aVariables[2].split(";");
-      if (promptService.select(this.mWindow, gQuicktext.mStringBundle.GetStringFromName("inputTitle"), gQuicktext.mStringBundle.formatStringFromName("inputText", [aVariables[0]], 1), value.value, checkValue))
+      if (promptService.select(
+        this.mWindow, gQuicktext.mStringBundle.GetStringFromName("inputTitle"),
+        gQuicktext.mStringBundle.formatStringFromName("inputText", [aVariables[0]]),
+        value.value,
+        checkValue)
+      ) {
         this.mData['INPUT'].data[aVariables[0]] = value.value[checkValue.value];
-      else
+      } else {
         this.mData['INPUT'].data[aVariables[0]] = "";
-    }
-    else
-    {
-      var checkValue = {};      
+      }
+    } else {
+      var checkValue = {};
       var value = {};
       if (typeof aVariables[2] != 'undefined')
         value.value = aVariables[2];
-      if (promptService.prompt(this.mWindow, gQuicktext.mStringBundle.GetStringFromName("inputTitle"), gQuicktext.mStringBundle.formatStringFromName("inputText", [aVariables[0]], 1), value, null, checkValue))
+      if (promptService.prompt(this.mWindow, gQuicktext.mStringBundle.GetStringFromName("inputTitle"), gQuicktext.mStringBundle.formatStringFromName("inputText", [aVariables[0]]), value, null, checkValue))
         this.mData['INPUT'].data[aVariables[0]] = value.value;
       else
         this.mData['INPUT'].data[aVariables[0]] = "";

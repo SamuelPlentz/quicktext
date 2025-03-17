@@ -1,11 +1,20 @@
-var { wzQuicktextGroup } = ChromeUtils.importESModule("chrome://quicktext/content/modules/wzQuicktextGroup.sys.mjs");
-var { wzQuicktextTemplate } = ChromeUtils.importESModule("chrome://quicktext/content/modules/wzQuicktextTemplate.sys.mjs");
-var { wzQuicktextScript } = ChromeUtils.importESModule("chrome://quicktext/content/modules/wzQuicktextScript.sys.mjs");
+var { ExtensionParent } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionParent.sys.mjs"
+);
+var extension = ExtensionParent.GlobalManager.getExtension(
+  "{8845E3B3-E8FB-40E2-95E9-EC40294818C4}"
+);
+var { wzQuicktextGroup } = ChromeUtils.importESModule(
+  `chrome://quicktext/content/modules/wzQuicktextGroup.sys.mjs?v=${extension.manifest.version}`
+);
+var { wzQuicktextTemplate } = ChromeUtils.importESModule(
+  `chrome://quicktext/content/modules/wzQuicktextTemplate.sys.mjs?v=${extension.manifest.version}`
+);
+var { wzQuicktextScript } = ChromeUtils.importESModule(
+  `chrome://quicktext/content/modules/wzQuicktextScript.sys.mjs?v=${extension.manifest.version}`
+);
 
 const kDebug        = true;
-const kSepChar1a    = String.fromCharCode(65533, 65533);
-const kSepChar1b    = String.fromCharCode(164, 164);
-const kSepChar2     = "||";
 const kIllegalChars = String.fromCharCode(1) +"-"+ String.fromCharCode(8) + String.fromCharCode(11) + String.fromCharCode(12) + String.fromCharCode(14) +"-"+ String.fromCharCode(31) + String.fromCharCode(127) +"-"+ String.fromCharCode(132) + String.fromCharCode(134) +"-"+ String.fromCharCode(159);
 const kFileShortcuts = ['ProfD', 'UsrDocs', 'Home', 'Desk', 'Pers'];
 const kHomepage     = "https://github.com/jobisoft/quicktext/wiki/";
@@ -31,8 +40,12 @@ export var gQuicktext = {
   mSelectionContent:     "",
   mSelectionContentHtml: "",
   mCurrentTemplate:      "",
-  mStringBundle: Services.strings.createBundle("chrome://quicktext/locale/quicktext.properties")	
-,
+  mExtension:            extension,
+  mStringBundle: {
+    formatStringFromName: (e, params) => extension.localeData.localizeMessage(e, params),
+    GetStringFromName: (e) => extension.localeData.localizeMessage(e),
+  },
+
   get viewToolbar() { return this.mViewToolbar; },
   set viewToolbar(aViewToolbar)
   {

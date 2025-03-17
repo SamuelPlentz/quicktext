@@ -1,20 +1,23 @@
-var { gQuicktext } = ChromeUtils.importESModule("chrome://quicktext/content/modules/wzQuicktext.sys.mjs");
-var { wzQuicktextVar } = ChromeUtils.importESModule("chrome://quicktext/content/modules/wzQuicktextVar.sys.mjs");
+var { ExtensionParent } = ChromeUtils.importESModule(
+  "resource://gre/modules/ExtensionParent.sys.mjs"
+);
+var { MailServices } = ChromeUtils.importESModule(
+  "resource:///modules/MailServices.sys.mjs"
+);
+var extension = ExtensionParent.GlobalManager.getExtension(
+  "{8845E3B3-E8FB-40E2-95E9-EC40294818C4}"
+);
+var { gQuicktext } = ChromeUtils.importESModule(
+  `chrome://quicktext/content/modules/wzQuicktext.sys.mjs?v=${extension.manifest.version}`
+);
+var { wzQuicktextVar } = ChromeUtils.importESModule(
+  `chrome://quicktext/content/modules/wzQuicktextVar.sys.mjs?v=${extension.manifest.version}`
+);
+var { quicktextUtils } = ChromeUtils.importESModule(
+  `chrome://quicktext/content/modules/utils.sys.mjs?v=${extension.manifest.version}`
+);
+
 var gQuicktextVar = new wzQuicktextVar();
-
-var { quicktextUtils } = ChromeUtils.importESModule("chrome://quicktext/content/modules/utils.sys.mjs");
-var { MailServices } = ChromeUtils.importESModule("resource:///modules/MailServices.sys.mjs");
-
-var quicktextStateListener = {
-  NotifyComposeBodyReady: function()
-  {
-  	quicktext.insertDefaultTemplate();
-  },
-
-  NotifyComposeFieldsReady: function() {},
-  ComposeProcessDone: function(aResult) {},
-  SaveInFolderDone: function(folderURI) {}
-}
 
 var quicktext = {
   mLoaded:                      false,
@@ -79,27 +82,7 @@ var quicktext = {
 
     window.removeEventListener("aftercustomization", function() { quicktext.updateGUI(); } , false);
   }
-,
 
-  /**
-   * This is called when the var gMsgCompose is init. We now take
-   * the extraArguments value and listen for state changes so
-   * we know when the editor is finished.
-   */
-  windowInit: function()
-  {
-  	gMsgCompose.RegisterStateListener(quicktextStateListener);
-  }
-,
-  /*
-   * This is called when the body of the mail is set up.
-   * So now it is time to insert the default template if
-   * there exists one.
-   */
-	insertDefaultTemplate: function()
-	{
-	  dump("insertDefaultTemplate\n");
-	}
 ,
   updateGUI: function()
   {
@@ -110,7 +93,10 @@ var quicktext = {
         let field = fields[i];
         let fieldtype = field.split("-")[0];
         if (document.getElementById(field)) {
-            document.getElementById(field).setAttribute("label", gQuicktext.mStringBundle.formatStringFromName(fieldtype, [quicktextUtils.dateTimeFormat(field, timeStamp)], 1));
+            document.getElementById(field).setAttribute(
+              "label", 
+              gQuicktext.mStringBundle.formatStringFromName(fieldtype, [quicktextUtils.dateTimeFormat(field, timeStamp)])
+            );
         }
     }
 

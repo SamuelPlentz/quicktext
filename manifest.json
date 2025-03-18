@@ -38,8 +38,8 @@
   }, 
   "permissions" : ["storage", "menus"],
   "background": {
+    "type": "module",
     "scripts": [
-      "/chrome/content/preferences.js", 
       "background.js"
     ]
   },

@@ -1,5 +1,7 @@
-(async () => {
+  import { Preferences } from "./modules/preferences.mjs";
+  
   // Define default prefs.
+  const preferences = new Preferences();
   let defaultPrefs = {
     "counter": 0,
     "templateFolder": "",
@@ -73,4 +75,3 @@
 
   browser.composeAction.onClicked.addListener(tab => { browser.LegacyHelper.openDialog("quicktextConfig", "chrome://quicktext/content/settings.xhtml"); });
   browser.browserAction.onClicked.addListener(tab => { browser.LegacyHelper.openDialog("quicktextConfig", "chrome://quicktext/content/settings.xhtml"); });
-})();

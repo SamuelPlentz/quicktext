@@ -27,14 +27,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-// Set the storage area of userPrefs either to "local" or "sync". Setting it to
-// "sync" is a hack to keep preferences stored even after the add-on has been
-// removed and installed again (storage.local is cleared upon add-on removal).
-// Even though Thunderbird does not actually have a sync backend, storage.sync
-// is not cleared on add-on removal to mimic syncing stored values.
-// Hint: Reloading/Updating an add-on does not clear storage.local.
-const userPrefStorageArea = "sync";
-
 var preferences = {
   
   _userPrefs : {},
@@ -63,20 +55,20 @@ var preferences = {
   // Set pref value by updating local pref obj and updating storage.
   setPref: function(aName, aValue) {
     this._userPrefs[aName] = aValue;
-    messenger.storage[userPrefStorageArea].set({ userPrefs : this._userPrefs });
+    messenger.storage.local.set({ userPrefs : this._userPrefs });
   },
 
   // Remove a preference (calls to getPref will return default value)
   clearPref: function(aName, aValue) {
     delete this._userPrefs[aName];
-    messenger.storage[userPrefStorageArea].set({ userPrefs : this._userPrefs });
+    messenger.storage.local.set({ userPrefs : this._userPrefs });
   },
   
   // Listener for storage changes.
   storageChanged: function (changes, area) {
     let changedItems = Object.keys(changes);
     for (let item of changedItems) {
-      if (area == userPrefStorageArea && item == "userPrefs") {
+      if (area == "local" && item == "userPrefs") {
         this._userPrefs = changes.userPrefs.newValue;
       }
       
@@ -93,8 +85,16 @@ var preferences = {
     this._userPrefs = {};
     this._defaultPrefs = {};
     
+    // Migrate options from sync to local storage, as sync storage can only hold
+    // 100 KB which will not be enough for templates.
+    const { userPrefs } = await browser.storage.sync.get({ userPrefs: null });
+    if (userPrefs) {
+      await browser.storage.local.set({ userPrefs });
+      await browser.storage.sync.set({ userPrefs: null });
+    }
+
     // Store user prefs into the local userPrefs obj.
-    this._userPrefs = (await messenger.storage[userPrefStorageArea].get("userPrefs")).userPrefs || {};
+    this._userPrefs = (await messenger.storage.local.get("userPrefs")).userPrefs || {};
        
     // If defaults are given, push them into storage.local
     if (defaults) {

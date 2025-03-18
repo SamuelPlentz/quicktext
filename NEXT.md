@@ -1,8 +1,12 @@
-[ ] load templates into storage (but do not delete from pref yet)
-[ ] make all relevant code parts use templates from storage
-[ ] make all relevant code parts create classes on their own (settings + composer)
-[ ] if storage changes, all consumers have to reload
-[ ] remove any write to disc code
-[ ] import should not use pick file, but webExt file open
-[ ] ...
-[ ] swap in composer manipulation via compose script
+[x] load content of template and script files from background via Experiment
+[x] parse templates and script files from background
+[x] swap in compose script code and make it use files loaded from background
+[ ] replace file picker
+[ ] replace most of utils.mjs and email-addresses.mjs with messengerUtilities API
+[ ] change composer overlay to use events to trigger actions
+
+[ ] make template manager use files loaded from background, parse them on its own
+    and remove as much legacy Quicktext code as possible
+[ ] find a solution for scripts
+[ ] move remaining Experiment composer overlay into seperate add-on
+[ ] replace XUL template manager with HTML template manager

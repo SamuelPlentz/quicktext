@@ -12,7 +12,7 @@
   "author": "John Bieling",
   "homepage_url": "https://github.com/jobisoft/quicktext",
   "default_locale": "en-US",
-  "description": "__MSG_extensionDescription__",  
+  "description": "__MSG_extensionDescription__",
   "icons": {
     "16": "chrome/skin/icon16.png",
     "24": "chrome/skin/icon24.png",
@@ -26,7 +26,7 @@
       "24": "chrome/skin/icon24.png",
       "32": "chrome/skin/icon.png"
     }
-  }, 
+  },
   "browser_action": {
     "default_title": "Quicktext",
     "default_label": "",
@@ -35,37 +35,65 @@
       "24": "chrome/skin/icon24.png",
       "32": "chrome/skin/icon.png"
     }
-  }, 
-  "permissions" : ["storage", "menus"],
+  },
+  "permissions": [
+    "storage",
+    "menus",
+    "compose",
+    "clipboardRead",
+    "accountsRead",
+    "addressBooks",
+    "messagesRead"
+  ],
   "background": {
     "type": "module",
     "scripts": [
-      "background.js"
+      "scripts/background.js"
     ]
   },
   "experiment_apis": {
     "LegacyHelper": {
       "schema": "api/LegacyHelper/schema.json",
       "parent": {
-        "scopes": ["addon_parent"],
-        "paths": [["LegacyHelper"]],
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          [
+            "LegacyHelper"
+          ]
+        ],
         "script": "api/LegacyHelper/implementation.js"
       }
     },
     "NotifyTools": {
       "schema": "api/NotifyTools/schema.json",
       "parent": {
-        "scopes": ["addon_parent"],
-        "paths": [["NotifyTools"]],
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          [
+            "NotifyTools"
+          ]
+        ],
         "script": "api/NotifyTools/implementation.js",
-        "events": ["startup"]
+        "events": [
+          "startup"
+        ]
       }
     },
     "Quicktext": {
       "schema": "api/Quicktext/schema.json",
       "parent": {
-        "scopes": ["addon_parent"],
-        "paths": [["Quicktext"]],
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          [
+            "Quicktext"
+          ]
+        ],
         "script": "api/Quicktext/implementation.js"
       }
     }

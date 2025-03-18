@@ -1,6 +1,37 @@
 import { QuicktextGroup } from "/modules/quicktextGroup.mjs";
 import { QuicktextScript } from "/modules/quicktextScript.mjs";
 import { QuicktextTemplate } from "/modules/quicktextTemplate.mjs";
+import { QuicktextParser } from "/modules/quicktextParser.mjs";
+
+let gTemplates = [];
+
+export function setTemplates(templates) {
+  gTemplates = templates;
+}
+
+// Helper
+
+export function openTemplateManager() {
+  return browser.LegacyHelper.openDialog("quicktextConfig", "chrome://quicktext/content/settings.xhtml");
+}
+
+export async function parseXmlData({templateFile, scriptFile}) {
+  const templates = await parseImport(templateFile, 0);
+  const scripts = await parseImport(scriptFile, 0);
+  return {templates, scripts};
+  
+  /*
+  const templates = await parseImport(templateFile, 0).then(({group,texts}) => {
+    // Map scripts to flat array with groupId
+    const rv = {};
+    rv.groups = group.map((e,i) => ({...e, id:i}));
+    rv.texts = texts.map((e,i) => e.map(t => ({...t, groupId:i}))).flat();
+    return rv;
+  });
+  const { scripts } = await parseImport(scriptFile, 0);
+  return {templates, scripts};
+  */
+}
 
 /**
  * 
@@ -8,7 +39,7 @@ import { QuicktextTemplate } from "/modules/quicktextTemplate.mjs";
  * @param {integer} aType 0 = normal, 1 = default import
  * @returns {obj} imports
  */
-export async function parseImport(aData, aType) {
+async function parseImport(aData, aType) {
   const parser = new DOMParser();
   const dom = parser.parseFromString(aData, "text/xml");
 
@@ -129,4 +160,30 @@ function getTagValue(aElem, aTag) {
   }
 
   return "";
+}
+
+// ---- INSERT
+
+export async function parseVariable(aTabId, aVar) {
+  let quicktextParser = new QuicktextParser(aTabId, gTemplates);
+  return quicktextParser.parse("[[" + aVar + "]]");
+}
+
+export async function insertVariable(aTabId, aVar, aForceAsText) {
+  // If aForceAsText is not set, but after parsing it is set, we should rerun
+  // with aForceAsText set from the beginning. 
+  let quicktextParser = new QuicktextParser(aTabId, gTemplates, aForceAsText);
+  let parsed = await quicktextParser.parse("[[" + aVar + "]]");
+  if (parsed) {
+    await quicktextParser.insertBody(parsed, {extraSpace: true});
+  }
+}
+
+export async function insertContentFromFile(aTabId, aType) {
+  let content = await browser.Quicktext.pickFile(aTabId, aType, 0, browser.i18n.getMessage("insertFile"));
+  if (!content) {
+    return;
+  }
+  let quicktextParser = new QuicktextParser(aTabId, gTemplates, aType == 0);
+  await quicktextParser.insertBody(content, {extraSpace: false});
 }

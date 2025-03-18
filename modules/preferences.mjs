@@ -4,6 +4,7 @@
  *
  * Version: 1.3
  * - Converted to ES6 module, exporting a class
+ * - only run init() once
  * 
  * Version: 1.2
  * - Bugfix: move to a different saving scheme, as storage.local.get() without
@@ -26,6 +27,7 @@ export class Preferences {
 
   #userPrefs = {}
   #defaultPrefs = {}
+  #initialized = false;
 
   // Get pref value from local pref obj.
   getPref(aName, aFallback = null) {
@@ -54,31 +56,18 @@ export class Preferences {
   }
 
   // Remove a preference (calls to getPref will return default value)
-  clearPref(aName, aValue) {
+  clearPref(aName) {
     delete this.#userPrefs[aName];
     messenger.storage.local.set({ userPrefs: this.#userPrefs });
-  }
-
-  // Listener for storage changes.
-  storageChanged(changes, area) {
-    let changedItems = Object.keys(changes);
-    for (let item of changedItems) {
-      if (area == "local" && item == "userPrefs") {
-        this.#userPrefs = changes.userPrefs.newValue;
-      }
-
-      if (area == "local" && item == "defaultPrefs") {
-        this.#defaultPrefs = changes.defaultPrefs.newValue;
-      }
-    }
   }
 
   // Initialize the local pref obj by loading userPrefs and defaultPrefs from
   // WebExtension storage. If a defaults obj is given, the defaults in storage
   // are updated/set.
   async init(defaults = null) {
-    this.#userPrefs = {};
-    this.#defaultPrefs = {};
+    if (this.#initialized) {
+      return;
+    }
 
     // Migrate options from sync to local storage, as sync storage can only hold
     // 100 KB which will not be enough for templates.
@@ -99,8 +88,17 @@ export class Preferences {
     this.#defaultPrefs = (await messenger.storage.local.get("defaultPrefs")).defaultPrefs || {};
 
     // Add storage change listener.
-    if (!(await messenger.storage.onChanged.hasListener(this.storageChanged))) {
-      await messenger.storage.onChanged.addListener(this.storageChanged);
-    }
+    await messenger.storage.onChanged.addListener((changes, area) => {
+      let changedItems = Object.keys(changes);
+      for (let item of changedItems) {
+        if (area == "local" && item == "userPrefs") {
+          this.#userPrefs = changes.userPrefs.newValue;
+        }
+  
+        if (area == "local" && item == "defaultPrefs") {
+          this.#defaultPrefs = changes.defaultPrefs.newValue;
+        }
+      }
+    });
   }
 }

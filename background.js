@@ -14,18 +14,21 @@
   };
   await preferences.init(defaultPrefs);
 
-  const legacyPrefBranch = "extensions.quicktext.";
-
-  // Allow to set defaultImport from user_prefs
-  let defaultImportOverride = await messenger.LegacyPrefs.getUserPref(`${legacyPrefBranch}defaultImportOverride`);
-  if (defaultImportOverride !== null) {
-    preferences.setPref("defaultImport", defaultImportOverride);
-  }
-
-  // Allow to override templateFolder from user_prefs
-  let templateFolderOverride = await messenger.LegacyPrefs.getUserPref(`${legacyPrefBranch}templateFolderOverride`);
-  if (templateFolderOverride !== null) {
-    preferences.setPref("templateFolder", templateFolderOverride);
+  // Define prefs, which can be overridden by system admins. Admins have to migrate
+  // these manually from legacy prefs to managed storage.
+  const managedPrefs = [
+    "defaultImport",
+    "templateFolder",
+  ];
+  for (let managedPref of managedPrefs) {
+    try {
+      let override = await browser.storage.managed.get({ [managedPref]: null });
+      if (override[managedPref] !== null) {
+        preferences.setPref(managedPref, override[managedPref]);
+      }
+    } catch {
+      // No managed storage available.
+    }
   }
 
   // NotifyTools needed for Experiment code trying to access local storage.
@@ -58,7 +61,7 @@
   // Manipulate all already open compose windows.
   let windows = await browser.windows.getAll({ windowTypes: ["messageCompose"] })
   for (let window of windows) {
-      await browser.Quicktext.manipulateComposeWindow(window.id);
+    await browser.Quicktext.manipulateComposeWindow(window.id);
   }
 
   // Manipulate any new compose window being opened.

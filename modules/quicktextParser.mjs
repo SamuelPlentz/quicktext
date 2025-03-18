@@ -1,4 +1,11 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 import * as utils from "/modules/utils.mjs";
+import * as preferences from "../modules/preferences.mjs";
 
 const allowedTags = ['ATT', 'CLIPBOARD', 'COUNTER', 'DATE', 'FILE', 'IMAGE', 'FROM', 'INPUT', 'ORGATT', 'ORGHEADER', 'SCRIPT', 'SUBJECT', 'TEXT', 'TIME', 'TO', 'URL', 'VERSION', 'SELECTION', 'HEADER'];
 const persistentTags = ['COUNTER', 'ORGATT', 'ORGHEADER', 'VERSION'];
@@ -637,9 +644,9 @@ export class QuicktextParser {
 
     this.mData['COUNTER'] = {};
     this.mData['COUNTER'].checked = true;
-    this.mData['COUNTER'].data = await browser.runtime.sendMessage({command:"getPref", pref:"counter"});
+    this.mData['COUNTER'].data = await preferences.getPref("counter");
     this.mData['COUNTER'].data++;
-    await browser.runtime.sendMessage({command:"setPref", pref:"counter", value: this.mData['COUNTER'].data})
+    await preferences.setPref("counter", this.mData['COUNTER'].data);
 
     return this.mData['COUNTER'].data;
   }

@@ -1,4 +1,10 @@
-import { Preferences } from "../modules/preferences.mjs";
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+import * as preferences from "../modules/preferences.mjs";
 import * as quicktext from "../modules/quicktext.mjs";
 import * as menus from "../modules/menus.mjs";
 
@@ -8,11 +14,7 @@ await browser.LegacyHelper.registerGlobalUrls([
   ["resource", "quicktext", "chrome/"],
 ]);
 
-// Legacy: Load templates and settings.
-await browser.Quicktext.loadSettings();
-
 // Define default prefs.
-const preferences = new Preferences();
 let defaultPrefs = {
   "counter": 0,
   "templateFolder": "",
@@ -47,7 +49,7 @@ for (let managedPref of managedPrefs) {
 // Read current prefs into an options object.
 let options = {}
 for (let name of Object.keys(defaultPrefs)) {
-  options[name] = preferences.getPref(name);
+  options[name] = await preferences.getPref(name);
 }
 
 // Fix invalid options:
@@ -77,7 +79,9 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
   }
 });
 
-messenger.runtime.onMessage.addListener(async (info, sender, sendResponse) => {
+// Listener for the compose script.
+messenger.runtime.onMessage.addListener((info, sender, sendResponse) => {
+  // All these functions return Promises.
   switch (info.command) {
     case "setPref":
       return preferences.setPref(info.pref, info.value);
@@ -90,8 +94,13 @@ messenger.runtime.onMessage.addListener(async (info, sender, sendResponse) => {
         sender.tab.id,
         `TEXT=${templates.group[info.group].mName}|${templates.texts[info.group][info.text].mName}`
       );
+    default:
+      return false;
   }
 });
+
+// Legacy: Load templates and settings.
+await browser.Quicktext.loadSettings();
 
 // Add entry to tools menu.
 browser.menus.create({

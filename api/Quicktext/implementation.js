@@ -8,7 +8,7 @@
 
 // Using a closure to not leak anything but the API to the outside world.
 (function (exports) {
-  
+
   var { ExtensionParent } = ChromeUtils.importESModule(
     "resource://gre/modules/ExtensionParent.sys.mjs"
   );
@@ -18,7 +18,7 @@
   var { gQuicktext } = ChromeUtils.importESModule(
     `chrome://quicktext/content/modules/wzQuicktext.sys.mjs?v=${extension.manifest.version}`
   );
-  
+
   // Helper function to inject a legacy XUL string into the DOM of Thunderbird.
   // All injected elements will get the data attribute "data-extension-injected"
   // set to the extension id, for easy removal.
@@ -272,7 +272,52 @@
             );
 
             window.quicktext.load();
-          }
+          },
+
+          async getQuicktextFilePaths(options) {
+            let rv = {};
+
+            // get profile directory
+            let profileDir = Components.classes["@mozilla.org/file/directory_service;1"]
+              .getService(Components.interfaces.nsIProperties)
+              .get("ProfD", Components.interfaces.nsIFile);
+            // check if an alternative path has been given for the config folder
+            if (options.TemplateFolder) {
+              profileDir = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsIFile);
+              profileDir.initWithPath(templateFolder);
+            }
+
+            let quicktextDir = profileDir;
+            quicktextDir.append("quicktext");
+            if (!quicktextDir.exists())
+              quicktextDir.create(Components.interfaces.nsIFile.DIRECTORY_TYPE, 0o755);
+
+            if (!quicktextDir.isDirectory()) {
+              // Must warn the user that the quicktext dir don't exists and couldn't be created
+            } else {
+              let templateFile = quicktextDir.clone();
+              templateFile.append("templates.xml");
+
+              // Checks if the template-file exists and import that, if it exists.
+              if (templateFile.exists()) {
+                rv.templateFilePath = templateFile.path;
+              }
+
+              // Checks if the script-file exists and import that, if it exists.
+              let scriptFile = quicktextDir.clone();
+              scriptFile.append("scripts.xml");
+              if (scriptFile.exists()) {
+                rv.scriptFilePath = scriptFile.path;
+              }
+            }
+            return rv;
+          },
+          async readBinaryFile(aFilePath) {
+            return IOUtils.read(aFilePath);
+          },
+          async readTextFile(aFilePath) {
+            return IOUtils.readUTF8(aFilePath);
+          },
         },
       };
     }

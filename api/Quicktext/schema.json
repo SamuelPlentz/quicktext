@@ -18,6 +18,39 @@
         "type": "function",
         "async": true,
         "parameters": []
+      },
+      {
+        "name": "getQuicktextFilePaths",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "options",
+            "type": "any"
+          }
+        ]
+      },
+      {
+        "name": "readBinaryFile",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "aFilePath",
+            "type": "string"
+          }
+        ]
+      },
+      {
+        "name": "readTextFile",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "aFilePath",
+            "type": "string"
+          }
+        ]
       }
     ]
   }

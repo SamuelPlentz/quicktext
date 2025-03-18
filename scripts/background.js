@@ -61,7 +61,7 @@ if (!["alt", "control", "meta"].includes(options.shortcutModifier)) {
 
 // Read template and scripts from the profile folder. The XML files will remain
 // the source of truth, as long as the XUL settings dialog is still writing them.
-// IN the future, they will be kept for backup purposes, but will be ignored if
+// In the future, they will be kept for backup purposes, but will be ignored if
 // they exist in the storage already.
 let { templateFilePath, scriptFilePath } = await browser.Quicktext.getQuicktextFilePaths(options);
 let templateFile = await browser.Quicktext.readTextFile(templateFilePath);

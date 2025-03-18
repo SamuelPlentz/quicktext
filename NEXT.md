@@ -4,6 +4,7 @@
 [ ] replace file picker
 [ ] replace most of utils.mjs and email-addresses.mjs with messengerUtilities API
 [ ] change composer overlay to use events to trigger actions
+[ ] create Menu class and Quicktext class, to eliminate template setter
 
 [ ] make template manager use files loaded from background, parse them on its own
     and remove as much legacy Quicktext code as possible

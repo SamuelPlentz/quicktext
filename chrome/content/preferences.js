@@ -99,15 +99,6 @@ var preferences = {
     // If defaults are given, push them into storage.local
     if (defaults) {
       await messenger.storage.local.set({ defaultPrefs : defaults });
-
-      // We need to migration from prefsV1 to prefsV2    
-      for(let prefName of Object.keys(defaults)) {
-        let prefV1Value = (await browser.storage[userPrefStorageArea].get("pref.value." + prefName))["pref.value." + prefName];
-        if (prefV1Value) {
-          await browser.storage[userPrefStorageArea].remove("pref.value." + prefName);
-          preferences.setPref(prefName, prefV1Value);
-        }
-      }
     }
     
     this._defaultPrefs = (await messenger.storage.local.get("defaultPrefs")).defaultPrefs || {};

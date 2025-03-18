@@ -1,4 +1,10 @@
 import { Preferences } from "./modules/preferences.mjs";
+import { parseImport } from "./modules/quicktext.mjs";
+
+await browser.LegacyHelper.registerGlobalUrls([
+  ["content", "quicktext", "chrome/content/"],
+  ["resource", "quicktext", "chrome/"],
+]);
 
 // Define default prefs.
 const preferences = new Preferences();
@@ -33,6 +39,22 @@ for (let managedPref of managedPrefs) {
   }
 }
 
+// Read current prefs into an options object.
+let options = {}
+for (let name of Object.keys(defaultPrefs)) {
+  options[name] = await preferences.getPref(name);
+}
+
+// Read template and scripts from the profile folder. They are kept for backup
+// purposes, but are ignored if they exist in the storage already.
+let { templateFilePath, scriptFilePath } = await browser.Quicktext.getQuicktextFilePaths(options);
+let templateFile = await browser.Quicktext.readTextFile(templateFilePath);
+let scriptFile = await browser.Quicktext.readTextFile(scriptFilePath);
+
+const templates = await parseImport(templateFile, 0);
+const scripts = await parseImport(scriptFile, 0);
+console.log({templates, scripts});
+
 // NotifyTools needed for Experiment code trying to access local storage.
 messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
   switch (info.command) {
@@ -45,10 +67,7 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
   }
 });
 
-await browser.LegacyHelper.registerGlobalUrls([
-  ["content", "quicktext", "chrome/content/"],
-  ["resource", "quicktext", "chrome/"],
-]);
+
 
 // Load templates and settings.
 await browser.Quicktext.loadSettings();

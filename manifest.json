@@ -61,14 +61,6 @@
         "events": ["startup"]
       }
     },
-    "LegacyPrefs": {
-      "schema": "api/LegacyPrefs/schema.json",
-      "parent": {
-        "scopes": ["addon_parent"],
-        "paths": [["LegacyPrefs"]],
-        "script": "api/LegacyPrefs/implementation.js"
-      }
-    },
     "Quicktext": {
       "schema": "api/Quicktext/schema.json",
       "parent": {

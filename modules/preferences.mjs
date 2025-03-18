@@ -50,15 +50,15 @@ export class Preferences {
   }
 
   // Set pref value by updating local pref obj and updating storage.
-  setPref(aName, aValue) {
+  async setPref(aName, aValue) {
     this.#userPrefs[aName] = aValue;
-    messenger.storage.local.set({ userPrefs: this.#userPrefs });
+    await messenger.storage.local.set({ userPrefs: this.#userPrefs });
   }
 
   // Remove a preference (calls to getPref will return default value)
-  clearPref(aName) {
+  async clearPref(aName) {
     delete this.#userPrefs[aName];
-    messenger.storage.local.set({ userPrefs: this.#userPrefs });
+    await messenger.storage.local.set({ userPrefs: this.#userPrefs });
   }
 
   // Initialize the local pref obj by loading userPrefs and defaultPrefs from
@@ -88,6 +88,8 @@ export class Preferences {
     this.#defaultPrefs = (await messenger.storage.local.get("defaultPrefs")).defaultPrefs || {};
 
     // Add storage change listener.
+    // Note: This is only needed to react on pref changes which are *not* performed
+    //       by preferences.mjs. Consider removing it.
     await messenger.storage.onChanged.addListener((changes, area) => {
       let changedItems = Object.keys(changes);
       for (let item of changedItems) {

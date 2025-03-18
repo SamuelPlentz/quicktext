@@ -32,7 +32,7 @@ for (let managedPref of managedPrefs) {
   try {
     let override = await browser.storage.managed.get({ [managedPref]: null });
     if (override[managedPref] !== null) {
-      preferences.setPref(managedPref, override[managedPref]);
+      await preferences.setPref(managedPref, override[managedPref]);
     }
   } catch {
     // No managed storage available.
@@ -42,7 +42,7 @@ for (let managedPref of managedPrefs) {
 // Read current prefs into an options object.
 let options = {}
 for (let name of Object.keys(defaultPrefs)) {
-  options[name] = await preferences.getPref(name);
+  options[name] = preferences.getPref(name);
 }
 
 // Read template and scripts from the profile folder. They are kept for backup
@@ -59,11 +59,9 @@ console.log({templates, scripts});
 messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
   switch (info.command) {
     case "setPref":
-      preferences.setPref(info.pref, info.value);
-      break;
+      return preferences.setPref(info.pref, info.value);
     case "getPref":
-      return await preferences.getPref(info.pref);
-      break;
+      return preferences.getPref(info.pref);
   }
 });
 

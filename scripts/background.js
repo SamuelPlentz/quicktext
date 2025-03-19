@@ -4,8 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import * as preferences from "../modules/preferences.mjs";
 import * as quicktext from "../modules/quicktext.mjs";
+import * as storage from "../modules/storage.mjs";
 import * as menus from "../modules/menus.mjs";
 
 // Legacy: Register global urls.
@@ -27,7 +27,7 @@ let defaultPrefs = {
   "shortcutTypeAdv": false,
   "collapseState": ""
 };
-await preferences.init(defaultPrefs);
+await storage.init(defaultPrefs);
 
 // Define prefs, which can be overridden by system admins. Admins have to migrate
 // these manually from legacy prefs to managed storage.
@@ -39,7 +39,7 @@ for (let managedPref of managedPrefs) {
   try {
     let override = await browser.storage.managed.get({ [managedPref]: null });
     if (override[managedPref] !== null) {
-      await preferences.setPref(managedPref, override[managedPref]);
+      await storage.setPref(managedPref, override[managedPref]);
     }
   } catch {
     // No managed storage available.
@@ -49,14 +49,14 @@ for (let managedPref of managedPrefs) {
 // Read current prefs into an options object.
 let options = {}
 for (let name of Object.keys(defaultPrefs)) {
-  options[name] = await preferences.getPref(name);
+  options[name] = await storage.getPref(name);
 }
 
 // Fix invalid options:
 // - reset the value of mShortcutModifier to "alt", if it has not a valid value - see issue #177
 if (!["alt", "control", "meta"].includes(options.shortcutModifier)) {
   options.shortcutModifier = "alt";
-  await preferences.setPref("shortcutModifier", options.shortcutModifier)
+  await storage.setPref("shortcutModifier", options.shortcutModifier)
 }
 
 // Read template and scripts from the profile folder. The XML files will remain
@@ -67,15 +67,16 @@ let { templateFilePath, scriptFilePath } = await browser.Quicktext.getQuicktextF
 let templateFile = await browser.Quicktext.readTextFile(templateFilePath);
 let scriptFile = await browser.Quicktext.readTextFile(scriptFilePath);
 const { templates, scripts } = await quicktext.parseXmlData({ templateFile, scriptFile });
-// TODO: add them to storage;
+// Store templates in local storage.
+await storage.setTemplates(templates);
 
 // NotifyTools needed for Experiment code trying to access local storage.
 messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
   switch (info.command) {
     case "setPref":
-      return preferences.setPref(info.pref, info.value);
+      return storage.setPref(info.pref, info.value);
     case "getPref":
-      return preferences.getPref(info.pref);
+      return storage.getPref(info.pref);
   }
 });
 
@@ -84,9 +85,9 @@ messenger.runtime.onMessage.addListener((info, sender, sendResponse) => {
   // All these functions return Promises.
   switch (info.command) {
     case "setPref":
-      return preferences.setPref(info.pref, info.value);
+      return storage.setPref(info.pref, info.value);
     case "getPref":
-      return preferences.getPref(info.pref);
+      return storage.getPref(info.pref);
     case "getKeywordsAndShortcuts":
       return quicktext.getKeywordsAndShortcuts();
     case "insertTemplate":

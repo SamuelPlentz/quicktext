@@ -5,7 +5,7 @@
  */
 
 import * as utils from "/modules/utils.mjs";
-import * as preferences from "../modules/preferences.mjs";
+import * as storage from "./storage.mjs";
 
 const allowedTags = ['ATT', 'CLIPBOARD', 'COUNTER', 'DATE', 'FILE', 'IMAGE', 'FROM', 'INPUT', 'ORGATT', 'ORGHEADER', 'SCRIPT', 'SUBJECT', 'TEXT', 'TIME', 'TO', 'URL', 'VERSION', 'SELECTION', 'HEADER'];
 const persistentTags = ['COUNTER', 'ORGATT', 'ORGHEADER', 'VERSION'];
@@ -644,9 +644,9 @@ export class QuicktextParser {
 
     this.mData['COUNTER'] = {};
     this.mData['COUNTER'].checked = true;
-    this.mData['COUNTER'].data = await preferences.getPref("counter");
+    this.mData['COUNTER'].data = await storage.getPref("counter");
     this.mData['COUNTER'].data++;
-    await preferences.setPref("counter", this.mData['COUNTER'].data);
+    await storage.setPref("counter", this.mData['COUNTER'].data);
 
     return this.mData['COUNTER'].data;
   }

@@ -62,7 +62,6 @@ export function removeBadHTML(aStr) {
 
 export function getTypeFromExtension(filename) {
     let ext = filename.substring(filename.lastIndexOf('.')).toLowerCase();
-    console.log(ext)
     // Extracted from https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types#Image_types
     switch (ext) {
         case ".apng":

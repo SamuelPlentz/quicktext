@@ -182,7 +182,6 @@ function shortcutKeyDown(e) {
         advShortcutModifierIsDown = true;
         if (isRealKey(e)) {
             advShortcutString += e.key;
-            //console.log(advShortcutString);
         }
     } else if (isRealKey(e) && shortcuts[e.key] && !e.repeat) {
         requestInsertTemplate(shortcuts[e.key]);

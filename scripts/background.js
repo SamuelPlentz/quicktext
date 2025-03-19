@@ -114,6 +114,13 @@ browser.menus.create({
   title: browser.i18n.getMessage("quicktext.label"),
 })
 
+// Add Quicktext composeBody context menu.
+await menus.buildComposeBodyMenu();
+
+// Add listeners to open template manager.
+browser.composeAction.onClicked.addListener(tab => { quicktext.openTemplateManager() });
+browser.browserAction.onClicked.addListener(tab => { quicktext.openTemplateManager() });
+
 // TODO: Move this into a module.
 async function prepareComposeTab(tab) {
   if (tab.type != "messageCompose") {
@@ -137,23 +144,15 @@ for (let composeTab of composeTabs) {
 // Load compose script into any new compose window being opened.
 messenger.tabs.onCreated.addListener(prepareComposeTab);
 
-
-// Legacy: Manipulate all already open compose windows.
+// Legacy: Inject toolbar into all already open compose windows.
 let windows = await browser.windows.getAll({ windowTypes: ["messageCompose"] })
 for (let window of windows) {
   await browser.Quicktext.injectLegacyToolbar(window.id);
 }
 
-// Legacy: Manipulate any new compose window being opened.
+// Legacy: Inject toolbar into any new compose window being opened.
 browser.windows.onCreated.addListener(async window => {
   if (window.type == "messageCompose") {
     await browser.Quicktext.injectLegacyToolbar(window.id);
   }
 });
-
-// Add Quicktext composeBody context menu.
-await menus.buildComposeBodyMenu();
-
-// Add listeners to open template manager.
-browser.composeAction.onClicked.addListener(tab => { quicktext.openTemplateManager() });
-browser.browserAction.onClicked.addListener(tab => { quicktext.openTemplateManager() });

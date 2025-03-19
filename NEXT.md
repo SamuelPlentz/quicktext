@@ -10,6 +10,7 @@
 [x] change composer toolbar Experiment to use notifytools to trigger actions
 [ ] implement toolbar reload on template change and time change
 [ ] move composer toolbar Experiment into a separate add-on
+[ ] replace compose action button by menu typed action button
 
 [ ] make template manager use files loaded from background, parse them on its own
     and remove as much legacy Quicktext code as possible

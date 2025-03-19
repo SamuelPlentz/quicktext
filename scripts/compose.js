@@ -203,7 +203,7 @@ async function shortcutKeyUp(e) {
 }
 
 async function getLatestPrefs() {
-    const storage = await import (browser.runtime.getURL("/modules/storage.mjs"));
+    const storage = await import(browser.runtime.getURL("/modules/storage.mjs"));
 
     keywordKey = await storage.getPref("keywordKey");
     shortcutTypeAdv = await storage.getPref("shortcutTypeAdv");
@@ -217,8 +217,8 @@ async function getLatestPrefs() {
 // -----------------------------------------------------------------------------
 
 async function setup() {
-    const storage = await import (browser.runtime.getURL("/modules/storage.mjs"));
-    
+    const storage = await import(browser.runtime.getURL("/modules/storage.mjs"));
+
     await getLatestPrefs();
 
     window.addEventListener("keydown", shortcutKeyDown, true);
@@ -227,7 +227,7 @@ async function setup() {
 
     new storage.StorageListener(
         {
-            watchedPrefs: ["keywordKey", "shortcutTypeAdv", "shortcutModifier" ],
+            watchedPrefs: ["keywordKey", "shortcutTypeAdv", "shortcutModifier"],
             listener: (changes) => {
                 getLatestPrefs();
             }

@@ -13,7 +13,7 @@ export class QuicktextHeader {
   clone() {
     return new QuicktextHeader({
       type: this.mType,
-      value: this.mValue,  
+      value: this.mValue,
     });
   }
 }

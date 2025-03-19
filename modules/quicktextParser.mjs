@@ -108,43 +108,44 @@ export class QuicktextParser {
 
     let scriptName = aVariables.shift();
 
-    // Looks through all scripts and tries to find the 
-    // one we look for
+    // Looks through all scripts and tries to find the one we look for.
     for (let i = 0; i < this.mTemplates.scripts.length; i++) {
-        let script = this.mTemplates.scripts[i];
-        if (script.mName == scriptName) {
-          let returnValue = "";
+      let script = this.mTemplates.scripts[i];
+      if (script.mName == scriptName) {
+        let returnValue = "";
 
-          let referenceLineNumber = 0
-          try {
-            let error = variableNotAvailable; // provoke an error to create a reference for the other linenumber
-          } catch (eReference) {
-            referenceLineNumber = eReference.lineNumber;
-          }
-
-          try {
-            let s = Components.utils.Sandbox(this.mWindow);
-            s.mQuicktext = this;
-            s.mVariables = aVariables;
-            s.mWindow = this.mWindow;
-            returnValue = await Components.utils.evalInSandbox("scriptObject = {}; scriptObject.mQuicktext = mQuicktext; scriptObject.mVariables = mVariables; scriptObject.mWindow = mWindow; scriptObject.run = async function() {\n" + script.mScript + "\n; return ''; }; scriptObject.run();", s);
-          } catch (e) {
-            if (this.mTabId) {
-              let lines = script.mScript.split("\n");
-
-              // Takes the linenumber where the error where and remove
-              // the line that it was run on so we get the line in the script
-              // calculate it by using a reference error linenumber and an offset
-              // offset: 10 lines between "variableNotAvailable" and "evalInSandbox"
-              let lineNumber = e.lineNumber - referenceLineNumber - 10;
-              await messenger.tabs.sendMessage(this.mTabId, {
-                alertLabel: `${browser.i18n.getMessage("scriptError")} ${script.mName}\n${e.name}: ${e.message}\n${browser.i18n.getMessage("scriptLine")} ${lineNumber}: ${lines[lineNumber - 1]}`,
-              });
-            }
-          }
-
-          return returnValue;
+        let referenceLineNumber = 0
+        try {
+          // Provoke an error to create a reference for the other linenumber.
+          let error = variableNotAvailable;
+        } catch (eReference) {
+          referenceLineNumber = eReference.lineNumber;
         }
+
+        try {
+          // Find a solution for this in the WebExtension world.
+          let s = Components.utils.Sandbox(this.mWindow);
+          s.mQuicktext = this;
+          s.mVariables = aVariables;
+          s.mWindow = this.mWindow;
+          returnValue = await Components.utils.evalInSandbox("scriptObject = {}; scriptObject.mQuicktext = mQuicktext; scriptObject.mVariables = mVariables; scriptObject.mWindow = mWindow; scriptObject.run = async function() {\n" + script.mScript + "\n; return ''; }; scriptObject.run();", s);
+        } catch (e) {
+          if (this.mTabId) {
+            let lines = script.mScript.split("\n");
+
+            // Takes the linenumber where the error where and remove
+            // the line that it was run on so we get the line in the script
+            // calculate it by using a reference error linenumber and an offset
+            // offset: 10 lines between "variableNotAvailable" and "evalInSandbox"
+            let lineNumber = e.lineNumber - referenceLineNumber - 10;
+            await messenger.tabs.sendMessage(this.mTabId, {
+              alertLabel: `${browser.i18n.getMessage("scriptError")} ${script.mName}\n${e.name}: ${e.message}\n${browser.i18n.getMessage("scriptLine")} ${lineNumber}: ${lines[lineNumber - 1]}`,
+            });
+          }
+        }
+
+        return returnValue;
+      }
 
       //if we reach this point, the user requested an non-existing script
       await messenger.tabs.sendMessage(this.mTabId, {

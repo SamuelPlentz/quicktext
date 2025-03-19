@@ -125,7 +125,7 @@ var quicktext = {
     // Add event listeners.
     let items = document.getElementsByClassName("customEventListenerForDynamicMenu");
     for (let i = 0; i < items.length; i++) {
-      items[i].addEventListener("command", function () { 
+      items[i].addEventListener("command", function () {
         quicktext.insertTemplate(this.getAttribute("i"), this.getAttribute("j"));
         //quicktext.insertTemplate(this.getAttribute("i"), this.getAttribute("j"), true, true);
       }, true);
@@ -148,10 +148,11 @@ var quicktext = {
     this.notifyTools.notifyBackground({
       command: "insertVariable",
       aVar,
-      windowId: this.windowId });
+      windowId: this.windowId
+    });
   },
   insertTemplate(group, text) {
-    this.notifyTools.notifyBackground({ 
+    this.notifyTools.notifyBackground({
       command: "insertTemplate",
       group,
       text,

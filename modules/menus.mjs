@@ -21,7 +21,7 @@ export async function buildComposeBodyMenu() {
 
     new storage.StorageListener(
         {
-            watchedPrefs: ["templates", "popup", "menuCollapse" ],
+            watchedPrefs: ["templates", "popup", "menuCollapse"],
             listener: async (changes) => {
                 // Throw away the menu.
                 for (let entry of composeContextEntries) {
@@ -94,7 +94,7 @@ async function getComposeBodyMenuData() {
             menuData.push(children[0]);
             continue;
         }
-        
+
         menuData.push({
             contexts,
             id: `group-${i}`,
@@ -232,10 +232,4 @@ async function updateDateTimeMenus() {
             })
         }
     }
-}
-
-async function insertCursorTest(info, tab) {
-    // TODO: Process insert commands.
-    let fragment = "Juhu [[CURSOR]] Haha";
-    quicktext.insertBody(tab, fragment, 0);
 }

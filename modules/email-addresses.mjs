@@ -264,10 +264,10 @@ export function parse5322(opts) {
     // quoted-pair     =   ("\" (VCHAR / WSP)) / obs-qp
     function quotedPair() {
         var qp = wrap('quoted-pair',
-        or(
-            and(literal('\\'), or(vchar, wsp)),
-            obsQP
-        )());
+            or(
+                and(literal('\\'), or(vchar, wsp)),
+                obsQP
+            )());
         if (qp === null) { return null; }
         // a quoted pair will be two characters, and the "\" character
         // should be semantically "invisible" (RFC 5322 3.2.1)
@@ -285,7 +285,7 @@ export function parse5322(opts) {
                 opt(and(
                     star(wsp),
                     invis(crlf)
-                   )),
+                )),
                 star(wsp, 1)
             )
         )());
@@ -363,7 +363,7 @@ export function parse5322(opts) {
                 ('A' <= tok && tok <= 'Z') ||
                 ('0' <= tok && tok <= '9') ||
                 (['!', '#', '$', '%', '&', '\'', '*', '+', '-', '/',
-                  '=', '?', '^', '_', '`', '{', '|', '}', '~'].indexOf(tok) >= 0);
+                    '=', '?', '^', '_', '`', '{', '|', '}', '~'].indexOf(tok) >= 0);
             if (opts.rfc6532) {
                 accept = accept || isUTF8NonAscii(tok);
             }
@@ -557,7 +557,7 @@ export function parse5322(opts) {
                 });
             },
             obsDtext
-            )()
+        )()
         );
     }
 
@@ -638,9 +638,9 @@ export function parse5322(opts) {
         return opts.strict ? null : wrap('obs-NO-WS-CTL', compareToken(function (tok) {
             var code = tok.charCodeAt(0);
             return ((1 <= code && code <= 8) ||
-                    (11 === code || 12 === code) ||
-                    (14 <= code && code <= 31) ||
-                    (127 === code));
+                (11 === code || 12 === code) ||
+                (14 <= code && code <= 31) ||
+                (127 === code));
         }));
     }
 
@@ -661,15 +661,15 @@ export function parse5322(opts) {
     // obs-phrase      =   word *(word / "." / CFWS)
     function obsPhrase() {
         return opts.strict
-          ? null
-          : wrap('obs-phrase', and(
-              word,
-              star(or(
-                  word,
-                  literal('.'),
-                  opts.atInDisplayName ? literal('@') : noop,
-                  opts.commaInDisplayName ? literal(',') : noop,
-                  colwsp(cfws)))
+            ? null
+            : wrap('obs-phrase', and(
+                word,
+                star(or(
+                    word,
+                    literal('.'),
+                    opts.atInDisplayName ? literal('@') : noop,
+                    opts.commaInDisplayName ? literal(',') : noop,
+                    colwsp(cfws)))
             )());
     }
 
@@ -853,7 +853,7 @@ export function parse5322(opts) {
 
         // An address is a 'group' (i.e. a list of mailboxes) or a 'mailbox'.
         groupsAndMailboxes = findAllNodesNoChildren(['group', 'mailbox'], ast);
-        for (i = 0; i <  groupsAndMailboxes.length; i += 1) {
+        for (i = 0; i < groupsAndMailboxes.length; i += 1) {
             groupOrMailbox = groupsAndMailboxes[i];
             if (groupOrMailbox.name === 'group') {
                 addresses.push(giveResultGroup(groupOrMailbox));

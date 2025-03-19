@@ -33,11 +33,11 @@ export async function parseXmlFilesIntoStorage() {
   await storage.setTemplates(templates);
 }
 
-async function parseXmlData({templateFile, scriptFile}) {
+async function parseXmlData({ templateFile, scriptFile }) {
   const templates = await parseImport(templateFile, 0);
   const scripts = await parseImport(scriptFile, 0);
-  return {templates, scripts};
-  
+  return { templates, scripts };
+
   /*
   const templates = await parseImport(templateFile, 0).then(({group,texts}) => {
     // Map scripts to flat array with groupId
@@ -76,7 +76,7 @@ async function parseImport(aData, aType) {
     case "2":
       const filetype = getTagValue(dom.documentElement, "filetype");
       switch (filetype) {
-        case "scripts": 
+        case "scripts":
           {
             const elems = dom.documentElement.getElementsByTagName("script");
             for (let i = 0; i < elems.length; i++) {
@@ -140,7 +140,7 @@ async function parseImport(aData, aType) {
       }
 
       break;
-    
+
     default:
       console.error("invalid data format", aData)
       return;
@@ -184,32 +184,32 @@ function getTagValue(aElem, aTag) {
 
 export async function parseVariable(aTabId, aVar) {
   let gTemplates = await storage.getTemplates();
-  
+
   let quicktextParser = new QuicktextParser(aTabId, gTemplates);
   return quicktextParser.parse("[[" + aVar + "]]");
 }
 
 export async function insertVariable(aTabId, aVar, aForceAsText) {
   let gTemplates = await storage.getTemplates();
-  
+
   // If aForceAsText is not set, but after parsing it is set, we should rerun
   // with aForceAsText set from the beginning. 
   let quicktextParser = new QuicktextParser(aTabId, gTemplates, aForceAsText);
   let parsed = await quicktextParser.parse("[[" + aVar + "]]");
   if (parsed) {
-    await quicktextParser.insertBody(parsed, {extraSpace: true});
+    await quicktextParser.insertBody(parsed, { extraSpace: true });
   }
 }
 
 export async function insertContentFromFile(aTabId, aType) {
   let gTemplates = await storage.getTemplates();
-  
+
   let content = await browser.Quicktext.pickFile(aTabId, aType, 0, browser.i18n.getMessage("insertFile"));
   if (!content) {
     return;
   }
   let quicktextParser = new QuicktextParser(aTabId, gTemplates, aType == 0);
-  await quicktextParser.insertBody(content, {extraSpace: false});
+  await quicktextParser.insertBody(content, { extraSpace: false });
 }
 
 // ---- TEMPLATE
@@ -234,5 +234,5 @@ export async function getKeywordsAndShortcuts() {
         keywords[keyword.toLowerCase()] = [i, j];
     }
   }
-  return {keywords, shortcuts};
+  return { keywords, shortcuts };
 }

@@ -193,3 +193,27 @@ export async function insertContentFromFile(aTabId, aType) {
   let quicktextParser = new QuicktextParser(aTabId, gTemplates, aType == 0);
   await quicktextParser.insertBody(content, {extraSpace: false});
 }
+
+// ---- TEMPLATE
+
+// This is defined async, so it can be used in an runtime.onMessage listener
+// without further logic to return a Promise.
+export async function getKeywordsAndShortcuts() {
+  let keywords = {};
+  let shortcuts = {};
+
+  for (let i = 0; i < gTemplates.group.length; i++) {
+    for (let j = 0; j < gTemplates.texts[i].length; j++) {
+      let text = gTemplates.texts[i][j];
+      let shortcut = text.shortcut;
+      if (shortcut != "" && typeof shortcuts[shortcut] == "undefined") {
+        shortcuts[shortcut] = [i, j];
+      }
+
+      let keyword = text.keyword;
+      if (keyword != "" && typeof keywords[keyword.toLowerCase()] == "undefined")
+        keywords[keyword.toLowerCase()] = [i, j];
+    }
+  }
+  return {keywords, shortcuts};
+}

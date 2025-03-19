@@ -7,9 +7,6 @@ var extension = ExtensionParent.GlobalManager.getExtension(
 var { gQuicktext } = ChromeUtils.importESModule(
   `chrome://quicktext/content/modules/wzQuicktext.sys.mjs?v=${extension.manifest.version}`
 );
-var { quicktextUtils } = ChromeUtils.importESModule(
-  `chrome://quicktext/content/modules/utils.sys.mjs?v=${extension.manifest.version}`
-);
 
 var quicktext = {
   mChangesMade:         false,
@@ -466,6 +463,16 @@ var quicktext = {
   updateGUI: function()
   {
 
+    const dateTimeFormat = (format, timeStamp) => {
+      let options = {};
+      options["date-short"] = { dateStyle: "short" }; 
+      options["date-long"] = { dateStyle: "long" }; 
+      options["date-monthname"] = { month: "long" }; 
+      options["time-noseconds"] = { timeStyle: "short" }; 
+      options["time-seconds"] = { timeStyle: "long" }; 
+      return new Services.intl.DateTimeFormat(undefined, options[format.toLowerCase()]).format(timeStamp)
+    }
+
     // Set the date/time in the variablemenu
     var timeStamp = new Date();
     let fields = ["date-short", "date-long", "date-monthname", "time-noseconds", "time-seconds"];
@@ -475,7 +482,7 @@ var quicktext = {
         if (document.getElementById(field)) {
             document.getElementById(field).setAttribute(
               "label",
-              gQuicktext.mStringBundle.formatStringFromName(fieldtype, [quicktextUtils.dateTimeFormat(field, timeStamp)])
+              gQuicktext.mStringBundle.formatStringFromName(fieldtype, [dateTimeFormat(field, timeStamp)])
             );
         }
     }
@@ -1440,7 +1447,7 @@ var quicktext = {
   {
     if (aTopic == "updatesettings")
     {
-      // this.updateGUI();
+      this.updateGUI();
     }
   }
 }

@@ -164,7 +164,7 @@
             Services.scriptloader.loadSubScript("resource://quicktext/api/Quicktext/composerToolbar.js", window, "UTF-8");
             window.quicktext.windowId = windowId;
 
-            injectCSS(context.extension, window, "resource://quicktext/chrome/skin/quicktext.css");
+            injectCSS(context.extension, window, "resource://quicktext/api/Quicktext/composerToolbar.css");
             injectElements(context.extension, window, `
   <toolbar id="quicktext-toolbar" insertbefore="messageEditor">
     <html:div id="quicktext-templates-toolbar" />

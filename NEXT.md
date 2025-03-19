@@ -13,7 +13,7 @@
 [x] replace compose action button by menu typed action button
 
 [ ] make template manager use files loaded from background, parse them on its own
-    and remove as much legacy Quicktext code as possible
+[x] remove as much legacy Quicktext code as possible 
 [ ] find a solution for scripts
 [ ] replace XUL template manager with HTML template manager
 

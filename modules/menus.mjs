@@ -8,8 +8,29 @@ import * as quicktext from "/modules/quicktext.mjs";
 import * as storage from "/modules/storage.mjs";
 import * as utils from "/modules/utils.mjs";
 
+let composeContextEntries = [];
+
 export async function buildComposeBodyMenu() {
     await processMenuData(await getComposeBodyMenuData());
+
+    // Update the menus before showing them.
+    messenger.menus.onShown.addListener(async () => {
+        await updateDateTimeMenus();
+        messenger.menus.refresh();
+    });
+
+    // Throw away the menu on template changes.
+    new storage.StorageListener(
+        {
+            watchedPrefs: ["templates" ],
+            listener: async (changes) => {
+                for (let entry of composeContextEntries) {
+                    await browser.menus.remove(entry);
+                }
+                await processMenuData(await getComposeBodyMenuData());
+            }
+        }
+    )
 }
 
 async function processMenuData(menuData, parentId) {
@@ -28,10 +49,11 @@ async function processMenuData(menuData, parentId) {
         if (entry.onclick) createData.onclick = entry.onclick;
         if (parentId) createData.parentId = parentId;
 
-        await messenger.menus.create(createData);
+        const id = await messenger.menus.create(createData);
         if (entry.id && entry.children) {
             await processMenuData(entry.children, createData.id);
         }
+        composeContextEntries.push(id);
     }
 }
 
@@ -186,7 +208,7 @@ async function getComposeBodyMenuData() {
     return menuData;
 }
 
-export async function updateDateTimeMenus() {
+async function updateDateTimeMenus() {
     let fields = ["date-short", "date-long", "date-monthname", "time-noseconds", "time-seconds"];
     let menus = ["variables.to.", "variables.from."];
     let now = Date.now();
@@ -198,9 +220,6 @@ export async function updateDateTimeMenus() {
             })
         }
     }
-}
-
-export async function updateTemplateMenus() {
 }
 
 async function insertCursorTest(info, tab) {

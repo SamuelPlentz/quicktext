@@ -23,11 +23,11 @@ export async function clearPref(aName) {
 }
 
 export async function setTemplates(templates) {
-  await browser.storage.local.set({ templates });
+  await browser.storage.local.set({ templates: JSON.stringify(templates) });
 }
 
 export async function getTemplates() {
-  return browser.storage.local.get({ templates: {} }).then(e => e.templates);
+  return browser.storage.local.get({ templates: {} }).then(e => JSON.parse(e.templates));
 }
 
 export async function init(defaults = null) {
@@ -68,7 +68,7 @@ export class StorageListener {
     if (area == "local") {
       const changedWatchedPrefs = {};
       for (let [key, value] of Object.entries(changes)) {
-        const watchedPref = this.#watchedPrefs.find(p => key == `${p}.value`);
+        const watchedPref = this.#watchedPrefs.find(p => key == `${p}.value` || key == p);
 
         if (watchedPref && value.oldValue != value.newValue) {
           changedWatchedPrefs[watchedPref] = value;

@@ -146,13 +146,6 @@ browser.windows.onCreated.addListener(async window => {
 // Add Quicktext composeBody context menu.
 await menus.buildComposeBodyMenu();
 
-// Update the menus before showing them.
-messenger.menus.onShown.addListener(async () => {
-  await menus.updateDateTimeMenus();
-  await menus.updateTemplateMenus();
-  messenger.menus.refresh();
-});
-
 // Add listeners to open template manager.
 browser.composeAction.onClicked.addListener(tab => { quicktext.openTemplateManager() });
 browser.browserAction.onClicked.addListener(tab => { quicktext.openTemplateManager() });

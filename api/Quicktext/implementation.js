@@ -171,7 +171,7 @@
     <spacer flex="1" />
     <hbox>
       <button type="menu" id="quicktext-variables" label="__MSG_quicktext.variables.label__" tabindex="-1">
-        <menupopup>
+        <menupopup id="quicktext-variables-popup">
           <menu label="__MSG_quicktext.to.label__">
             <menupopup>
               <menuitem label="__MSG_quicktext.firstname.label__" oncommand="quicktext.insertVariable('TO=firstname');" />
@@ -247,7 +247,12 @@
 
             await window.quicktext.load();
           },
-
+          async updateLegacyToolbar(windowId) {
+            let { window } = context.extension.windowManager.get(windowId);
+            if (window.quicktext) {
+              window.quicktext.update();
+            }
+          },
           async getQuicktextFilePaths(templateFolder) {
             let rv = {};
 

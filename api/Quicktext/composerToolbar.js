@@ -23,11 +23,16 @@ var quicktext = {
       "{8845E3B3-E8FB-40E2-95E9-EC40294818C4}"
     );
     await this.update();
+    document.getElementById("quicktext-variables-popup").addEventListener(
+      "popupshowing",
+      () => this.updateTimeMenus(),
+      true
+    );
   },
   unload() {
     console.log("not implemented : unload");
   },
-  async update() {
+  async updateTimeMenus() {
     // Set the date/time in the variable menu.
     var timeStamp = new Date();
     let fields = ["date-short", "date-long", "date-monthname", "time-noseconds", "time-seconds"];
@@ -41,6 +46,9 @@ var quicktext = {
         );
       }
     }
+  },
+  async update() {
+    this.updateTimeMenus();
 
     // Empty all shortcuts and keywords ?????
     this.mShortcuts = {};

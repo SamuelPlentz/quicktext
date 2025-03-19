@@ -222,14 +222,13 @@ async function getComposeBodyMenuData() {
 
 async function updateDateTimeMenus() {
     let fields = ["date-short", "date-long", "date-monthname", "time-noseconds", "time-seconds"];
-    let menus = ["variables.to.", "variables.from."];
+    let menus = ["variables.dateTime."];
     let now = Date.now();
 
     for (let menu of menus) {
         for (let field of fields) {
-            await messenger.menus.update(`${menu}${field}`, {
-                title: messenger.i18n.getMessage("date", utils.getDateTimeFormat(field, now))
-            })
+            const title = messenger.i18n.getMessage("date", utils.getDateTimeFormat(field, now));
+            await messenger.menus.update(`${menu}${field}`, { title })
         }
     }
 }

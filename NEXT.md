@@ -8,7 +8,7 @@
 
 [x] change composer toolbar Experiment to use templates from storage
 [x] change composer toolbar Experiment to use notifytools to trigger actions
-[ ] implement toolbar reload on template change and time change
+[x] implement toolbar reload on template change and time change
 [ ] move composer toolbar Experiment into a separate add-on
 [x] replace compose action button by menu typed action button
 

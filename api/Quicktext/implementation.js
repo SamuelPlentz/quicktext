@@ -153,6 +153,7 @@
     return window.document.documentElement.appendChild(element);
   };
 
+  let managerWindow = null;
   var Quicktext = class extends ExtensionCommon.ExtensionAPI {
     getAPI(context) {
       return {
@@ -291,6 +292,14 @@
             }
             return rv;
           },
+          openTemplateManager() {
+            let window = Services.wm.getMostRecentWindow("mail:3pane");
+            managerWindow = window.openDialog(
+              "chrome://quicktext/content/settings.xhtml",
+              "quicktextConfig",
+              "chrome,resizable,centerscreen"
+            );
+          },
           async readBinaryFile(aFilePath) {
             return IOUtils.read(aFilePath);
           },
@@ -322,6 +331,10 @@
             window.quicktext = null;
           }
         }
+      }
+      
+      if (managerWindow) {
+        managerWindow.close();
       }
     }
   };

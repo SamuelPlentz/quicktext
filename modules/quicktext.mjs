@@ -19,10 +19,6 @@ import { QuicktextParser } from "/modules/quicktextParser.mjs";
 
 // Helper
 
-export function openTemplateManager() {
-  return browser.LegacyHelper.openDialog("quicktextConfig", "chrome://quicktext/content/settings.xhtml");
-}
-
 export async function parseXmlFilesIntoStorage() {
   let templateFolder = await storage.getPref("templateFolder");
   let { templateFilePath, scriptFilePath } = await browser.Quicktext.getQuicktextFilePaths(templateFolder);

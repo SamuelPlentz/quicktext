@@ -30,7 +30,6 @@ var quicktext = {
     );
   },
   unload() {
-    console.log("not implemented : unload");
   },
   async updateTimeMenus() {
     // Set the date/time in the variable menu.

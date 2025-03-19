@@ -110,7 +110,7 @@ messenger.runtime.onMessage.addListener((info, sender, sendResponse) => {
 // Add entry to tools menu.
 browser.menus.create({
   contexts: ["tools_menu"],
-  onclick: () => quicktext.openTemplateManager(),
+  onclick: () => browser.Quicktext.openTemplateManager(),
   title: browser.i18n.getMessage("quicktext.label"),
 })
 
@@ -118,8 +118,8 @@ browser.menus.create({
 await menus.buildComposeBodyMenu();
 
 // Add listeners to open template manager.
-browser.composeAction.onClicked.addListener(tab => { quicktext.openTemplateManager() });
-browser.browserAction.onClicked.addListener(tab => { quicktext.openTemplateManager() });
+browser.composeAction.onClicked.addListener(tab => { browser.Quicktext.openTemplateManager() });
+browser.browserAction.onClicked.addListener(tab => { browser.Quicktext.openTemplateManager() });
 
 // TODO: Move this into a module.
 async function prepareComposeTab(tab) {

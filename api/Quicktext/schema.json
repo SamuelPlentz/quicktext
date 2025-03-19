@@ -36,6 +36,12 @@
         ]
       },
       {
+        "name": "openTemplateManager",
+        "type": "function",
+        "async": true,
+        "parameters": []
+      },
+      {
         "name": "readBinaryFile",
         "type": "function",
         "async": true,

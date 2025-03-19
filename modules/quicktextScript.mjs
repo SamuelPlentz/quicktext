@@ -1,8 +1,8 @@
 export class QuicktextScript {
   constructor(config) {
-    this.mName        = config.name || "";
-    this.mScript      = config.script || "";
-    this.mType        = config.type || 0;
+    this.mName = config.mName || config.name || "";
+    this.mScript = config.mScript || config.script || "";
+    this.mType = config.mType || config.type || 0;
   }
 
   get name() { return this.mName; }

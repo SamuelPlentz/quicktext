@@ -1,12 +1,12 @@
 export class QuicktextTemplate {
   constructor(config) {
-    this.mName = config.name || "";
-    this.mText = config.text || "";
-    this.mShortcut = config.shortcut || "";
-    this.mType = config.type || "";
-    this.mKeyword = config.keyword || "";
-    this.mSubject = config.subject || "";
-    this.mAttachments = config.attachments || "";
+    this.mName = config.mName || config.name || "";
+    this.mText = config.mText || config.text || "";
+    this.mShortcut = config.mShortcut || config.shortcut || "";
+    this.mType = config.mType || config.type || "";
+    this.mKeyword = config.mKeyword || config.keyword || "";
+    this.mSubject = config.mSubject || config.subject || "";
+    this.mAttachments = config.mAttachments || config.attachments || "";
     this.mHeaders = [];
   }
 

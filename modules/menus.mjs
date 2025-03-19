@@ -4,14 +4,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import * as utils from "/modules/utils.mjs";
 import * as quicktext from "/modules/quicktext.mjs";
+import * as storage from "/modules/storage.mjs";
+import * as utils from "/modules/utils.mjs";
 
-let gTemplates = [];
-
-export async function buildComposeBodyMenu(templates) {
-    gTemplates = templates;
-    quicktext.setTemplates(templates);
+export async function buildComposeBodyMenu() {
     await processMenuData(await getComposeBodyMenuData());
 }
 
@@ -53,7 +50,7 @@ async function getContactMenuData(type) {
 async function getComposeBodyMenuData() {
     let menuData = [];
     let contexts = ["compose_body", "compose_action_menu"]
-
+    let gTemplates = await storage.getTemplates();
     for (let i = 0; i < gTemplates.group.length; i++) {
         let children = [];
         for (let j = 0; j < gTemplates.texts[i].length; j++) {

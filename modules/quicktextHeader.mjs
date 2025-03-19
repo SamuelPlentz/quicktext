@@ -1,7 +1,7 @@
 export class QuicktextHeader {
   constructor(config) {
-    this.mType      = config.type || "";
-    this.mValue     = config.name || "";
+    this.mType = config.mType || config.type || "";
+    this.mValue = config.mValue || config.name || "";
   }
 
   get type() { return this.mType; }

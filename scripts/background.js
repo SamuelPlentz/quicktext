@@ -91,10 +91,10 @@ messenger.runtime.onMessage.addListener((info, sender, sendResponse) => {
     case "getKeywordsAndShortcuts":
       return quicktext.getKeywordsAndShortcuts();
     case "insertTemplate":
-      return quicktext.insertVariable(
+      return storage.getTemplates().then(t => quicktext.insertVariable(
         sender.tab.id,
-        `TEXT=${templates.group[info.group].mName}|${templates.texts[info.group][info.text].mName}`
-      );
+        `TEXT=${t.group[info.group].mName}|${t.texts[info.group][info.text].mName}`
+      ));
     default:
       return false;
   }
@@ -145,7 +145,7 @@ browser.windows.onCreated.addListener(async window => {
 });
 
 // Add Quicktext composeBody context menu.
-await menus.buildComposeBodyMenu(templates);
+await menus.buildComposeBodyMenu();
 
 // Update the menus before showing them.
 messenger.menus.onShown.addListener(async () => {

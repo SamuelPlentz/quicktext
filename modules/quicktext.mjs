@@ -4,16 +4,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+import * as storage from "/modules/storage.mjs";
+
+// These classes are used to create the internal m* properties, with defaults.
+// Once the template object (with multiple of these classes) are stored in local
+// storage, the class methods are stripped and only the m* properties remain.
+// Whenever WebExtension code needs the class methods, the class can be re-created.
+// Note: The template class has methods related to headers, which are not fully
+//       understood
 import { QuicktextGroup } from "/modules/quicktextGroup.mjs";
 import { QuicktextScript } from "/modules/quicktextScript.mjs";
 import { QuicktextTemplate } from "/modules/quicktextTemplate.mjs";
 import { QuicktextParser } from "/modules/quicktextParser.mjs";
-
-let gTemplates = [];
-
-export function setTemplates(templates) {
-  gTemplates = templates;
-}
 
 // Helper
 
@@ -171,11 +173,15 @@ function getTagValue(aElem, aTag) {
 // ---- INSERT
 
 export async function parseVariable(aTabId, aVar) {
+  let gTemplates = await storage.getTemplates();
+  
   let quicktextParser = new QuicktextParser(aTabId, gTemplates);
   return quicktextParser.parse("[[" + aVar + "]]");
 }
 
 export async function insertVariable(aTabId, aVar, aForceAsText) {
+  let gTemplates = await storage.getTemplates();
+  
   // If aForceAsText is not set, but after parsing it is set, we should rerun
   // with aForceAsText set from the beginning. 
   let quicktextParser = new QuicktextParser(aTabId, gTemplates, aForceAsText);
@@ -186,6 +192,8 @@ export async function insertVariable(aTabId, aVar, aForceAsText) {
 }
 
 export async function insertContentFromFile(aTabId, aType) {
+  let gTemplates = await storage.getTemplates();
+  
   let content = await browser.Quicktext.pickFile(aTabId, aType, 0, browser.i18n.getMessage("insertFile"));
   if (!content) {
     return;
@@ -199,18 +207,19 @@ export async function insertContentFromFile(aTabId, aType) {
 // This is defined async, so it can be used in an runtime.onMessage listener
 // without further logic to return a Promise.
 export async function getKeywordsAndShortcuts() {
+  let gTemplates = await storage.getTemplates();
   let keywords = {};
   let shortcuts = {};
 
   for (let i = 0; i < gTemplates.group.length; i++) {
     for (let j = 0; j < gTemplates.texts[i].length; j++) {
       let text = gTemplates.texts[i][j];
-      let shortcut = text.shortcut;
+      let shortcut = text.mShortcut;
       if (shortcut != "" && typeof shortcuts[shortcut] == "undefined") {
         shortcuts[shortcut] = [i, j];
       }
 
-      let keyword = text.keyword;
+      let keyword = text.mKeyword;
       if (keyword != "" && typeof keywords[keyword.toLowerCase()] == "undefined")
         keywords[keyword.toLowerCase()] = [i, j];
     }

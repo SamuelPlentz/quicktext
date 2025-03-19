@@ -5,7 +5,7 @@
  */
 
 import * as utils from "/modules/utils.mjs";
-import * as storage from "./storage.mjs";
+import * as storage from "/modules/storage.mjs";
 
 const allowedTags = ['ATT', 'CLIPBOARD', 'COUNTER', 'DATE', 'FILE', 'IMAGE', 'FROM', 'INPUT', 'ORGATT', 'ORGHEADER', 'SCRIPT', 'SUBJECT', 'TEXT', 'TIME', 'TO', 'URL', 'VERSION', 'SELECTION', 'HEADER'];
 const persistentTags = ['COUNTER', 'ORGATT', 'ORGHEADER', 'VERSION'];
@@ -112,7 +112,7 @@ export class QuicktextParser {
     // one we look for
     for (let i = 0; i < this.mTemplates.scripts.length; i++) {
         let script = this.mTemplates.scripts[i];
-        if (script.name == scriptName) {
+        if (script.mName == scriptName) {
           let returnValue = "";
 
           let referenceLineNumber = 0
@@ -127,10 +127,10 @@ export class QuicktextParser {
             s.mQuicktext = this;
             s.mVariables = aVariables;
             s.mWindow = this.mWindow;
-            returnValue = await Components.utils.evalInSandbox("scriptObject = {}; scriptObject.mQuicktext = mQuicktext; scriptObject.mVariables = mVariables; scriptObject.mWindow = mWindow; scriptObject.run = async function() {\n" + script.script + "\n; return ''; }; scriptObject.run();", s);
+            returnValue = await Components.utils.evalInSandbox("scriptObject = {}; scriptObject.mQuicktext = mQuicktext; scriptObject.mVariables = mVariables; scriptObject.mWindow = mWindow; scriptObject.run = async function() {\n" + script.mScript + "\n; return ''; }; scriptObject.run();", s);
           } catch (e) {
             if (this.mTabId) {
-              let lines = script.script.split("\n");
+              let lines = script.mScript.split("\n");
 
               // Takes the linenumber where the error where and remove
               // the line that it was run on so we get the line in the script
@@ -138,7 +138,7 @@ export class QuicktextParser {
               // offset: 10 lines between "variableNotAvailable" and "evalInSandbox"
               let lineNumber = e.lineNumber - referenceLineNumber - 10;
               await messenger.tabs.sendMessage(this.mTabId, {
-                alertLabel: `${browser.i18n.getMessage("scriptError")} ${script.name}\n${e.name}: ${e.message}\n${browser.i18n.getMessage("scriptLine")} ${lineNumber}: ${lines[lineNumber - 1]}`,
+                alertLabel: `${browser.i18n.getMessage("scriptError")} ${script.mName}\n${e.name}: ${e.message}\n${browser.i18n.getMessage("scriptLine")} ${lineNumber}: ${lines[lineNumber - 1]}`,
               });
             }
           }
@@ -343,7 +343,7 @@ export class QuicktextParser {
         for (let j = 0; j < this.mTemplates.texts[i].length; j++) {
           let text = this.mTemplates.texts[i][j];
           if (aVariables[1] == text.mName) {
-            let content = text.text;
+            let content = text.mText;
             // Force insertion mode to TEXT if the template requests it.
             // This will affect also the "parent" template, if the current
             // template is a nested template, because the entire parsed string

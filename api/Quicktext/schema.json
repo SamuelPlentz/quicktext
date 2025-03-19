@@ -3,7 +3,7 @@
     "namespace": "Quicktext",
     "functions": [
       {
-        "name": "manipulateComposeWindow",
+        "name": "injectLegacyToolbar",
         "type": "function",
         "async": true,
         "parameters": [
@@ -12,12 +12,6 @@
             "type": "integer"
           }
         ]
-      },
-      {
-        "name": "loadSettings",
-        "type": "function",
-        "async": true,
-        "parameters": []
       },
       {
         "name": "getQuicktextFilePaths",

@@ -53,21 +53,41 @@ for (let managedPref of managedPrefs) {
   }
 }
 
-// Read template and scripts from the profile folder. The XML files will remain
-// the source of truth, as long as the XUL settings dialog is still writing them.
-// In the future, they will be kept for backup purposes, but will be ignored if
-// they exist in the storage already.
+// Legacy: Read template and scripts from the profile folder. The XML files will
+//         remain the source of truth, as long as the XUL settings dialog is still
+//         writing them. In the future, they will be kept for backup purposes, but
+//         will be ignored if they exist in the storage already.
 await quicktext.parseXmlFilesIntoStorage();
 
-// NotifyTools needed for Experiment code trying to access local storage.
+// NotifyTools needed by Experiment code to access WebExtension code.
 messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
   switch (info.command) {
     case "setPref":
       return storage.setPref(info.pref, info.value);
     case "getPref":
       return storage.getPref(info.pref);
+    case "getTemplates":
+      return storage.getTemplates();
+
+    // Experiment XUL settings dialog requests.
     case "parseXmlFilesIntoStorage":
       return quicktext.parseXmlFilesIntoStorage();
+
+    // Experiment toolbar actions from the compose window.
+    case "insertVariable":
+      return messenger.tabs
+        .query({ windowId: info.windowId, type: "messageCompose" })
+        .then(tabs => quicktext.insertVariable(tabs[0].id, info.aVar));
+    case "insertTemplate":
+      return messenger.tabs
+        .query({ windowId: info.windowId, type: "messageCompose" })
+        .then(async tabs => {
+          let t = await storage.getTemplates();
+          return quicktext.insertVariable(
+            tabs[0].id,
+            `TEXT=${t.group[info.group].mName}|${t.texts[info.group][info.text].mName}`
+          )
+        });
   }
 });
 
@@ -87,9 +107,6 @@ messenger.runtime.onMessage.addListener((info, sender, sendResponse) => {
   }
 });
 
-// Legacy: Load templates and settings.
-await browser.Quicktext.loadSettings();
-
 // Add entry to tools menu.
 browser.menus.create({
   contexts: ["tools_menu"],
@@ -97,7 +114,7 @@ browser.menus.create({
   title: browser.i18n.getMessage("quicktext.label"),
 })
 
-// Move this somewhere else.
+// TODO: Move this into a module.
 async function prepareComposeTab(tab) {
   if (tab.type != "messageCompose") {
     return;
@@ -124,13 +141,13 @@ messenger.tabs.onCreated.addListener(prepareComposeTab);
 // Legacy: Manipulate all already open compose windows.
 let windows = await browser.windows.getAll({ windowTypes: ["messageCompose"] })
 for (let window of windows) {
-  await browser.Quicktext.manipulateComposeWindow(window.id);
+  await browser.Quicktext.injectLegacyToolbar(window.id);
 }
 
 // Legacy: Manipulate any new compose window being opened.
 browser.windows.onCreated.addListener(async window => {
   if (window.type == "messageCompose") {
-    await browser.Quicktext.manipulateComposeWindow(window.id);
+    await browser.Quicktext.injectLegacyToolbar(window.id);
   }
 });
 

@@ -8,17 +8,6 @@
 
 // Using a closure to not leak anything but the API to the outside world.
 (function (exports) {
-
-  var { ExtensionParent } = ChromeUtils.importESModule(
-    "resource://gre/modules/ExtensionParent.sys.mjs"
-  );
-  var extension = ExtensionParent.GlobalManager.getExtension(
-    "{8845E3B3-E8FB-40E2-95E9-EC40294818C4}"
-  );
-  var { gQuicktext } = ChromeUtils.importESModule(
-    `chrome://quicktext/content/modules/wzQuicktext.sys.mjs?v=${extension.manifest.version}`
-  );
-
   // Helper function to inject a legacy XUL string into the DOM of Thunderbird.
   // All injected elements will get the data attribute "data-extension-injected"
   // set to the extension id, for easy removal.
@@ -168,15 +157,12 @@
     getAPI(context) {
       return {
         Quicktext: {
-          async loadSettings() {
-            gQuicktext.loadSettings(false);
-          },
-
-          async manipulateComposeWindow(windowId) {
+          async injectLegacyToolbar(windowId) {
             // Get the native window belonging to the specified windowId.
             let { window } = context.extension.windowManager.get(windowId);
-            // Load an additional JavaScript file.
-            Services.scriptloader.loadSubScript("chrome://quicktext/content/quicktext.js", window, "UTF-8");
+            // Load an additional JavaScript file into the window scope.
+            Services.scriptloader.loadSubScript("chrome://quicktext/content/composerToolbar.js", window, "UTF-8");
+            window.quicktext.windowId = windowId;
 
             injectCSS(context.extension, window, "resource://quicktext/skin/quicktext.css");
             injectElements(context.extension, window, `
@@ -259,7 +245,7 @@
   </toolbar>`
             );
 
-            window.quicktext.load();
+            await window.quicktext.load();
           },
 
           async getQuicktextFilePaths(templateFolder) {

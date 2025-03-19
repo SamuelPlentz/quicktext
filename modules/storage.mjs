@@ -59,3 +59,31 @@ export async function init(defaults = null) {
     }
   }
 }
+
+export class StorageListener {
+  #watchedPrefs = [];
+  #listener = null;
+
+  #internalListener = (changes, area) => {
+    if (area == "local") {
+      const changedWatchedPrefs = {};
+      for (let [key, value] of Object.entries(changes)) {
+        const watchedPref = this.#watchedPrefs.find(p => key == `${p}.value`);
+
+        if (watchedPref && value.oldValue != value.newValue) {
+          changedWatchedPrefs[watchedPref] = value;
+        }
+      }
+
+      if (Object.keys(changedWatchedPrefs).length > 0) {
+        this.#listener(changedWatchedPrefs);
+      }
+    }
+  }
+
+  constructor(options = {}) {
+    this.#watchedPrefs = options.watchedPrefs || [];
+    this.#listener = options.listener;
+    browser.storage.onChanged.addListener(this.#internalListener);
+  }
+}

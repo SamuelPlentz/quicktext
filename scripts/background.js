@@ -84,10 +84,6 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
 messenger.runtime.onMessage.addListener((info, sender, sendResponse) => {
   // All these functions return Promises.
   switch (info.command) {
-    case "setPref":
-      return storage.setPref(info.pref, info.value);
-    case "getPref":
-      return storage.getPref(info.pref);
     case "getKeywordsAndShortcuts":
       return quicktext.getKeywordsAndShortcuts();
     case "insertTemplate":

@@ -4,35 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-// This should be part of storage.mjs, but I am not able to load modules here yet.
-class StorageListener {
-    #watchPrefs = [];
-    #listener = null;
-
-    #internalListener = (changes, area) => {
-        if (area == "local") {
-            const changedWatchedPrefs = {};
-            for (let [key, value] of Object.entries(changes)) {
-                const watchedPref = this.#watchPrefs.find(p => key == `${p}.value`);
-
-                if (watchedPref && value.oldValue != value.newValue) {
-                    changedWatchedPrefs[watchedPref] = value;
-                }
-            }
-
-            if (Object.keys(changedWatchedPrefs).length > 0) {
-                this.#listener(changedWatchedPrefs);
-            }
-        }
-    }
-
-    constructor(options = {}) {
-        this.#watchPrefs = options.watchPrefs || [];
-        this.#listener = options.listener;
-        browser.storage.onChanged.addListener(this.#internalListener)
-    }
-}
-
 const alternatives = {
     "Enter": ["NumpadEnter"]
 }
@@ -232,9 +203,11 @@ async function shortcutKeyUp(e) {
 }
 
 async function getLatestPrefs() {
-    keywordKey = await messenger.runtime.sendMessage({ command: "getPref", pref: "keywordKey" });
-    shortcutTypeAdv = await messenger.runtime.sendMessage({ command: "getPref", pref: "shortcutTypeAdv" });
-    shortcutModifier = await messenger.runtime.sendMessage({ command: "getPref", pref: "shortcutModifier" });
+    const storage = await import (browser.runtime.getURL("/modules/storage.mjs"));
+
+    keywordKey = await storage.getPref("keywordKey");
+    shortcutTypeAdv = await storage.getPref("shortcutTypeAdv");
+    shortcutModifier = await storage.getPref("shortcutModifier");
 
     let rv = await messenger.runtime.sendMessage({ command: "getKeywordsAndShortcuts" });
     keywords = rv.keywords;
@@ -244,17 +217,18 @@ async function getLatestPrefs() {
 // -----------------------------------------------------------------------------
 
 async function setup() {
+    const storage = await import (browser.runtime.getURL("/modules/storage.mjs"));
+    
     await getLatestPrefs();
 
     window.addEventListener("keydown", shortcutKeyDown, true);
     window.addEventListener("keyup", shortcutKeyUp, true);
     window.addEventListener("keydown", keywordListener, false);
 
-    new StorageListener(
+    new storage.StorageListener(
         {
-            watchPrefs: ["keywordKey", "shortcutTypeAdv", "shortcutModifier" ],
+            watchedPrefs: ["keywordKey", "shortcutTypeAdv", "shortcutModifier" ],
             listener: (changes) => {
-                console.log(changes);
                 getLatestPrefs();
             }
         }

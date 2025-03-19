@@ -76,7 +76,7 @@ async function getContactMenuData(type) {
 
 async function getComposeBodyMenuData() {
     let menuData = [];
-    let contexts = ["compose_body", "compose_action_menu"]
+    let contexts = ["compose_body", "compose_action_menu"];
     let gTemplates = await storage.getTemplates();
     for (let i = 0; i < gTemplates.group.length; i++) {
         let children = [];

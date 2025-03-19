@@ -20,6 +20,7 @@
   },
   "compose_action": {
     "default_title": "Quicktext",
+    "type": "menu",
     "default_label": "",
     "default_icon": {
       "16": "chrome/skin/icon16.png",

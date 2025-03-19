@@ -161,10 +161,10 @@
             // Get the native window belonging to the specified windowId.
             let { window } = context.extension.windowManager.get(windowId);
             // Load an additional JavaScript file into the window scope.
-            Services.scriptloader.loadSubScript("chrome://quicktext/content/composerToolbar.js", window, "UTF-8");
+            Services.scriptloader.loadSubScript("resource://quicktext/api/Quicktext/composerToolbar.js", window, "UTF-8");
             window.quicktext.windowId = windowId;
 
-            injectCSS(context.extension, window, "resource://quicktext/skin/quicktext.css");
+            injectCSS(context.extension, window, "resource://quicktext/chrome/skin/quicktext.css");
             injectElements(context.extension, window, `
   <toolbar id="quicktext-toolbar" insertbefore="messageEditor">
     <html:div id="quicktext-templates-toolbar" />

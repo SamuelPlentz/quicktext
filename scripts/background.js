@@ -11,7 +11,7 @@ import * as menus from "../modules/menus.mjs";
 // Legacy: Register global urls.
 await browser.LegacyHelper.registerGlobalUrls([
   ["content", "quicktext", "chrome/content/"],
-  ["resource", "quicktext", "chrome/"],
+  ["resource", "quicktext", "."],
 ]);
 
 // Define default prefs.

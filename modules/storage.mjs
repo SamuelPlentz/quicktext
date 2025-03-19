@@ -42,7 +42,7 @@ export async function init(defaults = null) {
   // Migrate from userPrefs/defaultPrefs objects to *.value and *.default
   const { userPrefs } = await browser.storage.local.get({ userPrefs: null });
   if (userPrefs) {
-    for (let [key,value] of Object.entries(userPrefs)) {
+    for (let [key, value] of Object.entries(userPrefs)) {
       await browser.storage.local.set({ [`${key}.value`]: value });
     }
     await browser.storage.local.remove("userPrefs");
@@ -54,7 +54,7 @@ export async function init(defaults = null) {
 
   // If defaults are given, push them into storage.local
   if (defaults) {
-    for (let [key,value] of Object.entries(defaults)) {
+    for (let [key, value] of Object.entries(defaults)) {
       await browser.storage.local.set({ [`${key}.default`]: value });
     }
   }

@@ -110,14 +110,7 @@ browser.menus.create({
   title: browser.i18n.getMessage("quicktext.label"),
 })
 
-// Load compose script into all open compose windows.
-messenger.tabs.onCreated.addListener(prepareComposeTab);
-let composeTabs = await messenger.tabs.query({ type: "messageCompose" });
-for (let composeTab of composeTabs) {
-  await prepareComposeTab(composeTab);
-}
-
-// Load compose script into any new compose window being opened.
+// Move this somewhere else.
 async function prepareComposeTab(tab) {
   if (tab.type != "messageCompose") {
     return;
@@ -130,6 +123,16 @@ async function prepareComposeTab(tab) {
     file: "/scripts/compose.js"
   });
 }
+
+// Load compose script into all open compose windows.
+let composeTabs = await messenger.tabs.query({ type: "messageCompose" });
+for (let composeTab of composeTabs) {
+  await prepareComposeTab(composeTab);
+}
+
+// Load compose script into any new compose window being opened.
+messenger.tabs.onCreated.addListener(prepareComposeTab);
+
 
 // Legacy: Manipulate all already open compose windows.
 let windows = await browser.windows.getAll({ windowTypes: ["messageCompose"] })

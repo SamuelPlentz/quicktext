@@ -21,7 +21,7 @@ let defaultPrefs = {
   "defaultImport": "",
   "menuCollapse": true,
   "toolbar": true,
-  "popup": false,
+  "popup": true,
   "keywordKey": "Tab",
   "shortcutModifier": "alt",
   "shortcutTypeAdv": false,

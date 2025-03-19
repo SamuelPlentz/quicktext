@@ -19,15 +19,20 @@ export async function buildComposeBodyMenu() {
         messenger.menus.refresh();
     });
 
-    // Throw away the menu on template changes.
     new storage.StorageListener(
         {
-            watchedPrefs: ["templates" ],
+            watchedPrefs: ["templates", "popup" ],
             listener: async (changes) => {
+                // Throw away the menu.
                 for (let entry of composeContextEntries) {
                     await browser.menus.remove(entry);
                 }
-                await processMenuData(await getComposeBodyMenuData());
+                composeContextEntries = [];
+
+                const popup = await storage.getPref("popup");
+                if (popup) {
+                    await processMenuData(await getComposeBodyMenuData());
+                }
             }
         }
     )

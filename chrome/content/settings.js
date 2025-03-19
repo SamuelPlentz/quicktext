@@ -84,7 +84,7 @@ var quicktext = {
     document.getElementById('text-keyword').removeEventListener("keypress", function(e) { quicktext.noSpaceForKeyword(e); }, false);
   }
 ,
-  close: function(aClose)
+  close: async function(aClose)
   {
     this.saveText();
     this.saveScript();
@@ -109,7 +109,7 @@ var quicktext = {
             return false;
           // Save
           case 0:
-            this.save();
+            await this.save();
             break;
           // Quit
           case 2:
@@ -124,7 +124,7 @@ var quicktext = {
     return true;
   }
 ,
-  save: function()
+  save: async function()
   {
     this.saveText();
     this.saveScript();
@@ -142,7 +142,7 @@ var quicktext = {
     if (document.getElementById("checkbox-collapseGroup"))
       gQuicktext.collapseGroup = document.getElementById("checkbox-collapseGroup").checked;
 
-    gQuicktext.saveSettings();
+    await gQuicktext.saveSettings();
 
     this.mChangesMade = false;
     this.mTextChangesMade = [];

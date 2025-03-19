@@ -38,23 +38,6 @@ var quicktext = {
         this.updateGUI();
 
       gQuicktextVar.init(window);
-
-      // Add an eventlistener for keypress in the window
-      window.addEventListener("keypress", function(e) { quicktext.windowKeyPress(e); }, true);
-      window.addEventListener("keydown", function(e) { quicktext.windowKeyDown(e); }, true);
-      window.addEventListener("keyup", function(e) { quicktext.windowKeyUp(e); }, true);
-
-      // Add an eventlistener for keypress in the editor
-      var contentFrame = GetCurrentEditorElement();
-      contentFrame.addEventListener("keypress", function(e) { quicktext.editorKeyPress(e); }, false);
-
-      // Add an eventlistener for the popup-menu.
-      var menu = document.getElementById("msgComposeContext");
-      menu.addEventListener("popupshowing", function(e) { quicktext.popupshowing(e); }, false);
-
-      // Need to update GUI when the Quicktext-button is added to the toolbar (updating on ANY change to the toolbar is much more simple, and it does not hurt) 
-      window.addEventListener("aftercustomization", function() { quicktext.updateGUI(); } , false);
-
     }
   }
 ,
@@ -67,20 +50,6 @@ var quicktext = {
   {
     // Remove the observer
     gQuicktext.removeObserver(this);
-
-    window.removeEventListener("keypress", function(e) { quicktext.windowKeyPress(e); }, true);
-    window.removeEventListener("keydown", function(e) { quicktext.windowKeyDown(e); }, true);
-    window.removeEventListener("keyup", function(e) { quicktext.windowKeyUp(e); }, true);
-
-    // Remove the eventlistener from the editor
-    var contentFrame = GetCurrentEditorElement();
-    contentFrame.removeEventListener("keypress", function(e) { quicktext.editorKeyPress(e); }, false);
-
-    // Remove the eventlistener for the popup-menu.
-    var menu = document.getElementById("msgComposeContext");
-    menu.removeEventListener("popupshowing", function(e) { quicktext.popupshowing(e); }, false);
-
-    window.removeEventListener("aftercustomization", function() { quicktext.updateGUI(); } , false);
   }
 
 ,
@@ -247,13 +216,6 @@ var quicktext = {
     this.visibleToolbar();
   }
 ,
-  popupshowing: function(aEvent)
-  {
-    var hidden = !gQuicktext.viewPopup;
-    document.getElementById("quicktext-popup").hidden = hidden;
-    document.getElementById("quicktext-popupsep").hidden = hidden;
-  }
-,
   openSettings: function()
   {
     var settingsHandle = window.open("chrome://quicktext/content/settings.xhtml", "quicktextConfig", "chrome,resizable,centerscreen");
@@ -270,12 +232,10 @@ var quicktext = {
     // Set the view of the toolbar to what it should be
     if (gQuicktext.viewToolbar)
     {
-      document.getElementById("quicktext-view").setAttribute("checked", true);
       document.getElementById("quicktext-toolbar").removeAttribute("collapsed");
     }
     else
     {
-      document.getElementById("quicktext-view").removeAttribute("checked");
       document.getElementById("quicktext-toolbar").setAttribute("collapsed", true);
     }    
   }

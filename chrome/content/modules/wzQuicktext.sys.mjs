@@ -239,7 +239,7 @@ export var gQuicktext = {
     return true;
   }
 ,
-  saveSettings: function()
+  saveSettings: async function()
   {
     this.endEditing();
 
@@ -254,6 +254,17 @@ export var gQuicktext = {
     this.exportScriptsToFile(quicktextFile);
 
     this.startEditing();
+
+    // Set prefs
+
+    await this.notifyTools.notifyBackground({command:"setPref", pref: "toolbar", value: this.mViewToolbar});
+    await this.notifyTools.notifyBackground({command:"setPref", pref: "menuCollapse", value: this.mCollapseGroup});
+    await this.notifyTools.notifyBackground({command:"setPref", pref: "keywordKey", value: this.mKeywordKey});
+    await this.notifyTools.notifyBackground({command:"setPref", pref: "popup", value: this.mViewPopup});
+    await this.notifyTools.notifyBackground({command:"setPref", pref: "shortcutTypeAdv", value: this.mShortcutTypeAdv});
+    await this.notifyTools.notifyBackground({command:"setPref", pref: "shortcutModifier", value: this.mShortcutModifier});
+    await this.notifyTools.notifyBackground({command:"setPref", pref: "collapseState", value: this.mCollapseState});
+    await this.notifyTools.notifyBackground({command:"setPref", pref: "defaultImport", value: this.mDefaultImport});
 
     this.notifyObservers("updatesettings", "");
   }

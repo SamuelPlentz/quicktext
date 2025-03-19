@@ -180,18 +180,6 @@
 
             injectCSS(context.extension, window, "resource://quicktext/skin/quicktext.css");
             injectElements(context.extension, window, `
-  <popup id="msgComposeContext">
-    <menuseparator id="quicktext-popupsep" hidden="true" insertafter="spellCheckSuggestionsSeparator" />
-    <menu id="quicktext-popup" label="__MSG_quicktext.label__" hidden="true" insertafter="spellCheckSuggestionsSeparator"
-      class="menu-iconic quicktext-icon menuitem-iconic">
-      <menupopup id="quicktext-popup-menupopup" />
-    </menu>
-  </popup>
-
-  <menupopup id="menu_View_Popup">
-    <menuitem id="quicktext-view" type="checkbox" label="__MSG_quicktext.label__" oncommand="quicktext.toogleToolbar();" />
-  </menupopup>
-
   <toolbar id="quicktext-toolbar" insertbefore="messageEditor">
     <html:div id="quicktext-templates-toolbar" />
     <spacer flex="1" />

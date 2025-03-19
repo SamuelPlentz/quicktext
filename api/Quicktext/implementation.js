@@ -262,7 +262,7 @@
             window.quicktext.load();
           },
 
-          async getQuicktextFilePaths(options) {
+          async getQuicktextFilePaths(templateFolder) {
             let rv = {};
 
             // get profile directory
@@ -270,7 +270,7 @@
               .getService(Components.interfaces.nsIProperties)
               .get("ProfD", Components.interfaces.nsIFile);
             // check if an alternative path has been given for the config folder
-            if (options.TemplateFolder) {
+            if (templateFolder) {
               profileDir = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsIFile);
               profileDir.initWithPath(templateFolder);
             }

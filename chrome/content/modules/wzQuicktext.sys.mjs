@@ -266,6 +266,9 @@ export var gQuicktext = {
     await this.notifyTools.notifyBackground({command:"setPref", pref: "collapseState", value: this.mCollapseState});
     await this.notifyTools.notifyBackground({command:"setPref", pref: "defaultImport", value: this.mDefaultImport});
 
+    // Trigger a reparse of the saved files.
+    await this.notifyTools.notifyBackground({command:"parseXmlFilesIntoStorage"});
+
     this.notifyObservers("updatesettings", "");
   }
 ,

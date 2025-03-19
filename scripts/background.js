@@ -29,6 +29,13 @@ let defaultPrefs = {
 };
 await storage.init(defaultPrefs);
 
+// Fix invalid options:
+// - reset the value of shortcutModifier to "alt", if it has not a valid value - see issue #177
+const shortcutModifier = await storage.getPref("shortcutModifier");
+if (!["alt", "control", "meta"].includes(shortcutModifier)) {
+  await storage.setPref("shortcutModifier", "alt");
+}
+
 // Define prefs, which can be overridden by system admins. Admins have to migrate
 // these manually from legacy prefs to managed storage.
 const managedPrefs = [
@@ -46,29 +53,11 @@ for (let managedPref of managedPrefs) {
   }
 }
 
-// Read current prefs into an options object.
-let options = {}
-for (let name of Object.keys(defaultPrefs)) {
-  options[name] = await storage.getPref(name);
-}
-
-// Fix invalid options:
-// - reset the value of mShortcutModifier to "alt", if it has not a valid value - see issue #177
-if (!["alt", "control", "meta"].includes(options.shortcutModifier)) {
-  options.shortcutModifier = "alt";
-  await storage.setPref("shortcutModifier", options.shortcutModifier)
-}
-
 // Read template and scripts from the profile folder. The XML files will remain
 // the source of truth, as long as the XUL settings dialog is still writing them.
 // In the future, they will be kept for backup purposes, but will be ignored if
 // they exist in the storage already.
-let { templateFilePath, scriptFilePath } = await browser.Quicktext.getQuicktextFilePaths(options);
-let templateFile = await browser.Quicktext.readTextFile(templateFilePath);
-let scriptFile = await browser.Quicktext.readTextFile(scriptFilePath);
-const { templates, scripts } = await quicktext.parseXmlData({ templateFile, scriptFile });
-// Store templates in local storage.
-await storage.setTemplates(templates);
+await quicktext.parseXmlFilesIntoStorage();
 
 // NotifyTools needed for Experiment code trying to access local storage.
 messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
@@ -77,6 +66,8 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
       return storage.setPref(info.pref, info.value);
     case "getPref":
       return storage.getPref(info.pref);
+    case "parseXmlFilesIntoStorage":
+      return quicktext.parseXmlFilesIntoStorage();
   }
 });
 

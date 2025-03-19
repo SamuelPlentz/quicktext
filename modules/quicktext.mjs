@@ -23,7 +23,17 @@ export function openTemplateManager() {
   return browser.LegacyHelper.openDialog("quicktextConfig", "chrome://quicktext/content/settings.xhtml");
 }
 
-export async function parseXmlData({templateFile, scriptFile}) {
+export async function parseXmlFilesIntoStorage() {
+  let templateFolder = await storage.getPref("templateFolder");
+  let { templateFilePath, scriptFilePath } = await browser.Quicktext.getQuicktextFilePaths(templateFolder);
+  let templateFile = await browser.Quicktext.readTextFile(templateFilePath);
+  let scriptFile = await browser.Quicktext.readTextFile(scriptFilePath);
+  const { templates, scripts } = await parseXmlData({ templateFile, scriptFile });
+  // Store templates in local storage.
+  await storage.setTemplates(templates);
+}
+
+async function parseXmlData({templateFile, scriptFile}) {
   const templates = await parseImport(templateFile, 0);
   const scripts = await parseImport(scriptFile, 0);
   return {templates, scripts};

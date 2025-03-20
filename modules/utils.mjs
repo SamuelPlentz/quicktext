@@ -4,8 +4,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-import { parse5322 } from "/modules/email-addresses.mjs"
-
 export function getDateTimeFormat(format, timeStamp) {
     let options = {};
     options["date-short"] = { dateStyle: "short" };
@@ -16,26 +14,16 @@ export function getDateTimeFormat(format, timeStamp) {
     return new Intl.DateTimeFormat(messenger.i18n.getUILanguage(), options[format.toLowerCase()]).format(timeStamp)
 }
 
-export function niceFileSize(size) {
-    var unit = ["B", "kB", "MB", "GB", "TB"];
-    var i = 0;
-    while (size > 1024) {
-        i++;
-        size = size / 1024;
-    }
-    return (Math.round(size * 100) / 100) + " " + unit[i];
-}
-
 export function trimString(aStr) {
     if (!aStr) return "";
     return aStr.toString().replace(/(^\s+)|(\s+$)/g, '')
 }
 
-export function parseDisplayName(addr) {
-    let rv = parse5322.parseOneAddress(addr);
+export async function parseDisplayName(addr) {
+    let [rv] = await browser.messengerUtilities.parseMailboxString(addr);
     return {
-        name: rv.name || "",
-        email: rv.address || addr,
+        name: rv?.name || "",
+        email: rv?.email || addr,
     }
 }
 

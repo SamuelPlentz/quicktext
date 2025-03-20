@@ -538,7 +538,7 @@ export class QuicktextParser {
       let value = [];
       for (let i in data) {
         if (aVariables[0] == "full")
-          value.push(data[i][0] + " (" + utils.niceFileSize(data[i][1]) + ")");
+          value.push(data[i][0] + " (" + await browser.messengerUtilities.formatFileSize(data[i][1]) + ")");
         else if (aVariables[0] == "modified")
           value.push(data[i][2])
         else
@@ -730,7 +730,7 @@ export class QuicktextParser {
     for (let i = 0; i < emailAddresses.length; i++) {
       // TODO: Add code for getting info about all people in a mailing list
 
-      let contactData = utils.parseDisplayName(emailAddresses[i]);
+      let contactData = await utils.parseDisplayName(emailAddresses[i]);
       let k = this.mData['TO'].data['email'].length;
       this.mData['TO'].data['email'][k] = contactData.email.toLowerCase();
       this.mData['TO'].data['fullname'][k] = utils.trimString(contactData.name);

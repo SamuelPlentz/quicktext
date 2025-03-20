@@ -1,5 +1,4 @@
-var quicktext = {
-  notifytools: {},
+var quicktextToolbar = {
   windowId: null,
   extension: null,
 
@@ -14,7 +13,7 @@ var quicktext = {
   },
 
   async load() {
-    Services.scriptloader.loadSubScript("resource://quicktext/api/NotifyTools/notifyTools.js", quicktext, "UTF-8");
+    Services.scriptloader.loadSubScript("resource://quicktext/api/NotifyTools/notifyTools.js", quicktextToolbar, "UTF-8");
 
     const { ExtensionParent } = ChromeUtils.importESModule(
       "resource://gre/modules/ExtensionParent.sys.mjs"
@@ -133,8 +132,7 @@ var quicktext = {
     let items = document.getElementsByClassName("customEventListenerForDynamicMenu");
     for (let i = 0; i < items.length; i++) {
       items[i].addEventListener("command", function () {
-        quicktext.insertTemplate(this.getAttribute("i"), this.getAttribute("j"));
-        //quicktext.insertTemplate(this.getAttribute("i"), this.getAttribute("j"), true, true);
+        quicktextToolbar.insertTemplate(this.getAttribute("i"), this.getAttribute("j"));
       }, true);
     }
 

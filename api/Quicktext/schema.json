@@ -3,28 +3,6 @@
     "namespace": "Quicktext",
     "functions": [
       {
-        "name": "injectLegacyToolbar",
-        "type": "function",
-        "async": true,
-        "parameters": [
-          {
-            "name": "windowId",
-            "type": "integer"
-          }
-        ]
-      },
-      {
-        "name": "updateLegacyToolbar",
-        "type": "function",
-        "async": true,
-        "parameters": [
-          {
-            "name": "windowId",
-            "type": "integer"
-          }
-        ]
-      },
-      {
         "name": "getQuicktextFilePaths",
         "type": "function",
         "async": true,

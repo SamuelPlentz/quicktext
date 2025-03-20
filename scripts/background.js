@@ -151,13 +151,13 @@ messenger.tabs.onCreated.addListener(prepareComposeTab);
 // Legacy: Inject toolbar into all already open compose windows.
 let windows = await browser.windows.getAll({ windowTypes: ["messageCompose"] })
 for (let window of windows) {
-  await browser.Quicktext.injectLegacyToolbar(window.id);
+  await browser.QuicktextToolbar.injectLegacyToolbar(window.id);
 }
 
 // Legacy: Inject toolbar into any new compose window being opened.
 browser.windows.onCreated.addListener(async window => {
   if (window.type == "messageCompose") {
-    await browser.Quicktext.injectLegacyToolbar(window.id);
+    await browser.QuicktextToolbar.injectLegacyToolbar(window.id);
   }
 });
 
@@ -167,7 +167,7 @@ new storage.StorageListener(
         watchedPrefs: ["templates", "menuCollapse"],
         listener: async (changes) => {
           let windows = await browser.windows.getAll({ windowTypes: ["messageCompose"] })
-          windows.forEach(window => browser.Quicktext.updateLegacyToolbar(window.id));
+          windows.forEach(window => browser.QuicktextToolbar.updateLegacyToolbar(window.id));
         }
     }
 )

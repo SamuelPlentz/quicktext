@@ -97,6 +97,20 @@
         ],
         "script": "api/Quicktext/implementation.js"
       }
+    },
+    "QuicktextToolbar": {
+      "schema": "api/QuicktextToolbar/schema.json",
+      "parent": {
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          [
+            "QuicktextToolbar"
+          ]
+        ],
+        "script": "api/QuicktextToolbar/implementation.js"
+      }
     }
   }
 }

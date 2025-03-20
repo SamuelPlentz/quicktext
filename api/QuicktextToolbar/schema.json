@@ -1,0 +1,29 @@
+[
+  {
+    "namespace": "QuicktextToolbar",
+    "functions": [
+      {
+        "name": "injectLegacyToolbar",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "windowId",
+            "type": "integer"
+          }
+        ]
+      },
+      {
+        "name": "updateLegacyToolbar",
+        "type": "function",
+        "async": true,
+        "parameters": [
+          {
+            "name": "windowId",
+            "type": "integer"
+          }
+        ]
+      }
+    ]
+  }
+]

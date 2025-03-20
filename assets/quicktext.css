@@ -1,5 +1,5 @@
 .quicktext-icon {
-  list-style-image: url("resource://quicktext/chrome/skin/icon16.png");
+  list-style-image: url("resource://quicktext/assets/icon16.png");
 }
 
 dialog[OS=WINNT] legend.insideTab {

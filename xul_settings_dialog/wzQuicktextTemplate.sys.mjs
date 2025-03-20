@@ -5,7 +5,7 @@ var extension = ExtensionParent.GlobalManager.getExtension(
   "{8845E3B3-E8FB-40E2-95E9-EC40294818C4}"
 );
 var { wzQuicktextHeader } = ChromeUtils.importESModule(
-  `chrome://quicktext/content/modules/wzQuicktextHeader.sys.mjs?v=${extension.manifest.version}`
+  `chrome://quicktext/content/wzQuicktextHeader.sys.mjs?v=${extension.manifest.version}`
 );
 
 export class wzQuicktextTemplate {

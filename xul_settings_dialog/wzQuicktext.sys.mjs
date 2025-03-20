@@ -5,13 +5,13 @@ var extension = ExtensionParent.GlobalManager.getExtension(
   "{8845E3B3-E8FB-40E2-95E9-EC40294818C4}"
 );
 var { wzQuicktextGroup } = ChromeUtils.importESModule(
-  `chrome://quicktext/content/modules/wzQuicktextGroup.sys.mjs?v=${extension.manifest.version}`
+  `chrome://quicktext/content/wzQuicktextGroup.sys.mjs?v=${extension.manifest.version}`
 );
 var { wzQuicktextTemplate } = ChromeUtils.importESModule(
-  `chrome://quicktext/content/modules/wzQuicktextTemplate.sys.mjs?v=${extension.manifest.version}`
+  `chrome://quicktext/content/wzQuicktextTemplate.sys.mjs?v=${extension.manifest.version}`
 );
 var { wzQuicktextScript } = ChromeUtils.importESModule(
-  `chrome://quicktext/content/modules/wzQuicktextScript.sys.mjs?v=${extension.manifest.version}`
+  `chrome://quicktext/content/wzQuicktextScript.sys.mjs?v=${extension.manifest.version}`
 );
 
 const kDebug        = true;

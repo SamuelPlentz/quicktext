@@ -10,7 +10,7 @@ import * as menus from "../modules/menus.mjs";
 
 // Legacy: Register global urls.
 await browser.LegacyHelper.registerGlobalUrls([
-  ["content", "quicktext", "chrome/content/"],
+  ["content", "quicktext", "xul_settings_dialog/"],
   ["resource", "quicktext", "."],
 ]);
 

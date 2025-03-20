@@ -151,20 +151,28 @@ var quicktext = {
       document.getElementById("quicktext-toolbar").setAttribute("collapsed", true);
     }
   },
-  insertVariable(aVar) {
-    this.notifyTools.notifyBackground({
+  focusMessageBody() {
+    let editor = GetCurrentEditorElement();//document.getElementsByTagName("editor");
+    if (editor) {
+      editor.focus();
+    }
+  },
+  async insertVariable(aVar) {
+    await this.notifyTools.notifyBackground({
       command: "insertVariable",
       aVar,
       windowId: this.windowId
     });
+    this.focusMessageBody();
   },
-  insertTemplate(group, text) {
-    this.notifyTools.notifyBackground({
+  async insertTemplate(group, text) {
+    await this.notifyTools.notifyBackground({
       command: "insertTemplate",
       group,
       text,
       windowId: this.windowId
     });
+    this.focusMessageBody();
   },
   insertContentFromFile(aType) {
     console.log("not implemented : insertContentFromFile");

@@ -97,6 +97,128 @@ async function handlerCursorTags() {
     }
 }
 
+function preventEvent(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    return false;
+}
+function disableEvents(events) {
+    for (let event of events) {
+        document.body.addEventListener(event, preventEvent, true);
+    }
+}
+function enableEvents(events) {
+    for (let event of events) {
+        document.body.removeEventListener(event, preventEvent, true);
+    }
+}
+async function openSelectPopover(label, values) {
+    const selectPicker = Promise.withResolvers();
+    document.body.insertAdjacentHTML("afterend",`
+        <div id="quicktext-popover" popover="manual">
+            <div id="quicktext-popover-title">${label}</div>
+            <select size="4" id="quicktext-popover-select">
+            ${values.map(v => `<option value="${v}">${v}</option>`)}
+            </select>
+            <div id="quicktext-popover-buttons">
+                <button id="quicktext-popover-select-ok" class="quicktext-popover-btn">OK</button>
+                <button id="quicktext-popover-select-cancel" class="quicktext-popover-btn">Cancel</button>
+            </div>
+        </div>`);
+    
+    document.head.insertAdjacentHTML("afterend",`
+        <style id="quicktext-popover-style">
+            :popover-open {
+            width: 300px;
+            height: 200px;
+            border-radius: 10px;
+            border-width: 3px;
+            padding: 0 10px;
+            cursor: default;
+            caret-color: transparent;
+            }
+
+            ::backdrop {
+                backdrop-filter: brightness(30%) blur(3px);
+            }
+
+            #quicktext-popover-buttons {
+                display: flex;
+                justify-content: flex-end; /* Align buttons to the right */
+                width: 100%; /* Make the div take up the entire width */
+            }
+
+            .quicktext-popover-btn {
+                margin-top: 10px;
+                margin-left: 10px;
+            }
+
+            #quicktext-popover-select {
+                margin: auto;
+                width: 100%;
+            }
+
+            #quicktext-popover-title {
+                margin: 10px 0;
+            }
+        </style>`);
+
+    document.getElementById("quicktext-popover-select-cancel").addEventListener(
+        "click",
+        () => selectPicker.resolve()
+    );
+    document.getElementById("quicktext-popover-select-ok").addEventListener(
+        "click",
+        () => selectPicker.resolve(document.getElementById("quicktext-popover-select").value)
+    );
+    
+    const blockedEvents = [
+        "click",
+        "dblclick",
+        "mousedown",
+        "mouseup",
+        "contextmenu",
+        "keyup",
+        "keydown",
+        "keypress",
+        "select"
+    ];
+    disableEvents(blockedEvents);
+
+    // Clicking inside the popover will change the selection and the insertion
+    // point. Save current selection.
+    let selection = window.getSelection();
+    const savedRanges = [];
+    for (let i = 0; i < selection.rangeCount; ++i) {
+        savedRanges.push(selection.getRangeAt(i));
+    }
+
+    const popover =  document.getElementById("quicktext-popover");
+    popover.showPopover();
+    document.getElementById("quicktext-popover-select").focus();
+    const rv = await selectPicker.promise;
+    popover.hidePopover();
+    popover.remove()
+
+    enableEvents(blockedEvents);
+
+    // Restore selection.
+    selection = window.getSelection();
+    selection.removeAllRanges();
+    for (const range of savedRanges.filter(({startContainer: {nodeName}}) => nodeName === "TR")) {
+        selection.addRange(range);
+    }
+    for (const range of savedRanges.filter(({startContainer: {nodeName}}) => nodeName !== "TR")) {
+        selection.addRange(range);
+    }
+
+    const popoverStyles =  document.getElementById("quicktext-popover-style");
+    popoverStyles.remove();
+
+    return rv;
+}
+
 // -----------------------------------------------------------------------------
 
 function hasMatchingModifier(e, modifier) {
@@ -244,6 +366,9 @@ messenger.runtime.onMessage.addListener((message, sender) => {
     }
     if (message.promptLabel) {
         return Promise.resolve(window.prompt(message.promptLabel, message.promptValue));
+    }
+    if (message.selectLabel) {
+        return openSelectPopover(message.selectLabel, message.selectValues);
     }
     if (message.alertLabel) {
         return Promise.resolve(window.alert(message.alertLabel));

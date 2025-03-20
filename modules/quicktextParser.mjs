@@ -387,9 +387,10 @@ export class QuicktextParser {
 
     // There are two types of input: select and text.
     if (aVariables[1] == 'select') {
-      // Not supported, manually open popup with select, or drop support.
-      await messenger.tabs.sendMessage(this.mTabId, {
-        alertLabel: "'select' INPUT not implemented",
+      let values = value.split(";");
+      rv = await messenger.tabs.sendMessage(this.mTabId, {
+        selectLabel: label,
+        selectValues: values,
       });
     } else {
       rv = await messenger.tabs.sendMessage(this.mTabId, {

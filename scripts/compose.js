@@ -98,6 +98,9 @@ async function handlerCursorTags() {
 }
 
 function preventEvent(e) {
+    if (e.target.closest("#quicktext-popover")) {
+        return;
+    }
     e.stopPropagation();
     e.preventDefault();
     e.stopImmediatePropagation();
@@ -105,12 +108,12 @@ function preventEvent(e) {
 }
 function disableEvents(events) {
     for (let event of events) {
-        document.body.addEventListener(event, preventEvent, true);
+        window.addEventListener(event, preventEvent, true);
     }
 }
 function enableEvents(events) {
     for (let event of events) {
-        document.body.removeEventListener(event, preventEvent, true);
+        window.removeEventListener(event, preventEvent, true);
     }
 }
 async function openSelectPopover(label, values) {
@@ -118,7 +121,7 @@ async function openSelectPopover(label, values) {
     document.body.insertAdjacentHTML("afterend",`
         <div id="quicktext-popover" popover="manual">
             <div id="quicktext-popover-title">${label}</div>
-            <select size="4" id="quicktext-popover-select">
+            <select size="5" id="quicktext-popover-select">
             ${values.map(v => `<option value="${v}">${v}</option>`)}
             </select>
             <div id="quicktext-popover-buttons">
@@ -130,13 +133,13 @@ async function openSelectPopover(label, values) {
     document.head.insertAdjacentHTML("afterend",`
         <style id="quicktext-popover-style">
             :popover-open {
-            width: 300px;
-            height: 200px;
-            border-radius: 10px;
-            border-width: 3px;
-            padding: 0 10px;
-            cursor: default;
-            caret-color: transparent;
+                width: 300px;
+                height: 200px;
+                border-radius: 10px;
+                border-width: 3px;
+                padding: 0 10px;
+                cursor: default;
+                caret-color: transparent;
             }
 
             ::backdrop {
@@ -145,8 +148,8 @@ async function openSelectPopover(label, values) {
 
             #quicktext-popover-buttons {
                 display: flex;
-                justify-content: flex-end; /* Align buttons to the right */
-                width: 100%; /* Make the div take up the entire width */
+                justify-content: flex-end;
+                width: 100%;
             }
 
             .quicktext-popover-btn {
@@ -155,7 +158,7 @@ async function openSelectPopover(label, values) {
             }
 
             #quicktext-popover-select {
-                margin: auto;
+                height: auto;
                 width: 100%;
             }
 

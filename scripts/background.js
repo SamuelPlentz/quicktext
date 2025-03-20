@@ -74,6 +74,10 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
       return quicktext.parseXmlFilesIntoStorage();
 
     // Experiment toolbar actions from the compose window.
+    case "insertFile":
+      return messenger.tabs
+        .query({ windowId: info.windowId, type: "messageCompose" })
+        .then(tabs => quicktext.insertFile(tabs[0].id, info.file, info.aType));
     case "insertVariable":
       return messenger.tabs
         .query({ windowId: info.windowId, type: "messageCompose" })

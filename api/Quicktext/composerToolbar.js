@@ -174,7 +174,69 @@ var quicktext = {
     });
     this.focusMessageBody();
   },
-  insertContentFromFile(aType) {
-    console.log("not implemented : insertContentFromFile");
-  }
+  async insertContentFromFile(aType) {
+    const file = await this.pickFile(aType, /* open */ 0, ""); // browser.i18n.getMessage("insertFile")
+    if (file) {
+      await this.notifyTools.notifyBackground({
+        command: "insertFile",
+        aType,
+        file,
+        windowId: this.windowId
+      });
+    }
+    this.focusMessageBody();
+  },
+  async pickFile(aType, aMode, aTitle)
+  {
+    let filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
+    switch(aMode)
+    {
+      case 1: // save
+        filePicker.init(window.browsingContext, aTitle, filePicker.modeSave);
+        break;
+      default: // open
+        filePicker.init(window.browsingContext, aTitle, filePicker.modeOpen);
+        break;
+    }
+
+    switch(aType)
+    {
+      case 0: // insert TXT file
+        filePicker.appendFilters(filePicker.filterText);
+        filePicker.defaultExtension = "txt";
+        break;
+      case 1: // insert HTML file
+        filePicker.appendFilters(filePicker.filterHTML);
+        filePicker.defaultExtension = "html";
+        break;
+      case 2: // insert file
+        break;
+
+      case 3: // Quicktext XML file
+        filePicker.appendFilters(filePicker.filterXML);
+        filePicker.defaultExtension = "xml";
+        break;
+
+      case 4: // images
+        filePicker.appendFilters(filePicker.filterImages);
+      default: // attachments
+        break;
+    }
+
+    filePicker.appendFilters(filePicker.filterAll);
+
+    let rv = await new Promise(function(resolve, reject) {
+      filePicker.open(result => {
+        resolve(result);
+      });
+    });
+    
+    if(rv == filePicker.returnOK || rv == filePicker.returnReplace) {
+      // Create DOM File from real file.
+      const file = await File.createFromNsIFile(filePicker.file);
+      return file;
+    } else {
+      return null;
+    }
+  }  
 }

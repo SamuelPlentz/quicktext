@@ -198,12 +198,57 @@ export async function insertVariable(aTabId, aVar, aForceAsText) {
 }
 
 export async function insertContentFromFile(aTabId, aType) {
-  let gTemplates = await storage.getTemplates();
+  let picker = Promise.withResolvers();
 
-  let content = await browser.Quicktext.pickFile(aTabId, aType, 0, browser.i18n.getMessage("insertFile"));
+  // Hidden input to open file dialog.
+  const inputElement = document.createElement("input");
+  inputElement.setAttribute("type", "file");
+  inputElement.addEventListener("change", () => { picker.resolve(inputElement.files) }, false);
+  inputElement.addEventListener("cancel", () => { picker.resolve([]) }, false);
+
+  switch (aType) {
+    case 0: // TXT files
+      inputElement.setAttribute("accept", "text/plain");
+      break;
+    case 1: // HTML files
+      inputElement.setAttribute("accept", "text/html");
+      break;
+    case 2: // arbitrary files
+      break;
+    case 3: // legacy Quicktext XML files
+      inputElement.setAttribute("accept", ".xml");
+      break;
+    case 4: // image files
+      inputElement.setAttribute("accept", "images/*");
+    default: // attachments
+      break;
+  }
+
+  inputElement.click();
+  const [file] = await picker.promise;
+  inputElement.remove();
+
+  if (file) {
+    return insertFile(aTabId, file, aType);
+  }
+}
+
+export async function insertFile(aTabId, file, aType) {
+  const content = await new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onloadend = function (evt) {
+      if (evt.target.readyState == FileReader.DONE) {
+        var filedata = evt.target.result;
+        resolve(filedata);
+      }
+    };
+    reader.readAsText(file)
+  })
   if (!content) {
     return;
   }
+
+  let gTemplates = await storage.getTemplates();
   let quicktextParser = new QuicktextParser(aTabId, gTemplates, aType == 0);
   await quicktextParser.insertBody(content, { extraSpace: false });
 }

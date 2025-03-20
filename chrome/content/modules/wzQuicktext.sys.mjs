@@ -1098,5 +1098,5 @@ export var gQuicktext = {
 }
 
 const debug = kDebug ?  function(m) {dump("\t *** wzQuicktext: " + m + "\n");} : function(m) {};
-Services.scriptloader.loadSubScript("chrome://quicktext/content/notifyTools/notifyTools.js", gQuicktext, "UTF-8");
+Services.scriptloader.loadSubScript("resource://quicktext/api/NotifyTools/notifyTools.js", gQuicktext, "UTF-8");
 

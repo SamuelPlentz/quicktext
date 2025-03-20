@@ -14,7 +14,7 @@ var quicktext = {
   },
 
   async load() {
-    Services.scriptloader.loadSubScript("chrome://quicktext/content/notifyTools/notifyTools.js", quicktext, "UTF-8");
+    Services.scriptloader.loadSubScript("resource://quicktext/api/NotifyTools/notifyTools.js", quicktext, "UTF-8");
 
     const { ExtensionParent } = ChromeUtils.importESModule(
       "resource://gre/modules/ExtensionParent.sys.mjs"

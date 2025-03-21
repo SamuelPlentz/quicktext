@@ -1,7 +1,7 @@
 export class wzQuicktextHeader {
-  constructor() {
-    this.mType        = "";
-    this.mValue     = "";
+  constructor(config) {
+    this.mType = config?.mType || config?.type || "";
+    this.mValue = config?.mValue || config?.value || "";
   }
   
   get type() { return this.mType; }
@@ -11,10 +11,6 @@ export class wzQuicktextHeader {
   set value(aValue) { if (typeof aValue != 'undefined') return this.mValue = aValue; }
 
   clone() {
-    const newHeader = new wzQuicktextHeader();
-    newHeader.type = this.mType;
-    newHeader.value = this.mValue;
-
-    return newHeader;
+    return new wzQuicktextHeader(this);
   }
 }

@@ -13,11 +13,9 @@ export async function getPref(aName, aFallback = null) {
     .get({ [`${aName}.value`]: defaultPref })
     .then(o => o[`${aName}.value`]);
 }
-
 export async function setPref(aName, aValue) {
   await browser.storage.local.set({ [`${aName}.value`]: aValue });
 }
-
 export async function clearPref(aName) {
   await browser.storage.local.remove(`${aName}.value`);
 }
@@ -25,9 +23,17 @@ export async function clearPref(aName) {
 export async function setTemplates(templates) {
   await browser.storage.local.set({ templates: JSON.stringify(templates) });
 }
-
 export async function getTemplates() {
-  return browser.storage.local.get({ templates: {} }).then(e => JSON.parse(e.templates));
+  return browser.storage.local.get({ templates: null }).then(
+    e => e.templates ? JSON.parse(e.templates) : null);
+}
+
+export async function setScripts(scripts) {
+  await browser.storage.local.set({ scripts: JSON.stringify(scripts) });
+}
+export async function getScripts() {
+  return browser.storage.local.get({ scripts: null }).then(
+    e => e.scripts ? JSON.parse(e.scripts) : null);
 }
 
 export async function init(defaults = null) {

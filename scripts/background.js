@@ -7,6 +7,7 @@
 import * as quicktext from "../modules/quicktext.mjs";
 import * as storage from "../modules/storage.mjs";
 import * as menus from "../modules/menus.mjs";
+import * as utils from "../modules/utils.mjs";
 
 // Legacy: Register global urls.
 await browser.LegacyHelper.registerGlobalUrls([
@@ -53,11 +54,48 @@ for (let managedPref of managedPrefs) {
   }
 }
 
-// Legacy: Read template and scripts from the profile folder. The XML files will
-//         remain the source of truth, as long as the XUL settings dialog is still
-//         writing them. In the future, they will be kept for backup purposes, but
-//         will be ignored if they exist in the storage already.
-await quicktext.parseXmlFilesIntoStorage();
+// TODO: Startup import
+/*
+if (this.mDefaultImport)
+{
+  var defaultImport = this.mDefaultImport.split(";");
+  defaultImport.reverse();
+
+  for (var i = 0; i < defaultImport.length; i++)
+  {
+    try {
+      if (defaultImport[i].match(/^(http|https):\/\//))
+      {
+        this.importFromHTTPFile(defaultImport[i], 1, true, false); 
+      }
+      else
+      {
+        var fp = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsIFile);
+        fp.initWithPath(this.parseFilePath(defaultImport[i]));
+        this.importFromFile(fp, 1, true, false);
+      }
+    } catch (e) { Components.utils.reportError(e); }
+  }
+}*/
+
+// Legacy: The XML files will be kept for backup, but are read only if they have
+//         not already been migrated to local storage.
+let templates = await storage.getTemplates();
+if (!templates) {
+  console.log("Migrating XML template file to JSON stored in local storage.")
+  templates = await quicktext.readXmlTemplateFile().then(
+    e => ({texts: e.texts, group: e.group})
+  );
+  await storage.setTemplates(templates);
+}
+let scripts = await storage.getScripts();
+if (!scripts) {
+  console.log("Migrating XML script file to JSON stored in local storage.")
+  scripts = await quicktext.readXmlScriptFile().then(
+    e => e.scripts
+  );
+  await storage.setScripts(scripts);
+}
 
 // NotifyTools needed by Experiment code to access WebExtension code.
 messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
@@ -66,14 +104,37 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
       return storage.setPref(info.pref, info.value);
     case "getPref":
       return storage.getPref(info.pref);
+
+    case "setScripts":
+      return storage.setScripts(info.data);
+    case "getScripts":
+      return storage.getScripts();
+
+    case "setTemplates":
+      return storage.setTemplates(info.data);
     case "getTemplates":
       return storage.getTemplates();
+
     case "openWebPage":
       return browser.windows.openDefaultBrowser(info.url);
 
-    // Experiment XUL settings dialog requests.
-    case "parseXmlFilesIntoStorage":
-      return quicktext.parseXmlFilesIntoStorage();
+    case "exportTemplates":
+      return storage.getTemplates().then(templates => templates
+        ? utils.writeFileToDisc(JSON.stringify({templates}, null, 2) ,"templates.json")
+        : null
+      );
+    case "exportScripts":
+      return storage.getScripts().then(scripts => scripts
+        ? utils.writeFileToDisc(JSON.stringify({scripts}, null, 2) ,"scripts.json")
+        : null
+      );
+    case "importFromDisc":
+      // Currently not used. Instead the settings window keeps using the legacy
+      // file picker.
+      return utils.getFileFromDisc(5).then(file => file
+        ? utils.getTextFileContent(file)
+        : ""
+      )
 
     // Experiment toolbar actions from the compose window.
     case "insertFile":

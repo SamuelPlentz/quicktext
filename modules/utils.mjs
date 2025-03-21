@@ -90,3 +90,71 @@ export function uint8ArrayToBase64(bytes) {
 export function getLeafName(fileName) {
     return fileName.split('\\').pop().split('/').pop();
 }
+
+export async function writeFileToDisc(data, filename) {
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    try {
+        await browser.downloads.download({
+            url,
+            filename,
+            saveAs: true,
+        });
+    } catch (error) {
+        console.error("Error downloading the file:", error);
+    }
+    URL.revokeObjectURL(url);
+}
+
+export async function getFileFromDisc(aType) {
+    let picker = Promise.withResolvers();
+
+    // Hidden input to open file dialog.
+    const inputElement = document.createElement("input");
+    inputElement.setAttribute("type", "file");
+    inputElement.addEventListener("change", () => { picker.resolve(inputElement.files) }, false);
+    inputElement.addEventListener("cancel", () => { picker.resolve([]) }, false);
+
+    switch (aType) {
+        case 0: // TXT files
+            inputElement.setAttribute("accept", "text/plain");
+            break;
+        case 1: // HTML files
+            inputElement.setAttribute("accept", "text/html");
+            break;
+        case 2: // arbitrary files
+            break;
+        case 3: // legacy Quicktext XML files
+            inputElement.setAttribute("accept", ".xml");
+            break;
+        case 4: // image files
+            inputElement.setAttribute("accept", "images/*");
+            break;
+        case 5: // JSON
+            inputElement.setAttribute("accept", ".json");
+            break;
+        default: // attachments
+            break;
+    }
+
+    inputElement.click();
+    const [file] = await picker.promise;
+    inputElement.remove();
+
+    return file;
+}
+
+export async function getTextFileContent(file) {
+  const content = await new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onloadend = function (evt) {
+      if (evt.target.readyState == FileReader.DONE) {
+        var filedata = evt.target.result;
+        resolve(filedata);
+      }
+    };
+    reader.readAsText(file)
+  })
+  return content;
+}

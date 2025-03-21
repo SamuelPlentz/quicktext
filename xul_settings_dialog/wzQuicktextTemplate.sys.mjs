@@ -9,15 +9,15 @@ var { wzQuicktextHeader } = ChromeUtils.importESModule(
 );
 
 export class wzQuicktextTemplate {
-  constructor() {
-    this.mName        = "";
-    this.mText        = "";
-    this.mShortcut    = "";
-    this.mType        = "";
-    this.mKeyword     = "";
-    this.mSubject     = "";
-    this.mAttachments = "";
-    this.mHeaders     = [];
+  constructor(config) {
+    this.mName = config?.mName || config?.name || "";
+    this.mText = config?.mText || config?.text || "";
+    this.mShortcut = config?.mShortcut || config?.shortcut || "";
+    this.mType = config?.mType || config?.type || "";
+    this.mKeyword = config?.mKeyword || config?.keyword || "";
+    this.mSubject = config?.mSubject || config?.subject || "";
+    this.mAttachments = config?.mAttachments || config?.attachments || "";
+    this.mHeaders = [];
   }
 
   get name() { return this.mName; }
@@ -65,14 +65,7 @@ export class wzQuicktextTemplate {
   }
 
   clone() {
-    const newTemplate = new wzQuicktextTemplate();
-    newTemplate.name = this.mName;
-    newTemplate.text = this.mText;
-    newTemplate.shortcut = this.mShortcut;
-    newTemplate.type = this.mType;
-    newTemplate.keyword = this.mKeyword;
-    newTemplate.subject = this.mSubject;
-    newTemplate.attachments = this.mAttachments;
+    const newTemplate = new wzQuicktextTemplate(this);
 
     for (let i = 0; i < this.mHeaders.length; i++)
       newTemplate.addHeader(this.mHeaders[i].type, this.mHeaders[i].value);

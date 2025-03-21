@@ -204,18 +204,6 @@ var quicktextToolbar = {
         filePicker.appendFilters(filePicker.filterHTML);
         filePicker.defaultExtension = "html";
         break;
-      case 2: // insert file
-        break;
-
-      case 3: // Quicktext XML file
-        filePicker.appendFilters(filePicker.filterXML);
-        filePicker.defaultExtension = "xml";
-        break;
-
-      case 4: // images
-        filePicker.appendFilters(filePicker.filterImages);
-      default: // attachments
-        break;
     }
 
     filePicker.appendFilters(filePicker.filterAll);

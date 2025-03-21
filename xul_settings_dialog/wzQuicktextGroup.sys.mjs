@@ -1,7 +1,7 @@
 export class wzQuicktextGroup {
-  constructor() {
-    this.mName = "";
-    this.mType = "";
+  constructor(config) {
+    this.mName = config?.mName || config?.name || "";
+    this.mType = config?.mType || config?.type || 0;
   }
 
   get name() { return this.mName; }
@@ -11,10 +11,6 @@ export class wzQuicktextGroup {
   set type(aType) { if (typeof aType != 'undefined') return this.mType = aType; }
 
   clone() {
-    const newGroup = new wzQuicktextGroup();
-    newGroup.name = this.mName;
-    newGroup.type = this.mType;
-
-    return newGroup;
+    return new wzQuicktextGroup(this);
   }
 }

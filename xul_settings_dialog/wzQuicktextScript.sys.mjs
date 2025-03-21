@@ -1,8 +1,8 @@
 export class wzQuicktextScript {
-  constructor() {
-    this.mName        = "";
-    this.mScript      = "";
-    this.mType        = 0;
+  constructor(config) {
+    this.mName = config?.mName || config?.name || "";
+    this.mScript = config?.mScript || config?.script || "";
+    this.mType = config?.mType || config?.type || 0;
   }
 
   get name() { return this.mName; }
@@ -15,11 +15,6 @@ export class wzQuicktextScript {
   set type(aType) { if (typeof aType != 'undefined') return this.mType = aType; }
 
   clone() {
-    const newScript = new wzQuicktextScript();
-    newScript.name = this.mName;
-    newScript.script = this.mScript;
-    newScript.type = this.mType;
-
-    return newScript;
+    return new wzQuicktextScript(this);
   }
 }

@@ -18,59 +18,19 @@
     <link rel="stylesheet" href="chrome://messenger/skin/input-fields.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/messenger.css" />
     <link rel="stylesheet" href="chrome://messenger/skin/themeableDialog.css" />
-    <link rel="stylesheet" href="resource://quicktext/xul_settings_dialog/quicktext.css" />
+    <link rel="stylesheet" href="resource://quicktext/xul_settings_dialog/settings.css" />
 
     <script defer="defer" src="chrome://quicktext/content/i18n.js"></script>
     <script defer="defer" src="chrome://global/content/nsDragAndDrop.js"></script>
     <script defer="defer" src="chrome://global/content/nsTransferable.js"></script>
-    <script defer="defer" src="resource://quicktext/api/NotifyTools/notifyTools.js"></script>
     <script defer="defer" src="chrome://quicktext/content/settings.js"></script>
   </head>
   
   <html:body xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     <keyset id="quicktextSettingsKeys">
-      <key keycode="VK_ESCAPE" xulkey="false" oncommand="quicktext.close(true);"/>
-      <key key="s" oncommand="quicktext.save();" modifiers="control"/>
+      <key keycode="VK_ESCAPE" xulkey="false" oncommand="settingsDialog.close(true);"/>
+      <key key="s" oncommand="settingsDialog.save();" modifiers="control"/>
     </keyset>
-
-    <toolbox>
-      <toolbar type="menubar">
-        <toolbaritem>
-          <menubar style="border:0px;padding:0px;margin:0px;">
-            <menu label="__MSG_quicktext.file.label__" accesskey="__MSG_quicktext.accesskey.file__">
-              <menupopup>
-                <menuitem id="toolbar-save" label="__MSG_quicktext.save.label__" oncommand="quicktext.save();" accesskey="__MSG_quicktext.accesskey.save__"/>
-                <menuseparator />
-                <menu label="__MSG_quicktext.import.label__" accesskey="__MSG_quicktext.accesskey.import__">
-                  <menupopup>
-                    <menuitem label="__MSG_quicktext.templates.label__" oncommand="quicktext.importTemplatesFromFile();" accesskey="__MSG_quicktext.accesskeyTemplate.import__"/>
-                    <menuitem label="__MSG_quicktext.scripts.label__" oncommand="quicktext.importScriptsFromFile();" accesskey="__MSG_quicktext.accesskeyScripts.import__"/>
-                  </menupopup>
-                </menu>
-                <menu label="__MSG_quicktext.export.label__" accesskey="__MSG_quicktext.accesskey.export__">
-                  <menupopup>
-                    <menuitem label="__MSG_quicktext.templates.label__" oncommand="quicktext.exportTemplatesToFile();" accesskey="__MSG_quicktext.accesskeyTemplate.export__"/>
-                    <menuitem label="__MSG_quicktext.scripts.label__" oncommand="quicktext.exportScriptsToFile();" accesskey="__MSG_quicktext.accesskeyScripts.export__"/>
-                  </menupopup>
-                </menu>
-                <menuseparator />
-                <menuitem label="__MSG_quicktext.close.label__" accesskey="__MSG_quicktext.accesskey.close__" oncommand="quicktext.close(true);" />
-              </menupopup>
-            </menu>
-            <menu label="__MSG_quicktext.help.label__" accesskey="__MSG_quicktext.accesskey.help__">
-              <menupopup>
-                <menuitem label="__MSG_quicktext.goToHomepage.label__" accesskey="__MSG_quicktext.accesskey.goToHomepage__" oncommand="quicktext.openHomepage();" />
-              </menupopup>
-            </menu>
-            <menu label="__MSG_quicktext.settings.label__" accesskey="__MSG_quicktext.accesskey.settings__">
-              <menupopup>
-                <menuitem label="__MSG_quicktext.resetcounter.label__" oncommand="quicktext.resetCounter();" accesskey="__MSG_quicktext.accesskey.resetCounter__"/>
-              </menupopup>
-            </menu>
-          </menubar>
-        </toolbaritem>
-      </toolbar>
-    </toolbox>
 
     <hbox flex="1">
       <vbox flex="1">
@@ -88,11 +48,11 @@
                     <vbox>
                       <hbox><legend class="insideTab">__MSG_quicktext.settings.label__</legend></hbox>
                       <vbox>
-                        <checkbox label="__MSG_quicktext.showContextMenu.label__" id="checkbox-viewPopup" oncommand="quicktext.checkForGeneralChanges(0);" />
-                        <checkbox label="__MSG_quicktext.collapseSetting.label__" id="checkbox-collapseGroup" oncommand="quicktext.checkForGeneralChanges(1);" />
+                        <checkbox label="__MSG_quicktext.showContextMenu.label__" id="checkbox-viewPopup" oncommand="settingsDialog.checkForGeneralChanges(0);" />
+                        <checkbox label="__MSG_quicktext.collapseSetting.label__" id="checkbox-collapseGroup" oncommand="settingsDialog.checkForGeneralChanges(1);" />
                         <spacer height="5" />
                         <hbox>
-                          <menulist id="select-shortcutModifier" oncommand="quicktext.checkForGeneralChanges(2); quicktext.shortcutModifierChange(); quicktext.pickText();"  style="width: 120px">
+                          <menulist id="select-shortcutModifier" oncommand="settingsDialog.checkForGeneralChanges(2); settingsDialog.shortcutModifierChange(); settingsDialog.pickText();"  style="width: 120px">
                             <menupopup>
                               <menuitem label="__MSG_quicktext.altKey.label__" value="alt" />
                               <menuitem label="__MSG_quicktext.controlKey.label__" value="control" />
@@ -101,10 +61,10 @@
                           </menulist>
                           <label value="__MSG_quicktext.modifierSetting.label__" control="select-shortcutModifier" style="margin-top: 6px" />
                         </hbox>
-                        <checkbox label="__MSG_quicktext.shortcutTypeAdv.label__" id="checkbox-shortcutTypeAdv" oncommand="quicktext.checkForGeneralChanges(3); quicktext.pickText();" />
+                        <checkbox label="__MSG_quicktext.shortcutTypeAdv.label__" id="checkbox-shortcutTypeAdv" oncommand="settingsDialog.checkForGeneralChanges(3); settingsDialog.pickText();" />
                         <spacer height="5" />
                         <hbox>
-                          <menulist id="select-keywordKey" oncommand="quicktext.checkForGeneralChanges(4);" style="width: 120px">
+                          <menulist id="select-keywordKey" oncommand="settingsDialog.checkForGeneralChanges(4);" style="width: 120px">
                             <menupopup>
                               <!-- we are using KeyboardEvent.code as values (https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code) -->
                               <menuitem label="__MSG_quicktext.tabKey.label__" value="Tab" />
@@ -126,7 +86,7 @@
                   <fieldset>
                     <vbox flex="1">
                       <hbox><legend class="insideTab">__MSG_quicktext.defaultImport.label__</legend></hbox>
-                      <hbox class="input-container"><html:input id="text-defaultImport" oninput="quicktext.checkForGeneralChanges(5);" /></hbox>
+                      <hbox class="input-container"><html:input id="text-defaultImport" oninput="settingsDialog.checkForGeneralChanges(5);" /></hbox>
                     </vbox>
                   </fieldset>
                 </vbox>
@@ -134,15 +94,21 @@
                   <fieldset>
                     <vbox flex="1">
                       <hbox><legend class="insideTab">__MSG_quicktext.sharingTemplates.label__</legend></hbox>
-                      <button label="__MSG_quicktext.export.label__" oncommand="quicktext.exportTemplatesToFile();" accesskey="__MSG_quicktext.accesskeyTemplate.export__"/>
-                      <button label="__MSG_quicktext.import.label__" oncommand="quicktext.importTemplatesFromFile();" accesskey="__MSG_quicktext.accesskeyTemplate.import__"/>
+                      <button label="__MSG_quicktext.export.label__" oncommand="settingsDialog.exportTemplatesToFile();" accesskey="__MSG_quicktext.accesskeyTemplate.export__"/>
+                      <button label="__MSG_quicktext.import.label__" oncommand="settingsDialog.importTemplatesFromFile();" accesskey="__MSG_quicktext.accesskeyTemplate.import__"/>
                     </vbox>
                   </fieldset>
                   <fieldset>
                     <vbox flex="1">
                       <hbox><legend class="insideTab">__MSG_quicktext.sharingScripts.label__</legend></hbox>
-                      <button label="__MSG_quicktext.export.label__" oncommand="quicktext.exportScriptsToFile();" accesskey="__MSG_quicktext.accesskeyScripts.export__"/>
-                      <button label="__MSG_quicktext.import.label__" oncommand="quicktext.importScriptsFromFile();" accesskey="__MSG_quicktext.accesskeyScripts.import__"/>
+                      <button label="__MSG_quicktext.export.label__" oncommand="settingsDialog.exportScriptsToFile();" accesskey="__MSG_quicktext.accesskeyScripts.export__"/>
+                      <button label="__MSG_quicktext.import.label__" oncommand="settingsDialog.importScriptsFromFile();" accesskey="__MSG_quicktext.accesskeyScripts.import__"/>
+                    </vbox>
+                  </fieldset>
+                  <fieldset>
+                    <vbox flex="1">
+                      <hbox><legend class="insideTab">__MSG_quicktext.counter.label__</legend></hbox>
+                      <button label="__MSG_quicktext.resetcounter.label__" oncommand="settingsDialog.resetCounter();" accesskey="__MSG_quicktext.accesskey.resetCounter__"/>
                     </vbox>
                   </fieldset>
                 </vbox>
@@ -153,10 +119,10 @@
                 <fieldset flex="1">
                   <vbox flex="1">
                     <hbox><legend class="insideTab">__MSG_quicktext.title.label__</legend></hbox>
-                    <hbox><button id="group-button-add-group" label="__MSG_quicktext.addGroup.label__" flex="1" oncommand="quicktext.addGroup();" accesskey="__MSG_quicktext.accesskey.addGroup__"/></hbox>
-                    <hbox><button id="group-button-add-text" label="__MSG_quicktext.addTemplate.label__" flex="1" oncommand="quicktext.addText();" accesskey="__MSG_quicktext.accesskey.addTemplate__"/></hbox>
+                    <hbox><button id="group-button-add-group" label="__MSG_quicktext.addGroup.label__" flex="1" oncommand="settingsDialog.addGroup();" accesskey="__MSG_quicktext.accesskey.addGroup__"/></hbox>
+                    <hbox><button id="group-button-add-text" label="__MSG_quicktext.addTemplate.label__" flex="1" oncommand="settingsDialog.addText();" accesskey="__MSG_quicktext.accesskey.addTemplate__"/></hbox>
                     <tree id="group-tree"
-                          onselect="quicktext.pickText();"
+                          onselect="settingsDialog.pickText();"
                           flex="1"
                           seltype="single"
                           selstyle="primary"
@@ -171,7 +137,7 @@
                           ondragstart="event.dataTransfer.setData('quicktextTree', event.target.getAttribute('label'))"
                       />
                     </tree>
-                    <hbox><button id="group-button-remove" label="__MSG_quicktext.remove.label__" flex="1" oncommand="quicktext.removeText();" accesskey="__MSG_quicktext.accesskey.remove__"/></hbox>
+                    <hbox><button id="group-button-remove" label="__MSG_quicktext.remove.label__" flex="1" oncommand="settingsDialog.removeText();" accesskey="__MSG_quicktext.accesskey.remove__"/></hbox>
                   </vbox>
                 </fieldset>
               </vbox>
@@ -191,7 +157,7 @@
                           </vbox>
                         </html:td>
                         <html:td>
-                          <hbox class="input-container"><html:input id="text-title" disabled="true" candisable="true" oninput="quicktext.checkForTextChanges(0);"/></hbox>
+                          <hbox class="input-container"><html:input id="text-title" disabled="true" candisable="true" oninput="settingsDialog.checkForTextChanges(0);"/></hbox>
                         </html:td>
                       </html:tr>
                     </html:table>
@@ -203,71 +169,71 @@
                           <menupopup>
                             <menu label="__MSG_quicktext.to.label__">
                               <menupopup>
-                                <menuitem label="__MSG_quicktext.firstname.label__" oncommand="quicktext.insertVariable('TO=firstname');" />
-                                <menuitem label="__MSG_quicktext.lastname.label__" oncommand="quicktext.insertVariable('TO=lastname');" />
-                                <menuitem label="__MSG_quicktext.fullname.label__" oncommand="quicktext.insertVariable('TO=fullname');" />
-                                <menuitem label="__MSG_quicktext.displayname.label__" oncommand="quicktext.insertVariable('TO=displayname');" />
-                                <menuitem label="__MSG_quicktext.nickname.label__" oncommand="quicktext.insertVariable('TO=nickname');" />
-                                <menuitem label="__MSG_quicktext.email.label__" oncommand="quicktext.insertVariable('TO=email');" />
-                                <menuitem label="__MSG_quicktext.workphone.label__" oncommand="quicktext.insertVariable('TO=workphone');" />
-                                <menuitem label="__MSG_quicktext.faxnumber.label__" oncommand="quicktext.insertVariable('TO=faxnumber');" />
-                                <menuitem label="__MSG_quicktext.cellularnumber.label__" oncommand="quicktext.insertVariable('TO=cellularnumber');" />
-                                <menuitem label="__MSG_quicktext.jobtitle.label__" oncommand="quicktext.insertVariable('TO=jobtitle');" />
-                                <menuitem label="__MSG_quicktext.custom1.label__" oncommand="quicktext.insertVariable('TO=custom1');" />
-                                <menuitem label="__MSG_quicktext.custom2.label__" oncommand="quicktext.insertVariable('TO=custom2');" />
-                                <menuitem label="__MSG_quicktext.custom3.label__" oncommand="quicktext.insertVariable('TO=custom3');" />
-                                <menuitem label="__MSG_quicktext.custom4.label__" oncommand="quicktext.insertVariable('TO=custom4');" />
+                                <menuitem label="__MSG_quicktext.firstname.label__" oncommand="settingsDialog.insertVariable('TO=firstname');" />
+                                <menuitem label="__MSG_quicktext.lastname.label__" oncommand="settingsDialog.insertVariable('TO=lastname');" />
+                                <menuitem label="__MSG_quicktext.fullname.label__" oncommand="settingsDialog.insertVariable('TO=fullname');" />
+                                <menuitem label="__MSG_quicktext.displayname.label__" oncommand="settingsDialog.insertVariable('TO=displayname');" />
+                                <menuitem label="__MSG_quicktext.nickname.label__" oncommand="settingsDialog.insertVariable('TO=nickname');" />
+                                <menuitem label="__MSG_quicktext.email.label__" oncommand="settingsDialog.insertVariable('TO=email');" />
+                                <menuitem label="__MSG_quicktext.workphone.label__" oncommand="settingsDialog.insertVariable('TO=workphone');" />
+                                <menuitem label="__MSG_quicktext.faxnumber.label__" oncommand="settingsDialog.insertVariable('TO=faxnumber');" />
+                                <menuitem label="__MSG_quicktext.cellularnumber.label__" oncommand="settingsDialog.insertVariable('TO=cellularnumber');" />
+                                <menuitem label="__MSG_quicktext.jobtitle.label__" oncommand="settingsDialog.insertVariable('TO=jobtitle');" />
+                                <menuitem label="__MSG_quicktext.custom1.label__" oncommand="settingsDialog.insertVariable('TO=custom1');" />
+                                <menuitem label="__MSG_quicktext.custom2.label__" oncommand="settingsDialog.insertVariable('TO=custom2');" />
+                                <menuitem label="__MSG_quicktext.custom3.label__" oncommand="settingsDialog.insertVariable('TO=custom3');" />
+                                <menuitem label="__MSG_quicktext.custom4.label__" oncommand="settingsDialog.insertVariable('TO=custom4');" />
                               </menupopup>
                             </menu>
                             <menu label="__MSG_quicktext.from.label__">
                               <menupopup>
-                                <menuitem label="__MSG_quicktext.firstname.label__" oncommand="quicktext.insertVariable('FROM=firstname');" />
-                                <menuitem label="__MSG_quicktext.lastname.label__" oncommand="quicktext.insertVariable('FROM=lastname');" />
-                                <menuitem label="__MSG_quicktext.fullname.label__" oncommand="quicktext.insertVariable('FROM=fullname');" />
-                                <menuitem label="__MSG_quicktext.displayname.label__" oncommand="quicktext.insertVariable('FROM=displayname');" />
-                                <menuitem label="__MSG_quicktext.nickname.label__" oncommand="quicktext.insertVariable('FROM=nickname');" />
-                                <menuitem label="__MSG_quicktext.email.label__" oncommand="quicktext.insertVariable('FROM=email');" />
-                                <menuitem label="__MSG_quicktext.workphone.label__" oncommand="quicktext.insertVariable('FROM=workphone');" />
-                                <menuitem label="__MSG_quicktext.faxnumber.label__" oncommand="quicktext.insertVariable('FROM=faxnumber');" />
-                                <menuitem label="__MSG_quicktext.cellularnumber.label__" oncommand="quicktext.insertVariable('FROM=cellularnumber');" />
-                                <menuitem label="__MSG_quicktext.jobtitle.label__" oncommand="quicktext.insertVariable('FROM=jobtitle');" />
-                                <menuitem label="__MSG_quicktext.custom1.label__" oncommand="quicktext.insertVariable('FROM=custom1');" />
-                                <menuitem label="__MSG_quicktext.custom2.label__" oncommand="quicktext.insertVariable('FROM=custom2');" />
-                                <menuitem label="__MSG_quicktext.custom3.label__" oncommand="quicktext.insertVariable('FROM=custom3');" />
-                                <menuitem label="__MSG_quicktext.custom4.label__" oncommand="quicktext.insertVariable('FROM=custom4');" />
+                                <menuitem label="__MSG_quicktext.firstname.label__" oncommand="settingsDialog.insertVariable('FROM=firstname');" />
+                                <menuitem label="__MSG_quicktext.lastname.label__" oncommand="settingsDialog.insertVariable('FROM=lastname');" />
+                                <menuitem label="__MSG_quicktext.fullname.label__" oncommand="settingsDialog.insertVariable('FROM=fullname');" />
+                                <menuitem label="__MSG_quicktext.displayname.label__" oncommand="settingsDialog.insertVariable('FROM=displayname');" />
+                                <menuitem label="__MSG_quicktext.nickname.label__" oncommand="settingsDialog.insertVariable('FROM=nickname');" />
+                                <menuitem label="__MSG_quicktext.email.label__" oncommand="settingsDialog.insertVariable('FROM=email');" />
+                                <menuitem label="__MSG_quicktext.workphone.label__" oncommand="settingsDialog.insertVariable('FROM=workphone');" />
+                                <menuitem label="__MSG_quicktext.faxnumber.label__" oncommand="settingsDialog.insertVariable('FROM=faxnumber');" />
+                                <menuitem label="__MSG_quicktext.cellularnumber.label__" oncommand="settingsDialog.insertVariable('FROM=cellularnumber');" />
+                                <menuitem label="__MSG_quicktext.jobtitle.label__" oncommand="settingsDialog.insertVariable('FROM=jobtitle');" />
+                                <menuitem label="__MSG_quicktext.custom1.label__" oncommand="settingsDialog.insertVariable('FROM=custom1');" />
+                                <menuitem label="__MSG_quicktext.custom2.label__" oncommand="settingsDialog.insertVariable('FROM=custom2');" />
+                                <menuitem label="__MSG_quicktext.custom3.label__" oncommand="settingsDialog.insertVariable('FROM=custom3');" />
+                                <menuitem label="__MSG_quicktext.custom4.label__" oncommand="settingsDialog.insertVariable('FROM=custom4');" />
                               </menupopup>
                             </menu>
                             <menu label="__MSG_quicktext.attachments.label__">
                               <menupopup>
-                                <menuitem label="__MSG_quicktext.filename.label__" oncommand="quicktext.insertVariable('ATT=name');" />
-                                <menuitem label="__MSG_quicktext.filenameAndSize.label__" oncommand="quicktext.insertVariable('ATT=full');" />
+                                <menuitem label="__MSG_quicktext.filename.label__" oncommand="settingsDialog.insertVariable('ATT=name');" />
+                                <menuitem label="__MSG_quicktext.filenameAndSize.label__" oncommand="settingsDialog.insertVariable('ATT=full');" />
                               </menupopup>
                             </menu>
                             <menu label="__MSG_quicktext.dateTime.label__">
                               <menupopup>
-                                <menuitem id="date-short" oncommand="quicktext.insertVariable('DATE');" />
-                                <menuitem id="date-long" oncommand="quicktext.insertVariable('DATE=long');" />
-                                <menuitem id="date-monthname" oncommand="quicktext.insertVariable('DATE=monthname');" />
-                                <menuitem id="time-noseconds" oncommand="quicktext.insertVariable('TIME');" />
-                                <menuitem id="time-seconds" oncommand="quicktext.insertVariable('TIME=seconds');" />
+                                <menuitem id="date-short" oncommand="settingsDialog.insertVariable('DATE');" />
+                                <menuitem id="date-long" oncommand="settingsDialog.insertVariable('DATE=long');" />
+                                <menuitem id="date-monthname" oncommand="settingsDialog.insertVariable('DATE=monthname');" />
+                                <menuitem id="time-noseconds" oncommand="settingsDialog.insertVariable('TIME');" />
+                                <menuitem id="time-seconds" oncommand="settingsDialog.insertVariable('TIME=seconds');" />
                               </menupopup>
                             </menu>
                             <menu label="__MSG_quicktext.other.label__">
                               <menupopup>
-                                <menuitem label="__MSG_quicktext.clipboard.label__" oncommand="quicktext.insertVariable('CLIPBOARD');" />
-                                <menuitem label="__MSG_quicktext.counter.label__" oncommand="quicktext.insertVariable('COUNTER');" />
-                                <menuitem label="__MSG_quicktext.input.label__" oncommand="quicktext.insertVariable('INPUT=name|type|options');" />
-                                <menuitem label="__MSG_quicktext.selection.label__" oncommand="quicktext.insertVariable('SELECTION');" />
-                                <menuitem label="__MSG_quicktext.orgatt.label__" oncommand="quicktext.insertVariable('ORGATT=\\n');" />
-                                <menuitem label="__MSG_quicktext.orgheader.label__" oncommand="quicktext.insertVariable('ORGHEADER=type|\\n');" />
-                                <menuitem label="__MSG_quicktext.subject.label__" oncommand="quicktext.insertVariable('SUBJECT');" />
-                                <menuitem label="__MSG_quicktext.url.label__" oncommand="quicktext.insertVariable('URL=url|data');" />
-                                <menuitem label="__MSG_quicktext.insertfile.label__" oncommand="quicktext.insertFileVariable();" />
-                                <menuitem label="__MSG_quicktext.image.label__" oncommand="quicktext.insertImageVariable();" />
-                                <menuitem label="__MSG_quicktext.version.label__" oncommand="quicktext.insertVariable('VERSION');" />
+                                <menuitem label="__MSG_quicktext.clipboard.label__" oncommand="settingsDialog.insertVariable('CLIPBOARD');" />
+                                <menuitem label="__MSG_quicktext.counter.label__" oncommand="settingsDialog.insertVariable('COUNTER');" />
+                                <menuitem label="__MSG_quicktext.input.label__" oncommand="settingsDialog.insertVariable('INPUT=name|type|options');" />
+                                <menuitem label="__MSG_quicktext.selection.label__" oncommand="settingsDialog.insertVariable('SELECTION');" />
+                                <menuitem label="__MSG_quicktext.orgatt.label__" oncommand="settingsDialog.insertVariable('ORGATT=\\n');" />
+                                <menuitem label="__MSG_quicktext.orgheader.label__" oncommand="settingsDialog.insertVariable('ORGHEADER=type|\\n');" />
+                                <menuitem label="__MSG_quicktext.subject.label__" oncommand="settingsDialog.insertVariable('SUBJECT');" />
+                                <menuitem label="__MSG_quicktext.url.label__" oncommand="settingsDialog.insertVariable('URL=url|data');" />
+                                <menuitem label="__MSG_quicktext.insertfile.label__" oncommand="settingsDialog.insertFileVariable();" />
+                                <menuitem label="__MSG_quicktext.image.label__" oncommand="settingsDialog.insertImageVariable();" />
+                                <menuitem label="__MSG_quicktext.version.label__" oncommand="settingsDialog.insertVariable('VERSION');" />
                                 <menuseparator/>
-                                <menuitem label="__MSG_quicktext.header.label__" oncommand="quicktext.insertVariable('HEADER=type|value');" />
-                                <menuitem label="__MSG_quicktext.cursor.label__" oncommand="quicktext.insertVariable('CURSOR');" />
+                                <menuitem label="__MSG_quicktext.header.label__" oncommand="settingsDialog.insertVariable('HEADER=type|value');" />
+                                <menuitem label="__MSG_quicktext.cursor.label__" oncommand="settingsDialog.insertVariable('CURSOR');" />
                               </menupopup>
                             </menu>
                             <menu label="__MSG_quicktext.templates.label__" id="quicktext-other-texts" />
@@ -278,7 +244,7 @@
                     </hbox>
 
                     <vbox class="textarea-container" style="display:flex; flex-direction: column;" flex="1">
-                      <html:textarea id="text" showfor="text" style="font-family:Consolas,Courier New,monospace; flex:1" disabled="true" candisable="true" wrap="on" oninput="quicktext.checkForTextChanges(1);"/>
+                      <html:textarea id="text" showfor="text" style="font-family:Consolas,Courier New,monospace; flex:1" disabled="true" candisable="true" wrap="on" oninput="settingsDialog.checkForTextChanges(1);"/>
                     </vbox>
 
                     <html:table>
@@ -288,7 +254,7 @@
                         </html:td>
                         <html:td>
                           <hbox flex="1">
-                                  <menulist id="text-type" disabled="true" candisable="true" oncommand="quicktext.checkForTextChanges(3);">
+                                  <menulist id="text-type" disabled="true" candisable="true" oncommand="settingsDialog.checkForTextChanges(3);">
                                     <menupopup>
                                       <menuitem label="__MSG_quicktext.text.label__" value="0" />
                                       <menuitem label="__MSG_quicktext.HTML.label__" value="1" />
@@ -298,7 +264,7 @@
                                     <label align="center" value="__MSG_quicktext.shortcut.label__:" control="text-shortcutBasic" style="margin-top: 6px" />
                                     <label id="label-shortcutModifier" align="center" value="" control="text-shortcutBasic" style="margin-top: 6px" />
 
-                                    <menulist id="text-shortcutBasic" disabled="true" candisable="true" oncommand="quicktext.checkForTextChanges(2);">
+                                    <menulist id="text-shortcutBasic" disabled="true" candisable="true" oncommand="settingsDialog.checkForTextChanges(2);">
                                       <menupopup id="popup-shortcutBasic">
                                         <menuitem label="__MSG_quicktext.none.label__" value="" />
                                         <menuitem label="1" value="1" />
@@ -314,7 +280,7 @@
                                       </menupopup>
                                     </menulist>
 
-                                    <html:input id="text-shortcutAdv" disabled="true" candisable="true" oninput="quicktext.checkForTextChanges(2);" width="50"/>
+                                    <html:input id="text-shortcutAdv" disabled="true" candisable="true" oninput="settingsDialog.checkForTextChanges(2);" width="50"/>
                                   </hbox>
                           </hbox>
                         </html:td>
@@ -325,7 +291,7 @@
                           <label align="center" value="__MSG_quicktext.subject.label__:" control="text-subject" style="margin-top: 6px" />
                         </html:td>
                         <html:td>
-                          <hbox class="input-container"><html:input id="text-subject" disabled="true" candisable="true" oninput="quicktext.checkForTextChanges(5);"/></hbox>
+                          <hbox class="input-container"><html:input id="text-subject" disabled="true" candisable="true" oninput="settingsDialog.checkForTextChanges(5);"/></hbox>
                         </html:td>
                       </html:tr>
 
@@ -334,7 +300,7 @@
                           <label align="center" value="__MSG_quicktext.keyword.label__:" control="text-keyword" style="margin-top: 6px" />
                         </html:td>
                         <html:td>
-                          <html:input id="text-keyword" disabled="true" flex="1" candisable="true" oninput="quicktext.checkForTextChanges(4);"/>
+                          <html:input id="text-keyword" disabled="true" flex="1" candisable="true" oninput="settingsDialog.checkForTextChanges(4);"/>
                         </html:td>
                       </html:tr>
 
@@ -344,8 +310,8 @@
                         </html:td>
                         <html:td>
                           <hbox>
-                            <html:input id="text-attachments" disabled="true" flex="1" candisable="true" oninput="quicktext.checkForTextChanges(6);"/>
-                            <button id="button-attachments" label="__MSG_quicktext.browse.label__" oncommand="quicktext.browseAttachment();" disabled="true" candisable="true"/>
+                            <html:input id="text-attachments" disabled="true" flex="1" candisable="true" oninput="settingsDialog.checkForTextChanges(6);"/>
+                            <button id="button-attachments" label="__MSG_quicktext.browse.label__" oncommand="settingsDialog.browseAttachment();" disabled="true" candisable="true"/>
                           </hbox>
                         </html:td>
                       </html:tr>                
@@ -359,10 +325,10 @@
                 <fieldset flex="1">
                   <vbox flex="1">
                     <hbox><legend class="insideTab">__MSG_quicktext.title.label__</legend></hbox>
-                    <hbox><button id="script-button-add" label="__MSG_quicktext.addScript.label__" flex="1" oncommand="quicktext.addScript();" accesskey="__MSG_quicktext.accesskey.addScript__"/></hbox>
-                    <hbox><button label="__MSG_quicktext.getScript.label__" flex="1" oncommand="quicktext.getCommunityScripts();" accesskey="__MSG_quicktext.accesskey.communityScripts__"/></hbox>
-                    <richlistbox id="script-list" flex="1" onselect="quicktext.pickScript();"/>
-                    <hbox><button id="script-button-remove" label="__MSG_quicktext.remove.label__" flex="1" oncommand="quicktext.removeScript();" accesskey="__MSG_quicktext.accesskey.remove__"/></hbox>
+                    <hbox><button id="script-button-add" label="__MSG_quicktext.addScript.label__" flex="1" oncommand="settingsDialog.addScript();" accesskey="__MSG_quicktext.accesskey.addScript__"/></hbox>
+                    <hbox><button label="__MSG_quicktext.getScript.label__" flex="1" oncommand="settingsDialog.getCommunityScripts();" accesskey="__MSG_quicktext.accesskey.communityScripts__"/></hbox>
+                    <richlistbox id="script-list" flex="1" onselect="settingsDialog.pickScript();"/>
+                    <hbox><button id="script-button-remove" label="__MSG_quicktext.remove.label__" flex="1" oncommand="settingsDialog.removeScript();" accesskey="__MSG_quicktext.accesskey.remove__"/></hbox>
                   </vbox>
                 </fieldset>
 
@@ -382,13 +348,13 @@
                             </vbox>
                           </html:td>
                           <html:td>
-                            <hbox class="input-container"><html:input id="script-title" oninput="quicktext.checkForScriptChanges(0);"/></hbox>
+                            <hbox class="input-container"><html:input id="script-title" oninput="settingsDialog.checkForScriptChanges(0);"/></hbox>
                           </html:td>
                         </html:tr>
                       </html:table>
 
                       <vbox class="textarea-container" style="display:flex; flex-direction: column;" flex="1">
-                        <html:textarea id="script" style="font-family:Consolas,Courier New,monospace; flex:1" disabled="true" wrap="off" oninput="quicktext.checkForScriptChanges(1);"/>
+                        <html:textarea id="script" style="font-family:Consolas,Courier New,monospace; flex:1" disabled="true" wrap="off" oninput="settingsDialog.checkForScriptChanges(1);"/>
                       </vbox>
                   </vbox>
                 </fieldset>
@@ -401,6 +367,7 @@
 
     <hbox style="margin: 5px">
       <div flex="1"></div>
+      <button id="helpbutton" label="__MSG_quicktext.help.label__"/>
       <button id="savebutton" label="__MSG_quicktext.save.label__"/>
       <button id="closebutton" label="__MSG_quicktext.close.label__"/>
     </hbox>

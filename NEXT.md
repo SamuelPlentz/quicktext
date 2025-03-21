@@ -6,7 +6,11 @@
 [x] replace and properly implement file picker
 [x] replace most of utils.mjs and email-addresses.mjs with messengerUtilities API
 [x] implement choice via popover
-[ ] find a solution for scripts
+[x] migrate templates to local storage (keep XML files as backup) and decouple XUL
+    settings dialog from Experiment usage as much as possible
+[ ] properly implement startup imports
+[ ] find a solution for scripts, looks like this will not work without breaking
+    existing scripts :-( (they have to use WebExtension code)
 
 [x] change composer toolbar Experiment to use templates from storage
 [x] change composer toolbar Experiment to use notifytools to trigger actions
@@ -17,5 +21,7 @@
 
 [ ] make template manager use files loaded from background, parse them on its own
 [ ] replace XUL template manager with HTML template manager
+[ ] add gallery for attachments, images and text files, which are currently
+    references via file system paths, which will not work as a pure webextension
 
 [ ] keyword + special seems to eat the leading space

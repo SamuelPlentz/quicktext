@@ -5,6 +5,7 @@
  */
 
 import * as storage from "/modules/storage.mjs";
+import * as utils from "/modules/utils.mjs";
 
 // These classes are used to create the internal m* properties, with defaults.
 // Once the template object (with multiple of these classes) are stored in local
@@ -19,32 +20,18 @@ import { QuicktextParser } from "/modules/quicktextParser.mjs";
 
 // Helper
 
-export async function parseXmlFilesIntoStorage() {
+export async function readXmlTemplateFile() {
   let templateFolder = await storage.getPref("templateFolder");
-  let { templateFilePath, scriptFilePath } = await browser.Quicktext.getQuicktextFilePaths(templateFolder);
+  let { templateFilePath } = await browser.Quicktext.getQuicktextFilePaths(templateFolder);
   let templateFile = await browser.Quicktext.readTextFile(templateFilePath);
-  let scriptFile = await browser.Quicktext.readTextFile(scriptFilePath);
-  const { templates, scripts } = await parseXmlData({ templateFile, scriptFile });
-  // Store templates in local storage.
-  await storage.setTemplates(templates);
+  return parseImport(templateFile, 0);
 }
 
-async function parseXmlData({ templateFile, scriptFile }) {
-  const templates = await parseImport(templateFile, 0);
-  const scripts = await parseImport(scriptFile, 0);
-  return { templates, scripts };
-
-  /*
-  const templates = await parseImport(templateFile, 0).then(({group,texts}) => {
-    // Map scripts to flat array with groupId
-    const rv = {};
-    rv.groups = group.map((e,i) => ({...e, id:i}));
-    rv.texts = texts.map((e,i) => e.map(t => ({...t, groupId:i}))).flat();
-    return rv;
-  });
-  const { scripts } = await parseImport(scriptFile, 0);
-  return {templates, scripts};
-  */
+export async function readXmlScriptFile() {
+  let templateFolder = await storage.getPref("templateFolder");
+  let { scriptFilePath } = await browser.Quicktext.getQuicktextFilePaths(templateFolder);
+  let scriptFile = await browser.Quicktext.readTextFile(scriptFilePath);
+  return parseImport(scriptFile, 0);
 }
 
 /**
@@ -198,52 +185,14 @@ export async function insertVariable(aTabId, aVar, aForceAsText) {
 }
 
 export async function insertContentFromFile(aTabId, aType) {
-  let picker = Promise.withResolvers();
-
-  // Hidden input to open file dialog.
-  const inputElement = document.createElement("input");
-  inputElement.setAttribute("type", "file");
-  inputElement.addEventListener("change", () => { picker.resolve(inputElement.files) }, false);
-  inputElement.addEventListener("cancel", () => { picker.resolve([]) }, false);
-
-  switch (aType) {
-    case 0: // TXT files
-      inputElement.setAttribute("accept", "text/plain");
-      break;
-    case 1: // HTML files
-      inputElement.setAttribute("accept", "text/html");
-      break;
-    case 2: // arbitrary files
-      break;
-    case 3: // legacy Quicktext XML files
-      inputElement.setAttribute("accept", ".xml");
-      break;
-    case 4: // image files
-      inputElement.setAttribute("accept", "images/*");
-    default: // attachments
-      break;
-  }
-
-  inputElement.click();
-  const [file] = await picker.promise;
-  inputElement.remove();
-
+  let file = utils.getFileFromDisc(aType);
   if (file) {
     return insertFile(aTabId, file, aType);
   }
 }
 
 export async function insertFile(aTabId, file, aType) {
-  const content = await new Promise(resolve => {
-    const reader = new FileReader();
-    reader.onloadend = function (evt) {
-      if (evt.target.readyState == FileReader.DONE) {
-        var filedata = evt.target.result;
-        resolve(filedata);
-      }
-    };
-    reader.readAsText(file)
-  })
+  const content = await utils.getTextFileContent(file);
   if (!content) {
     return;
   }

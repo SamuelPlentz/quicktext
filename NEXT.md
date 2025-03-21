@@ -5,7 +5,7 @@
 [x] eliminate template setter
 [x] replace and properly implement file picker
 [x] replace most of utils.mjs and email-addresses.mjs with messengerUtilities API
-[ ] properly implement choice - popover ?
+[x] implement choice via popover
 [ ] find a solution for scripts
 
 [x] change composer toolbar Experiment to use templates from storage

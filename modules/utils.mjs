@@ -158,3 +158,15 @@ export async function getTextFileContent(file) {
   })
   return content;
 }
+
+export async function fetchFileFromServer(url) {
+    try {
+        const response = await fetch(url);
+        if (response?.ok) {
+            return await response.text();
+        }
+        throw new Error('Network response was not ok');
+    } catch (ex) {
+        console.error('There was a problem with the fetch operation:', ex);
+    }
+}

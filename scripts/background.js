@@ -88,7 +88,14 @@ if (defaultImport) {
     try {
       if (path.match(/^(http|https):\/\//)) {
         // Import from remote server.
-        //this.importFromHTTPFile(path, 1, true, false);
+        // TODO:Enforce type 1 as this was imported.
+        const imports = JSON.parse(await utils.fetchFileFromServer(path));
+        if (imports.templates) {
+          quicktext.mergeTemplates(templates, imports.templates);
+        }
+        if (imports.scripts) {
+          quicktext.mergeScripts(scripts, imports);
+        }
       } else {
         // Import from file system. Only the old XML import is supported, the
         // final WebExtension version will no longer support imports from the
@@ -96,12 +103,13 @@ if (defaultImport) {
         // in the new JSON format.
         const imports = await quicktext.parseLegacyXmlFile(path, 1);
         quicktext.mergeTemplates(templates, imports);
-        await storage.setTemplates(templates);
         quicktext.mergeScripts(scripts, imports);
-        await storage.setScripts(scripts);
-      }
+    }
+      
     } catch (e) { console.error(e); }
   }
+  await storage.setTemplates(templates);
+  await storage.setScripts(scripts);
 }
 
 // NotifyTools needed by Experiment code to access WebExtension code.

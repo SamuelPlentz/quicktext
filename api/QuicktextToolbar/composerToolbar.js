@@ -66,7 +66,7 @@ var quicktextToolbar = {
       const templates = await this.notifyTools.notifyBackground({ command: "getTemplates" });
       const collapseGroup = await this.notifyTools.notifyBackground({ command: "getPref", pref: "menuCollapse" });
 
-      var groupLength = templates.group.length;
+      var groupLength = templates.groups.length;
       for (var i = 0; i < groupLength; i++) {
         var textLength = templates.texts[i].length;
         if (textLength) {
@@ -89,7 +89,7 @@ var quicktextToolbar = {
           else {
             t.setAttribute("type", "menu");
             toolbarbuttonGroup = toolbar.appendChild(t);
-            toolbarbuttonGroup.setAttribute("label", templates.group[i].mName);
+            toolbarbuttonGroup.setAttribute("label", templates.groups[i].mName);
             var menupopup = toolbarbuttonGroup.appendChild(document.createXULElement("menupopup"));
 
             // Add second level elements: all found texts of this group.

@@ -83,8 +83,8 @@ if (this.mDefaultImport)
 let templates = await storage.getTemplates();
 if (!templates) {
   console.log("Migrating XML template file to JSON stored in local storage.")
-  templates = await quicktext.readXmlTemplateFile().then(
-    e => ({texts: e.texts, group: e.group})
+  templates = await quicktext.readLegacyXmlTemplateFile().then(
+    e => ({texts: e.texts, groups: e.group}) // The XML file used "group"
   );
   await storage.setTemplates(templates);
 }
@@ -152,7 +152,7 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
           let t = await storage.getTemplates();
           return quicktext.insertVariable(
             tabs[0].id,
-            `TEXT=${t.group[info.group].mName}|${t.texts[info.group][info.text].mName}`
+            `TEXT=${t.groups[info.group].mName}|${t.texts[info.group][info.text].mName}`
           )
         });
   }
@@ -167,7 +167,7 @@ messenger.runtime.onMessage.addListener((info, sender, sendResponse) => {
     case "insertTemplate":
       return storage.getTemplates().then(t => quicktext.insertVariable(
         sender.tab.id,
-        `TEXT=${t.group[info.group].mName}|${t.texts[info.group][info.text].mName}`
+        `TEXT=${t.groups[info.group].mName}|${t.texts[info.group][info.text].mName}`
       ));
     default:
       return false;

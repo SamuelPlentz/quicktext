@@ -20,18 +20,18 @@ import { QuicktextParser } from "/modules/quicktextParser.mjs";
 
 // Helper
 
-export async function readXmlTemplateFile() {
+export async function readLegacyXmlTemplateFile() {
   let templateFolder = await storage.getPref("templateFolder");
   let { templateFilePath } = await browser.Quicktext.getQuicktextFilePaths(templateFolder);
   let templateFile = await browser.Quicktext.readTextFile(templateFilePath);
-  return parseImport(templateFile, 0);
+  return parseLegacyXmlFile(templateFile, 0);
 }
 
 export async function readXmlScriptFile() {
   let templateFolder = await storage.getPref("templateFolder");
   let { scriptFilePath } = await browser.Quicktext.getQuicktextFilePaths(templateFolder);
   let scriptFile = await browser.Quicktext.readTextFile(scriptFilePath);
-  return parseImport(scriptFile, 0);
+  return parseLegacyXmlFile(scriptFile, 0);
 }
 
 /**
@@ -40,7 +40,7 @@ export async function readXmlScriptFile() {
  * @param {integer} aType 0 = normal, 1 = default import
  * @returns {obj} imports
  */
-async function parseImport(aData, aType) {
+async function parseLegacyXmlFile(aData, aType) {
   const parser = new DOMParser();
   const dom = parser.parseFromString(aData, "text/xml");
 
@@ -211,7 +211,7 @@ export async function getKeywordsAndShortcuts() {
   let keywords = {};
   let shortcuts = {};
 
-  for (let i = 0; i < gTemplates.group.length; i++) {
+  for (let i = 0; i < gTemplates.groups.length; i++) {
     for (let j = 0; j < gTemplates.texts[i].length; j++) {
       let text = gTemplates.texts[i][j];
       let shortcut = text.mShortcut;

@@ -78,16 +78,21 @@ async function getComposeBodyMenuData() {
     let menuData = [];
     let contexts = ["compose_body", "compose_action_menu"];
     let gTemplates = await storage.getTemplates();
-    for (let i = 0; i < gTemplates.group.length; i++) {
+    for (let i = 0; i < gTemplates.groups.length; i++) {
         let children = [];
         for (let j = 0; j < gTemplates.texts[i].length; j++) {
             children.push({
                 id: `group-${i}-text-${j}`,
                 title: gTemplates.texts[i][j].mName,
-                onclick: (info, tab) => quicktext.insertVariable(tab.id, `TEXT=${gTemplates.group[i].mName}|${gTemplates.texts[i][j].mName}`)
+                onclick: (info, tab) => quicktext.insertVariable(tab.id, `TEXT=${gTemplates.groups[i].mName}|${gTemplates.texts[i][j].mName}`)
             });
 
         }
+        // Ignore this group, if it has now children.
+        if (children.length == 0) {
+            continue;
+        }
+
         // If this group has only a single child, and menuCollapse is true, print
         // only that.
         if (await storage.getPref("menuCollapse") && children.length == 1) {
@@ -98,12 +103,12 @@ async function getComposeBodyMenuData() {
         menuData.push({
             contexts,
             id: `group-${i}`,
-            title: gTemplates.group[i].mName,
+            title: gTemplates.groups[i].mName,
             children
         });
     }
 
-    if (gTemplates.group.length > 0) {
+    if (gTemplates.groups.length > 0) {
         menuData.push({
             contexts,
             id: `group-separator`,

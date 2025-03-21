@@ -107,14 +107,14 @@ var gQuicktext = {
   },
   loadSettings: async function () {
     const scripts = await notifyTools.notifyBackground({ command: "getScripts" });
-    const templates = await notifyTools.notifyBackground({ command: "getTemplates" });
+    const { groups, texts } = await notifyTools.notifyBackground({ command: "getTemplates" });
 
     this.mScripts = (scripts || []).map(e => new wzQuicktextScript(e));
-    this.mGroup = (templates?.group || []).map(e => new wzQuicktextGroup(e));
+    this.mGroup = (groups || []).map(e => new wzQuicktextGroup(e));
     this.mTexts = []
     // The templates are grouped.
-    for (let texts of templates?.texts || []) {
-      this.mTexts.push(texts.map(e => new wzQuicktextTemplate(e)))
+    for (let groupTexts of (texts || [])) {
+      this.mTexts.push(groupTexts.map(e => new wzQuicktextTemplate(e)))
     }
 
     // Get prefs
@@ -146,7 +146,7 @@ var gQuicktext = {
     // Save templates and scripts.
     this.endEditing();
     await notifyTools.notifyBackground({ command: "setScripts", data: this.mScripts });
-    await notifyTools.notifyBackground({ command: "setTemplates", data: { texts: this.mTexts, group: this.mGroup } });
+    await notifyTools.notifyBackground({ command: "setTemplates", data: { texts: this.mTexts, groups: this.mGroup } });
     this.startEditing();
 
     this.notifyObservers("updatesettings", "");
@@ -350,7 +350,6 @@ var gQuicktext = {
    * FILE FUNCTIONS
    */
   async pickFile(aType, aMode, aTitle) {
-    console.log({aType});
     let filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
     switch (aMode) {
       case 1: // save
@@ -396,7 +395,7 @@ var gQuicktext = {
     }
   },
   importTemplates(templates) {
-    let importedGroup = (templates?.group || []).map(e => new wzQuicktextGroup(e));
+    let importedGroup = (templates?.groups || []).map(e => new wzQuicktextGroup(e));
     let importedTexts = [];
     // The templates are grouped.
     for (let texts of templates?.texts || []) {
@@ -1259,10 +1258,10 @@ var settingsDialog = {
     // let data = await notifyTools.notifyBackground({ command: "importFromDisc" });
     const file = await gQuicktext.pickFile(5, 0, extension.localeData.localizeMessage("importFile"));
     if (!file) return;
-    
+
     const data = await IOUtils.readUTF8(file.path);
     if (!data) return;
-    
+
     let parsedData = JSON.parse(data);
     if (!parsedData || !parsedData.templates) return;
 
@@ -1296,7 +1295,7 @@ var settingsDialog = {
 
     this.saveText();
     this.saveScript();
-    
+
     gQuicktext.importScripts(parsedData.scripts)
 
     this.changesMade();

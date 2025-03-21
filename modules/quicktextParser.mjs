@@ -339,8 +339,8 @@ export class QuicktextParser {
       return "";
     // Looks after the group and text-name and returns
     // the text from it
-    for (let i = 0; i < this.mTemplates.group.length; i++) {
-      if (aVariables[0] == this.mTemplates.group[i].mName) {
+    for (let i = 0; i < this.mTemplates.groups.length; i++) {
+      if (aVariables[0] == this.mTemplates.groups[i].mName) {
         for (let j = 0; j < this.mTemplates.texts[i].length; j++) {
           let text = this.mTemplates.texts[i][j];
           if (aVariables[1] == text.mName) {

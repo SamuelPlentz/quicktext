@@ -61,7 +61,7 @@ let templates = await storage.getTemplates();
 if (!templates) {
   console.log("Migrating XML template file to JSON stored in local storage.")
   templates = await quicktext.readLegacyXmlTemplateFile().then(
-    e => ({ texts: e.texts, groups: e.group }) // The XML file used "group"
+    e => ({ texts: e.texts, groups: e.groups })
   );
   // After the migration code is removed, this needs to be used for initialization.
   // templates = {};

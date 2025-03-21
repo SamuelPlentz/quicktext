@@ -50,7 +50,7 @@ export async function parseLegacyXmlFile(filePath, aType) {
   const foundScripts = [];
 
   const imports = {}
-  for (let part of ["group", "scripts", "texts"]) {
+  for (let part of ["groups", "scripts", "texts"]) {
     imports[part] = [];
   }
 
@@ -136,7 +136,7 @@ export async function parseLegacyXmlFile(filePath, aType) {
 
   if (foundGroups.length > 0 && foundTexts.length > 0) {
     for (let i = 0; i < foundGroups.length; i++) {
-      imports.group.push(foundGroups[i]);
+      imports.groups.push(foundGroups[i]);
     }
     for (let i = 0; i < foundTexts.length; i++) {
       imports.texts.push(foundTexts[i]);
@@ -165,14 +165,14 @@ function getTagValue(aElem, aTag) {
 // ---- MERGE
 
 export function mergeTemplates(templates, imports) {
-  if (imports.group && imports.texts && imports.texts.length > 0 && imports.group.length == imports.texts.length) {
+  if (imports.groups && imports.texts && imports.texts.length > 0 && imports.groups.length == imports.texts.length) {
     // If a group exists already, import into the existing group.
     templates.groups.forEach((group, existingGroupIdx) => {
-      let groupImportIdx = imports.group.findIndex(i => i.mName == group.mName);
+      let groupImportIdx = imports.groups.findIndex(i => i.mName == group.mName);
       if (groupImportIdx != -1) {
         console.log(`Found existing group ${group.mName} in imported groups.`)
-        templates.groups[existingGroupIdx] = imports.group[groupImportIdx];
-        imports.group.splice(groupImportIdx, 1);
+        templates.groups[existingGroupIdx] = imports.groups[groupImportIdx];
+        imports.groups.splice(groupImportIdx, 1);
 
         // Handle texts of this group:
         // merge imports.texts[groupImportIdx] into templates.texts[existingGroupIdx]
@@ -192,7 +192,7 @@ export function mergeTemplates(templates, imports) {
 
     // Add remaining new templates.
     templates.texts.push(...imports.texts);
-    templates.groups.push(...imports.group);
+    templates.groups.push(...imports.groups);
   }
 }
 

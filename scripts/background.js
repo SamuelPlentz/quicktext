@@ -68,6 +68,8 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
       return storage.getPref(info.pref);
     case "getTemplates":
       return storage.getTemplates();
+    case "openWebPage":
+      return browser.windows.openDefaultBrowser(info.url);
 
     // Experiment XUL settings dialog requests.
     case "parseXmlFilesIntoStorage":

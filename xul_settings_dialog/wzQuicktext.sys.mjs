@@ -17,7 +17,6 @@ var { wzQuicktextScript } = ChromeUtils.importESModule(
 const kDebug        = true;
 const kIllegalChars = String.fromCharCode(1) +"-"+ String.fromCharCode(8) + String.fromCharCode(11) + String.fromCharCode(12) + String.fromCharCode(14) +"-"+ String.fromCharCode(31) + String.fromCharCode(127) +"-"+ String.fromCharCode(132) + String.fromCharCode(134) +"-"+ String.fromCharCode(159);
 const kFileShortcuts = ['ProfD', 'UsrDocs', 'Home', 'Desk', 'Pers'];
-const kHomepage     = "https://github.com/jobisoft/quicktext/wiki/";
 
 export var gQuicktext = {
   mSettingsLoaded:       false,
@@ -135,10 +134,7 @@ export var gQuicktext = {
 ,
   openHomepage: function()
   {
-    let ioservice = Components.classes["@mozilla.org/network/io-service;1"].getService(Components.interfaces.nsIIOService);
-    let uriToOpen = ioservice.newURI(kHomepage, null, null);
-    let extps = Components.classes["@mozilla.org/uriloader/external-protocol-service;1"].getService(Components.interfaces.nsIExternalProtocolService);
-    extps.loadURI(uriToOpen, null);
+    this.notifyTools.notifyBackground({command:"openWebPage", url: "https://github.com/jobisoft/quicktext/wiki/"});
   }
 ,
   loadSettings: async function(aReload)

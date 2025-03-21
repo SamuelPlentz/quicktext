@@ -18,3 +18,7 @@ textarea {
   margin: 0px;
   resize: none;
 }
+
+#text-defaultImport:disabled {
+  background-color: #ccc;
+}

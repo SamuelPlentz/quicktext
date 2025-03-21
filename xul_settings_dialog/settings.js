@@ -127,6 +127,14 @@ var gQuicktext = {
     this.mCollapseState = await notifyTools.notifyBackground({ command: "getPref", pref: "collapseState" });
     this.mDefaultImport = await notifyTools.notifyBackground({ command: "getPref", pref: "defaultImport" });
 
+    const defaultImportManaged = await notifyTools.notifyBackground({
+      command: "getPref",
+      pref: "defaultImport.managed"
+    });
+    if (defaultImportManaged) {
+      document.getElementById("text-defaultImport").setAttribute("disabled","true");
+    }
+
     this.startEditing();
 
     // Notify that settings has been changed

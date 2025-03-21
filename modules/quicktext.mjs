@@ -23,24 +23,23 @@ import { QuicktextParser } from "/modules/quicktextParser.mjs";
 export async function readLegacyXmlTemplateFile() {
   let templateFolder = await storage.getPref("templateFolder");
   let { templateFilePath } = await browser.Quicktext.getQuicktextFilePaths(templateFolder);
-  let templateFile = await browser.Quicktext.readTextFile(templateFilePath);
-  return parseLegacyXmlFile(templateFile, 0);
+  return parseLegacyXmlFile(templateFilePath, 0);
 }
 
 export async function readXmlScriptFile() {
   let templateFolder = await storage.getPref("templateFolder");
   let { scriptFilePath } = await browser.Quicktext.getQuicktextFilePaths(templateFolder);
-  let scriptFile = await browser.Quicktext.readTextFile(scriptFilePath);
-  return parseLegacyXmlFile(scriptFile, 0);
+  return parseLegacyXmlFile(scriptFilePath, 0);
 }
 
 /**
  * 
- * @param {string} aData xml file content
+ * @param {string} filePath
  * @param {integer} aType 0 = normal, 1 = default import
  * @returns {obj} imports
  */
-async function parseLegacyXmlFile(aData, aType) {
+export async function parseLegacyXmlFile(filePath, aType) {
+  let aData = await browser.Quicktext.readTextFile(filePath);
   const parser = new DOMParser();
   const dom = parser.parseFromString(aData, "text/xml");
 
@@ -161,6 +160,56 @@ function getTagValue(aElem, aTag) {
   }
 
   return "";
+}
+
+// ---- MERGE
+
+export function mergeTemplates(templates, imports) {
+  if (imports.group && imports.texts && imports.texts.length > 0 && imports.group.length == imports.texts.length) {
+    // If a group exists already, import into the existing group.
+    templates.groups.forEach((group, existingGroupIdx) => {
+      let groupImportIdx = imports.group.findIndex(i => i.mName == group.mName);
+      if (groupImportIdx != -1) {
+        console.log(`Found existing group ${group.mName} in imported groups.`)
+        templates.groups[existingGroupIdx] = imports.group[groupImportIdx];
+        imports.group.splice(groupImportIdx, 1);
+
+        // Handle texts of this group:
+        // merge imports.texts[groupImportIdx] into templates.texts[existingGroupIdx]
+        templates.texts[existingGroupIdx].forEach((text, existingTextIndex) => {
+          let textImportIdx = imports.texts[groupImportIdx].findIndex(i => i.mName == text.mName);
+          if (textImportIdx != -1) {
+            console.log(`Replacing text ${text.mName} with imported version.`)
+            templates.texts[existingGroupIdx][existingTextIndex] = imports.texts[groupImportIdx][textImportIdx];
+            imports.texts[groupImportIdx].splice(textImportIdx, 1);
+          }
+        });
+        // Add remaining texts to this group.
+        templates.texts[existingGroupIdx].push(...imports.texts[groupImportIdx]);
+        imports.texts.splice(groupImportIdx, 1);
+      }
+    });
+
+    // Add remaining new templates.
+    templates.texts.push(...imports.texts);
+    templates.groups.push(...imports.group);
+  }
+}
+
+export function mergeScripts(scripts, imports) {
+  if (imports.scripts && imports.scripts.length > 0) {
+    // Overwrite local existing versions.
+    scripts.forEach((script, existingScriptIdx) => {
+      let importScriptIdx = imports.scripts.findIndex(i => i.mName == script.mName);
+      if (importScriptIdx != -1) {
+        console.log(`Replacing script ${script.mName} with imported version.`)
+        scripts[existingScriptIdx] = imports.scripts[importScriptIdx];
+        imports.scripts.splice(importScriptIdx, 1);
+      }
+    });
+    // Add the remaining new scripts.
+    scripts.push(...imports.scripts);
+  }
 }
 
 // ---- INSERT

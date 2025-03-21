@@ -41,7 +41,6 @@ if (!["alt", "control", "meta"].includes(shortcutModifier)) {
 // these manually from legacy prefs to managed storage.
 const managedPrefs = [
   "defaultImport",
-  "templateFolder",
 ];
 for (let managedPref of managedPrefs) {
   try {
@@ -49,34 +48,12 @@ for (let managedPref of managedPrefs) {
     if (override[managedPref] !== null) {
       await storage.setPref(managedPref, override[managedPref]);
     }
+    await storage.setPref(`${managedPref}.managed`, true);
   } catch {
     // No managed storage available.
+    await storage.setPref(`${managedPref}.managed`, false);
   }
 }
-
-// TODO: Startup import
-/*
-if (this.mDefaultImport)
-{
-  var defaultImport = this.mDefaultImport.split(";");
-  defaultImport.reverse();
-
-  for (var i = 0; i < defaultImport.length; i++)
-  {
-    try {
-      if (defaultImport[i].match(/^(http|https):\/\//))
-      {
-        this.importFromHTTPFile(defaultImport[i], 1, true, false); 
-      }
-      else
-      {
-        var fp = Components.classes["@mozilla.org/file/local;1"].createInstance(Components.interfaces.nsIFile);
-        fp.initWithPath(this.parseFilePath(defaultImport[i]));
-        this.importFromFile(fp, 1, true, false);
-      }
-    } catch (e) { Components.utils.reportError(e); }
-  }
-}*/
 
 // Legacy: The XML files will be kept for backup, but are read only if they have
 //         not already been migrated to local storage.
@@ -84,17 +61,47 @@ let templates = await storage.getTemplates();
 if (!templates) {
   console.log("Migrating XML template file to JSON stored in local storage.")
   templates = await quicktext.readLegacyXmlTemplateFile().then(
-    e => ({texts: e.texts, groups: e.group}) // The XML file used "group"
+    e => ({ texts: e.texts, groups: e.group }) // The XML file used "group"
   );
+  // After the migration code is removed, this needs to be used for initialization.
+  // templates = {};
   await storage.setTemplates(templates);
 }
+
 let scripts = await storage.getScripts();
 if (!scripts) {
   console.log("Migrating XML script file to JSON stored in local storage.")
   scripts = await quicktext.readXmlScriptFile().then(
     e => e.scripts
   );
+  // After the migration code is removed, this needs to be used for initialization.
+  // scripts = [];
   await storage.setScripts(scripts);
+}
+
+// Startup import
+const defaultImport = await storage.getPref("defaultImport");
+if (defaultImport) {
+  const defaultImports = defaultImport.split(";").map(e => e.trim()).reverse();
+
+  for (let path of defaultImports) {
+    try {
+      if (path.match(/^(http|https):\/\//)) {
+        // Import from remote server.
+        //this.importFromHTTPFile(path, 1, true, false);
+      } else {
+        // Import from file system. Only the old XML import is supported, the
+        // final WebExtension version will no longer support imports from the
+        // file system. Use managed storage instead to import scripts and templates
+        // in the new JSON format.
+        const imports = await quicktext.parseLegacyXmlFile(path, 1);
+        quicktext.mergeTemplates(templates, imports);
+        await storage.setTemplates(templates);
+        quicktext.mergeScripts(scripts, imports);
+        await storage.setScripts(scripts);
+      }
+    } catch (e) { console.error(e); }
+  }
 }
 
 // NotifyTools needed by Experiment code to access WebExtension code.
@@ -120,12 +127,12 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
 
     case "exportTemplates":
       return storage.getTemplates().then(templates => templates
-        ? utils.writeFileToDisc(JSON.stringify({templates}, null, 2) ,"templates.json")
+        ? utils.writeFileToDisc(JSON.stringify({ templates }, null, 2), "templates.json")
         : null
       );
     case "exportScripts":
       return storage.getScripts().then(scripts => scripts
-        ? utils.writeFileToDisc(JSON.stringify({scripts}, null, 2) ,"scripts.json")
+        ? utils.writeFileToDisc(JSON.stringify({ scripts }, null, 2), "scripts.json")
         : null
       );
     case "importFromDisc":

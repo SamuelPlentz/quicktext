@@ -173,11 +173,11 @@ browser.windows.onCreated.addListener(async window => {
 
 // Legacy: Update toolbar if templates or menuCollapse setting changed.
 new storage.StorageListener(
-    {
-        watchedPrefs: ["templates", "menuCollapse"],
-        listener: async (changes) => {
-          let windows = await browser.windows.getAll({ windowTypes: ["messageCompose"] })
-          windows.forEach(window => browser.QuicktextToolbar.updateLegacyToolbar(window.id));
-        }
+  {
+    watchedPrefs: ["templates", "menuCollapse"],
+    listener: async (changes) => {
+      let windows = await browser.windows.getAll({ windowTypes: ["messageCompose"] })
+      windows.forEach(window => browser.QuicktextToolbar.updateLegacyToolbar(window.id));
     }
+  }
 )

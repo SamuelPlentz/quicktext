@@ -184,11 +184,9 @@ var quicktextToolbar = {
       });
     }
   },
-  async pickFile(aType, aMode, aTitle)
-  {
+  async pickFile(aType, aMode, aTitle) {
     let filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
-    switch(aMode)
-    {
+    switch (aMode) {
       case 1: // save
         filePicker.init(window.browsingContext, aTitle, filePicker.modeSave);
         break;
@@ -197,8 +195,7 @@ var quicktextToolbar = {
         break;
     }
 
-    switch(aType)
-    {
+    switch (aType) {
       case 0: // insert TXT file
         filePicker.appendFilters(filePicker.filterText);
         filePicker.defaultExtension = "txt";
@@ -223,18 +220,18 @@ var quicktextToolbar = {
 
     filePicker.appendFilters(filePicker.filterAll);
 
-    let rv = await new Promise(function(resolve, reject) {
+    let rv = await new Promise(function (resolve, reject) {
       filePicker.open(result => {
         resolve(result);
       });
     });
-    
-    if(rv == filePicker.returnOK || rv == filePicker.returnReplace) {
+
+    if (rv == filePicker.returnOK || rv == filePicker.returnReplace) {
       // Create DOM File from real file.
       const file = await File.createFromNsIFile(filePicker.file);
       return file;
     } else {
       return null;
     }
-  }  
+  }
 }

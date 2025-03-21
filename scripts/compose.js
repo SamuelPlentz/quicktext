@@ -97,126 +97,276 @@ async function handlerCursorTags() {
     }
 }
 
-class BlockedEventsHandler {
-    constructor({ blockedEvents, selectPicker, popoverKeydownEventHandler }) {
-        this.selectPicker = selectPicker;
-        this.blockedEvents = blockedEvents;
-        this.popoverKeydownEventHandler = popoverKeydownEventHandler;
+class QuicktextPopover {
+    selectPicker = Promise.withResolvers();
+    // Events blocked only in backdrop, but allowed in popover.
+    #backdropBlockedEvents = [
+        "click",
+        "keydown",
+    ];
+    // Events blocked in backdrop and popover.
+    #alwaysBlockedEvents = [
+        "keyup",
+        "keypress",
+        "mousedown",
+        "mouseup",
+        "select",
+        "dblclick",
+        "contextmenu",
+    ]
+    get popoverStyles() {
+        return document.getElementById("quicktext-popover-style");
     }
-    handleEvent(e) {
-        // The editor steals focus and key events, so we have to manually catch
-        // key events and beam them into the popover. The original target for these
-        // events is always the top most html element.
-        if (popoverShown && e.type == "keydown") {
-            this.popoverKeydownEventHandler(e);
+    get popover() {
+        return document.getElementById("quicktext-popover");
+    }
+    show() {
+        document.head.insertAdjacentHTML("beforeend", `
+            <style id="quicktext-popover-style">
+                :popover-open {
+                    width: 300px;
+                    height: 200px;
+                    border-radius: 10px;
+                    border-width: 3px;
+                    padding: 0 10px;
+                    cursor: default;
+                    caret-color: transparent;
+                }
+    
+                ::backdrop {
+                    backdrop-filter: brightness(30%) blur(3px);
+                }
+    
+                #quicktext-popover-buttons {
+                    display: flex;
+                    justify-content: flex-end;
+                    width: 100%;
+                }
+    
+                .quicktext-popover-btn {
+                    margin-top: 10px;
+                    margin-left: 10px;
+                }
+    
+                #quicktext-popover-select {
+                    height: auto;
+                    width: 100%;
+                }
+    
+                #quicktext-popover-prompt {
+                    width: 100%;
+                    caret-color: initial;
+                    cursor: initial;
+                }
+    
+                #quicktext-popover-title {
+                    margin: 10px 0;
+                }
+            </style>`);
+        for (let event of this.#backdropBlockedEvents) {
+            window.addEventListener(event, this, true);
+        }
+        for (let event of this.#alwaysBlockedEvents) {
+            window.addEventListener(event, this, true);
+        }
+        // Clicking inside the popover will change the selection and the insertion
+        // point. Save current selection.
+        const selection = window.getSelection();
+        this.savedRanges = [];
+        for (let i = 0; i < selection.rangeCount; ++i) {
+            this.savedRanges.push(selection.getRangeAt(i));
         }
 
-        // Do not block events targeted inside the popover.
-        if (e.target.closest("#quicktext-popover")) {
-            return;
+        this.popover.showPopover();
+
+        // Set global flag.
+        popoverShown = true;
+    }
+    result() {
+        return this.selectPicker.promise;
+    }
+    hide() {
+        this.popover.hidePopover();
+        this.popover.remove()
+        this.popoverStyles.remove();
+
+        for (let event of this.#alwaysBlockedEvents) {
+            window.removeEventListener(event, this, true);
         }
+        for (let event of this.#backdropBlockedEvents) {
+            window.removeEventListener(event, this, true);
+        }
+        // Restore selection.
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        for (const range of this.savedRanges.filter(({ startContainer: { nodeName } }) => nodeName === "TR")) {
+            selection.addRange(range);
+        }
+        for (const range of this.savedRanges.filter(({ startContainer: { nodeName } }) => nodeName !== "TR")) {
+            selection.addRange(range);
+        }
+
+        // Set global flag.
+        popoverShown = false;
+    }
+    popoverKeydownEventHandler(e) {
+        console.warn("Not Implemented: popoverKeydownEventHandler()");
+    }
+    handleEvent(e) {
+        if (this.#backdropBlockedEvents.includes(e.type)) {
+            // The editor steals focus and key events, so we have to manually catch
+            // key events and beam them into the popover. The original target for these
+            // events is always the top most html element.
+            if (e.type == "keydown") {
+                this.popoverKeydownEventHandler(e);
+            }
+            // Do not block events if targeted inside the popover.
+            if (e.target.closest("#quicktext-popover")) {
+                return;
+            }
+        }
+
         e.stopPropagation();
         e.preventDefault();
         e.stopImmediatePropagation();
         return false;
     }
-    startBlocking() {
-        for (let event of this.blockedEvents) {
-            window.addEventListener(event, this, true);
-        }
-    }
-    stopBlocking() {
-        for (let event of this.blockedEvents) {
-            window.removeEventListener(event, this, true);
-        }
-    }
 }
 
 async function openQuicktextPopover(type, label, values) {
-    const selectPicker = Promise.withResolvers();
-    let popoverKeydownEventHandler;
+    let popover;
+    if (type == "prompt") {
+        popover = new class extends QuicktextPopover {
+            show() {
+                document.body.insertAdjacentHTML("beforeend", `
+                    <dialog id="quicktext-popover" popover="manual">
+                        <div id="quicktext-popover-title">${label}</div>
+                        <input type="text" id="quicktext-popover-prompt" value="${values}">
+                        <div id="quicktext-popover-buttons">
+                            <button id="quicktext-popover-ok" class="quicktext-popover-btn">OK</button>
+                            <button id="quicktext-popover-cancel" class="quicktext-popover-btn">Cancel</button>
+                        </div>
+                    </dialog>`);
+                document.getElementById("quicktext-popover-cancel").addEventListener(
+                    "click",
+                    () => this.selectPicker.resolve()
+                );
+                document.getElementById("quicktext-popover-ok").addEventListener(
+                    "click",
+                    () => this.selectPicker.resolve(this.value)
+                );
 
-    if (type == "select") {
-        document.body.insertAdjacentHTML("beforeend", `
-            <dialog id="quicktext-popover" popover="manual">
-                <div id="quicktext-popover-title">${label}</div>
-                <select size="5" id="quicktext-popover-select">
-                ${values.map((v,i) => `<option value="${v}" ${i==0 ? "selected" : ""}>${v}</option>`)}
-                </select>
-                <div id="quicktext-popover-buttons">
-                    <button id="quicktext-popover-ok" class="quicktext-popover-btn">OK</button>
-                    <button id="quicktext-popover-cancel" class="quicktext-popover-btn">Cancel</button>
-                </div>
-            </dialog>`);
-        document.getElementById("quicktext-popover-cancel").addEventListener(
-            "click",
-            () => selectPicker.resolve()
-        );
-        document.getElementById("quicktext-popover-ok").addEventListener(
-            "click",
-            () => selectPicker.resolve(document.getElementById("quicktext-popover-select").value)
-        );
-        document.getElementById("quicktext-popover-select").focus();
-
-        popoverKeydownEventHandler = (e) => {
-            const select = document.getElementById("quicktext-popover-select");
-            switch (e.code) {
-                case "Escape":
-                    selectPicker.resolve();
-                    break;
-                case "Enter":
-                case "NumpadEnter":
-                    selectPicker.resolve(select.value);
-                    break;
-                case "ArrowUp":
-                    if (select.selectedIndex > 0) {
-                        select.selectedIndex -= 1;
-                    }
-                    break;
-                case "ArrowDown":
-                    if (select.selectedIndex < select.options.length - 1) {
-                        select.selectedIndex += 1;
-                    }
-                    break;
+                this.prompt.focus();
+                this.startFakeCaret();
+                super.show();
+            }
+            hide() {
+                this.stopFakeCaret()
+                super.hide();
+            }
+            get prompt() {
+                return document.getElementById("quicktext-popover-prompt");
+            }
+            get value() {
+                if (this.caretShown) {
+                    return this.prompt.value.slice(0, -1);
+                }
+                return this.prompt.value;
+            }
+            set value(v) {
+                this.stopFakeCaret();
+                this.prompt.value = v;
+                this.startFakeCaret();
+            }
+            stopFakeCaret() {
+                if (this.caretShown) {
+                    this.prompt.value = this.prompt.value.slice(0, -1);
+                }
+                this.caretShown = false;
+                window.clearInterval(this.caretIntervalId);
+            }
+            startFakeCaret() {
+                this.caretShown = false;
+                this.caretIntervalId = window.setInterval(() => this.toggleFakeCaret(), 500);
+            }
+            popoverKeydownEventHandler(e) {
+                switch (e.code) {
+                    case "Backspace":
+                        this.value = this.value.slice(0, -1);
+                        break;
+                    case "Escape":
+                        this.selectPicker.resolve();
+                        break;
+                    case "Enter":
+                    case "NumpadEnter":
+                        this.selectPicker.resolve(this.value);
+                        break;
+                    default:
+                        if (e.key.length == "1") {
+                            this.value = `${this.value}${e.key}`;
+                        }
+                }
+            }
+            toggleFakeCaret() {
+                const prompt = this.prompt;
+                if (this.caretShown) {
+                    prompt.value = prompt.value.slice(0, -1);
+                } else {
+                    prompt.value = `${prompt.value}|`;
+                }
+                this.caretShown = !this.caretShown;
             }
         }
-    } else if (type == "prompt") {
-        document.body.insertAdjacentHTML("beforeend", `
-            <dialog id="quicktext-popover" popover="manual">
-                <div id="quicktext-popover-title">${label}</div>
-                <input type="text" id="quicktext-popover-prompt" value="${values}">
-                <div id="quicktext-popover-buttons">
-                    <button id="quicktext-popover-ok" class="quicktext-popover-btn">OK</button>
-                    <button id="quicktext-popover-cancel" class="quicktext-popover-btn">Cancel</button>
-                </div>
-            </dialog>`);
-        document.getElementById("quicktext-popover-cancel").addEventListener(
-            "click",
-            () => selectPicker.resolve()
-        );
-        document.getElementById("quicktext-popover-ok").addEventListener(
-            "click",
-            () => selectPicker.resolve(document.getElementById("quicktext-popover-prompt").value)
-        );
-        document.getElementById("quicktext-popover-prompt").focus();
+    } else if (type == "select") {
+        popover = new class extends QuicktextPopover {
+            show() {
+                document.body.insertAdjacentHTML("beforeend", `
+                    <dialog id="quicktext-popover" popover="manual">
+                        <div id="quicktext-popover-title">${label}</div>
+                        <select size="5" id="quicktext-popover-select">
+                        ${values.map((v, i) => `<option value="${v}" ${i == 0 ? "selected" : ""}>${v}</option>`)}
+                        </select>
+                        <div id="quicktext-popover-buttons">
+                            <button id="quicktext-popover-ok" class="quicktext-popover-btn">OK</button>
+                            <button id="quicktext-popover-cancel" class="quicktext-popover-btn">Cancel</button>
+                        </div>
+                    </dialog>`);
+                document.getElementById("quicktext-popover-cancel").addEventListener(
+                    "click",
+                    () => this.selectPicker.resolve()
+                );
+                document.getElementById("quicktext-popover-ok").addEventListener(
+                    "click",
+                    () => this.selectPicker.resolve(this.select.value)
+                );
 
-        popoverKeydownEventHandler = (e) => {
-            const prompt = document.getElementById("quicktext-popover-prompt");
-            switch (e.code) {
-                case "Backspace":
-                    prompt.value = prompt.value.slice(0, -1);
-                    break;
-                case "Escape":
-                    this.selectPicker.resolve();
-                    break;
-                case "Enter":
-                case "NumpadEnter":
-                    this.selectPicker.resolve(prompt.value);
-                    break;
-                default:
-                    if (e.key.length == "1") {
-                        prompt.value = `${prompt.value}${e.key}`;
-                    }
+                this.select.focus();
+                super.show();
+            }
+            get select() {
+                return document.getElementById("quicktext-popover-select");
+            }
+            popoverKeydownEventHandler(e) {
+                const select = this.select;
+                switch (e.code) {
+                    case "Escape":
+                        this.selectPicker.resolve();
+                        break;
+                    case "Enter":
+                    case "NumpadEnter":
+                        this.selectPicker.resolve(select.value);
+                        break;
+                    case "ArrowUp":
+                        if (select.selectedIndex > 0) {
+                            select.selectedIndex -= 1;
+                        }
+                        break;
+                    case "ArrowDown":
+                        if (select.selectedIndex < select.options.length - 1) {
+                            select.selectedIndex += 1;
+                        }
+                        break;
+                }
             }
         }
     } else {
@@ -224,95 +374,9 @@ async function openQuicktextPopover(type, label, values) {
         return "";
     }
 
-    document.head.insertAdjacentHTML("beforeend", `
-        <style id="quicktext-popover-style">
-            :popover-open {
-                width: 300px;
-                height: 200px;
-                border-radius: 10px;
-                border-width: 3px;
-                padding: 0 10px;
-                cursor: default;
-                caret-color: transparent;
-            }
-
-            ::backdrop {
-                backdrop-filter: brightness(30%) blur(3px);
-            }
-
-            #quicktext-popover-buttons {
-                display: flex;
-                justify-content: flex-end;
-                width: 100%;
-            }
-
-            .quicktext-popover-btn {
-                margin-top: 10px;
-                margin-left: 10px;
-            }
-
-            #quicktext-popover-select {
-                height: auto;
-                width: 100%;
-            }
-
-            #quicktext-popover-prompt {
-                width: 100%;
-                caret-color: initial;
-                cursor: initial;
-            }
-
-            #quicktext-popover-title {
-                margin: 10px 0;
-            }
-        </style>`);
-
-    const popover = document.getElementById("quicktext-popover");
-    const popoverStyles = document.getElementById("quicktext-popover-style");
-    const blockedEvents = [
-        "click",
-        "dblclick",
-        "mousedown",
-        "mouseup",
-        "contextmenu",
-        "keyup",
-        "keydown",
-        "keypress",
-        "select"
-    ];
-
-    const blockedEventsHandler = new BlockedEventsHandler({
-        selectPicker, blockedEvents, popoverKeydownEventHandler
-    })
-    blockedEventsHandler.startBlocking();
-
-    // Clicking inside the popover will change the selection and the insertion
-    // point. Save current selection.
-    let selection = window.getSelection();
-    const savedRanges = [];
-    for (let i = 0; i < selection.rangeCount; ++i) {
-        savedRanges.push(selection.getRangeAt(i));
-    }
-
-    popover.showPopover();
-    popoverShown = true;
-    const rv = await selectPicker.promise;
-    popover.hidePopover();
-    popoverShown = false;
-    popover.remove()
-    popoverStyles.remove();
-
-    // Restore selection.
-    selection = window.getSelection();
-    selection.removeAllRanges();
-    for (const range of savedRanges.filter(({ startContainer: { nodeName } }) => nodeName === "TR")) {
-        selection.addRange(range);
-    }
-    for (const range of savedRanges.filter(({ startContainer: { nodeName } }) => nodeName !== "TR")) {
-        selection.addRange(range);
-    }
-
-    blockedEventsHandler.stopBlocking();
+    popover.show();
+    const rv = await popover.result();
+    popover.hide();
 
     return rv;
 }

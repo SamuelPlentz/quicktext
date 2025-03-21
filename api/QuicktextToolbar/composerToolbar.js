@@ -156,24 +156,25 @@ var quicktextToolbar = {
     }
   },
   async insertVariable(aVar) {
+    this.focusMessageBody();
     await this.notifyTools.notifyBackground({
       command: "insertVariable",
       aVar,
       windowId: this.windowId
     });
-    this.focusMessageBody();
   },
   async insertTemplate(group, text) {
+    this.focusMessageBody();
     await this.notifyTools.notifyBackground({
       command: "insertTemplate",
       group,
       text,
       windowId: this.windowId
     });
-    this.focusMessageBody();
   },
   async insertContentFromFile(aType) {
     const file = await this.pickFile(aType, /* open */ 0, ""); // browser.i18n.getMessage("insertFile")
+    this.focusMessageBody();
     if (file) {
       await this.notifyTools.notifyBackground({
         command: "insertFile",
@@ -182,7 +183,6 @@ var quicktextToolbar = {
         windowId: this.windowId
       });
     }
-    this.focusMessageBody();
   },
   async pickFile(aType, aMode, aTitle)
   {

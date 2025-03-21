@@ -148,6 +148,16 @@ for (let composeTab of composeTabs) {
 // Load compose script into any new compose window being opened.
 messenger.tabs.onCreated.addListener(prepareComposeTab);
 
+// Prevent sending, if a popover is shown.
+browser.compose.onBeforeSend.addListener(async (tab, details) => {
+  let isPopoverShown = await messenger.tabs.sendMessage(tab.id, {
+    isPopoverShown: true,
+  });
+  return {
+    cancel: isPopoverShown
+  }
+})
+
 // Legacy: Inject toolbar into all already open compose windows.
 let windows = await browser.windows.getAll({ windowTypes: ["messageCompose"] })
 for (let window of windows) {

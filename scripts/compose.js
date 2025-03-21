@@ -11,7 +11,7 @@ const alternatives = {
 let keywords, keywordKey, shortcutTypeAdv, shortcutModifier, shortcuts;
 let advShortcutModifierIsDown = false;
 let advShortcutString = "";
-
+let popoverShown = false;
 // -----------------------------------------------------------------------------
 
 async function insertHtmlFragment(message) {
@@ -97,40 +97,134 @@ async function handlerCursorTags() {
     }
 }
 
-function preventEvent(e) {
-    if (e.target.closest("#quicktext-popover")) {
-        return;
+class BlockedEventsHandler {
+    constructor({ blockedEvents, selectPicker, popoverKeydownEventHandler }) {
+        this.selectPicker = selectPicker;
+        this.blockedEvents = blockedEvents;
+        this.popoverKeydownEventHandler = popoverKeydownEventHandler;
     }
-    e.stopPropagation();
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    return false;
-}
-function disableEvents(events) {
-    for (let event of events) {
-        window.addEventListener(event, preventEvent, true);
+    handleEvent(e) {
+        // The editor steals focus and key events, so we have to manually catch
+        // key events and beam them into the popover. The original target for these
+        // events is always the top most html element.
+        if (popoverShown && e.type == "keydown") {
+            this.popoverKeydownEventHandler(e);
+        }
+
+        // Do not block events targeted inside the popover.
+        if (e.target.closest("#quicktext-popover")) {
+            return;
+        }
+        e.stopPropagation();
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        return false;
+    }
+    startBlocking() {
+        for (let event of this.blockedEvents) {
+            window.addEventListener(event, this, true);
+        }
+    }
+    stopBlocking() {
+        for (let event of this.blockedEvents) {
+            window.removeEventListener(event, this, true);
+        }
     }
 }
-function enableEvents(events) {
-    for (let event of events) {
-        window.removeEventListener(event, preventEvent, true);
-    }
-}
-async function openSelectPopover(label, values) {
+
+async function openQuicktextPopover(type, label, values) {
     const selectPicker = Promise.withResolvers();
-    document.body.insertAdjacentHTML("afterend",`
-        <div id="quicktext-popover" popover="manual">
-            <div id="quicktext-popover-title">${label}</div>
-            <select size="5" id="quicktext-popover-select">
-            ${values.map(v => `<option value="${v}">${v}</option>`)}
-            </select>
-            <div id="quicktext-popover-buttons">
-                <button id="quicktext-popover-select-ok" class="quicktext-popover-btn">OK</button>
-                <button id="quicktext-popover-select-cancel" class="quicktext-popover-btn">Cancel</button>
-            </div>
-        </div>`);
-    
-    document.head.insertAdjacentHTML("afterend",`
+    let popoverKeydownEventHandler;
+
+    if (type == "select") {
+        document.body.insertAdjacentHTML("beforeend", `
+            <dialog id="quicktext-popover" popover="manual">
+                <div id="quicktext-popover-title">${label}</div>
+                <select size="5" id="quicktext-popover-select">
+                ${values.map((v,i) => `<option value="${v}" ${i==0 ? "selected" : ""}>${v}</option>`)}
+                </select>
+                <div id="quicktext-popover-buttons">
+                    <button id="quicktext-popover-ok" class="quicktext-popover-btn">OK</button>
+                    <button id="quicktext-popover-cancel" class="quicktext-popover-btn">Cancel</button>
+                </div>
+            </dialog>`);
+        document.getElementById("quicktext-popover-cancel").addEventListener(
+            "click",
+            () => selectPicker.resolve()
+        );
+        document.getElementById("quicktext-popover-ok").addEventListener(
+            "click",
+            () => selectPicker.resolve(document.getElementById("quicktext-popover-select").value)
+        );
+        document.getElementById("quicktext-popover-select").focus();
+
+        popoverKeydownEventHandler = (e) => {
+            const select = document.getElementById("quicktext-popover-select");
+            switch (e.code) {
+                case "Escape":
+                    selectPicker.resolve();
+                    break;
+                case "Enter":
+                case "NumpadEnter":
+                    selectPicker.resolve(select.value);
+                    break;
+                case "ArrowUp":
+                    if (select.selectedIndex > 0) {
+                        select.selectedIndex -= 1;
+                    }
+                    break;
+                case "ArrowDown":
+                    if (select.selectedIndex < select.options.length - 1) {
+                        select.selectedIndex += 1;
+                    }
+                    break;
+            }
+        }
+    } else if (type == "prompt") {
+        document.body.insertAdjacentHTML("beforeend", `
+            <dialog id="quicktext-popover" popover="manual">
+                <div id="quicktext-popover-title">${label}</div>
+                <input type="text" id="quicktext-popover-prompt" value="${values}">
+                <div id="quicktext-popover-buttons">
+                    <button id="quicktext-popover-ok" class="quicktext-popover-btn">OK</button>
+                    <button id="quicktext-popover-cancel" class="quicktext-popover-btn">Cancel</button>
+                </div>
+            </dialog>`);
+        document.getElementById("quicktext-popover-cancel").addEventListener(
+            "click",
+            () => selectPicker.resolve()
+        );
+        document.getElementById("quicktext-popover-ok").addEventListener(
+            "click",
+            () => selectPicker.resolve(document.getElementById("quicktext-popover-prompt").value)
+        );
+        document.getElementById("quicktext-popover-prompt").focus();
+
+        popoverKeydownEventHandler = (e) => {
+            const prompt = document.getElementById("quicktext-popover-prompt");
+            switch (e.code) {
+                case "Backspace":
+                    prompt.value = prompt.value.slice(0, -1);
+                    break;
+                case "Escape":
+                    this.selectPicker.resolve();
+                    break;
+                case "Enter":
+                case "NumpadEnter":
+                    this.selectPicker.resolve(prompt.value);
+                    break;
+                default:
+                    if (e.key.length == "1") {
+                        prompt.value = `${prompt.value}${e.key}`;
+                    }
+            }
+        }
+    } else {
+        console.error(`Unsupported popover type: ${type}`);
+        return "";
+    }
+
+    document.head.insertAdjacentHTML("beforeend", `
         <style id="quicktext-popover-style">
             :popover-open {
                 width: 300px;
@@ -162,20 +256,19 @@ async function openSelectPopover(label, values) {
                 width: 100%;
             }
 
+            #quicktext-popover-prompt {
+                width: 100%;
+                caret-color: initial;
+                cursor: initial;
+            }
+
             #quicktext-popover-title {
                 margin: 10px 0;
             }
         </style>`);
 
-    document.getElementById("quicktext-popover-select-cancel").addEventListener(
-        "click",
-        () => selectPicker.resolve()
-    );
-    document.getElementById("quicktext-popover-select-ok").addEventListener(
-        "click",
-        () => selectPicker.resolve(document.getElementById("quicktext-popover-select").value)
-    );
-    
+    const popover = document.getElementById("quicktext-popover");
+    const popoverStyles = document.getElementById("quicktext-popover-style");
     const blockedEvents = [
         "click",
         "dblclick",
@@ -187,7 +280,11 @@ async function openSelectPopover(label, values) {
         "keypress",
         "select"
     ];
-    disableEvents(blockedEvents);
+
+    const blockedEventsHandler = new BlockedEventsHandler({
+        selectPicker, blockedEvents, popoverKeydownEventHandler
+    })
+    blockedEventsHandler.startBlocking();
 
     // Clicking inside the popover will change the selection and the insertion
     // point. Save current selection.
@@ -197,27 +294,25 @@ async function openSelectPopover(label, values) {
         savedRanges.push(selection.getRangeAt(i));
     }
 
-    const popover =  document.getElementById("quicktext-popover");
     popover.showPopover();
-    document.getElementById("quicktext-popover-select").focus();
+    popoverShown = true;
     const rv = await selectPicker.promise;
     popover.hidePopover();
+    popoverShown = false;
     popover.remove()
-
-    enableEvents(blockedEvents);
+    popoverStyles.remove();
 
     // Restore selection.
     selection = window.getSelection();
     selection.removeAllRanges();
-    for (const range of savedRanges.filter(({startContainer: {nodeName}}) => nodeName === "TR")) {
+    for (const range of savedRanges.filter(({ startContainer: { nodeName } }) => nodeName === "TR")) {
         selection.addRange(range);
     }
-    for (const range of savedRanges.filter(({startContainer: {nodeName}}) => nodeName !== "TR")) {
+    for (const range of savedRanges.filter(({ startContainer: { nodeName } }) => nodeName !== "TR")) {
         selection.addRange(range);
     }
 
-    const popoverStyles =  document.getElementById("quicktext-popover-style");
-    popoverStyles.remove();
+    blockedEventsHandler.stopBlocking();
 
     return rv;
 }
@@ -368,16 +463,19 @@ messenger.runtime.onMessage.addListener((message, sender) => {
         return insertHtmlFragment(message);
     }
     if (message.promptLabel) {
-        return Promise.resolve(window.prompt(message.promptLabel, message.promptValue));
+        return openQuicktextPopover("prompt", message.promptLabel, message.promptValue);
     }
     if (message.selectLabel) {
-        return openSelectPopover(message.selectLabel, message.selectValues);
+        return openQuicktextPopover("select", message.selectLabel, message.selectValues);
     }
     if (message.alertLabel) {
         return Promise.resolve(window.alert(message.alertLabel));
     }
     if (message.getSelection) {
         return getSelection(message.getSelection)
+    }
+    if (message.isPopoverShown) {
+        return Promise.resolve(popoverShown);
     }
     return false;
 });

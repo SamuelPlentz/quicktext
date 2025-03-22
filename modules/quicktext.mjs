@@ -6,16 +6,6 @@
 
 import * as storage from "/modules/storage.mjs";
 import * as utils from "/modules/utils.mjs";
-
-// These classes are used to create the internal m* properties, with defaults.
-// Once the template object (with multiple of these classes) are stored in local
-// storage, the class methods are stripped and only the m* properties remain.
-// Whenever WebExtension code needs the class methods, the class can be re-created.
-// Note: The template class has methods related to headers, which are not fully
-//       understood
-import { QuicktextGroup } from "/modules/quicktextGroup.mjs";
-import { QuicktextScript } from "/modules/quicktextScript.mjs";
-import { QuicktextTemplate } from "/modules/quicktextTemplate.mjs";
 import { QuicktextParser } from "/modules/quicktextParser.mjs";
 
 // Helper
@@ -62,11 +52,11 @@ export async function parseLegacyXmlFile(filePath, forceProtected) {
           {
             const elems = dom.documentElement.getElementsByTagName("script");
             for (let i = 0; i < elems.length; i++) {
-              let tmp = new QuicktextScript({
+              let tmp = {
                 name: getTagValue(elems[i], "name"),
                 script: getTagValue(elems[i], "body"),
                 protected: forceProtected
-              });
+              };
 
               foundScripts.push(tmp);
             }
@@ -78,10 +68,10 @@ export async function parseLegacyXmlFile(filePath, forceProtected) {
           {
             const elems = dom.documentElement.getElementsByTagName("menu");
             for (let i = 0; i < elems.length; i++) {
-              let tmp = new QuicktextGroup({
+              let tmp = {
                 name: getTagValue(elems[i], "title"),
                 protected: forceProtected
-              });
+              };
 
               foundGroups.push(tmp);
               const subTexts = [];
@@ -89,7 +79,7 @@ export async function parseLegacyXmlFile(filePath, forceProtected) {
               if (textsNodes.length > 0) {
                 const subElems = textsNodes[0].getElementsByTagName("text");
                 for (let j = 0; j < subElems.length; j++) {
-                  let tmp = new QuicktextTemplate({
+                  let tmp = {
                     name: getTagValue(subElems[j], "name"),
                     text: getTagValue(subElems[j], "body"),
                     shortcut: subElems[j].getAttribute("shortcut"),
@@ -97,7 +87,7 @@ export async function parseLegacyXmlFile(filePath, forceProtected) {
                     keyword: getTagValue(subElems[j], "keyword"),
                     subject: getTagValue(subElems[j], "subject"),
                     attachments: getTagValue(subElems[j], "attachments"),
-                  });
+                  };
 
                   subTexts.push(tmp);
                 }

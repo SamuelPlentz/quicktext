@@ -83,8 +83,8 @@ async function getComposeBodyMenuData() {
         for (let j = 0; j < gTemplates.texts[i].length; j++) {
             children.push({
                 id: `group-${i}-text-${j}`,
-                title: gTemplates.texts[i][j].mName,
-                onclick: (info, tab) => quicktext.insertVariable(tab.id, `TEXT=${gTemplates.groups[i].mName}|${gTemplates.texts[i][j].mName}`)
+                title: gTemplates.texts[i][j].name,
+                onclick: (info, tab) => quicktext.insertVariable(tab.id, `TEXT=${gTemplates.groups[i].name}|${gTemplates.texts[i][j].name}`)
             });
 
         }
@@ -103,7 +103,7 @@ async function getComposeBodyMenuData() {
         menuData.push({
             contexts,
             id: `group-${i}`,
-            title: gTemplates.groups[i].mName,
+            title: gTemplates.groups[i].name,
             children
         });
     }

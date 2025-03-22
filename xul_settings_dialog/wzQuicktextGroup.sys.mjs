@@ -1,14 +1,14 @@
 export class wzQuicktextGroup {
   constructor(config) {
     this.mName = config?.mName || config?.name || "";
-    this.mType = config?.mType || config?.type || 0;
+    this.mProtected = config?.mProtected || config?.protected || false;
   }
 
   get name() { return this.mName; }
   set name(aName) { if (typeof aName != 'undefined') return this.mName = aName; }
 
-  get type() { return this.mType; }
-  set type(aType) { if (typeof aType != 'undefined') return this.mType = aType; }
+  get protected() { return this.mProtected; }
+  set protected(aProtected) { if (typeof aProtected != 'undefined') return this.mProtected = aProtected; }
 
   clone() {
     return new wzQuicktextGroup(this);

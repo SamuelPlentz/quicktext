@@ -111,7 +111,7 @@ export class QuicktextParser {
     // Looks through all scripts and tries to find the one we look for.
     for (let i = 0; i < this.mTemplates.scripts.length; i++) {
       let script = this.mTemplates.scripts[i];
-      if (script.mName == scriptName) {
+      if (script.name == scriptName) {
         let returnValue = "";
 
         let referenceLineNumber = 0
@@ -139,7 +139,7 @@ export class QuicktextParser {
             // offset: 10 lines between "variableNotAvailable" and "evalInSandbox"
             let lineNumber = e.lineNumber - referenceLineNumber - 10;
             await messenger.tabs.sendMessage(this.mTabId, {
-              alertLabel: `${browser.i18n.getMessage("scriptError")} ${script.mName}\n${e.name}: ${e.message}\n${browser.i18n.getMessage("scriptLine")} ${lineNumber}: ${lines[lineNumber - 1]}`,
+              alertLabel: `${browser.i18n.getMessage("scriptError")} ${script.name}\n${e.name}: ${e.message}\n${browser.i18n.getMessage("scriptLine")} ${lineNumber}: ${lines[lineNumber - 1]}`,
             });
           }
         }
@@ -340,16 +340,16 @@ export class QuicktextParser {
     // Looks after the group and text-name and returns
     // the text from it
     for (let i = 0; i < this.mTemplates.groups.length; i++) {
-      if (aVariables[0] == this.mTemplates.groups[i].mName) {
+      if (aVariables[0] == this.mTemplates.groups[i].name) {
         for (let j = 0; j < this.mTemplates.texts[i].length; j++) {
           let text = this.mTemplates.texts[i][j];
-          if (aVariables[1] == text.mName) {
-            let content = text.mText;
+          if (aVariables[1] == text.name) {
+            let content = text.text;
             // Force insertion mode to TEXT if the template requests it.
             // This will affect also the "parent" template, if the current
             // template is a nested template, because the entire parsed string
             // will be inserted in one go. 
-            if (text.mType == 0) {
+            if (text.type == "text/plain") {
               this.mForceAsText = true;
             }
             if (aVariables.length > 1 && aVariables[1].includes("force_as_text")) {

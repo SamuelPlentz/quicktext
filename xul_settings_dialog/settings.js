@@ -140,6 +140,33 @@ var gQuicktext = {
     // Notify that settings has been changed
     this.notifyObservers("updatesettings", "");
   },
+  // Rename the legacy quicktext class members.
+  prettify(data) {
+    function prettifier(value) {
+      if (Array.isArray(value)) {
+        let pArray = [];
+        for (let entry of value) {
+          pArray.push(prettifier(entry))
+        }
+        return pArray;
+      }
+
+      if (typeof value === 'object' && value !== null) {
+        let pObj = {};
+        for (let [k,v] of Object.entries(value)) {
+          const pKey = k.startsWith("m") 
+            ? k[1].toLowerCase() + k.slice(2)
+            : k;
+          pObj[pKey] = prettifier(v);
+        }
+        return pObj;
+      }
+      
+      return value;
+    }
+    return prettifier(data);
+  },
+  
   saveSettings: async function () {
     // Save prefs.
     await notifyTools.notifyBackground({ command: "setPref", pref: "toolbar", value: this.mViewToolbar });
@@ -153,8 +180,8 @@ var gQuicktext = {
 
     // Save templates and scripts.
     this.endEditing();
-    await notifyTools.notifyBackground({ command: "setScripts", data: this.mScripts });
-    await notifyTools.notifyBackground({ command: "setTemplates", data: { texts: this.mTexts, groups: this.mGroup } });
+    await notifyTools.notifyBackground({ command: "setScripts", data: this.prettify(this.mScripts) });
+    await notifyTools.notifyBackground({ command: "setTemplates", data: { texts: this.prettify(this.mTexts), groups: this.prettify(this.mGroup) } });
     this.startEditing();
 
     this.notifyObservers("updatesettings", "");
@@ -162,7 +189,7 @@ var gQuicktext = {
   addGroup: function (aName, aEditingMode) {
     var tmp = new wzQuicktextGroup();
     tmp.name = aName;
-    tmp.type = 0;
+    tmp.protected = false;
 
     if (aEditingMode) {
       this.mEditingGroup.push(tmp);
@@ -288,7 +315,7 @@ var gQuicktext = {
   addScript: function (aName, aEditingMode) {
     var tmp = new wzQuicktextScript();
     tmp.name = aName;
-    tmp.type = 0;
+    tmp.protected = false;
 
     if (aEditingMode)
       this.mEditingScripts.push(tmp);
@@ -1196,7 +1223,7 @@ var settingsDialog = {
     // Update the add-buttons
     if (this.mTreeArray.length) {
       var index = document.getElementById('group-tree').view.selection.currentIndex;
-      if (this.mTreeArray[index] && gQuicktext.getGroup(this.mTreeArray[index][0], true).type > 0) {
+      if (this.mTreeArray[index] && gQuicktext.getGroup(this.mTreeArray[index][0], true).protected) {
         document.getElementById("group-button-remove").setAttribute("disabled", true);
         document.getElementById("group-button-add-text").setAttribute("disabled", true);
       }
@@ -1212,7 +1239,7 @@ var settingsDialog = {
 
     let scriptIndex = document.getElementById('script-list').value;
     let script = gQuicktext.getScript(scriptIndex, true);
-    if (gQuicktext.getScriptLength(true) && script.type == 0)
+    if (gQuicktext.getScriptLength(true) && script.protected)
       document.getElementById('script-button-remove').removeAttribute("disabled");
     else
       document.getElementById('script-button-remove').setAttribute("disabled", true);
@@ -1346,7 +1373,7 @@ var settingsDialog = {
     this.mScriptIndex = index;
 
     var script = gQuicktext.getScript(index, true);
-    let disabled = (script.type == 1);
+    let disabled = script.protected;
 
     document.getElementById('script-title').value = script.name;
     document.getElementById('script').value = script.script;
@@ -1416,9 +1443,7 @@ var settingsDialog = {
         this.disableShortcuts(shortcut);
       }
 
-      var type = text.type;
-      if (!(type > 0)) type = 0;
-      document.getElementById('text-type').selectedIndex = type;
+      document.getElementById('text-type').selectedIndex = text.type == "text/html" ? 1 : 0;
     }
     else {
       document.getElementById('text-caption').textContent = extension.localeData.localizeMessage("group");
@@ -1431,7 +1456,7 @@ var settingsDialog = {
     }
 
     var disabled = false;
-    if (gQuicktext.getGroup(groupIndex, true).type > 0) {
+    if (gQuicktext.getGroup(groupIndex, true).protected) {
       document.getElementById("group-button-remove").setAttribute("disabled", true);
       document.getElementById("group-button-add-text").setAttribute("disabled", true);
       disabled = true;

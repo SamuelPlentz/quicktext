@@ -88,13 +88,12 @@ if (defaultImport) {
     try {
       if (path.match(/^(http|https):\/\//)) {
         // Import from remote server.
-        // TODO:Enforce type 1 as this was imported.
         const imports = JSON.parse(await utils.fetchFileFromServer(path));
         if (imports.templates) {
-          quicktext.mergeTemplates(templates, imports.templates);
+          quicktext.mergeTemplates(templates, imports.templates, true);
         }
         if (imports.scripts) {
-          quicktext.mergeScripts(scripts, imports);
+          quicktext.mergeScripts(scripts, imports, true);
         }
       } else {
         // Import from file system. Only the old XML import is supported, the
@@ -102,8 +101,8 @@ if (defaultImport) {
         // file system. Use managed storage instead to import scripts and templates
         // in the new JSON format.
         const imports = await quicktext.parseLegacyXmlFile(path, 1);
-        quicktext.mergeTemplates(templates, imports);
-        quicktext.mergeScripts(scripts, imports);
+        quicktext.mergeTemplates(templates, imports, true);
+        quicktext.mergeScripts(scripts, imports, true);
     }
       
     } catch (e) { console.error(e); }
@@ -167,7 +166,7 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
           let t = await storage.getTemplates();
           return quicktext.insertVariable(
             tabs[0].id,
-            `TEXT=${t.groups[info.group].mName}|${t.texts[info.group][info.text].mName}`
+            `TEXT=${t.groups[info.group].name}|${t.texts[info.group][info.text].name}`
           )
         });
   }
@@ -182,7 +181,7 @@ messenger.runtime.onMessage.addListener((info, sender, sendResponse) => {
     case "insertTemplate":
       return storage.getTemplates().then(t => quicktext.insertVariable(
         sender.tab.id,
-        `TEXT=${t.groups[info.group].mName}|${t.texts[info.group][info.text].mName}`
+        `TEXT=${t.groups[info.group].name}|${t.texts[info.group][info.text].name}`
       ));
     default:
       return false;

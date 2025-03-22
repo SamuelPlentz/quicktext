@@ -2,7 +2,7 @@ export class wzQuicktextScript {
   constructor(config) {
     this.mName = config?.mName || config?.name || "";
     this.mScript = config?.mScript || config?.script || "";
-    this.mType = config?.mType || config?.type || 0;
+    this.mProtected = config?.mProtected || config?.protected || false;
   }
 
   get name() { return this.mName; }
@@ -11,8 +11,8 @@ export class wzQuicktextScript {
   get script() { return this.mScript; }
   set script(aScript) { if (typeof aScript != 'undefined') return this.mScript = aScript; }
 
-  get type() { return this.mType; }
-  set type(aType) { if (typeof aType != 'undefined') return this.mType = aType; }
+  get protected() { return this.mProtected; }
+  set protected(aProtected) { if (typeof aProtected != 'undefined') return this.mProtected = aProtected; }
 
   clone() {
     return new wzQuicktextScript(this);

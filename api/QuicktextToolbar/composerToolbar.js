@@ -81,7 +81,7 @@ var quicktextToolbar = {
 
           if (textLength == 1 && collapseGroup) {
             toolbarbuttonGroup = toolbar.appendChild(t);
-            toolbarbuttonGroup.setAttribute("label", templates.texts[i][0].mName);
+            toolbarbuttonGroup.setAttribute("label", templates.texts[i][0].name);
             toolbarbuttonGroup.setAttribute("i", i);
             toolbarbuttonGroup.setAttribute("j", 0);
             toolbarbuttonGroup.setAttribute("class", "customEventListenerForDynamicMenu");
@@ -89,7 +89,7 @@ var quicktextToolbar = {
           else {
             t.setAttribute("type", "menu");
             toolbarbuttonGroup = toolbar.appendChild(t);
-            toolbarbuttonGroup.setAttribute("label", templates.groups[i].mName);
+            toolbarbuttonGroup.setAttribute("label", templates.groups[i].name);
             var menupopup = toolbarbuttonGroup.appendChild(document.createXULElement("menupopup"));
 
             // Add second level elements: all found texts of this group.
@@ -97,12 +97,12 @@ var quicktextToolbar = {
               var text = templates.texts[i][j];
 
               var toolbarbutton = document.createXULElement("menuitem");
-              toolbarbutton.setAttribute("label", text.mName);
+              toolbarbutton.setAttribute("label", text.name);
               toolbarbutton.setAttribute("i", i);
               toolbarbutton.setAttribute("j", j);
               toolbarbutton.setAttribute("class", "customEventListenerForDynamicMenu");
 
-              var shortcut = text.mShortcut;
+              var shortcut = text.shortcut;
               if (shortcut > 0) {
                 if (shortcut == 10) shortcut = 0;
                 toolbarbutton.setAttribute("acceltext", "Alt+" + shortcut);
@@ -116,11 +116,11 @@ var quicktextToolbar = {
           // Update the keyshortcuts.
           for (var j = 0; j < textLength; j++) {
             var text = templates.texts[i][j];
-            var shortcut = text.mShortcut;
+            var shortcut = text.shortcut;
             if (shortcut != "" && typeof this.mShortcuts[shortcut] == "undefined")
               this.mShortcuts[shortcut] = [i, j];
 
-            var keyword = text.mKeyword;
+            var keyword = text.keyword;
             if (keyword != "" && typeof this.mKeywords[keyword.toLowerCase()] == "undefined")
               this.mKeywords[keyword.toLowerCase()] = [i, j];
           }

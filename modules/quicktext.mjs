@@ -35,10 +35,10 @@ export async function readXmlScriptFile() {
 /**
  * 
  * @param {string} filePath
- * @param {integer} aType 0 = normal, 1 = default import
+ * @param {integer} forceProtected 0 = normal, 1 = default import
  * @returns {obj} imports
  */
-export async function parseLegacyXmlFile(filePath, aType) {
+export async function parseLegacyXmlFile(filePath, forceProtected) {
   let aData = await browser.Quicktext.readTextFile(filePath);
   const parser = new DOMParser();
   const dom = parser.parseFromString(aData, "text/xml");
@@ -65,7 +65,7 @@ export async function parseLegacyXmlFile(filePath, aType) {
               let tmp = new QuicktextScript({
                 name: getTagValue(elems[i], "name"),
                 script: getTagValue(elems[i], "body"),
-                type: aType
+                protected: forceProtected
               });
 
               foundScripts.push(tmp);
@@ -80,7 +80,7 @@ export async function parseLegacyXmlFile(filePath, aType) {
             for (let i = 0; i < elems.length; i++) {
               let tmp = new QuicktextGroup({
                 name: getTagValue(elems[i], "title"),
-                type: aType
+                protected: forceProtected
               });
 
               foundGroups.push(tmp);
@@ -93,21 +93,11 @@ export async function parseLegacyXmlFile(filePath, aType) {
                     name: getTagValue(subElems[j], "name"),
                     text: getTagValue(subElems[j], "body"),
                     shortcut: subElems[j].getAttribute("shortcut"),
-                    type: subElems[j].getAttribute("type"),
+                    type: subElems[j].getAttribute("type") == "0" ? "text/plain" : "text/html",
                     keyword: getTagValue(subElems[j], "keyword"),
                     subject: getTagValue(subElems[j], "subject"),
                     attachments: getTagValue(subElems[j], "attachments"),
                   });
-
-                  // There seems to be no use to read dynamically gathered header informations from the last use of a template from the file
-
-                  // var headersTag = subElems[j].getElementsByTagName("headers");
-                  // if (headersTag.length > 0)
-                  // {
-                  //   var headers = headersTag[0].getElementsByTagName("header");
-                  //   for (var k = 0; k < headers.length; k++)
-                  //     tmp.addHeader(getTagValue(headers[k], "type"), getTagValue(headers[k], "value"));
-                  // }
 
                   subTexts.push(tmp);
                 }
@@ -164,22 +154,23 @@ function getTagValue(aElem, aTag) {
 
 // ---- MERGE
 
-export function mergeTemplates(templates, imports) {
+export function mergeTemplates(templates, imports, forceProtected = false) {
   if (imports.groups && imports.texts && imports.texts.length > 0 && imports.groups.length == imports.texts.length) {
     // If a group exists already, import into the existing group.
     templates.groups.forEach((group, existingGroupIdx) => {
-      let groupImportIdx = imports.groups.findIndex(i => i.mName == group.mName);
+      let groupImportIdx = imports.groups.findIndex(i => i.name == group.name);
       if (groupImportIdx != -1) {
-        console.log(`Found existing group ${group.mName} in imported groups.`)
+        console.log(`Found existing group ${group.name} in imported groups.`)
         templates.groups[existingGroupIdx] = imports.groups[groupImportIdx];
+        templates.groups[existingGroupIdx].protected = forceProtected;
         imports.groups.splice(groupImportIdx, 1);
 
         // Handle texts of this group:
         // merge imports.texts[groupImportIdx] into templates.texts[existingGroupIdx]
         templates.texts[existingGroupIdx].forEach((text, existingTextIndex) => {
-          let textImportIdx = imports.texts[groupImportIdx].findIndex(i => i.mName == text.mName);
+          let textImportIdx = imports.texts[groupImportIdx].findIndex(i => i.name == text.name);
           if (textImportIdx != -1) {
-            console.log(`Replacing text ${text.mName} with imported version.`)
+            console.log(`Replacing text ${text.name} with imported version.`)
             templates.texts[existingGroupIdx][existingTextIndex] = imports.texts[groupImportIdx][textImportIdx];
             imports.texts[groupImportIdx].splice(textImportIdx, 1);
           }
@@ -192,23 +183,24 @@ export function mergeTemplates(templates, imports) {
 
     // Add remaining new templates.
     templates.texts.push(...imports.texts);
-    templates.groups.push(...imports.groups);
+    templates.groups.push(...imports.groups.map(g => ({...g, protected: forceProtected})));
   }
 }
 
-export function mergeScripts(scripts, imports) {
+export function mergeScripts(scripts, imports, forceProtected = false) {
   if (imports.scripts && imports.scripts.length > 0) {
     // Overwrite local existing versions.
     scripts.forEach((script, existingScriptIdx) => {
-      let importScriptIdx = imports.scripts.findIndex(i => i.mName == script.mName);
+      let importScriptIdx = imports.scripts.findIndex(i => i.name == script.name);
       if (importScriptIdx != -1) {
-        console.log(`Replacing script ${script.mName} with imported version.`)
+        console.log(`Replacing script ${script.name} with imported version.`)
         scripts[existingScriptIdx] = imports.scripts[importScriptIdx];
+        scripts[existingScriptIdx].protected = forceProtected;
         imports.scripts.splice(importScriptIdx, 1);
       }
     });
     // Add the remaining new scripts.
-    scripts.push(...imports.scripts);
+    scripts.push(...imports.scripts.map(g => ({...g, protected: forceProtected})));
   }
 }
 
@@ -263,12 +255,12 @@ export async function getKeywordsAndShortcuts() {
   for (let i = 0; i < gTemplates.groups.length; i++) {
     for (let j = 0; j < gTemplates.texts[i].length; j++) {
       let text = gTemplates.texts[i][j];
-      let shortcut = text.mShortcut;
+      let shortcut = text.shortcut;
       if (shortcut != "" && typeof shortcuts[shortcut] == "undefined") {
         shortcuts[shortcut] = [i, j];
       }
 
-      let keyword = text.mKeyword;
+      let keyword = text.keyword;
       if (keyword != "" && typeof keywords[keyword.toLowerCase()] == "undefined")
         keywords[keyword.toLowerCase()] = [i, j];
     }

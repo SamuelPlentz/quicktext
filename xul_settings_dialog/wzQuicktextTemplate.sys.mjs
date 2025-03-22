@@ -4,20 +4,17 @@ var { ExtensionParent } = ChromeUtils.importESModule(
 var extension = ExtensionParent.GlobalManager.getExtension(
   "{8845E3B3-E8FB-40E2-95E9-EC40294818C4}"
 );
-var { wzQuicktextHeader } = ChromeUtils.importESModule(
-  `chrome://quicktext/content/wzQuicktextHeader.sys.mjs?v=${extension.manifest.version}`
-);
 
 export class wzQuicktextTemplate {
   constructor(config) {
     this.mName = config?.mName || config?.name || "";
     this.mText = config?.mText || config?.text || "";
     this.mShortcut = config?.mShortcut || config?.shortcut || "";
-    this.mType = config?.mType || config?.type || "";
+    this.mType = config?.mType || config?.type || "text/plain";
     this.mKeyword = config?.mKeyword || config?.keyword || "";
     this.mSubject = config?.mSubject || config?.subject || "";
     this.mAttachments = config?.mAttachments || config?.attachments || "";
-    this.mHeaders = [];
+    //this.mHeaders = [];
   }
 
   get name() { return this.mName; }
@@ -41,35 +38,7 @@ export class wzQuicktextTemplate {
   get attachments() { return this.mAttachments; }
   set attachments(aAttachments) { if (typeof aAttachments != 'undefined') return this.mAttachments = aAttachments; }
 
-  getHeader(aIndex) {
-    return this.mHeaders[aIndex];
-  }
-
-  addHeader(aType, aValue) {
-    const tmp = new wzQuicktextHeader();
-    tmp.type = aType;
-    tmp.value = aValue;
-    this.mHeaders.push(tmp);
-  }
-
-  removeHeader (aIndex) {
-    this.mHeaders.splice(aIndex, 0);
-  }
-
-  removeHeaders() {
-    this.mHeaders = [];
-  }
-
-  getHeaderLength() {
-    return this.mHeaders.length;
-  }
-
   clone() {
-    const newTemplate = new wzQuicktextTemplate(this);
-
-    for (let i = 0; i < this.mHeaders.length; i++)
-      newTemplate.addHeader(this.mHeaders[i].type, this.mHeaders[i].value);
-
-    return newTemplate;
+    return newTemplate = new wzQuicktextTemplate(this);
   }
 }

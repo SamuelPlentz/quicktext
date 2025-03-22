@@ -42,6 +42,8 @@ if (!["alt", "control", "meta"].includes(shortcutModifier)) {
 const managedPrefs = [
   "defaultImport",
 ];
+
+const managedStorageAvailable = true;
 for (let managedPref of managedPrefs) {
   try {
     let override = await browser.storage.managed.get({ [managedPref]: null });
@@ -52,13 +54,14 @@ for (let managedPref of managedPrefs) {
   } catch {
     // No managed storage available.
     await storage.setPref(`${managedPref}.managed`, false);
+    managedStorageAvailable = false;
   }
 }
 
 // Legacy: The XML files will be kept for backup, but are read only if they have
 //         not already been migrated to local storage. Uninstalling Quicktext (which
 //         clears the storage) and installing it again, will re-import the XML files.
-//         For the future, users have to be remembered to backup their templates.
+//         For the future, users have to be reminded to backup their templates.
 let templates = await storage.getTemplates();
 if (!templates) {
   console.log("Migrating XML template file to JSON stored in local storage.")
@@ -81,7 +84,7 @@ if (!scripts) {
   await storage.setScripts(scripts);
 }
 
-// Startup import
+// Startup import.
 const defaultImport = await storage.getPref("defaultImport");
 if (defaultImport) {
   const defaultImports = defaultImport.split(";").map(e => e.trim()).reverse();
@@ -106,6 +109,18 @@ if (defaultImport) {
   }
   await storage.setTemplates(templates);
   await storage.setScripts(scripts);
+}
+
+// Startup import via managed storage.
+if (managedStorageAvailable) {
+  let { templates: managedTemplates } = await browser.storage.managed.get({ templates: null });
+  if (managedTemplates) {
+    quicktext.mergeTemplates(templates, managedTemplates, true);
+  }
+  let { scripts: managedScripts } = await browser.storage.managed.get({ scripts: null });
+  if (managedScripts) {
+    quicktext.mergeScripts(scripts, managedScripts, true);
+  }
 }
 
 // NotifyTools needed by Experiment code to access WebExtension code.

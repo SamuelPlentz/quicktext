@@ -56,12 +56,14 @@ for (let managedPref of managedPrefs) {
 }
 
 // Legacy: The XML files will be kept for backup, but are read only if they have
-//         not already been migrated to local storage.
+//         not already been migrated to local storage. Uninstalling Quicktext (which
+//         clears the storage) and installing it again, will re-import the XML files.
+//         For the future, users have to be remembered to backup their templates.
 let templates = await storage.getTemplates();
 if (!templates) {
   console.log("Migrating XML template file to JSON stored in local storage.")
   templates = await quicktext.readLegacyXmlTemplateFile().then(
-    e => ({ texts: e.texts, groups: e.groups })
+    e => e.templates
   );
   // After the migration code is removed, this needs to be used for initialization.
   // templates = {};
@@ -83,29 +85,24 @@ if (!scripts) {
 const defaultImport = await storage.getPref("defaultImport");
 if (defaultImport) {
   const defaultImports = defaultImport.split(";").map(e => e.trim()).reverse();
-
   for (let path of defaultImports) {
     try {
-      if (path.match(/^(http|https):\/\//)) {
-        // Import from remote server.
-        const imports = JSON.parse(await utils.fetchFileFromServer(path));
-        if (imports.templates) {
-          quicktext.mergeTemplates(templates, imports.templates, true);
-        }
-        if (imports.scripts) {
-          quicktext.mergeScripts(scripts, imports, true);
-        }
-      } else {
-        // Import from file system. Only the old XML import is supported, the
-        // final WebExtension version will no longer support imports from the
-        // file system. Use managed storage instead to import scripts and templates
-        // in the new JSON format.
-        const imports = await quicktext.parseLegacyXmlFile(path, 1);
-        quicktext.mergeTemplates(templates, imports, true);
-        quicktext.mergeScripts(scripts, imports, true);
+      // Import XML or JSON config data from remote server or local file system.
+      // Support for importing from the local file system will be removed for the
+      // pure WebExtension version. Use managed storage instead.
+      const data = path.match(/^(http|https):\/\//)
+        ? await utils.fetchFileFromServer(path)
+        : await browser.Quicktext.readTextFile(path);
+      const imports = quicktext.parseConfigFileData(data);
+      if (imports.templates) {
+        quicktext.mergeTemplates(templates, imports.templates, true);
+      }
+      if (imports.scripts) {
+        quicktext.mergeScripts(scripts, imports.scripts, true);
+      }
+    } catch (e) {
+      console.error(e);
     }
-      
-    } catch (e) { console.error(e); }
   }
   await storage.setTemplates(templates);
   await storage.setScripts(scripts);
@@ -132,6 +129,15 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
     case "openWebPage":
       return browser.windows.openDefaultBrowser(info.url);
 
+    case "parseConfigFile":
+      return browser.Quicktext.readTextFile(info.path).then(quicktext.parseConfigFileData);
+    case "pickAndParseConfigFile":
+      // Currently not used. Instead the settings window keeps using the legacy
+      // file picker.
+      return utils.pickFileFromDisc([3, 5])
+        .then(utils.getTextFileContent)
+        .then(quicktext.parseConfigFileData);
+
     case "exportTemplates":
       return storage.getTemplates().then(templates => templates
         ? utils.writeFileToDisc(JSON.stringify({ templates }, null, 2), "templates.json")
@@ -142,13 +148,6 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
         ? utils.writeFileToDisc(JSON.stringify({ scripts }, null, 2), "scripts.json")
         : null
       );
-    case "importFromDisc":
-      // Currently not used. Instead the settings window keeps using the legacy
-      // file picker.
-      return utils.getFileFromDisc(5).then(file => file
-        ? utils.getTextFileContent(file)
-        : ""
-      )
 
     // Experiment toolbar actions from the compose window.
     case "insertFile":

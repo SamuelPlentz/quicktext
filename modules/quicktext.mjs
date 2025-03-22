@@ -13,36 +13,26 @@ import { QuicktextParser } from "/modules/quicktextParser.mjs";
 export async function readLegacyXmlTemplateFile() {
   let templateFolder = await storage.getPref("templateFolder");
   let { templateFilePath } = await browser.Quicktext.getQuicktextFilePaths(templateFolder);
-  return parseLegacyXmlFile(templateFilePath, 0);
+  let xmlData = await browser.Quicktext.readTextFile(templateFilePath);
+  return parseLegacyXmlData(xmlData);
 }
 
 export async function readXmlScriptFile() {
   let templateFolder = await storage.getPref("templateFolder");
   let { scriptFilePath } = await browser.Quicktext.getQuicktextFilePaths(templateFolder);
-  return parseLegacyXmlFile(scriptFilePath, 0);
+  let xmlData = await browser.Quicktext.readTextFile(scriptFilePath);
+  return parseLegacyXmlData(xmlData);
 }
 
-/**
- * 
- * @param {string} filePath
- * @param {integer} forceProtected 0 = normal, 1 = default import
- * @returns {obj} imports
- */
-export async function parseLegacyXmlFile(filePath, forceProtected) {
-  let aData = await browser.Quicktext.readTextFile(filePath);
+export async function parseLegacyXmlData(xmlData) {
   const parser = new DOMParser();
-  const dom = parser.parseFromString(aData, "text/xml");
+  const dom = parser.parseFromString(xmlData, "text/xml");
 
   const version = dom.documentElement.getAttribute("version");
 
   const foundGroups = [];
   const foundTexts = [];
   const foundScripts = [];
-
-  const imports = {}
-  for (let part of ["groups", "scripts", "texts"]) {
-    imports[part] = [];
-  }
 
   switch (version) {
     case "2":
@@ -55,7 +45,7 @@ export async function parseLegacyXmlFile(filePath, forceProtected) {
               let tmp = {
                 name: getTagValue(elems[i], "name"),
                 script: getTagValue(elems[i], "body"),
-                protected: forceProtected
+                protected: false
               };
 
               foundScripts.push(tmp);
@@ -70,7 +60,7 @@ export async function parseLegacyXmlFile(filePath, forceProtected) {
             for (let i = 0; i < elems.length; i++) {
               let tmp = {
                 name: getTagValue(elems[i], "title"),
-                protected: forceProtected
+                protected: false
               };
 
               foundGroups.push(tmp);
@@ -104,27 +94,51 @@ export async function parseLegacyXmlFile(filePath, forceProtected) {
       break;
 
     default:
-      console.error("invalid data format", aData)
+      console.error("invalid data format", xmlData)
       return;
   }
 
+  const imports = {}
+
   if (foundScripts.length > 0) {
+    imports.scripts = [];
     for (let i = 0; i < foundScripts.length; i++) {
       imports.scripts.push(foundScripts[i]);
     }
   }
 
   if (foundGroups.length > 0 && foundTexts.length > 0) {
+    imports.templates = {};
+    imports.templates.groups = [];
     for (let i = 0; i < foundGroups.length; i++) {
-      imports.groups.push(foundGroups[i]);
+      imports.templates.groups.push(foundGroups[i]);
     }
+    imports.templates.texts = [];
     for (let i = 0; i < foundTexts.length; i++) {
-      imports.texts.push(foundTexts[i]);
+      imports.templates.texts.push(foundTexts[i]);
     }
   }
 
   return imports;
 }
+
+export async function parseConfigFileData(fileData) {
+  let errors = [];
+  try {
+    return JSON.parse(fileData);
+  } catch (e) {
+    errors.push(e);
+  }
+
+  try {
+    return await parseLegacyXmlData(fileData);
+  } catch (e) {
+    errors.push(e);
+  }
+
+  console.error("Failed to parse config file, does not seem to be a supported JSON or XML format", errors);
+}
+
 
 function getTagValue(aElem, aTag) {
   const tagElem = aElem.getElementsByTagName(aTag);
@@ -144,53 +158,53 @@ function getTagValue(aElem, aTag) {
 
 // ---- MERGE
 
-export function mergeTemplates(templates, imports, forceProtected = false) {
-  if (imports.groups && imports.texts && imports.texts.length > 0 && imports.groups.length == imports.texts.length) {
+export function mergeTemplates(templates, importedTemplates, forceProtected = false) {
+  if (importedTemplates.groups && importedTemplates.texts && importedTemplates.texts.length > 0 && importedTemplates.groups.length == importedTemplates.texts.length) {
     // If a group exists already, import into the existing group.
     templates.groups.forEach((group, existingGroupIdx) => {
-      let groupImportIdx = imports.groups.findIndex(i => i.name == group.name);
+      let groupImportIdx = importedTemplates.groups.findIndex(i => i.name == group.name);
       if (groupImportIdx != -1) {
         console.log(`Found existing group ${group.name} in imported groups.`)
-        templates.groups[existingGroupIdx] = imports.groups[groupImportIdx];
+        templates.groups[existingGroupIdx] = importedTemplates.groups[groupImportIdx];
         templates.groups[existingGroupIdx].protected = forceProtected;
-        imports.groups.splice(groupImportIdx, 1);
+        importedTemplates.groups.splice(groupImportIdx, 1);
 
         // Handle texts of this group:
         // merge imports.texts[groupImportIdx] into templates.texts[existingGroupIdx]
         templates.texts[existingGroupIdx].forEach((text, existingTextIndex) => {
-          let textImportIdx = imports.texts[groupImportIdx].findIndex(i => i.name == text.name);
+          let textImportIdx = importedTemplates.texts[groupImportIdx].findIndex(i => i.name == text.name);
           if (textImportIdx != -1) {
             console.log(`Replacing text ${text.name} with imported version.`)
-            templates.texts[existingGroupIdx][existingTextIndex] = imports.texts[groupImportIdx][textImportIdx];
-            imports.texts[groupImportIdx].splice(textImportIdx, 1);
+            templates.texts[existingGroupIdx][existingTextIndex] = importedTemplates.texts[groupImportIdx][textImportIdx];
+            importedTemplates.texts[groupImportIdx].splice(textImportIdx, 1);
           }
         });
         // Add remaining texts to this group.
-        templates.texts[existingGroupIdx].push(...imports.texts[groupImportIdx]);
-        imports.texts.splice(groupImportIdx, 1);
+        templates.texts[existingGroupIdx].push(...importedTemplates.texts[groupImportIdx]);
+        importedTemplates.texts.splice(groupImportIdx, 1);
       }
     });
 
     // Add remaining new templates.
-    templates.texts.push(...imports.texts);
-    templates.groups.push(...imports.groups.map(g => ({...g, protected: forceProtected})));
+    templates.texts.push(...importedTemplates.texts);
+    templates.groups.push(...importedTemplates.groups.map(g => ({ ...g, protected: forceProtected })));
   }
 }
 
-export function mergeScripts(scripts, imports, forceProtected = false) {
-  if (imports.scripts && imports.scripts.length > 0) {
+export function mergeScripts(scripts, importedScripts, forceProtected = false) {
+  if (importedScripts && importedScripts.length > 0) {
     // Overwrite local existing versions.
     scripts.forEach((script, existingScriptIdx) => {
-      let importScriptIdx = imports.scripts.findIndex(i => i.name == script.name);
+      let importScriptIdx = importedScripts.findIndex(i => i.name == script.name);
       if (importScriptIdx != -1) {
         console.log(`Replacing script ${script.name} with imported version.`)
-        scripts[existingScriptIdx] = imports.scripts[importScriptIdx];
+        scripts[existingScriptIdx] = importedScripts[importScriptIdx];
         scripts[existingScriptIdx].protected = forceProtected;
-        imports.scripts.splice(importScriptIdx, 1);
+        importedScripts.splice(importScriptIdx, 1);
       }
     });
     // Add the remaining new scripts.
-    scripts.push(...imports.scripts.map(g => ({...g, protected: forceProtected})));
+    scripts.push(...importedScripts.map(g => ({ ...g, protected: forceProtected })));
   }
 }
 
@@ -216,7 +230,7 @@ export async function insertVariable(aTabId, aVar, aForceAsText) {
 }
 
 export async function insertContentFromFile(aTabId, aType) {
-  let file = utils.getFileFromDisc(aType);
+  let file = utils.pickFileFromDisc(aType);
   if (file) {
     return insertFile(aTabId, file, aType);
   }

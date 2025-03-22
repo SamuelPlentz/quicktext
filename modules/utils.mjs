@@ -107,7 +107,7 @@ export async function writeFileToDisc(data, filename) {
     URL.revokeObjectURL(url);
 }
 
-export async function getFileFromDisc(aType) {
+export async function pickFileFromDisc(aTypes) {
     let picker = Promise.withResolvers();
 
     // Hidden input to open file dialog.
@@ -116,28 +116,32 @@ export async function getFileFromDisc(aType) {
     inputElement.addEventListener("change", () => { picker.resolve(inputElement.files) }, false);
     inputElement.addEventListener("cancel", () => { picker.resolve([]) }, false);
 
-    switch (aType) {
-        case 0: // TXT files
-            inputElement.setAttribute("accept", "text/plain");
-            break;
-        case 1: // HTML files
-            inputElement.setAttribute("accept", "text/html");
-            break;
-        case 2: // arbitrary files
-            break;
-        case 3: // legacy Quicktext XML files
-            inputElement.setAttribute("accept", ".xml");
-            break;
-        case 4: // image files
-            inputElement.setAttribute("accept", "images/*");
-            break;
-        case 5: // JSON
-            inputElement.setAttribute("accept", ".json");
-            break;
-        default: // attachments
-            break;
+    let acceptedFileTypes = []
+    for (let aType of aTypes) {
+        switch (aType) {
+            case 0: // TXT files
+                acceptedFileTypes.push("text/plain");
+                break;
+            case 1: // HTML files
+                acceptedFileTypes.push("text/html");
+                break;
+            case 2: // arbitrary files
+                break;
+            case 3: // legacy Quicktext XML files
+                acceptedFileTypes.push(".xml");
+                break;
+            case 4: // image files
+                acceptedFileTypes.push("images/*");
+                break;
+            case 5: // JSON
+                acceptedFileTypes.push(".json");
+                break;
+            default: // attachments
+                break;
+        }
     }
-
+    
+    inputElement.setAttribute("accept", acceptedFileTypes.join(", "));
     inputElement.click();
     const [file] = await picker.promise;
     inputElement.remove();

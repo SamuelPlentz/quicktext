@@ -132,7 +132,7 @@ var gQuicktext = {
       pref: "defaultImport.managed"
     });
     if (defaultImportManaged) {
-      document.getElementById("text-defaultImport").setAttribute("disabled","true");
+      document.getElementById("text-defaultImport").setAttribute("disabled", "true");
     }
 
     this.startEditing();
@@ -153,20 +153,20 @@ var gQuicktext = {
 
       if (typeof value === 'object' && value !== null) {
         let pObj = {};
-        for (let [k,v] of Object.entries(value)) {
-          const pKey = k.startsWith("m") 
+        for (let [k, v] of Object.entries(value)) {
+          const pKey = k.startsWith("m")
             ? k[1].toLowerCase() + k.slice(2)
             : k;
           pObj[pKey] = prettifier(v);
         }
         return pObj;
       }
-      
+
       return value;
     }
     return prettifier(data);
   },
-  
+
   saveSettings: async function () {
     // Save prefs.
     await notifyTools.notifyBackground({ command: "setPref", pref: "toolbar", value: this.mViewToolbar });
@@ -384,7 +384,7 @@ var gQuicktext = {
   /*
    * FILE FUNCTIONS
    */
-  async pickFile(aType, aMode, aTitle) {
+  async pickFile(aTypes, aMode, aTitle) {
     let filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
     switch (aMode) {
       case 1: // save
@@ -395,24 +395,30 @@ var gQuicktext = {
         break;
     }
 
-    switch (aType) {
-      case 0: // insert TXT file
-        filePicker.appendFilters(filePicker.filterText);
-        filePicker.defaultExtension = "txt";
-        break;
-      case 1: // insert HTML file
-        filePicker.appendFilters(filePicker.filterHTML);
-        filePicker.defaultExtension = "html";
-        break;
-      case 2: // insert file
-        break;
-      case 4: // images
-        filePicker.appendFilters(filePicker.filterImages);
-      case 5: // JSON
-        filePicker.appendFilter("Quicktext Export", "*.json");
-        filePicker.defaultExtension = "json";
-      default: // attachments
-        break;
+    for (let aType of aTypes) {
+      switch (aType) {
+        case 0: // insert TXT file
+          filePicker.appendFilters(filePicker.filterText);
+          filePicker.defaultExtension = "txt";
+          break;
+        case 1: // insert HTML file
+          filePicker.appendFilters(filePicker.filterHTML);
+          filePicker.defaultExtension = "html";
+          break;
+        case 2: // insert file
+          break;
+        case 3: // Quicktext XML file
+          filePicker.appendFilter("Quicktext XML Export", "*.xml");
+          filePicker.defaultExtension = "xml";
+          break;
+        case 4: // images
+          filePicker.appendFilters(filePicker.filterImages);
+        case 5: // JSON
+          filePicker.appendFilter("Quicktext JSON Export", "*.json");
+          filePicker.defaultExtension = "json";
+        default: // attachments
+          break;
+      }
     }
 
     filePicker.appendFilters(filePicker.filterAll);
@@ -1239,7 +1245,7 @@ var settingsDialog = {
 
     let scriptIndex = document.getElementById('script-list').value;
     let script = gQuicktext.getScript(scriptIndex, true);
-    if (gQuicktext.getScriptLength(true) && script.protected)
+    if (gQuicktext.getScriptLength(true) && !script.protected)
       document.getElementById('script-button-remove').removeAttribute("disabled");
     else
       document.getElementById('script-button-remove').setAttribute("disabled", true);
@@ -1267,14 +1273,14 @@ var settingsDialog = {
   },
   // TODO: Hardcoding files is no longer possible in pure WebExt, either Exp only or gallery.
   insertFileVariable: async function () {
-    if ((file = await gQuicktext.pickFile(2, 0, extension.localeData.localizeMessage("insertFile"))) != null) {
+    if ((file = await gQuicktext.pickFile([2], 0, extension.localeData.localizeMessage("insertFile"))) != null) {
       this.insertVariable('FILE=' + file.path);
     }
     this.enableSave();
   },
   // TODO: Hardcoding files is no longer possible in pure WebExt, either Exp only or gallery.
   insertImageVariable: async function () {
-    if ((file = await gQuicktext.pickFile(4, 0, extension.localeData.localizeMessage("insertImage"))) != null) {
+    if ((file = await gQuicktext.pickFile([4], 0, extension.localeData.localizeMessage("insertImage"))) != null) {
       this.insertVariable('IMAGE=' + file.path);
     }
     this.enableSave();
@@ -1290,14 +1296,11 @@ var settingsDialog = {
   importTemplatesFromFile: async function () {
     // We use the legacy file picker here, because the user event handler sometimes
     // gets lost when piped through notify Tools.
-    // let data = await notifyTools.notifyBackground({ command: "importFromDisc" });
-    const file = await gQuicktext.pickFile(5, 0, extension.localeData.localizeMessage("importFile"));
+    // const parsedData = await notifyTools.notifyBackground({ command: "pickAndParseConfigFile" });
+    const file = await gQuicktext.pickFile([5, 3], 0, extension.localeData.localizeMessage("importFile"));
     if (!file) return;
-
-    const data = await IOUtils.readUTF8(file.path);
-    if (!data) return;
-
-    let parsedData = JSON.parse(data);
+    const parsedData = await notifyTools.notifyBackground({ command: "parseConfigFile", path: file.path });
+    
     if (!parsedData || !parsedData.templates) return;
 
     this.saveText();
@@ -1318,14 +1321,11 @@ var settingsDialog = {
   importScriptsFromFile: async function () {
     // We use the legacy file picker here, because the user event handler sometimes
     // gets lost when piped through notify Tools.
-    // let data = await notifyTools.notifyBackground({ command: "importFromDisc" });
-    const file = await gQuicktext.pickFile(5, 0, extension.localeData.localizeMessage("importFile"));
+    // const parsedData = await notifyTools.notifyBackground({ command: "pickAndParseConfigFile" });
+    const file = await gQuicktext.pickFile([5, 3], 0, extension.localeData.localizeMessage("importFile"));
     if (!file) return;
-
-    const data = await IOUtils.readUTF8(file.path);
-    if (!data) return;
-
-    let parsedData = JSON.parse(data);
+    const parsedData = await notifyTools.notifyBackground({ command: "parseConfigFile", path: file.path });
+    
     if (!parsedData || !parsedData.scripts) return;
 
     this.saveText();
@@ -1338,7 +1338,7 @@ var settingsDialog = {
     this.updateButtonStates();
   },
   browseAttachment: async function () {
-    if ((file = await gQuicktext.pickFile(-1, 0, extension.localeData.localizeMessage("attachmentFile"))) != null) {
+    if ((file = await gQuicktext.pickFile([], 0, extension.localeData.localizeMessage("attachmentFile"))) != null) {
       var filePath = file.path;
       var attachments = document.getElementById('text-attachments').value;
       if (attachments != "")

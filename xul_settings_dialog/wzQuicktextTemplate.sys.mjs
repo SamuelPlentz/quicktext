@@ -39,6 +39,6 @@ export class wzQuicktextTemplate {
   set attachments(aAttachments) { if (typeof aAttachments != 'undefined') return this.mAttachments = aAttachments; }
 
   clone() {
-    return newTemplate = new wzQuicktextTemplate(this);
+    return new wzQuicktextTemplate(this);
   }
 }

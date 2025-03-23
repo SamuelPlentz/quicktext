@@ -10,7 +10,7 @@
     settings dialog from Experiment usage as much as possible
 [x] properly implement startup imports
 [x] rename group to groups everywhere
-[ ] find a solution for scripts, looks like this will not work without breaking
+[x] find a preliminary solution for scripts, looks like this will not work without breaking
     existing scripts :-( (they have to use WebExtension code)
 
 [x] change composer toolbar Experiment to use templates from storage

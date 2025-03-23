@@ -61,14 +61,14 @@ export class QuicktextParser {
 
   async getDetails() {
     if (!this.mDetails) {
-      this.mDetails = await browser.compose.getComposeDetails(this.mTabId)
+      this.mDetails = await browser.compose.getComposeDetails(this.mTabId);
     }
     return this.mDetails
   }
 
   async setDetails(details) {
     await browser.compose.setComposeDetails(this.mTabId, details);
-    this.mDetails = null;
+    this.mDetails = await browser.compose.getComposeDetails(this.mTabId);
   }
 
   // These process functions get the data and mostly saves it
@@ -118,9 +118,9 @@ export class QuicktextParser {
           // Only works with unsafe eval enabled in the CSP, which is not allowed
           // on ATN. Inject some variables into the scope of the executed code.
           let s = {}
-          s.mQuicktext = this;
+          s.mDetails = await this.getDetails();
           s.mVariables = aVariables;
-          s.mDetails = this.mDetails;
+          s.mQuicktext = this;
 
           const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
           const func = new AsyncFunction('with(this) { ' + script.script + ' }');

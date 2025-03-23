@@ -13,6 +13,8 @@
   "homepage_url": "https://github.com/jobisoft/quicktext",
   "default_locale": "en-US",
   "description": "__MSG_extensionDescription__",
+  "content_security_policy": "script-src 'self' 'unsafe-eval'",
+
   "icons": {
     "16": "assets/icon16.png",
     "24": "assets/icon24.png",

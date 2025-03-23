@@ -114,32 +114,25 @@ export class QuicktextParser {
       if (script.name == scriptName) {
         let returnValue = "";
 
-        let referenceLineNumber = 0
         try {
-          // Provoke an error to create a reference for the other linenumber.
-          let error = variableNotAvailable;
-        } catch (eReference) {
-          referenceLineNumber = eReference.lineNumber;
-        }
-
-        try {
-          // Find a solution for this in the WebExtension world.
-          let s = Components.utils.Sandbox(this.mWindow);
+          // Only works with unsafe eval enabled in the CSP, which is not allowed
+          // on ATN. Inject some variables into the scope of the executed code.
+          let s = {}
           s.mQuicktext = this;
           s.mVariables = aVariables;
-          s.mWindow = this.mWindow;
-          returnValue = await Components.utils.evalInSandbox("scriptObject = {}; scriptObject.mQuicktext = mQuicktext; scriptObject.mVariables = mVariables; scriptObject.mWindow = mWindow; scriptObject.run = async function() {\n" + script.script + "\n; return ''; }; scriptObject.run();", s);
+          s.mDetails = this.mDetails;
+
+          const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
+          const func = new AsyncFunction('with(this) { ' + script.script + ' }');
+          returnValue = await func.call(s);
         } catch (e) {
           if (this.mTabId) {
+            let [line] = e.stack.split("\n");
+            let [lineNumber, lineLocation] = line.split(":").slice(-2).map(Number);
             let lines = script.script.split("\n");
 
-            // Takes the linenumber where the error where and remove
-            // the line that it was run on so we get the line in the script
-            // calculate it by using a reference error linenumber and an offset
-            // offset: 10 lines between "variableNotAvailable" and "evalInSandbox"
-            let lineNumber = e.lineNumber - referenceLineNumber - 10;
             await messenger.tabs.sendMessage(this.mTabId, {
-              alertLabel: `${browser.i18n.getMessage("scriptError")} ${script.name}\n${e.name}: ${e.message}\n${browser.i18n.getMessage("scriptLine")} ${lineNumber}: ${lines[lineNumber - 1]}`,
+              alertLabel: `[${script.name}] ${browser.i18n.getMessage("scriptError")}\n${e.name}: ${e.message}\n\n${browser.i18n.getMessage("scriptLine")} ${lineNumber - 3}:${lineLocation}\n${lines[lineNumber - 3]}`,
             });
           }
         }
@@ -147,7 +140,7 @@ export class QuicktextParser {
         return returnValue;
       }
     }
-    
+
     // If we reach this point, the user requested an non-existing script.
     await messenger.tabs.sendMessage(this.mTabId, {
       alertLabel: browser.i18n.getMessage("scriptNotFound", [scriptName]),

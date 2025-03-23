@@ -212,17 +212,19 @@ export function mergeScripts(scripts, importedScripts, forceProtected = false) {
 
 export async function parseVariable(aTabId, aVar) {
   let gTemplates = await storage.getTemplates();
+  let getScripts = await storage.getScripts();
 
-  let quicktextParser = new QuicktextParser(aTabId, gTemplates);
+  let quicktextParser = new QuicktextParser(aTabId, gTemplates, getScripts);
   return quicktextParser.parse("[[" + aVar + "]]");
 }
 
 export async function insertVariable(aTabId, aVar, aForceAsText) {
   let gTemplates = await storage.getTemplates();
+  let getScripts = await storage.getScripts();
 
   // If aForceAsText is not set, but after parsing it is set, we should rerun
   // with aForceAsText set from the beginning. 
-  let quicktextParser = new QuicktextParser(aTabId, gTemplates, aForceAsText);
+  let quicktextParser = new QuicktextParser(aTabId, gTemplates, getScripts, aForceAsText);
   let parsed = await quicktextParser.parse("[[" + aVar + "]]");
   if (parsed) {
     await quicktextParser.insertBody(parsed, { extraSpace: true });
@@ -243,7 +245,9 @@ export async function insertFile(aTabId, file, aType) {
   }
 
   let gTemplates = await storage.getTemplates();
-  let quicktextParser = new QuicktextParser(aTabId, gTemplates, aType == 0);
+  let getScripts = await storage.getScripts();
+
+  let quicktextParser = new QuicktextParser(aTabId, gTemplates, getScripts, aType == 0);
   await quicktextParser.insertBody(content, { extraSpace: false });
 }
 

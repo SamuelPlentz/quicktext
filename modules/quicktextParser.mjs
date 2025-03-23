@@ -11,10 +11,11 @@ const allowedTags = ['ATT', 'CLIPBOARD', 'COUNTER', 'DATE', 'FILE', 'IMAGE', 'FR
 const persistentTags = ['COUNTER', 'ORGATT', 'ORGHEADER', 'VERSION'];
 
 export class QuicktextParser {
-  constructor(aTabId, templates, forceAsText = false) {
+  constructor(aTabId, templates, scripts, forceAsText = false) {
     this.clearData();
     this.mTabId = aTabId;
     this.mTemplates = templates;
+    this.mScripts = scripts;
     this.mForceAsText = forceAsText;
   }
 
@@ -109,8 +110,7 @@ export class QuicktextParser {
     let scriptName = aVariables.shift();
 
     // Looks through all scripts and tries to find the one we look for.
-    for (let i = 0; i < this.mTemplates.scripts.length; i++) {
-      let script = this.mTemplates.scripts[i];
+    for (let script of this.mScripts) {
       if (script.name == scriptName) {
         let returnValue = "";
 
@@ -128,10 +128,10 @@ export class QuicktextParser {
           s.mQuicktext = this;
           s.mVariables = aVariables;
           s.mWindow = this.mWindow;
-          returnValue = await Components.utils.evalInSandbox("scriptObject = {}; scriptObject.mQuicktext = mQuicktext; scriptObject.mVariables = mVariables; scriptObject.mWindow = mWindow; scriptObject.run = async function() {\n" + script.mScript + "\n; return ''; }; scriptObject.run();", s);
+          returnValue = await Components.utils.evalInSandbox("scriptObject = {}; scriptObject.mQuicktext = mQuicktext; scriptObject.mVariables = mVariables; scriptObject.mWindow = mWindow; scriptObject.run = async function() {\n" + script.script + "\n; return ''; }; scriptObject.run();", s);
         } catch (e) {
           if (this.mTabId) {
-            let lines = script.mScript.split("\n");
+            let lines = script.script.split("\n");
 
             // Takes the linenumber where the error where and remove
             // the line that it was run on so we get the line in the script
@@ -146,14 +146,14 @@ export class QuicktextParser {
 
         return returnValue;
       }
-
-      //if we reach this point, the user requested an non-existing script
-      await messenger.tabs.sendMessage(this.mTabId, {
-        alertLabel: browser.i18n.getMessage("scriptNotFound", [scriptName]),
-      });
-
-      return "";
     }
+    
+    // If we reach this point, the user requested an non-existing script.
+    await messenger.tabs.sendMessage(this.mTabId, {
+      alertLabel: browser.i18n.getMessage("scriptNotFound", [scriptName]),
+    });
+
+    return "";
   }
 
   // This needs the <all_urls> permission, otherwise requests to remote pages

@@ -24,8 +24,8 @@ export async function buildComposeBodyMenu() {
             watchedPrefs: ["templates", "popup", "menuCollapse"],
             listener: async (changes) => {
                 // Throw away the menu.
-                for (let entry of composeContextEntries) {
-                    await browser.menus.remove(entry);
+                for (let entry of composeContextEntries.reverse()) {
+                    await messenger.menus.remove(entry);
                 }
                 composeContextEntries = [];
 
@@ -54,11 +54,27 @@ async function processMenuData(menuData, parentId) {
         if (entry.onclick) createData.onclick = entry.onclick;
         if (parentId) createData.parentId = parentId;
 
-        const id = await messenger.menus.create(createData);
+        const created = Promise.withResolvers()
+        const id = messenger.menus.create(createData, () => {
+            let receivedError = browser.runtime.lastError;
+            if (receivedError) {
+                console.error(receivedError);
+            }
+            created.resolve();
+        });
+        await created.promise;
+        if (id != createData.id) {
+            console.error(`Menu with requested id <${createData.id}> was created as <${id}>`)
+        }
+        if (composeContextEntries.includes(id)) {
+            console.error(`Menu with id <${id}} exists already!`)
+        } else {
+            composeContextEntries.push(id);
+        }
+
         if (entry.id && entry.children) {
             await processMenuData(entry.children, createData.id);
         }
-        composeContextEntries.push(id);
     }
 }
 
@@ -218,7 +234,7 @@ async function getComposeBodyMenuData() {
             contexts,
             id: "settings",
             title: messenger.i18n.getMessage("quicktext.settings.title"),
-            onclick: (info, tab) => browser.Quicktext.openTemplateManager()
+            onclick: (info, tab) => messenger.Quicktext.openTemplateManager()
         },
     );
 

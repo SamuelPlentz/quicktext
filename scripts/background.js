@@ -43,7 +43,7 @@ const managedPrefs = [
   "defaultImport",
 ];
 
-const managedStorageAvailable = true;
+let managedStorageAvailable = true;
 for (let managedPref of managedPrefs) {
   try {
     let override = await browser.storage.managed.get({ [managedPref]: null });

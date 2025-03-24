@@ -227,7 +227,7 @@ export async function insertVariable(aTabId, aVar, aForceAsText) {
   let quicktextParser = new QuicktextParser(aTabId, gTemplates, getScripts, aForceAsText);
   let parsed = await quicktextParser.parse("[[" + aVar + "]]");
   if (parsed) {
-    await quicktextParser.insertBody(parsed, { extraSpace: true });
+    await quicktextParser.insertBody(parsed, { extraSpace: false });
   }
 }
 

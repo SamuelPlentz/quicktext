@@ -1,3 +1,12 @@
+browser.runtime.onInstalled.addListener(details => {
+  if (details.reason == "update") {
+    browser.tabs.create({
+      active: false,
+      url: "https://github.com/jobisoft/quicktext/issues/439",
+    })
+  }
+});
+
 (async () => {
   // Define default prefs.
   let defaultPrefs = {
@@ -50,13 +59,11 @@
   messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
     switch (info.command) {
       case "setPref":
-        preferences.setPref(info.pref, info.value);
-        break;
+        return preferences.setPref(info.pref, info.value);
       case "getPref":
         return await preferences.getPref(info.pref);
-        break;
       case "openWebPage":
-        return browser.windows.openDefaultBrowser(info.url);        
+        return browser.windows.openDefaultBrowser(info.url);
     }
   });
 
@@ -78,7 +85,7 @@
   // Manipulate all already open compose windows.
   let windows = await browser.windows.getAll({ windowTypes: ["messageCompose"] })
   for (let window of windows) {
-      await browser.Quicktext.manipulateComposeWindow(window.id);
+    await browser.Quicktext.manipulateComposeWindow(window.id);
   }
 
   // Manipulate any new compose window being opened.

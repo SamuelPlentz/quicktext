@@ -473,7 +473,7 @@ export class QuicktextParser {
   async get_orgatt(aVariables) {
     let data = await this.process_orgatt(aVariables);
     let seperator = aVariables.length > 0
-      ? aVariables[1].replace(/\\n/g, "\n").replace(/\\t/g, "\t")
+      ? aVariables[0].replace(/\\n/g, "\n").replace(/\\t/g, "\t")
       : ", "
 
     // data is array of objects {contentType, name, size, partName}, reduce to

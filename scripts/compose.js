@@ -86,7 +86,12 @@ async function handlerCursorTags() {
                     range.setEnd(foundElement, startPos + CURSOR.length);
                     selection.removeAllRanges();
                     selection.addRange(range);
-                    selection.deleteFromDocument();
+                    // execCommand() does not collapse the leading and trailing
+                    // spaces which selection.deleteFromDocument() does. All the
+                    // text altering functions from selection and range seem to
+                    // collapse spaces.
+                    document.execCommand('delete');
+                    //selection.deleteFromDocument();
                 }
                 startPos = foundElement.nodeValue.indexOf(CURSOR);
             } while (startPos != -1)

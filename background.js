@@ -55,6 +55,8 @@
       case "getPref":
         return await preferences.getPref(info.pref);
         break;
+      case "openWebPage":
+        return browser.windows.openDefaultBrowser(info.url);        
     }
   });
 

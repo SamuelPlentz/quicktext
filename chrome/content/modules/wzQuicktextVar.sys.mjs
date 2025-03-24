@@ -408,9 +408,10 @@ export class wzQuicktextVar {
 
     if (typeof data != 'undefined')
     {
-      if (aVariables.length == 0)
+      if (aVariables.length == 0) {
         aVariables[0] = ", ";
-      return data['displayName'].join(aVariables[0].replace(/\\n/g, "\n").replace(/\\t/g, "\t"));
+      }
+      return data.map(a => a.displayName).join(aVariables[0].replace(/\\n/g, "\n").replace(/\\t/g, "\t"));
     }
 
     return "";
@@ -1108,7 +1109,7 @@ export class wzQuicktextVar {
 
     this.mData['ORGATT'] = {};
     this.mData['ORGATT'].checked = true;
-    this.mData['ORGATT'].data = { contentType: [], url: [], displayName: [], uri: [], isExternal: [] };
+    this.mData['ORGATT'].data = [];
 
     let msgURI = this.mWindow.gMsgCompose.originalMsgURI;
     if (!msgURI || msgURI == "") {
@@ -1169,14 +1170,17 @@ export class wzQuicktextVar {
 
     if ("attachments" in mimeMsg) {
       for (let attachment of mimeMsg.attachments) {
-        if (attachment.contentType == "text/html") return;
+        if (!attachment.name) return;
 
+        
         // Store attachments in the mData-variable
-        this.mData['ORGATT'].data.contentType = attachment.contentType;
-        this.mData['ORGATT'].data.url = attachment.url;
-        this.mData['ORGATT'].data.displayName = attachment.displayName;
-        this.mData['ORGATT'].data.uri = attachment.uri;
-        this.mData['ORGATT'].data.isExternal = attachment.isExternal;
+        this.mData['ORGATT'].data.push({
+          contentType: attachment.contentType,
+          url: attachment.url,
+          displayName: attachment.name,
+          uri: attachment.uri,
+          isExternal: attachment.isExternal,
+        })
       }
     }
   }

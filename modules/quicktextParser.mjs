@@ -7,7 +7,10 @@
 import * as utils from "/modules/utils.mjs";
 import * as storage from "/modules/storage.mjs";
 
-const allowedTags = ['ATT', 'CLIPBOARD', 'COUNTER', 'DATE', 'FILE', 'IMAGE', 'FROM', 'INPUT', 'ORGATT', 'ORGHEADER', 'SCRIPT', 'SUBJECT', 'TEXT', 'TIME', 'TO', 'URL', 'VERSION', 'SELECTION', 'HEADER'];
+const allowedTags = [
+  'ALERT', 'ATT', 'CLIPBOARD', 'COUNTER', 'DATE', 'FILE', 'IMAGE', 'FROM', 'INPUT', 'ORGATT',
+  'ORGHEADER', 'SCRIPT', 'SUBJECT', 'TEXT', 'TIME', 'TO', 'URL', 'VERSION', 'SELECTION', 'HEADER'
+];
 const persistentTags = ['COUNTER', 'ORGATT', 'ORGHEADER', 'VERSION'];
 
 export class QuicktextParser {
@@ -404,6 +407,18 @@ export class QuicktextParser {
 
     if (typeof data[aVariables[0]] != "undefined")
       return data[aVariables[0]];
+
+    return "";
+  }
+
+  async process_alert(aVariables) {
+    messenger.tabs.sendMessage(this.mTabId, {
+      alertLabel: aVariables[0],
+    });
+  }
+  async get_alert(aVariables) {
+    // An alert does not stop the evaluation.
+    this.process_alert(aVariables);
 
     return "";
   }
@@ -849,6 +864,7 @@ export class QuicktextParser {
         case 'orgatt':
           variable_limit = 0;
           break;
+        case 'alert':
         case 'file':
         case 'image':
         case 'from':

@@ -124,6 +124,7 @@ export class QuicktextParser {
           s.mDetails = await this.getDetails();
           s.mVariables = aVariables;
           s.mQuicktext = this;
+          s.mTabId = this.mTabId;
 
           const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
           const func = new AsyncFunction('with(this) { ' + script.script + ' }');
@@ -140,7 +141,7 @@ export class QuicktextParser {
           }
         }
 
-        return returnValue;
+        return returnValue || "";
       }
     }
 

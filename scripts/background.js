@@ -176,13 +176,7 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
     case "insertTemplate":
       return messenger.tabs
         .query({ windowId: info.windowId, type: "messageCompose" })
-        .then(async tabs => {
-          let t = await storage.getTemplates();
-          return quicktext.insertVariable(
-            tabs[0].id,
-            `TEXT=${t.groups[info.group].name}|${t.texts[info.group][info.text].name}`
-          )
-        });
+        .then(tabs => quicktext.insertTemplate(tabs[0].id, info.group, info.text));
   }
 });
 
@@ -193,10 +187,7 @@ messenger.runtime.onMessage.addListener((info, sender, sendResponse) => {
     case "getKeywordsAndShortcuts":
       return quicktext.getKeywordsAndShortcuts();
     case "insertTemplate":
-      return storage.getTemplates().then(t => quicktext.insertVariable(
-        sender.tab.id,
-        `TEXT=${t.groups[info.group].name}|${t.texts[info.group][info.text].name}`
-      ));
+      return quicktext.insertTemplate(sender.tab.id, info.group, info.text);
     default:
       return false;
   }

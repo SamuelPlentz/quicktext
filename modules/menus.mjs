@@ -100,7 +100,7 @@ async function getComposeBodyMenuData() {
             children.push({
                 id: `group-${i}-text-${j}`,
                 title: gTemplates.texts[i][j].name,
-                onclick: (info, tab) => quicktext.insertVariable(tab.id, `TEXT=${gTemplates.groups[i].name}|${gTemplates.texts[i][j].name}`)
+                onclick: (info, tab) => quicktext.insertTemplate(tab.id, i, j)
             });
 
         }

@@ -210,6 +210,18 @@ export function mergeScripts(scripts, importedScripts, forceProtected = false) {
 
 // ---- INSERT
 
+export async function insertTemplate(aTabId, groupIdx, textIdx) {
+  let template = await storage.getTemplates();
+  let group = template.groups[groupIdx];
+  let text = template.texts[groupIdx][textIdx];
+
+  console.log(text.subject);
+  await insertSubject(aTabId, text.subject);
+  //await insertAttachments(aTabId, text.attachments);
+  await insertVariable(aTabId, `TEXT=${group.name}|${text.name}`);
+  //await insertHeaders(aTabId, text);
+}
+
 export async function parseVariable(aTabId, aVar) {
   let gTemplates = await storage.getTemplates();
   let getScripts = await storage.getScripts();
@@ -228,6 +240,22 @@ export async function insertVariable(aTabId, aVar, aForceAsText) {
   let parsed = await quicktextParser.parse("[[" + aVar + "]]");
   if (parsed) {
     await quicktextParser.insertBody(parsed, { extraSpace: false });
+  }
+}
+
+export async function insertSubject(aTabId, aStr, aForceAsText) {
+  if (!aStr) {
+    return;
+  }
+
+  let gTemplates = await storage.getTemplates();
+  let getScripts = await storage.getScripts();
+  let quicktextParser = new QuicktextParser(aTabId, gTemplates, getScripts, aForceAsText);
+  let subject = await quicktextParser.parse(aStr);
+
+  console.log({ aStr, subject })
+  if (subject && !subject.match(/^\s+$/)) {
+    await browser.compose.setComposeDetails(aTabId, { subject })
   }
 }
 

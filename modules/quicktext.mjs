@@ -255,9 +255,7 @@ async function insertSubject({ qParser, subject }) {
 
   let parsedSubject = await qParser.parse(subject);
   if (parsedSubject && !parsedSubject.match(/^\s+$/)) {
-    await browser.compose.setComposeDetails(qParser.tabId, {
-      subject: parsedSubject
-    })
+    await qParser.setDetail("subject", parsedSubject);
   }
 }
 

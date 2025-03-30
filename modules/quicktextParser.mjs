@@ -79,8 +79,25 @@ export class QuicktextParser {
     return this.mDetails
   }
 
-  async setDetails(details) {
-    await browser.compose.setComposeDetails(this.mTabId, details);
+  async setDetail(name, newValue) {
+    await browser.compose.setComposeDetails(this.mTabId, { [name] : newValue });
+    this.mDetails = await browser.compose.getComposeDetails(this.mTabId);
+  }
+
+  async addDetail(name, newValue) {
+    let values = await browser.compose
+      .getComposeDetails(this.tabId)
+      .then(details => details[name]);
+
+    if (!Array.isArray(values)) {
+      values = [values];
+    }
+    if (values.includes(newValue)) {
+      return;
+    }
+    values.push(newValue);
+
+    await browser.compose.setComposeDetails(this.mTabId, { [name] : values });
     this.mDetails = await browser.compose.getComposeDetails(this.mTabId);
   }
 
@@ -101,12 +118,14 @@ export class QuicktextParser {
       case "to":
       case "cc":
       case "bcc":
-      case "subject":
-      case "from":
-        await this.setDetails(this.mTabId, { [name]: aVariables[1] });
+        await this.addDetail(name, aVariables[1]);
         break;
       case "reply-to":
-        await this.setDetails(this.mTabId, { "replyTo": aVariables[1] });
+        await this.addDetail("replyTo", aVariables[1]);
+        break;
+      case "from":
+      case "subject":
+        await this.setDetail(name, aVariables[1]);
         break;
     }
 

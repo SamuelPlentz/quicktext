@@ -37,6 +37,9 @@ export class QuicktextParser {
     }
   }
 
+  get tabId() {
+    return this.mTabId
+  }
   // ???
   clearData() {
     this.mData = {}

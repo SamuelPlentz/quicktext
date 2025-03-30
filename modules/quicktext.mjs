@@ -210,13 +210,14 @@ export function mergeScripts(scripts, importedScripts, forceProtected = false) {
 
 // ---- INSERT
 
-export async function insertTemplate(aTabId, groupIdx, textIdx) {
-  let template = await storage.getTemplates();
-  let group = template.groups[groupIdx];
-  let text = template.texts[groupIdx][textIdx];
+export async function insertTemplate(aTabId, groupIdx, textIdx, aForceAsText) {
+  let templates = await storage.getTemplates();
+  let scripts = await storage.getScripts();
+  let group = templates.groups[groupIdx];
+  let text = templates.texts[groupIdx][textIdx];
+  let quicktextParser = new QuicktextParser(aTabId, templates, scripts, aForceAsText);
 
-  console.log(text.subject);
-  await insertSubject(aTabId, text.subject);
+  await insertSubject(quicktextParser, text.subject);
   //await insertAttachments(aTabId, text.attachments);
   await insertVariable(aTabId, `TEXT=${group.name}|${text.name}`);
   //await insertHeaders(aTabId, text);
@@ -243,19 +244,14 @@ export async function insertVariable(aTabId, aVar, aForceAsText) {
   }
 }
 
-export async function insertSubject(aTabId, aStr, aForceAsText) {
+async function insertSubject(quicktextParser, aStr) {
   if (!aStr) {
     return;
   }
 
-  let gTemplates = await storage.getTemplates();
-  let getScripts = await storage.getScripts();
-  let quicktextParser = new QuicktextParser(aTabId, gTemplates, getScripts, aForceAsText);
   let subject = await quicktextParser.parse(aStr);
-
-  console.log({ aStr, subject })
   if (subject && !subject.match(/^\s+$/)) {
-    await browser.compose.setComposeDetails(aTabId, { subject })
+    await browser.compose.setComposeDetails(quicktextParser.tabId, { subject })
   }
 }
 

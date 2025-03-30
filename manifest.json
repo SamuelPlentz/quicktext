@@ -47,7 +47,8 @@
     "accountsRead",
     "addressBooks",
     "messagesRead",
-    "downloads"
+    "downloads",
+    "notifications"
   ],
   "background": {
     "type": "module",

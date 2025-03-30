@@ -4,6 +4,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+browser.runtime.onInstalled.addListener(details => {
+  if (details.reason == "update") {
+    browser.notifications.create("qtupdate", {
+      type: "basic",
+      title: "Quicktext",
+      message: `Quicktext pre-release was updated to v${browser.runtime.getManifest().version}`,
+    });
+  }
+});
+
+browser.notifications.onClicked.addListener(notificationId => {
+  if (notificationId != "qtupdate") {
+    return;
+  }
+  browser.tabs.create({
+    url: `https://github.com/jobisoft/quicktext/releases/tag/v${browser.runtime.getManifest().version}`, 
+  })
+})
+
 import * as quicktext from "../modules/quicktext.mjs";
 import * as storage from "../modules/storage.mjs";
 import * as menus from "../modules/menus.mjs";

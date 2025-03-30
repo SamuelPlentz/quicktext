@@ -40,6 +40,13 @@ export class QuicktextParser {
   get tabId() {
     return this.mTabId
   }
+  get scripts() {
+    return this.mScripts;
+  }
+  get templates() {
+    return this.mTemplates;
+  }
+
   // ???
   clearData() {
     this.mData = {}

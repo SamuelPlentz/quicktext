@@ -25,8 +25,8 @@ export async function readXmlScriptFile() {
 }
 
 export async function parseLegacyXmlData(xmlData) {
-  const parser = new DOMParser();
-  const dom = parser.parseFromString(xmlData, "text/xml");
+  const domParser = new DOMParser();
+  const dom = domParser.parseFromString(xmlData, "text/xml");
 
   const version = dom.documentElement.getAttribute("version");
 
@@ -210,46 +210,52 @@ export function mergeScripts(scripts, importedScripts, forceProtected = false) {
 
 // ---- INSERT
 
-export async function insertTemplate(aTabId, groupIdx, textIdx, aForceAsText) {
+async function getNewQuicktextParser({tabId, forceAsText}) {
   let templates = await storage.getTemplates();
   let scripts = await storage.getScripts();
-  let group = templates.groups[groupIdx];
-  let text = templates.texts[groupIdx][textIdx];
-  let quicktextParser = new QuicktextParser(aTabId, templates, scripts, aForceAsText);
+  // If aForceAsText is not set, but after parsing it is set, we should rerun
+  // with aForceAsText set from the beginning. 
+  return new QuicktextParser(tabId, templates, scripts, forceAsText);
+}
 
-  await insertSubject({ quicktextParser, subject: text.subject });
+export async function insertTemplate(tabId, groupIdx, textIdx, forceAsText) {
+  let qParser = await getNewQuicktextParser({tabId, forceAsText});
+  let group = qParser.templates.groups[groupIdx];
+  let text = qParser.templates.texts[groupIdx][textIdx];
+
+  await insertSubject({ qParser, subject: text.subject });
   //await insertAttachments(aTabId, text.attachments);
-  await insertVariable({ quicktextParser, variable: `TEXT=${group.name}|${text.name}` });
+  await insertVariable({ qParser, variable: `TEXT=${group.name}|${text.name}` });
   //await insertHeaders(aTabId, text);
 }
 
-export async function parseVariable({ tabId, variable, forceAsText, quicktextParser }) {
-  if (!quicktextParser) {
-    let templates = await storage.getTemplates();
-    let scripts = await storage.getScripts();
-    // If aForceAsText is not set, but after parsing it is set, we should rerun
-    // with aForceAsText set from the beginning. 
-    quicktextParser = new QuicktextParser(tabId, templates, scripts, forceAsText);
+export async function parseVariable({ tabId, variable, forceAsText, qParser }) {
+  if (!qParser) {
+    qParser = await getNewQuicktextParser({tabId, forceAsText})
   }
 
-  return quicktextParser.parse("[[" + variable + "]]");
+  return qParser.parse("[[" + variable + "]]");
 }
 
-export async function insertVariable({ tabId, variable, forceAsText, quicktextParser }) {
-  let parsed = await parseVariable({ tabId, variable, forceAsText, quicktextParser })
+export async function insertVariable({ tabId, variable, forceAsText, qParser }) {
+  if (!qParser) {
+    qParser = await getNewQuicktextParser({tabId, forceAsText})
+  }
+
+  let parsed = await parseVariable({ tabId, variable, forceAsText, qParser })
   if (parsed) {
-    await quicktextParser.insertBody(parsed, { extraSpace: false });
+    await qParser.insertBody(parsed, { extraSpace: false });
   }
 }
 
-async function insertSubject({ quicktextParser, subject }) {
+async function insertSubject({ qParser, subject }) {
   if (!subject) {
     return;
   }
 
-  let parsedSubject = await quicktextParser.parse(subject);
+  let parsedSubject = await qParser.parse(subject);
   if (parsedSubject && !parsedSubject.match(/^\s+$/)) {
-    await browser.compose.setComposeDetails(quicktextParser.tabId, {
+    await browser.compose.setComposeDetails(qParser.tabId, {
       subject: parsedSubject
     })
   }
@@ -262,17 +268,14 @@ export async function insertContentFromFile(aTabId, aType) {
   }
 }
 
-export async function insertFile(aTabId, file, aType) {
+export async function insertFile(tabId, file, aType) {
   const content = await utils.getTextFileContent(file);
   if (!content) {
     return;
   }
 
-  let templates = await storage.getTemplates();
-  let scripts = await storage.getScripts();
-
-  let quicktextParser = new QuicktextParser(aTabId, templates, scripts, aType == 0);
-  await quicktextParser.insertBody(content, { extraSpace: false });
+  let qParser = await getNewQuicktextParser({tabId, forceAsText: aType == 0})
+  await qParser.insertBody(content, { extraSpace: false });
 }
 
 // ---- TEMPLATE

@@ -223,15 +223,7 @@ export async function insertTemplate(aTabId, groupIdx, textIdx, aForceAsText) {
   //await insertHeaders(aTabId, text);
 }
 
-export async function parseVariable(aTabId, aVar) {
-  let gTemplates = await storage.getTemplates();
-  let getScripts = await storage.getScripts();
-
-  let quicktextParser = new QuicktextParser(aTabId, gTemplates, getScripts);
-  return quicktextParser.parse("[[" + aVar + "]]");
-}
-
-export async function insertVariable({ tabId, variable, forceAsText, quicktextParser }) {
+export async function parseVariable({ tabId, variable, forceAsText, quicktextParser }) {
   if (!quicktextParser) {
     let gTemplates = await storage.getTemplates();
     let getScripts = await storage.getScripts();
@@ -240,7 +232,11 @@ export async function insertVariable({ tabId, variable, forceAsText, quicktextPa
     quicktextParser = new QuicktextParser(tabId, gTemplates, getScripts, forceAsText);
   }
 
-  let parsed = await quicktextParser.parse("[[" + variable + "]]");
+  return quicktextParser.parse("[[" + variable + "]]");
+}
+
+export async function insertVariable({ tabId, variable, forceAsText, quicktextParser }) {
+  let parsed = await parseVariable({ tabId, variable, forceAsText, quicktextParser })
   if (parsed) {
     await quicktextParser.insertBody(parsed, { extraSpace: false });
   }

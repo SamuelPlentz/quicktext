@@ -225,11 +225,11 @@ export async function insertTemplate(aTabId, groupIdx, textIdx, aForceAsText) {
 
 export async function parseVariable({ tabId, variable, forceAsText, quicktextParser }) {
   if (!quicktextParser) {
-    let gTemplates = await storage.getTemplates();
-    let getScripts = await storage.getScripts();
+    let templates = await storage.getTemplates();
+    let scripts = await storage.getScripts();
     // If aForceAsText is not set, but after parsing it is set, we should rerun
     // with aForceAsText set from the beginning. 
-    quicktextParser = new QuicktextParser(tabId, gTemplates, getScripts, forceAsText);
+    quicktextParser = new QuicktextParser(tabId, templates, scripts, forceAsText);
   }
 
   return quicktextParser.parse("[[" + variable + "]]");
@@ -268,10 +268,10 @@ export async function insertFile(aTabId, file, aType) {
     return;
   }
 
-  let gTemplates = await storage.getTemplates();
-  let getScripts = await storage.getScripts();
+  let templates = await storage.getTemplates();
+  let scripts = await storage.getScripts();
 
-  let quicktextParser = new QuicktextParser(aTabId, gTemplates, getScripts, aType == 0);
+  let quicktextParser = new QuicktextParser(aTabId, templates, scripts, aType == 0);
   await quicktextParser.insertBody(content, { extraSpace: false });
 }
 
@@ -280,13 +280,13 @@ export async function insertFile(aTabId, file, aType) {
 // This is defined async, so it can be used in an runtime.onMessage listener
 // without further logic to return a Promise.
 export async function getKeywordsAndShortcuts() {
-  let gTemplates = await storage.getTemplates();
+  let templates = await storage.getTemplates();
   let keywords = {};
   let shortcuts = {};
 
-  for (let i = 0; i < gTemplates.groups.length; i++) {
-    for (let j = 0; j < gTemplates.texts[i].length; j++) {
-      let text = gTemplates.texts[i][j];
+  for (let i = 0; i < templates.groups.length; i++) {
+    for (let j = 0; j < templates.texts[i].length; j++) {
+      let text = templates.texts[i][j];
       let shortcut = text.shortcut;
       if (shortcut != "" && typeof shortcuts[shortcut] == "undefined") {
         shortcuts[shortcut] = [i, j];

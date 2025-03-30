@@ -80,7 +80,7 @@ export class QuicktextParser {
   }
 
   async setDetail(name, newValue) {
-    await browser.compose.setComposeDetails(this.mTabId, { [name] : newValue });
+    await browser.compose.setComposeDetails(this.mTabId, { [name]: newValue });
     this.mDetails = await browser.compose.getComposeDetails(this.mTabId);
   }
 
@@ -97,7 +97,12 @@ export class QuicktextParser {
     }
     values.push(newValue);
 
-    await browser.compose.setComposeDetails(this.mTabId, { [name] : values });
+    await browser.compose.setComposeDetails(this.mTabId, { [name]: values });
+    this.mDetails = await browser.compose.getComposeDetails(this.mTabId);
+  }
+
+  async addAttachment(file) {
+    await browser.compose.addAttachment(this.mTabId, { file })
     this.mDetails = await browser.compose.getComposeDetails(this.mTabId);
   }
 

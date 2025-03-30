@@ -224,7 +224,7 @@ export async function insertTemplate(tabId, groupIdx, textIdx, forceAsText) {
   let text = qParser.templates.texts[groupIdx][textIdx];
 
   await insertSubject({ qParser, subject: text.subject });
-  //await insertAttachments(aTabId, text.attachments);
+  await insertAttachments({ qParser, attachments: text.attachments });
   await insertVariable({ qParser, variable: `TEXT=${group.name}|${text.name}` });
   //await insertHeaders(aTabId, text);
 }
@@ -257,6 +257,16 @@ async function insertSubject({ qParser, subject }) {
   if (parsedSubject && !parsedSubject.match(/^\s+$/)) {
     await qParser.setDetail("subject", parsedSubject);
   }
+}
+
+async function insertAttachments({ qParser, attachments }) {
+  for (let attachment of attachments.split(";")) {
+    let bytes = await browser.Quicktext.readBinaryFile(attachment);
+    let leafName = utils.getLeafName(attachment);
+    let type = utils.getTypeFromExtension(leafName);
+    let file = new File([bytes], leafName, { type });
+    qParser.addAttachment(file);
+  };
 }
 
 export async function insertContentFromFile(aTabId, aType) {

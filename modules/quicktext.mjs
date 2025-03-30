@@ -210,7 +210,7 @@ export function mergeScripts(scripts, importedScripts, forceProtected = false) {
 
 // ---- INSERT
 
-async function getNewQuicktextParser({tabId, forceAsText}) {
+async function getNewQuicktextParser({ tabId, forceAsText }) {
   let templates = await storage.getTemplates();
   let scripts = await storage.getScripts();
   // If aForceAsText is not set, but after parsing it is set, we should rerun
@@ -219,19 +219,18 @@ async function getNewQuicktextParser({tabId, forceAsText}) {
 }
 
 export async function insertTemplate(tabId, groupIdx, textIdx, forceAsText) {
-  let qParser = await getNewQuicktextParser({tabId, forceAsText});
+  let qParser = await getNewQuicktextParser({ tabId, forceAsText });
   let group = qParser.templates.groups[groupIdx];
   let text = qParser.templates.texts[groupIdx][textIdx];
 
   await insertSubject({ qParser, subject: text.subject });
   await insertAttachments({ qParser, attachments: text.attachments });
   await insertVariable({ qParser, variable: `TEXT=${group.name}|${text.name}` });
-  //await insertHeaders(aTabId, text);
 }
 
 export async function parseVariable({ tabId, variable, forceAsText, qParser }) {
   if (!qParser) {
-    qParser = await getNewQuicktextParser({tabId, forceAsText})
+    qParser = await getNewQuicktextParser({ tabId, forceAsText })
   }
 
   return qParser.parse("[[" + variable + "]]");
@@ -239,7 +238,7 @@ export async function parseVariable({ tabId, variable, forceAsText, qParser }) {
 
 export async function insertVariable({ tabId, variable, forceAsText, qParser }) {
   if (!qParser) {
-    qParser = await getNewQuicktextParser({tabId, forceAsText})
+    qParser = await getNewQuicktextParser({ tabId, forceAsText })
   }
 
   let parsed = await parseVariable({ tabId, variable, forceAsText, qParser })
@@ -282,7 +281,7 @@ export async function insertFile(tabId, file, aType) {
     return;
   }
 
-  let qParser = await getNewQuicktextParser({tabId, forceAsText: aType == 0})
+  let qParser = await getNewQuicktextParser({ tabId, forceAsText: aType == 0 })
   await qParser.insertBody(content, { extraSpace: false });
 }
 

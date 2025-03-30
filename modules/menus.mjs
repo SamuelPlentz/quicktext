@@ -163,27 +163,27 @@ async function getComposeBodyMenuData() {
                     children: [
                         {
                             id: "date",
-                            title: await quicktext.parseVariable({variable: "DATE"}),
+                            title: await quicktext.parseVariable({ variable: "DATE" }),
                             onclick: (info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: "DATE" })
                         },
                         {
                             id: "date-long",
-                            title: await quicktext.parseVariable({variable: "DATE=long"}),
+                            title: await quicktext.parseVariable({ variable: "DATE=long" }),
                             onclick: (info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: "DATE=long" })
                         },
                         {
                             id: "date-month",
-                            title: await quicktext.parseVariable({variable: "DATE=monthname"}),
+                            title: await quicktext.parseVariable({ variable: "DATE=monthname" }),
                             onclick: (info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: "DATE=monthname" })
                         },
                         {
                             id: "time",
-                            title: await quicktext.parseVariable({variable: "TIME"}),
+                            title: await quicktext.parseVariable({ variable: "TIME" }),
                             onclick: (info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: "TIME" })
                         },
                         {
                             id: "time-seconds",
-                            title: await quicktext.parseVariable({variable: "TIME=seconds"}),
+                            title: await quicktext.parseVariable({ variable: "TIME=seconds" }),
                             onclick: (info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: "TIME=seconds" })
                         }
                     ]

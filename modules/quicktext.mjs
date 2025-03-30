@@ -217,9 +217,9 @@ export async function insertTemplate(aTabId, groupIdx, textIdx, aForceAsText) {
   let text = templates.texts[groupIdx][textIdx];
   let quicktextParser = new QuicktextParser(aTabId, templates, scripts, aForceAsText);
 
-  await insertSubject(quicktextParser, text.subject);
+  await insertSubject({ quicktextParser, subject: text.subject });
   //await insertAttachments(aTabId, text.attachments);
-  await insertVariable(aTabId, `TEXT=${group.name}|${text.name}`);
+  await insertVariable({ quicktextParser, variable: `TEXT=${group.name}|${text.name}` });
   //await insertHeaders(aTabId, text);
 }
 
@@ -231,27 +231,31 @@ export async function parseVariable(aTabId, aVar) {
   return quicktextParser.parse("[[" + aVar + "]]");
 }
 
-export async function insertVariable(aTabId, aVar, aForceAsText) {
-  let gTemplates = await storage.getTemplates();
-  let getScripts = await storage.getScripts();
+export async function insertVariable({ tabId, variable, forceAsText, quicktextParser }) {
+  if (!quicktextParser) {
+    let gTemplates = await storage.getTemplates();
+    let getScripts = await storage.getScripts();
+    // If aForceAsText is not set, but after parsing it is set, we should rerun
+    // with aForceAsText set from the beginning. 
+    quicktextParser = new QuicktextParser(tabId, gTemplates, getScripts, forceAsText);
+  }
 
-  // If aForceAsText is not set, but after parsing it is set, we should rerun
-  // with aForceAsText set from the beginning. 
-  let quicktextParser = new QuicktextParser(aTabId, gTemplates, getScripts, aForceAsText);
-  let parsed = await quicktextParser.parse("[[" + aVar + "]]");
+  let parsed = await quicktextParser.parse("[[" + variable + "]]");
   if (parsed) {
     await quicktextParser.insertBody(parsed, { extraSpace: false });
   }
 }
 
-async function insertSubject(quicktextParser, aStr) {
-  if (!aStr) {
+async function insertSubject({ quicktextParser, subject }) {
+  if (!subject) {
     return;
   }
 
-  let subject = await quicktextParser.parse(aStr);
-  if (subject && !subject.match(/^\s+$/)) {
-    await browser.compose.setComposeDetails(quicktextParser.tabId, { subject })
+  let parsedSubject = await quicktextParser.parse(subject);
+  if (parsedSubject && !parsedSubject.match(/^\s+$/)) {
+    await browser.compose.setComposeDetails(quicktextParser.tabId, {
+      subject: parsedSubject
+    })
   }
 }
 

@@ -172,7 +172,7 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
     case "insertVariable":
       return messenger.tabs
         .query({ windowId: info.windowId, type: "messageCompose" })
-        .then(tabs => quicktext.insertVariable(tabs[0].id, info.aVar));
+        .then(tabs => quicktext.insertVariable({ tabId: tabs[0].id, variable: info.aVar }));
     case "insertTemplate":
       return messenger.tabs
         .query({ windowId: info.windowId, type: "messageCompose" })

@@ -260,6 +260,9 @@ async function insertSubject({ qParser, subject }) {
 
 async function insertAttachments({ qParser, attachments }) {
   for (let attachment of attachments.split(";")) {
+    if (!attachment) {
+      continue;
+    }
     let bytes = await browser.Quicktext.readBinaryFile(attachment);
     let leafName = utils.getLeafName(attachment);
     let type = utils.getTypeFromExtension(leafName);

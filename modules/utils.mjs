@@ -140,7 +140,7 @@ export async function pickFileFromDisc(aTypes) {
                 break;
         }
     }
-    
+
     inputElement.setAttribute("accept", acceptedFileTypes.join(", "));
     inputElement.click();
     const [file] = await picker.promise;
@@ -150,17 +150,17 @@ export async function pickFileFromDisc(aTypes) {
 }
 
 export async function getTextFileContent(file) {
-  const content = await new Promise(resolve => {
-    const reader = new FileReader();
-    reader.onloadend = function (evt) {
-      if (evt.target.readyState == FileReader.DONE) {
-        var filedata = evt.target.result;
-        resolve(filedata);
-      }
-    };
-    reader.readAsText(file)
-  })
-  return content;
+    const content = await new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onloadend = function (evt) {
+            if (evt.target.readyState == FileReader.DONE) {
+                var filedata = evt.target.result;
+                resolve(filedata);
+            }
+        };
+        reader.readAsText(file)
+    })
+    return content;
 }
 
 export async function fetchFileFromServer(url) {
@@ -173,4 +173,102 @@ export async function fetchFileFromServer(url) {
     } catch (ex) {
         console.error('There was a problem with the fetch operation:', ex);
     }
+}
+
+export async function openPopup(tabId, config) {
+    let status = "none";
+    let popup = Promise.withResolvers();
+    let popupId;
+    let parentId = await browser.tabs.get(tabId).then(tab => tab.windowId);
+    let lastFocusedWindow = parentId;
+
+    const dimension = ({ top, left, width, height }) => {
+        const excessWidth = 100;
+        const excessHeight = 100;
+        return {
+            top: top + Math.round(0.5 * excessWidth),
+            left: left + Math.round(0.5 * excessHeight),
+            width: width - excessWidth,
+            height: height - excessHeight,
+        }
+    }
+
+    const onRemovedListener = windowId => {
+        if (windowId == popupId) {
+            status = "closed";
+            popup.resolve();
+        }
+    };
+    const onFocusChangedListener = async windowId => {
+        if (status != "active") {
+            return;
+        }
+
+        let currentlyFocusedWindow = lastFocusedWindow;
+        lastFocusedWindow = windowId;
+
+        // GOAL: Force our popup window to always be directly above the parent.
+        if (windowId == popupId && currentlyFocusedWindow != parentId) {
+            await browser.windows.update(parentId, {
+                focused: true
+            });
+        }
+        
+        // GOAL: We want to allow switching away from the popup to a different
+        // window, but if the parent is focused, bring us back in front.
+        if (windowId == parentId) {
+            await browser.windows.update(popupId, {
+                focused: true,
+                ...dimension(await browser.windows.get(parentId))
+            });
+        }
+        
+    };
+    const onMessageListener = (info, sender, sendResponse) => {
+        if (sender.tab.windowId != popupId) {
+            return false;
+        }
+
+        switch (info?.action) {
+            case "config":
+                status = "active";
+                return Promise.resolve(config);
+            case "close":
+                popup.resolve(info.rv);
+                status = "closed";
+                return Promise.resolve();
+            case "isPopoverShown":
+                return Promise.resolve(true);
+        }
+        return false;
+    }
+
+    browser.runtime.onMessage.addListener(onMessageListener);
+    browser.windows.onRemoved.addListener(onRemovedListener);
+    browser.windows.onFocusChanged.addListener(onFocusChangedListener);
+
+    popupId = await browser.windows.create({
+        url: "/html/popup.html",
+        type: "popup",
+        allowScriptsToClose: true,
+        ...dimension(await browser.windows.get(parentId))
+    }).then(window => window.id);
+
+    await messenger.tabs.sendMessage(tabId, {
+        setPopoverShown: true,
+        popoverShownValue: true,
+    });
+
+    let rv = await popup.promise;
+
+    browser.runtime.onMessage.removeListener(onMessageListener);
+    browser.windows.onRemoved.removeListener(onRemovedListener);
+    browser.windows.onFocusChanged.removeListener(onFocusChangedListener);
+
+    await messenger.tabs.sendMessage(tabId, {
+        setPopoverShown: true,
+        popoverShownValue: false,
+    });
+
+    return rv;
 }

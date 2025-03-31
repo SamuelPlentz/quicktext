@@ -419,12 +419,12 @@ export class QuicktextParser {
     // There are two types of input: select and text.
     if (aVariables[1] == 'select') {
       let values = value.split(";");
-      rv = await messenger.tabs.sendMessage(this.mTabId, {
+      rv = await utils.openPopup(this.mTabId, {
         selectLabel: label,
         selectValues: values,
       });
     } else {
-      rv = await messenger.tabs.sendMessage(this.mTabId, {
+      rv = await utils.openPopup(this.mTabId, {
         promptLabel: label,
         promptValue: value,
       });

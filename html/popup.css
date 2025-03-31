@@ -1,0 +1,42 @@
+:popover-open {
+    width: 300px;
+    height: 200px;
+    border-radius: 10px;
+    border-width: 3px;
+    padding: 0;
+}
+
+::backdrop {
+    backdrop-filter: brightness(30%);
+}
+
+#quicktext-popover {
+    padding: 20px;
+    border: 1px solid red;
+}
+#quicktext-popover-buttons {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.quicktext-popover-btn {
+    margin-top: 10px;
+    margin-left: 10px;
+}
+
+#quicktext-popover-select {
+    height: auto;
+    width: 100%;
+}
+
+#quicktext-popover-prompt {
+    width: calc(100% - 6px);
+    padding: 3px;
+    margin: 0;
+    border: 0;
+}
+
+#quicktext-popover-prompt-wrapper {
+    border: 1px solid grey;
+}

@@ -472,13 +472,15 @@ function shortcutKeyDown(e) {
         if (isRealKey(e)) {
             advShortcutString += e.key;
         }
+        // Eat keys if we acted upon them.
+        e.stopPropagation();
+        e.preventDefault();
     } else if (isRealKey(e) && shortcuts[e.key] && !e.repeat) {
         requestInsertTemplate(shortcuts[e.key]);
+        // Eat keys if we acted upon them.
+        e.stopPropagation();
+        e.preventDefault();
     }
-
-    // Eat all keys while modifier is down.
-    e.stopPropagation();
-    e.preventDefault();
 }
 
 async function shortcutKeyUp(e) {
@@ -516,7 +518,7 @@ async function setup() {
 
     new storage.StorageListener(
         {
-            watchedPrefs: ["keywordKey", "shortcutTypeAdv", "shortcutModifier"],
+            watchedPrefs: ["templates", "keywordKey", "shortcutTypeAdv", "shortcutModifier"],
             listener: (changes) => {
                 getLatestPrefs();
             }

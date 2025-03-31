@@ -12,6 +12,10 @@ var quicktextToolbar = {
     return new Services.intl.DateTimeFormat(undefined, options[format.toLowerCase()]).format(timeStamp)
   },
 
+  getPrettyKeyName(key) {
+    return this.extension.localeData.localizeMessage(`quicktext.${key}Key.label`)
+  },
+
   async load() {
     Services.scriptloader.loadSubScript("resource://quicktext/api/NotifyTools/notifyTools.js", quicktextToolbar, "UTF-8");
 
@@ -65,6 +69,7 @@ var quicktextToolbar = {
       // Rebuild template groups (the leftmost entries)
       const templates = await this.notifyTools.notifyBackground({ command: "getTemplates" });
       const collapseGroup = await this.notifyTools.notifyBackground({ command: "getPref", pref: "menuCollapse" });
+      const shortcutModifier = await this.notifyTools.notifyBackground({ command: "getPref", pref: "shortcutModifier" });
 
       var groupLength = templates.groups.length;
       for (var i = 0; i < groupLength; i++) {
@@ -103,9 +108,9 @@ var quicktextToolbar = {
               toolbarbutton.setAttribute("class", "customEventListenerForDynamicMenu");
 
               var shortcut = text.shortcut;
-              if (shortcut > 0) {
+              if (shortcut != "") {
                 if (shortcut == 10) shortcut = 0;
-                toolbarbutton.setAttribute("acceltext", "Alt+" + shortcut);
+                toolbarbutton.setAttribute("acceltext", `${this.getPrettyKeyName(shortcutModifier)} + ${shortcut}`);
               }
 
               menupopup.appendChild(toolbarbutton);

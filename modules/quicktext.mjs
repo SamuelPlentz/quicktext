@@ -228,6 +228,13 @@ export async function insertTemplate(tabId, groupIdx, textIdx, forceAsText) {
   await insertVariable({ qParser, variable: `TEXT=${group.name}|${text.name}` });
 }
 
+export async function processTag({ tabId, tag, variables, forceAsText, qParser }) {
+  if (!qParser) {
+    qParser = await getNewQuicktextParser({ tabId, forceAsText })
+  }
+  return await qParser[`process_${tag.toLowerCase()}`](variables);
+}
+
 export async function parseVariable({ tabId, variable, forceAsText, qParser }) {
   if (!qParser) {
     qParser = await getNewQuicktextParser({ tabId, forceAsText })

@@ -8,7 +8,7 @@ import * as utils from "/modules/utils.mjs";
 import * as storage from "/modules/storage.mjs";
 
 const allowedTags = [
-  'ALERT', 'ATT', 'CLIPBOARD', 'COUNTER', 'DATE', 'FILE', 'IMAGE', 'FROM', 'INPUT', 'ORGATT',
+  'ALERT', 'ATT', 'CLIPBOARD', 'COUNTER', 'CSCRIPT', 'DATE', 'ESCRIPT', 'FILE', 'IMAGE', 'FROM', 'INPUT', 'ORGATT',
   'ORGHEADER', 'SCRIPT', 'SUBJECT', 'TEXT', 'TIME', 'TO', 'URL', 'VERSION', 'SELECTION', 'HEADER'
 ];
 const persistentTags = ['COUNTER', 'ORGATT', 'ORGHEADER', 'VERSION'];
@@ -152,25 +152,133 @@ export class QuicktextParser {
         let returnValue = "";
 
         try {
-          // Only works with unsafe eval enabled in the CSP, which is not allowed
-          // on ATN. Inject some variables into the scope of the executed code.
-          let s = {}
-          s.mDetails = await this.getDetails();
-          s.mVariables = aVariables;
-          s.mQuicktext = this;
-          s.mTabId = this.mTabId;
+          // MV2 - allows code injection via strings.
+          returnValue = await browser.tabs.executeScript(this.mTabId, {
+            code: `(async function (tabId, sVariables) {
+              this.compose = {
+                getComposeDetails: () => browser.runtime.sendMessage({
+                  command: "composeAPI",
+                  func: "getComposeDetails",
+                  params: [tabId],
+                }),
+                setComposeDetails: (details) => browser.runtime.sendMessage({
+                  command: "composeAPI",
+                  func: "setComposeDetails",
+                  params: [tabId, details],
+                }),
 
-          const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
-          const func = new AsyncFunction('with(this) { ' + script.script + ' }');
-          returnValue = await func.call(s);
+                addAttachment: (attachment) => browser.runtime.sendMessage({
+                  command: "composeAPI",
+                  func: "addAttachment",
+                  params: [tabId, attachment],
+                }),
+                removeAttachment: (id) => browser.runtime.sendMessage({
+                  command: "composeAPI",
+                  func: "removeAttachment",
+                  params: [tabId, id],
+                }),
+                updateAttachment: (id, attachment) => browser.runtime.sendMessage({
+                  command: "composeAPI",
+                  func: "updateAttachment",
+                  params: [tabId, id, attachment],
+                }),
+                getAttachmentFile: (id) => browser.runtime.sendMessage({
+                  command: "composeAPI",
+                  func: "getAttachmentFile",
+                  params: [tabId, id],
+                }),
+                listAttachments: () => browser.runtime.sendMessage({
+                  command: "composeAPI",
+                  func: "listAttachments",
+                  params: [tabId],
+                }),
+
+                getActiveDictionaries: () => browser.runtime.sendMessage({
+                  command: "composeAPI",
+                  func: "getActiveDictionaries",
+                  params: [tabId],
+                }),
+                setActiveDictionaries: (activeDictionaries) => browser.runtime.sendMessage({
+                  command: "composeAPI",
+                  func: "setActiveDictionaries",
+                  params: [tabId, activeDictionaries],
+                }),
+              }
+              
+              this.messages = {
+                get: (messageId)  => browser.runtime.sendMessage({
+                  command: "messagesAPI",
+                  func: "get",
+                  params: [messageId],
+                }),
+                getFull: (messageId, options)  => browser.runtime.sendMessage({
+                  command: "messagesAPI",
+                  func: "getFull",
+                  params: [messageId, options],
+                }),
+                getRaw: (messageId, options)  => browser.runtime.sendMessage({
+                  command: "messagesAPI",
+                  func: "getRaw",
+                  params: [messageId, options],
+                }),
+                listAttachments: (messageId)  => browser.runtime.sendMessage({
+                  command: "messagesAPI",
+                  func: "listAttachments",
+                  params: [messageId],
+                }),
+                listInlineTextParts: (messageId)  => browser.runtime.sendMessage({
+                  command: "messagesAPI",
+                  func: "listInlineTextParts",
+                  params: [messageId],
+                }),
+                getAttachmentFile: (messageId, partName)  => browser.runtime.sendMessage({
+                  command: "messagesAPI",
+                  func: "getAttachmentFile",
+                  params: [messageId, partName],
+                }),
+              }
+
+              this.quicktext = {
+                tabId,
+                variables: sVariables,
+                processTag: (tag, variables) => browser.runtime.sendMessage({
+                  command: "processTag",
+                  tabId,
+                  tag,
+                  variable,
+                }),
+              };
+              
+              ${script.script};
+            }).call({}, ${this.mTabId},${JSON.stringify(aVariables)});`,
+          }).then(rv => rv[0] ? rv[0] : "");
+
+          // MV3 - No string support :-(.
+          /*
+            returnValue = await browser.scripting.executeScript({
+              target: { tabId: this.mTabId },
+              args: [this.mTabId],
+              func: new Function("tabId",`return tabId;`),
+            }).then(rv => rv[0].result);
+          */
+
+          // UNSAFE EVAL - Blocked by CPG, banned on ATN.
+          // "content_security_policy": "script-src 'self' 'unsafe-eval'",
+          /*
+            let scope = {}
+            scope.mDetails = await this.getDetails();
+            scope.mVariables = aVariables;
+            scope.mQuicktext = this;
+            scope.mTabId = this.mTabId;
+            
+            const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
+            const func = new AsyncFunction('with(this) { ' + script.script + ' }');
+            returnValue = await func.call(scope);
+          */
         } catch (e) {
           if (this.mTabId) {
-            let [line] = e.stack.split("\n");
-            let [lineNumber, lineLocation] = line.split(":").slice(-2).map(Number);
-            let lines = script.script.split("\n");
-
             await messenger.tabs.sendMessage(this.mTabId, {
-              alertLabel: `[${script.name}] ${browser.i18n.getMessage("scriptError")}\n${e.name}: ${e.message}\n\n${browser.i18n.getMessage("scriptLine")} ${lineNumber - 3}:${lineLocation}\n${lines[lineNumber - 3]}`,
+              alertLabel: `[${script.name}] ${browser.i18n.getMessage("scriptError")}\n${e.name}: ${e.message}`,
             });
           }
         }
@@ -185,6 +293,57 @@ export class QuicktextParser {
     });
 
     return "";
+  }
+
+  async get_escript(aVariables) {
+    return this.process_escript(aVariables);
+  }
+  async process_escript(aVariables) {
+    if (aVariables.length < 2)
+      return "";
+
+    let [extensionId, scriptName, ...scriptArgs] = aVariables;
+    let transmission = Promise.withResolvers();
+
+    try {
+      let port = browser.runtime.connect(extensionId, { name: "quicktext" });
+
+      port.onMessage.addListener(async message => {
+        switch (message.command) {
+          case "evaluatedScript":
+            transmission.resolve(message.evaluatedScript);
+            break;
+          case "processTag":
+            {
+              let processedTag = await this[`process_${message.tag.toLowerCase()}`](message.variables);
+              port.postMessage({ command: "processedTag", processedTag });
+            }
+            break;
+        }
+      });
+
+      port.postMessage({
+        command: "evaluateScript",
+        scriptName,
+        scriptArgs,
+        tabId: this.mTabId,
+      });
+
+      let rv = await transmission.promise;
+      port.disconnect();
+
+      return rv ? rv : "";
+    } catch (ex) {
+      console.error(`Failed to request script from <${extensionId}>`, ex)
+    }
+    return "";
+  }
+
+  async get_cscript(aVariables) {
+    return this.process_cscript(aVariables);
+  }
+  async process_cscript(aVariables) {
+    return this.process_escript(["quicktext.scripts@community.jobisoft.de", ...aVariables]);
   }
 
   // This needs the <all_urls> permission, otherwise requests to remote pages
@@ -906,12 +1065,14 @@ export class QuicktextParser {
         case 'input':
         case 'orgheader':
         case 'script':
+        case 'cscript':
         case 'to':
         case 'url':
           variable_limit = 1;
           break;
         case 'text':
         case 'header':
+        case 'escript':
           variable_limit = 2;
           break;
       }

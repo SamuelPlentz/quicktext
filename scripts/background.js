@@ -9,7 +9,7 @@ browser.runtime.onInstalled.addListener(details => {
     browser.notifications.create("qtupdate", {
       type: "basic",
       title: "Quicktext",
-      message: `Quicktext pre-release was updated to v${browser.runtime.getManifest().version}`,
+      message: `Quicktext pre-release was updated to v${browser.runtime.getManifest().version}\n(new script engine, click for details)`,
     });
   }
 });
@@ -19,7 +19,7 @@ browser.notifications.onClicked.addListener(notificationId => {
     return;
   }
   browser.tabs.create({
-    url: `https://github.com/jobisoft/quicktext/releases/tag/v${browser.runtime.getManifest().version}`, 
+    url: `https://github.com/jobisoft/quicktext/releases/tag/v${browser.runtime.getManifest().version}`,
   })
 })
 
@@ -207,6 +207,12 @@ messenger.runtime.onMessage.addListener((info, sender, sendResponse) => {
       return quicktext.getKeywordsAndShortcuts();
     case "insertTemplate":
       return quicktext.insertTemplate(sender.tab.id, info.group, info.text);
+    case "composeAPI":
+      return browser.compose[info.func](...info.params);
+    case "messagesAPI":
+      return browser.compose[info.func](...info.params);      
+    case "processTag":
+      return quicktext.processTag({ tabId: info.tabId, tag: info.tag, variables: info.variables });
     default:
       return false;
   }

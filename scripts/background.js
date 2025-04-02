@@ -212,6 +212,8 @@ messenger.runtime.onMessage.addListener((info, sender, sendResponse) => {
     case "messagesAPI":
       return browser.messages[info.func](...info.params);
     case "identitiesAPI":
+      return browser.identities[info.func](...info.params);
+      case "processTag":
       return quicktext.processTag({ tabId: info.tabId, tag: info.tag, variables: info.variables });
     default:
       return false;

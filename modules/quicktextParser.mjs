@@ -155,87 +155,55 @@ export class QuicktextParser {
           // MV2 - allows code injection via strings.
           returnValue = await browser.tabs.executeScript(this.mTabId, {
             code: `(async function (tabId, sVariables) {
-              this.compose = {
-                getComposeDetails: () => browser.runtime.sendMessage({
-                  command: "composeAPI",
-                  func: "getComposeDetails",
-                  params: [tabId],
-                }),
-                setComposeDetails: (details) => browser.runtime.sendMessage({
-                  command: "composeAPI",
-                  func: "setComposeDetails",
-                  params: [tabId, details],
-                }),
-
-                addAttachment: (attachment) => browser.runtime.sendMessage({
-                  command: "composeAPI",
-                  func: "addAttachment",
-                  params: [tabId, attachment],
-                }),
-                removeAttachment: (id) => browser.runtime.sendMessage({
-                  command: "composeAPI",
-                  func: "removeAttachment",
-                  params: [tabId, id],
-                }),
-                updateAttachment: (id, attachment) => browser.runtime.sendMessage({
-                  command: "composeAPI",
-                  func: "updateAttachment",
-                  params: [tabId, id, attachment],
-                }),
-                getAttachmentFile: (id) => browser.runtime.sendMessage({
-                  command: "composeAPI",
-                  func: "getAttachmentFile",
-                  params: [tabId, id],
-                }),
-                listAttachments: () => browser.runtime.sendMessage({
-                  command: "composeAPI",
-                  func: "listAttachments",
-                  params: [tabId],
-                }),
-
-                getActiveDictionaries: () => browser.runtime.sendMessage({
-                  command: "composeAPI",
-                  func: "getActiveDictionaries",
-                  params: [tabId],
-                }),
-                setActiveDictionaries: (activeDictionaries) => browser.runtime.sendMessage({
-                  command: "composeAPI",
-                  func: "setActiveDictionaries",
-                  params: [tabId, activeDictionaries],
-                }),
+              this.identities = {};
+              for (let func of [
+                "get",
+                "getDefault",
+                "list"
+              ]) {
+                this.identities[func] = (...params) => browser.runtime.sendMessage({
+                  command: "identitiesAPI",
+                  func,
+                  params,
+                })
               }
-              
-              this.messages = {
-                get: (messageId)  => browser.runtime.sendMessage({
+
+              this.compose = {};
+              for (let func of [
+                "getComposeDetails",
+                "setComposeDetails",
+                "addAttachment",
+                "removeAttachment",
+                "updateAttachment",
+                "getAttachmentFile",
+                "listAttachments",
+                "getActiveDictionaries",
+                "setActiveDictionaries",
+                "beginNew",
+                "beginForward",
+                "beginReply",
+              ]) {
+                this.compose[func] = (...params) => browser.runtime.sendMessage({
+                  command: "composeAPI",
+                  func,
+                  params,
+                })
+              }
+
+              this.messages = {};
+              for (let func of [
+                "get",
+                "getFull",
+                "getRaw",
+                "listAttachments",
+                "listInlineTextParts",
+                "getAttachmentFile",
+              ]) {
+                this.messages[func] = (...params) => browser.runtime.sendMessage({
                   command: "messagesAPI",
-                  func: "get",
-                  params: [messageId],
-                }),
-                getFull: (messageId, options)  => browser.runtime.sendMessage({
-                  command: "messagesAPI",
-                  func: "getFull",
-                  params: [messageId, options],
-                }),
-                getRaw: (messageId, options)  => browser.runtime.sendMessage({
-                  command: "messagesAPI",
-                  func: "getRaw",
-                  params: [messageId, options],
-                }),
-                listAttachments: (messageId)  => browser.runtime.sendMessage({
-                  command: "messagesAPI",
-                  func: "listAttachments",
-                  params: [messageId],
-                }),
-                listInlineTextParts: (messageId)  => browser.runtime.sendMessage({
-                  command: "messagesAPI",
-                  func: "listInlineTextParts",
-                  params: [messageId],
-                }),
-                getAttachmentFile: (messageId, partName)  => browser.runtime.sendMessage({
-                  command: "messagesAPI",
-                  func: "getAttachmentFile",
-                  params: [messageId, partName],
-                }),
+                  func,
+                  params,
+                })
               }
 
               this.quicktext = {

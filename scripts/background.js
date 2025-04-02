@@ -210,8 +210,8 @@ messenger.runtime.onMessage.addListener((info, sender, sendResponse) => {
     case "composeAPI":
       return browser.compose[info.func](...info.params);
     case "messagesAPI":
-      return browser.compose[info.func](...info.params);      
-    case "processTag":
+      return browser.messages[info.func](...info.params);
+    case "identitiesAPI":
       return quicktext.processTag({ tabId: info.tabId, tag: info.tag, variables: info.variables });
     default:
       return false;

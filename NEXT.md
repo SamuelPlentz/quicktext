@@ -12,7 +12,7 @@
 [x] rename group to groups everywhere
 [x] find a preliminary solution for scripts, looks like this will not work without breaking
     existing scripts :-( (they have to use WebExtension code)
-[ ] replace popover by popup, composer gets into an invalid state and many other issues
+[x] replace popover by popup, composer gets into an invalid state and many other issues
 
 [x] change composer toolbar Experiment to use templates from storage
 [x] change composer toolbar Experiment to use notifytools to trigger actions
@@ -26,4 +26,4 @@
 [ ] add gallery for attachments, images and text files, which are currently
     references via file system paths, which will not work as a pure webextension
 
-[ ] keyword + special seems to eat the leading space
+[x] keyword + special seems to eat the leading space

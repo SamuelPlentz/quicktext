@@ -83,23 +83,27 @@ for (let managedPref of managedPrefs) {
 //         For the future, users have to be reminded to backup their templates.
 let templates = await storage.getTemplates();
 if (!templates) {
-  console.log("Migrating XML template file to JSON stored in local storage.")
-  templates = await quicktext.readLegacyXmlTemplateFile().then(
-    e => e.templates
-  );
-  // After the migration code is removed, this needs to be used for initialization.
-  // templates = {};
+  try {
+    templates = await quicktext.readLegacyXmlTemplateFile().then(e => e.templates);
+    console.log("Migrating XML template file to JSON stored in local storage.");
+    await storage.setTemplates(templates);
+  } catch { }
+}
+if (!templates) {
+  templates = { groups: [], texts: [] };
   await storage.setTemplates(templates);
 }
 
 let scripts = await storage.getScripts();
 if (!scripts) {
-  console.log("Migrating XML script file to JSON stored in local storage.")
-  scripts = await quicktext.readXmlScriptFile().then(
-    e => e.scripts
-  );
-  // After the migration code is removed, this needs to be used for initialization.
-  // scripts = [];
+  try {
+    scripts = await quicktext.readXmlScriptFile().then(e => e.scripts);
+    console.log("Migrating XML script file to JSON stored in local storage.")
+    await storage.setScripts(scripts);
+  } catch { }
+}
+if (!scripts) {
+  scripts = [];
   await storage.setScripts(scripts);
 }
 
@@ -213,7 +217,7 @@ messenger.runtime.onMessage.addListener((info, sender, sendResponse) => {
       return browser.messages[info.func](...info.params);
     case "identitiesAPI":
       return browser.identities[info.func](...info.params);
-      case "processTag":
+    case "processTag":
       return quicktext.processTag({ tabId: info.tabId, tag: info.tag, variables: info.variables });
     default:
       return false;

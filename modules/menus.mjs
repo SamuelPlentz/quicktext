@@ -93,13 +93,13 @@ async function getContactMenuData(type) {
 async function getComposeBodyMenuData() {
     let menuData = [];
     let contexts = ["compose_body", "compose_action_menu"];
-    let gTemplates = await storage.getTemplates();
-    for (let i = 0; i < gTemplates.groups.length; i++) {
+    let templates = await storage.getTemplates();
+    for (let i = 0; i < templates.groups.length; i++) {
         let children = [];
-        for (let j = 0; j < gTemplates.texts[i].length; j++) {
+        for (let j = 0; j < templates.texts[i].length; j++) {
             children.push({
                 id: `group-${i}-text-${j}`,
-                title: gTemplates.texts[i][j].name,
+                title: templates.texts[i][j].name,
                 onclick: (info, tab) => quicktext.insertTemplate(tab.id, i, j)
             });
 
@@ -119,12 +119,12 @@ async function getComposeBodyMenuData() {
         menuData.push({
             contexts,
             id: `group-${i}`,
-            title: gTemplates.groups[i].name,
+            title: templates.groups[i].name,
             children
         });
     }
 
-    if (gTemplates.groups.length > 0) {
+    if (templates.groups.length > 0) {
         menuData.push({
             contexts,
             id: `group-separator`,

@@ -210,16 +210,20 @@ export function mergeScripts(scripts, importedScripts, forceProtected = false) {
 
 // ---- INSERT
 
-async function getNewQuicktextParser({ tabId, forceAsText }) {
+async function getQuicktextParser({ tabId, forceAsText }) {
   let templates = await storage.getTemplates();
   let scripts = await storage.getScripts();
+
   // If aForceAsText is not set, but after parsing it is set, we should rerun
   // with aForceAsText set from the beginning. 
-  return new QuicktextParser(tabId, templates, scripts, forceAsText);
+  let qParser = new QuicktextParser(tabId, templates, scripts, forceAsText);
+  await qParser.loadState();
+  return qParser;
 }
 
+
 export async function insertTemplate(tabId, groupIdx, textIdx, forceAsText) {
-  let qParser = await getNewQuicktextParser({ tabId, forceAsText });
+  let qParser = await getQuicktextParser({ tabId, forceAsText });
   let group = qParser.templates.groups[groupIdx];
   let text = qParser.templates.texts[groupIdx][textIdx];
 
@@ -228,16 +232,9 @@ export async function insertTemplate(tabId, groupIdx, textIdx, forceAsText) {
   await insertVariable({ qParser, variable: `TEXT=${group.name}|${text.name}` });
 }
 
-export async function processTag({ tabId, tag, variables, forceAsText, qParser }) {
-  if (!qParser) {
-    qParser = await getNewQuicktextParser({ tabId, forceAsText })
-  }
-  return await qParser[`process_${tag.toLowerCase()}`](variables);
-}
-
 export async function parseVariable({ tabId, variable, forceAsText, qParser }) {
   if (!qParser) {
-    qParser = await getNewQuicktextParser({ tabId, forceAsText })
+    qParser = await getQuicktextParser({ tabId, forceAsText })
   }
 
   return qParser.parse("[[" + variable + "]]");
@@ -245,7 +242,7 @@ export async function parseVariable({ tabId, variable, forceAsText, qParser }) {
 
 export async function insertVariable({ tabId, variable, forceAsText, qParser }) {
   if (!qParser) {
-    qParser = await getNewQuicktextParser({ tabId, forceAsText })
+    qParser = await getQuicktextParser({ tabId, forceAsText })
   }
 
   let parsed = await parseVariable({ tabId, variable, forceAsText, qParser })
@@ -291,8 +288,15 @@ export async function insertFile(tabId, file, aType) {
     return;
   }
 
-  let qParser = await getNewQuicktextParser({ tabId, forceAsText: aType == 0 })
+  let qParser = await getQuicktextParser({ tabId, forceAsText: aType == 0 })
   await qParser.insertBody(content, { extraSpace: false });
+}
+
+// This function is called from outside and needs to use data of an existing
+// parser
+export async function processTag({ tabId, tag, variables }) {
+  let qParser = await getQuicktextParser({ tabId })
+  return await qParser[`process_${tag.toLowerCase()}`](variables);
 }
 
 // ---- TEMPLATE

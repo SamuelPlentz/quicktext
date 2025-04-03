@@ -15,11 +15,13 @@ const persistentTags = ['COUNTER', 'ORGATT', 'ORGHEADER', 'VERSION'];
 
 export class QuicktextParser {
   constructor(aTabId, templates, scripts, forceAsText = false) {
-    this.clearData();
     this.mTabId = aTabId;
     this.mTemplates = templates;
     this.mScripts = scripts;
     this.mForceAsText = forceAsText;
+
+    this.mData = {}
+    this.mDetails = null;
   }
 
   async insertBody(aStr, options = {}) {
@@ -47,21 +49,37 @@ export class QuicktextParser {
     return this.mTemplates;
   }
 
-  // ???
-  clearData() {
-    this.mData = {}
-    this.mDetails = null;
+  clearNonPersistentData() {
+    for (let key of Object.keys(this.mData)) {
+      if (persistentTags.includes(key)) {
+        continue;
+      }
+      delete this.mData[key];
+    }
   }
 
-  // ???
-  cleanTagData() {
-    // Remove non-persistent data.
-    let tmpData = {};
-    for (let i in this.mData) {
-      if (persistentTags.indexOf(i) > -1)
-        tmpData[i] = this.mData[i];
+  async saveState() {
+    let state = {
+      mForceAsText: this.mForceAsText,
+      mData: Object.fromEntries(
+        Object.entries(this.mData).filter(([key]) => persistentTags.includes(key))
+      )
+    };
+    await browser.storage.local.set({ [`PersistentStateData_${this.mTabId}`]: state });
+  }
+
+  async loadState() {
+    let stateData = await browser.storage.local
+      .get({ [`PersistentStateData_${this.tabId}`]: null })
+      .then(rv => rv[`PersistentStateData_${this.tabId}`]);
+
+    if (stateData) {
+      console.log(`Loading state from storage for tab ${this.tabId}`);
+      this.mForceAsText = stateData.mForceAsText;
+      for (let [k, v] of Object.entries(stateData.mData)) {
+        this.mData[k] = v;
+      }
     }
-    this.mData = tmpData;
   }
 
   async getInsertType() {
@@ -1012,6 +1030,9 @@ export class QuicktextParser {
 
     // Replace all tags with there right contents
     for (let i = 0; i < tags.length; i++) {
+      // Save state.
+      await this.saveState();
+
       let value = "";
       let variable_limit = -1;
       switch (tags[i].tagName.toLowerCase()) {
@@ -1049,6 +1070,9 @@ export class QuicktextParser {
       if (typeof this["get_" + tags[i].tagName.toLowerCase()] == "function" && variable_limit >= 0 && tags[i].variables.length >= variable_limit) {
         value = await this["get_" + tags[i].tagName.toLowerCase()](tags[i].variables);
       }
+
+      // Save state.
+      await this.saveState();
 
       aStr = utils.replaceText(tags[i].tag, value, aStr);
     }

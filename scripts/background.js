@@ -261,6 +261,11 @@ for (let composeTab of composeTabs) {
 // Load compose script into any new compose window being opened.
 messenger.tabs.onCreated.addListener(prepareComposeTab);
 
+// Remove saved state data after tab closed.
+messenger.tabs.onRemoved.addListener(tabId => {
+  browser.storage.session.remove(`PersistentStateData_${tabId}`);
+});
+
 // Prevent sending, if a popover is shown.
 browser.compose.onBeforeSend.addListener(async (tab, details) => {
   let isPopoverShown = await messenger.tabs.sendMessage(tab.id, {

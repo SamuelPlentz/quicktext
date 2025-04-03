@@ -70,11 +70,10 @@ export class QuicktextParser {
 
   async loadState() {
     let stateData = await browser.storage.local
-      .get({ [`PersistentStateData_${this.tabId}`]: null })
-      .then(rv => rv[`PersistentStateData_${this.tabId}`]);
+      .get({ [`PersistentStateData_${this.mTabId}`]: null })
+      .then(rv => rv[`PersistentStateData_${this.mTabId}`]);
 
     if (stateData) {
-      console.log(`Loading state from storage for tab ${this.tabId}`);
       this.mForceAsText = stateData.mForceAsText;
       for (let [k, v] of Object.entries(stateData.mData)) {
         this.mData[k] = v;
@@ -227,11 +226,17 @@ export class QuicktextParser {
               this.quicktext = {
                 tabId,
                 variables: sVariables,
-                processTag: (tag, variables) => browser.runtime.sendMessage({
+                processTag: (tag, ...variables) => browser.runtime.sendMessage({
                   command: "processTag",
                   tabId,
                   tag,
-                  variable,
+                  variables,
+                }),
+                getTag: (tag, ...variables) => browser.runtime.sendMessage({
+                  command: "getTag",
+                  tabId,
+                  tag,
+                  variables,
                 }),
               };
               

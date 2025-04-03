@@ -294,6 +294,13 @@ export async function insertFile(tabId, file, aType) {
 
 // This function is called from outside and needs to use data of an existing
 // parser
+export async function getTag({ tabId, tag, variables }) {
+  let qParser = await getQuicktextParser({ tabId })
+  return await qParser[`get_${tag.toLowerCase()}`](variables);
+}
+
+// This function is called from outside and needs to use data of an existing
+// parser
 export async function processTag({ tabId, tag, variables }) {
   let qParser = await getQuicktextParser({ tabId })
   return await qParser[`process_${tag.toLowerCase()}`](variables);

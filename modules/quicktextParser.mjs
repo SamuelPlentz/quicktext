@@ -310,6 +310,12 @@ export class QuicktextParser {
               port.postMessage({ command: "processedTag", processedTag });
             }
             break;
+          case "getTag":
+            {
+              let gotTag = await this[`get_${message.tag.toLowerCase()}`](message.variables);
+              port.postMessage({ command: "gotTag", gotTag });
+            }
+            break;
         }
       });
 

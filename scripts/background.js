@@ -212,7 +212,7 @@ messenger.runtime.onMessage.addListener((info, sender, sendResponse) => {
     case "insertTemplate":
       return quicktext.insertTemplate(sender.tab.id, info.group, info.text);
     case "composeAPI":
-      return browser.compose[info.func](...info.params);
+      return browser.compose[info.func](sender.tab.id, ...info.params);
     case "messagesAPI":
       return browser.messages[info.func](...info.params);
     case "identitiesAPI":

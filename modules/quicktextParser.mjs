@@ -11,6 +11,10 @@ const allowedTags = [
   'ALERT', 'ATT', 'CLIPBOARD', 'COUNTER', 'CSCRIPT', 'DATE', 'ESCRIPT', 'FILE', 'IMAGE', 'FROM', 'INPUT', 'ORGATT',
   'ORGHEADER', 'SCRIPT', 'SUBJECT', 'TEXT', 'TIME', 'TO', 'URL', 'VERSION', 'SELECTION', 'HEADER'
 ];
+
+// The value of these tags are persistent and only computed once per tab. All other
+// tags are computed once per template insertion and then re-use the computed value.
+// If another template is inserted (or the same template again), the state is cleared.
 const persistentTags = ['COUNTER', 'ORGATT', 'ORGHEADER', 'VERSION'];
 
 export class QuicktextParser {
@@ -22,6 +26,8 @@ export class QuicktextParser {
 
     this.mData = {}
     this.mDetails = null;
+
+    this.keepStates = false;
   }
 
   async insertBody(aStr, options = {}) {
@@ -49,7 +55,7 @@ export class QuicktextParser {
     return this.mTemplates;
   }
 
-  clearNonPersistentData() {
+  async clearNonPersistentData() {
     for (let key of Object.keys(this.mData)) {
       if (persistentTags.includes(key)) {
         continue;
@@ -61,23 +67,19 @@ export class QuicktextParser {
   async saveState() {
     let state = {
       mForceAsText: this.mForceAsText,
-      mData: Object.fromEntries(
-        Object.entries(this.mData).filter(([key]) => persistentTags.includes(key))
-      )
-    };
-    await browser.storage.local.set({ [`PersistentStateData_${this.mTabId}`]: state });
+      mData: this.mData,
+    }
+    await browser.storage.local.set({ [`QuicktextStateData_${this.mTabId}`]: state });
   }
 
   async loadState() {
     let stateData = await browser.storage.local
-      .get({ [`PersistentStateData_${this.mTabId}`]: null })
-      .then(rv => rv[`PersistentStateData_${this.mTabId}`]);
+      .get({ [`QuicktextStateData_${this.mTabId}`]: null })
+      .then(rv => rv[`QuicktextStateData_${this.mTabId}`]);
 
     if (stateData) {
       this.mForceAsText = stateData.mForceAsText;
-      for (let [k, v] of Object.entries(stateData.mData)) {
-        this.mData[k] = v;
-      }
+      this.mData = stateData.mData;
     }
   }
 
@@ -1033,6 +1035,13 @@ export class QuicktextParser {
     }
   }
   async parseText(aStr) {
+    // If a template is inserted, keepStates is set to true and all non-persistent
+    // states are kept until the entire template has been processed. The persistent
+    // states are kept for the entire lifetime of the tab.
+    if (!this.keepStates) {
+      await this.clearNonPersistentData();
+    }
+
     let tags = getTags(aStr);
 
     // If we don't find any tags there will be no changes to the string so return.

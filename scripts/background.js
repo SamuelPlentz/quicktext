@@ -265,7 +265,7 @@ messenger.tabs.onCreated.addListener(prepareComposeTab);
 
 // Remove saved state data after tab closed.
 messenger.tabs.onRemoved.addListener(tabId => {
-  browser.storage.session.remove(`PersistentStateData_${tabId}`);
+  browser.storage.session.remove(`QuicktextStateData_${tabId}`);
 });
 
 // Prevent sending, if a popover is shown.

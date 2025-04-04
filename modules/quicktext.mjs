@@ -227,9 +227,13 @@ export async function insertTemplate(tabId, groupIdx, textIdx, forceAsText) {
   let group = qParser.templates.groups[groupIdx];
   let text = qParser.templates.texts[groupIdx][textIdx];
 
+  await qParser.clearNonPersistentData();
+  qParser.keepStates = true;
   await insertSubject({ qParser, subject: text.subject });
   await insertAttachments({ qParser, attachments: text.attachments });
   await insertVariable({ qParser, variable: `TEXT=${group.name}|${text.name}` });
+  qParser.keepStates = false;
+  await qParser.clearNonPersistentData();
 }
 
 export async function parseVariable({ tabId, variable, forceAsText, qParser }) {

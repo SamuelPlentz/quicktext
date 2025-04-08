@@ -566,7 +566,8 @@ var quicktext = {
         found = true;
         aEditor.selection.removeAllRanges();
         aEditor.selection.addRange(foundRange);
-        aEditor.selection.deleteFromDocument();
+        // aEditor.selection.deleteFromDocument();
+        aEditor.document.execCommand('delete');
         startRange.setEnd(foundRange.endContainer, foundRange.endOffset);
         startRange.setStart(foundRange.endContainer, foundRange.endOffset);
       }
@@ -712,60 +713,43 @@ var quicktext = {
       editor.selection.removeAllRanges();
       editor.selection.addRange(tmpRange);
 
-      editor.selectionController.intraLineMove(false, true);
-      if (!(selection.rangeCount > 0))
-      {
-        editor.endTransaction();
-        return;
+      // Extend selection to the beginning of the current word.
+      selection.modify("extend", "backward", "word");
+
+      // We should only have one word selected, but make sure to only get the
+      // last one by chopping up its content.
+      let lastWord = selection.toString().split(" ").pop().toLowerCase();
+      if (!lastWord) {
+          // Restore to the initialSelectionRange and abort.
+          selection.removeAllRanges();
+          selection.addRange(initialSelectionRange);
+          editor.endTransaction();
+          return;
       }
 
-      // intraLineMove() extended the selection from the cursor to the
-      // beginning of the line. We can get the last word by simply
-      // chopping up its content.
-      let lastWord = selection.toString().split(" ").pop();
       let lastWordIsKeyword = this.mKeywords.hasOwnProperty(lastWord.toLowerCase());
-
-      // We now need to get a range, which covers the keyword,
-      // as we want to replace it. So we clone the current selection
-      // into a wholeRange and use nsIFind to find lastWord.
-      var wholeRange = selection.getRangeAt(0).cloneRange();
-
-      // Restore to the initialSelectionRange.
-      editor.selection.removeAllRanges();
-      editor.selection.addRange(initialSelectionRange);
-
-      // If the last word is not a keyword, abort.
-      if (!lastWordIsKeyword || !lastWord) {
-        editor.endTransaction();
-        return;
+      if (!lastWordIsKeyword) {
+          // Restore to the initialSelectionRange and abort.
+          selection.removeAllRanges();
+          selection.addRange(initialSelectionRange);
+          editor.endTransaction();
+          return;
       }
 
-      // Prepare a range for backward search.
-      var startRange = editor.document.createRange();
-      startRange.setStart(wholeRange.endContainer, wholeRange.endOffset);
-      startRange.setEnd(wholeRange.endContainer, wholeRange.endOffset);
-      var endRange = editor.document.createRange();
-      endRange.setStart(wholeRange.startContainer, wholeRange.startOffset);
-      endRange.setEnd(wholeRange.startContainer, wholeRange.startOffset);
-
-      var finder = Components.classes["@mozilla.org/embedcomp/rangefind;1"].createInstance().QueryInterface(Components.interfaces.nsIFind);
-      finder.findBackwards = true;
-      var lastWordRange = finder.Find(lastWord, wholeRange, startRange, endRange);
-      if (!lastWordRange) {
-        // That should actually never happen, as we know the word is there.
-        editor.endTransaction();
-        return;
-      }        
-      
-      // Replace the keyword.
-      editor.selection.removeAllRanges();
-      editor.selection.addRange(lastWordRange);
-      var text = this.mKeywords[lastWord.toLowerCase()];
+      // So this is it. Eat the keypress, remove the keyword from the document
+      // and insert the template.
       editor.endTransaction();
       e.stopPropagation();
       e.preventDefault();
 
-      await this.insertTemplate(text[0], text[1]);      
+      // The following line will remove the keyword before we replace it. If we
+      // do not do that, we see the keyword being selected and then replaced.
+      // It does look interesting, but I keep it as it was before.
+      document.execCommand('delete');
+      //selection.deleteFromDocument()
+
+      let text = this.mKeywords[lastWord.toLowerCase()];
+      await this.insertTemplate(text[0], text[1]);
     }
   },
 

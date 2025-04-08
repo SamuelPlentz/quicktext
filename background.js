@@ -2,7 +2,7 @@ browser.runtime.onInstalled.addListener(details => {
   if (details.reason == "update") {
     browser.tabs.create({
       active: false,
-      url: "https://github.com/jobisoft/quicktext/issues/439",
+      url: "https://github.com/jobisoft/quicktext/issues/451",
     })
   }
 });

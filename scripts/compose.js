@@ -91,8 +91,10 @@ async function handlerCursorTags() {
                     // spaces which selection.deleteFromDocument() does. All the
                     // text altering functions from selection and range seem to
                     // collapse spaces.
+
                     document.execCommand('delete');
                     //selection.deleteFromDocument();
+                    //selection.getRangeAt(0).deleteContents();
                 }
                 startPos = foundElement.nodeValue.indexOf(CURSOR);
             } while (startPos != -1)
@@ -132,49 +134,41 @@ function keywordListener(e) {
             return;
         }
 
-        // This gives us a range object of the currently selected text
-        // and as the user usually does not have any text selected when
-        // triggering keywords, it is a collapsed range at the current
-        // cursor position.
+        // This gives us a range object of the currently selected text.
         let initialSelectionRange = selection.getRangeAt(0).cloneRange();
 
-        // Get a temp selection, which we can modify to search for the beginning
-        // of the last word.
-        let tmpRange = initialSelectionRange.cloneRange();
-        tmpRange.collapse(false);
-        selection.removeAllRanges();
-        selection.addRange(tmpRange);
+        // Get the text from the beginning of the current node to the end of the
+        // selection/cursor. We assume the keyword is not split between two nodes.
+        let range = initialSelectionRange.cloneRange();
+        range.setStart(range.startContainer, 0);
+        let lastWord = range.toString().split(" ").pop();
 
-        // Extend selection to the beginning of the current word.
-        selection.modify("extend", "backward", "word");
-
-        // We should only have one word selected, but make sure to only get the
-        // last one by chopping up its content.
-        let lastWord = selection.toString().split(" ").pop().toLowerCase();
-        if (!lastWord) {
-            // Restore to the initialSelectionRange and abort.
-            selection.removeAllRanges();
-            selection.addRange(initialSelectionRange);
+        if (!lastWord || !keywords.hasOwnProperty(lastWord)) {
             return;
         }
 
-        let lastWordIsKeyword = keywords.hasOwnProperty(lastWord);
-        if (!lastWordIsKeyword) {
-            // Restore to the initialSelectionRange and abort.
-            selection.removeAllRanges();
-            selection.addRange(initialSelectionRange);
-            return;
-        }
-
-        // So this is it. Eat the keypress, remove the keyword from the document
-        // and insert the template.
+        // We found a valid keyword, eat the keypress.
         e.stopPropagation();
         e.preventDefault();
+
+        // Extend selection from the end of the current selection/cursor to the
+        // beginning of the current word.
+        selection.collapseToEnd();
+        selection.modify("extend", "backward", "word");
+        // Verify that the entire lastWord is selected, and extend the selection
+        // if needed. This is needed since #hi is not fully extended as # is not
+        // considered to be part of the word.
+        while (selection.toString().length < lastWord.length) {
+            selection.modify("extend", "backward", "character");
+        }
 
         // The following line will remove the keyword before we replace it. If we
         // do not do that, we see the keyword being selected and then replaced.
         // It does look interesting, but I keep it as it was before.
-        selection.deleteFromDocument()
+
+        document.execCommand('delete');
+        //selection.deleteFromDocument();
+        //selection.getRangeAt(0).deleteContents();
         requestInsertTemplate(keywords[lastWord])
     }
 }

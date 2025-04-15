@@ -210,20 +210,18 @@ export function mergeScripts(scripts, importedScripts, forceProtected = false) {
 
 // ---- INSERT
 
-async function getQuicktextParser({ tabId, forceAsText }) {
+async function getQuicktextParser({ tabId }) {
   let templates = await storage.getTemplates();
   let scripts = await storage.getScripts();
 
-  // If aForceAsText is not set, but after parsing it is set, we should rerun
-  // with aForceAsText set from the beginning. 
-  let qParser = new QuicktextParser(tabId, templates, scripts, forceAsText);
+  let qParser = new QuicktextParser(tabId, templates, scripts);
   await qParser.loadState();
   return qParser;
 }
 
 
-export async function insertTemplate(tabId, groupIdx, textIdx, forceAsText) {
-  let qParser = await getQuicktextParser({ tabId, forceAsText });
+export async function insertTemplate(tabId, groupIdx, textIdx) {
+  let qParser = await getQuicktextParser({ tabId });
   let group = qParser.templates.groups[groupIdx];
   let text = qParser.templates.texts[groupIdx][textIdx];
 
@@ -236,20 +234,20 @@ export async function insertTemplate(tabId, groupIdx, textIdx, forceAsText) {
   await qParser.clearNonPersistentData();
 }
 
-export async function parseVariable({ tabId, variable, forceAsText, qParser }) {
+export async function parseVariable({ tabId, variable, qParser }) {
   if (!qParser) {
-    qParser = await getQuicktextParser({ tabId, forceAsText })
+    qParser = await getQuicktextParser({ tabId })
   }
 
   return qParser.parse("[[" + variable + "]]");
 }
 
-export async function insertVariable({ tabId, variable, forceAsText, qParser }) {
+export async function insertVariable({ tabId, variable, qParser }) {
   if (!qParser) {
-    qParser = await getQuicktextParser({ tabId, forceAsText })
+    qParser = await getQuicktextParser({ tabId })
   }
 
-  let parsed = await parseVariable({ tabId, variable, forceAsText, qParser })
+  let parsed = await parseVariable({ tabId, variable, qParser })
   if (parsed) {
     await qParser.insertBody(parsed, { extraSpace: false });
   }
@@ -279,21 +277,29 @@ async function insertAttachments({ qParser, attachments }) {
   };
 }
 
-export async function insertContentFromFile(aTabId, aType) {
-  let file = utils.pickFileFromDisc(aType);
+export async function insertContentFromFile(aTabId, insertMode) {
+  let file = await utils.pickFileFromDisc([insertMode]);
   if (file) {
-    return insertFile(aTabId, file, aType);
+    return insertFile(aTabId, file, insertMode);
   }
 }
 
-export async function insertFile(tabId, file, aType) {
+export async function insertFile(tabId, file, insertMode) {
   const content = await utils.getTextFileContent(file);
   if (!content) {
     return;
   }
 
-  let qParser = await getQuicktextParser({ tabId, forceAsText: aType == 0 })
-  await qParser.insertBody(content, { extraSpace: false });
+  let qParser = await getQuicktextParser({ tabId });
+  // The content of the file gets parsed as well. Nested templates which force
+  // text insert mode affect the entire insert operation.
+  let parsedContent = await qParser.process_file_content(content, {
+    insertMode,
+    stripHtmlComments: false,
+  });
+  await qParser.insertBody(parsedContent, {
+    extraSpace: false
+  });
 }
 
 // This function is called from outside and needs to use data of an existing

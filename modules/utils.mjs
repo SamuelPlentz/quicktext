@@ -120,9 +120,11 @@ export async function pickFileFromDisc(aTypes) {
     for (let aType of aTypes) {
         switch (aType) {
             case 0: // TXT files
+            case "text/plain":
                 acceptedFileTypes.push("text/plain");
                 break;
             case 1: // HTML files
+            case "text/html":
                 acceptedFileTypes.push("text/html");
                 break;
             case 2: // arbitrary files

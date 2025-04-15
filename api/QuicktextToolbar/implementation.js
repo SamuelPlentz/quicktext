@@ -237,8 +237,8 @@
       </button>
       <button type="menu" id="quicktext-other" label="__MSG_quicktext.other.label__" tabindex="-1">
         <menupopup>
-          <menuitem label="__MSG_quicktext.insertTextFromFileAsText.label__" oncommand="quicktextToolbar.insertContentFromFile(0);" />
-          <menuitem label="__MSG_quicktext.insertTextFromFileAsHTML.label__" oncommand="quicktextToolbar.insertContentFromFile(1);" />
+          <menuitem label="__MSG_quicktext.insertTextFromFileAsText.label__" oncommand="quicktextToolbar.insertContentFromFile('text/plain');" />
+          <menuitem label="__MSG_quicktext.insertTextFromFileAsHTML.label__" oncommand="quicktextToolbar.insertContentFromFile('text/html');" />
         </menupopup>
       </button>
     </hbox>

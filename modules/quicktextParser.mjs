@@ -18,11 +18,15 @@ const allowedTags = [
 const persistentTags = ['COUNTER', 'ORGATT', 'ORGHEADER', 'VERSION'];
 
 export class QuicktextParser {
-  constructor(aTabId, templates, scripts, forceAsText = false) {
+  constructor(aTabId, templates, scripts) {
     this.mTabId = aTabId;
     this.mTemplates = templates;
     this.mScripts = scripts;
-    this.mForceAsText = forceAsText;
+
+    // Can only be changed by the current template or nested templates which by
+    // definition use the same QuicktextParser. This value is not saved nor
+    // restored.
+    this.mForceAsText = false;
 
     this.mData = {}
     this.mDetails = null;
@@ -31,16 +35,18 @@ export class QuicktextParser {
   }
 
   async insertBody(aStr, options = {}) {
-    let type = await this.getInsertType();
-    if (type == 0) {
+    let { isPlainText } = await this.getDetails();
+    let extraSpace = options?.extraSpace == false;
+
+    if (isPlainText || this.mForceAsText) {
       await messenger.tabs.sendMessage(this.mTabId, {
         insertText: aStr,
-        extraSpace: options.extraSpace,
+        extraSpace,
       });
     } else {
       await messenger.tabs.sendMessage(this.mTabId, {
         insertHtml: utils.removeBadHTML(aStr),
-        extraSpace: options.extraSpace,
+        extraSpace,
       });
     }
   }
@@ -66,7 +72,6 @@ export class QuicktextParser {
 
   async saveState() {
     let state = {
-      mForceAsText: this.mForceAsText,
       mData: this.mData,
     }
     await browser.storage.local.set({ [`QuicktextStateData_${this.mTabId}`]: state });
@@ -78,17 +83,8 @@ export class QuicktextParser {
       .then(rv => rv[`QuicktextStateData_${this.mTabId}`]);
 
     if (stateData) {
-      this.mForceAsText = stateData.mForceAsText;
       this.mData = stateData.mData;
     }
-  }
-
-  async getInsertType() {
-    let details = await this.getDetails();
-    if (details.isPlainText || this.mForceAsText) {
-      return 0;
-    }
-    return 1;
   }
 
   async getDetails() {
@@ -462,16 +458,33 @@ export class QuicktextParser {
       // Tries to open the file and returning the content.
       try {
         let content = await browser.Quicktext.readTextFile(aVariables[0]);
-        if (aVariables.length > 1 && aVariables[1].includes("force_as_text")) {
-          this.mForceAsText = true;
-        }
-        if (aVariables.length > 1 && aVariables[1].includes("strip_html_comments")) {
-          content = content.replace(/<!--[\s\S]*?(?:-->)/g, '');
-        }
-        return content;
+        let insertMode = aVariables.length > 1 && aVariables[1].includes("force_as_text")
+          ? "text/plain"
+          : "text/html";
+        let stripHtmlComments = aVariables.length > 1 && aVariables[1].includes("strip_html_comments");
+
+        return this.process_file_content(content, {
+          insertMode,
+          stripHtmlComments
+        });
       } catch (e) { console.error(e); }
     }
     return "";
+  }
+  async process_file_content(content, options) {
+    let insertMode = options?.insertMode ?? "text/html";
+    let stripHtmlComments = options?.stripHtmlComments == false;
+
+    let { isPlainText } = await this.getDetails();
+    if (insertMode == "text/plain" && isPlainText == false) {
+      this.mForceAsText = true;
+    }
+
+    if (stripHtmlComments) {
+      content = content.replace(/<!--[\s\S]*?(?:-->)/g, '');
+    }
+
+    return this.parse(content);
   }
 
   async process_image_content(aVariables) {
@@ -519,12 +532,12 @@ export class QuicktextParser {
       });
     }
   }
-  async get_selection(aVariables, aType) {
-    return this.process_selection(aVariables, aType);
+  async get_selection(aVariables) {
+    return this.process_selection(aVariables);
   }
 
   async process_text(aVariables) {
-    if (aVariables.length != 2)
+    if (aVariables.length < 2)
       return "";
     // Looks after the group and text-name and returns
     // the text from it
@@ -538,15 +551,18 @@ export class QuicktextParser {
             // This will affect also the "parent" template, if the current
             // template is a nested template, because the entire parsed string
             // will be inserted in one go. 
-            if (text.type == "text/plain") {
+            let { isPlainText } = await this.getDetails();
+            if (
+              (text.type == "text/plain" || (aVariables.length > 2 && aVariables[2].includes("force_as_text"))) &&
+              isPlainText == false
+            ) {
               this.mForceAsText = true;
             }
-            if (aVariables.length > 1 && aVariables[1].includes("force_as_text")) {
-              this.mForceAsText = true;
-            }
-            if (aVariables.length > 1 && aVariables[1].includes("strip_html_comments")) {
+
+            if (aVariables.length > 2 && aVariables[2].includes("strip_html_comments")) {
               content = content.replace(/<!--[\s\S]*?(?:-->)/g, '');
             }
+
             return content;
           }
         }
@@ -878,7 +894,7 @@ export class QuicktextParser {
     return this.mData['FROM'].data;
   }
   async getcarddata_from(identity) {
-    // 1. CardBook -> need cardbook api
+    // 1. TODO: CardBook -> need cardbook api
     // ...
 
     // 2. search identity email
@@ -888,7 +904,7 @@ export class QuicktextParser {
     })
     let card = cards.find(c => c.type == "contact");
 
-    // 3. vcard of identity -> todo: not yet supported
+    // 3. TODO: vcard of identity
     if (!card && identity.escapedVCard) {
       //card = manager.escapedVCardToAbCard(aIdentity.escapedVCard);
     }

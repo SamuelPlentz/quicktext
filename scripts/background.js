@@ -4,6 +4,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+import * as quicktext from "../modules/quicktext.mjs";
+import * as storage from "../modules/storage.mjs";
+import * as menus from "../modules/menus.mjs";
+import * as utils from "../modules/utils.mjs";
+
 browser.runtime.onInstalled.addListener(details => {
   if (details.reason == "update") {
     browser.notifications.create("qtupdate", {
@@ -14,6 +19,13 @@ browser.runtime.onInstalled.addListener(details => {
   }
 });
 
+browser.runtime.onMessageExternal.addListener(({ register_script_addon, available_scripts }, { id }) => {
+  if (register_script_addon && available_scripts && available_scripts.length > 0) {
+    return utils.registerExternalScriptAddon(id, register_script_addon, available_scripts);
+  }
+  return false;
+});
+
 browser.notifications.onClicked.addListener(notificationId => {
   if (notificationId != "qtupdate") {
     return;
@@ -22,11 +34,6 @@ browser.notifications.onClicked.addListener(notificationId => {
     url: `https://github.com/jobisoft/quicktext/releases/tag/v${browser.runtime.getManifest().version}`,
   })
 })
-
-import * as quicktext from "../modules/quicktext.mjs";
-import * as storage from "../modules/storage.mjs";
-import * as menus from "../modules/menus.mjs";
-import * as utils from "../modules/utils.mjs";
 
 // Legacy: Register global urls.
 await browser.LegacyHelper.registerGlobalUrls([

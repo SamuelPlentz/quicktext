@@ -5,11 +5,11 @@
       "id": "{8845E3B3-E8FB-40E2-95E9-EC40294818C4}",
       "update_url": "https://raw.githubusercontent.com/jobisoft/quicktext/refs/heads/Main/updates.json",
       "strict_min_version": "128.0",
-      "strict_max_version": "138.*"
+      "strict_max_version": "139.*"
     }
   },
   "name": "Quicktext",
-  "version": "6.3.4",
+  "version": "6.3.5",
   "author": "John Bieling",
   "homepage_url": "https://github.com/jobisoft/quicktext",
   "default_locale": "en-US",
@@ -47,7 +47,8 @@
     "addressBooks",
     "messagesRead",
     "downloads",
-    "notifications"
+    "notifications",
+    "<all_urls>"
   ],
   "background": {
     "type": "module",

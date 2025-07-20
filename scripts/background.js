@@ -126,7 +126,7 @@ if (defaultImport) {
       const data = path.match(/^(http|https):\/\//)
         ? await utils.fetchFileFromServer(path)
         : await browser.Quicktext.readTextFile(path);
-      const imports = quicktext.parseConfigFileData(data);
+      const imports = await quicktext.parseConfigFileData(data);
       if (imports.templates) {
         quicktext.mergeTemplates(templates, imports.templates, true);
       }

@@ -127,12 +127,24 @@ var gQuicktext = {
     this.mCollapseState = await notifyTools.notifyBackground({ command: "getPref", pref: "collapseState" });
     this.mDefaultImport = await notifyTools.notifyBackground({ command: "getPref", pref: "defaultImport" });
 
-    const defaultImportManaged = await notifyTools.notifyBackground({
-      command: "getPref",
-      pref: "defaultImport.managed"
-    });
-    if (defaultImportManaged) {
-      document.getElementById("text-defaultImport").setAttribute("disabled", "true");
+    // Managed prefs cannot be changed by the user.
+    for (let [pref, field] of [
+      ["defaultImport","text-defaultImport"],
+      ["menuCollapse", "checkbox-collapseGroup"],
+      ["popup", "checkbox-viewPopup"],
+      ["keywordKey", "select-keywordKey"],
+      ["shortcutModifier", "select-shortcutModifier"],
+      ["shortcutTypeAdv", "checkbox-shortcutTypeAdv"],
+    ]) {
+      const isManaged = await notifyTools.notifyBackground({
+        command: "getPref",
+        pref: `${pref}.managed`
+      });
+      if (isManaged) {
+        const element = document.getElementById(field);
+        element.setAttribute("disabled", "true");
+        element.setAttribute('tooltiptext', extension.localeData.localizeMessage("controlled-via-managed-storage"));
+      }
     }
 
     this.startEditing();

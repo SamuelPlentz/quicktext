@@ -8,6 +8,9 @@
     "controlKey": {
         "message": "Ctrl"
     },
+    "controlled-via-managed-storage": {
+        "message": "Controlled via managed storage"
+    },
     "date": {
         "message": "Date ($P1$)",
         "placeholders": {

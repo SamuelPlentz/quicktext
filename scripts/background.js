@@ -11,9 +11,9 @@ import * as utils from "../modules/utils.mjs";
 
 browser.runtime.onInstalled.addListener(details => {
   if (details.reason == "update") {
-    browser.notifications.create("qtupdate", {
+    browser.notifications.create("qt-update", {
       type: "basic",
-      title: "Quicktext",
+      title: "Quicktext v6",
       message: `Quicktext pre-release was updated to v${browser.runtime.getManifest().version}\n(new script engine, click for details)`,
     });
   }
@@ -27,12 +27,18 @@ browser.runtime.onMessageExternal.addListener(({ register_script_addon, availabl
 });
 
 browser.notifications.onClicked.addListener(notificationId => {
-  if (notificationId != "qtupdate") {
-    return;
+  switch (notificationId) {
+    case "qt-deprecate-default-file-import":
+      browser.tabs.create({
+        url: `https://github.com/jobisoft/quicktext/wiki/Centrally-manage-configurations-and-templates`,
+      })
+      break;
+    case "qt-update":
+      browser.tabs.create({
+        url: `https://github.com/jobisoft/quicktext/releases/tag/v${browser.runtime.getManifest().version}`,
+      })
+      break;
   }
-  browser.tabs.create({
-    url: `https://github.com/jobisoft/quicktext/releases/tag/v${browser.runtime.getManifest().version}`,
-  })
 })
 
 // Legacy: Register global urls.
@@ -63,24 +69,26 @@ if (!["alt", "control", "meta"].includes(shortcutModifier)) {
   await storage.setPref("shortcutModifier", "alt");
 }
 
-// Define prefs, which can be overridden by system admins. Admins have to migrate
-// these manually from legacy prefs to managed storage.
+// Define prefs, which can be overridden by system admins.
 const managedPrefs = [
   "defaultImport",
+  "menuCollapse",
+  "popup",
+  "keywordKey",
+  "shortcutModifier",
+  "shortcutTypeAdv",
 ];
 
-let managedStorageAvailable = true;
 for (let managedPref of managedPrefs) {
+  await storage.setPref(`${managedPref}.managed`, false);
   try {
     let override = await browser.storage.managed.get({ [managedPref]: null });
     if (override[managedPref] !== null) {
       await storage.setPref(managedPref, override[managedPref]);
+      await storage.setPref(`${managedPref}.managed`, true);
     }
-    await storage.setPref(`${managedPref}.managed`, true);
   } catch {
     // No managed storage available.
-    await storage.setPref(`${managedPref}.managed`, false);
-    managedStorageAvailable = false;
   }
 }
 
@@ -119,13 +127,17 @@ const defaultImport = await storage.getPref("defaultImport");
 if (defaultImport) {
   const defaultImports = defaultImport.split(";").map(e => e.trim()).reverse();
   for (let path of defaultImports) {
+    if (!path.match(/^(http|https):\/\//)) {
+      browser.notifications.create("qt-deprecate-default-file-import", {
+        type: "basic",
+        title: "Quicktext v6",
+        message: `Default imports from the local file system have been replaced by managed storage.\n(click for details)`,
+      });
+      continue;
+    }
     try {
-      // Import XML or JSON config data from remote server or local file system.
-      // Support for importing from the local file system will be removed for the
-      // pure WebExtension version. Use managed storage instead.
-      const data = path.match(/^(http|https):\/\//)
-        ? await utils.fetchFileFromServer(path)
-        : await browser.Quicktext.readTextFile(path);
+      // Import XML or JSON config data from remote server.
+      const data = await utils.fetchFileFromServer(path);
       const imports = await quicktext.parseConfigFileData(data);
       if (imports.templates) {
         quicktext.mergeTemplates(templates, imports.templates, true);
@@ -142,7 +154,7 @@ if (defaultImport) {
 }
 
 // Startup import via managed storage.
-if (managedStorageAvailable) {
+{
   let { templates: managedTemplates } = await browser.storage.managed.get({ templates: null });
   if (managedTemplates) {
     quicktext.mergeTemplates(templates, managedTemplates, true);

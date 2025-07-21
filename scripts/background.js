@@ -151,6 +151,8 @@ if (managedStorageAvailable) {
   if (managedScripts) {
     quicktext.mergeScripts(scripts, managedScripts, true);
   }
+  await storage.setTemplates(templates);
+  await storage.setScripts(scripts);
 }
 
 // NotifyTools needed by Experiment code to access WebExtension code.

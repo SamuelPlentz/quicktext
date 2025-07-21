@@ -123,8 +123,8 @@ function isMatchingModifier(e, modifier) {
     )
 }
 
-function isRealKey(e) {
-    return e.key.length == 1;
+function isRealNumberKey(e) {
+    return e.key.length == 1 &&  /^[0-9]$/i.test(e.key);
 }
 
 function keywordListener(e) {
@@ -180,13 +180,13 @@ function shortcutKeyDown(e) {
 
     if (shortcutTypeAdv) {
         advShortcutModifierIsDown = true;
-        if (isRealKey(e)) {
+        if (isRealNumberKey(e)) {
             advShortcutString += e.key;
+            // Eat keys if we acted upon them.
+            e.stopPropagation();
+            e.preventDefault();
         }
-        // Eat keys if we acted upon them.
-        e.stopPropagation();
-        e.preventDefault();
-    } else if (isRealKey(e) && shortcuts[e.key] && !e.repeat) {
+    } else if (isRealNumberKey(e) && shortcuts[e.key] && !e.repeat) {
         requestInsertTemplate(shortcuts[e.key]);
         // Eat keys if we acted upon them.
         e.stopPropagation();

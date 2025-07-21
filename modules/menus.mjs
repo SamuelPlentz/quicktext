@@ -112,7 +112,10 @@ async function getComposeBodyMenuData() {
         // If this group has only a single child, and menuCollapse is true, print
         // only that.
         if (await storage.getPref("menuCollapse") && children.length == 1) {
-            menuData.push(children[0]);
+            menuData.push({
+                contexts,
+                ...children[0]
+            });
             continue;
         }
 

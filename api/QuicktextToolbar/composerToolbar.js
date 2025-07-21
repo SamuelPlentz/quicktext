@@ -126,8 +126,8 @@ var quicktextToolbar = {
               this.mShortcuts[shortcut] = [i, j];
 
             var keyword = text.keyword;
-            if (keyword != "" && typeof this.mKeywords[keyword.toLowerCase()] == "undefined")
-              this.mKeywords[keyword.toLowerCase()] = [i, j];
+            if (keyword != "" && typeof this.mKeywords[keyword] == "undefined")
+              this.mKeywords[keyword] = [i, j];
           }
         }
       }

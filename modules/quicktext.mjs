@@ -334,8 +334,8 @@ export async function getKeywordsAndShortcuts() {
       }
 
       let keyword = text.keyword;
-      if (keyword != "" && typeof keywords[keyword.toLowerCase()] == "undefined")
-        keywords[keyword.toLowerCase()] = [i, j];
+      if (keyword != "" && typeof keywords[keyword] == "undefined")
+        keywords[keyword] = [i, j];
     }
   }
   return { keywords, shortcuts };

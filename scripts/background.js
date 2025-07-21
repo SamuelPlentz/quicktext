@@ -154,7 +154,7 @@ if (defaultImport) {
 }
 
 // Startup import via managed storage.
-{
+try {
   let { templates: managedTemplates } = await browser.storage.managed.get({ templates: null });
   if (managedTemplates) {
     quicktext.mergeTemplates(templates, managedTemplates, true);
@@ -165,6 +165,8 @@ if (defaultImport) {
   }
   await storage.setTemplates(templates);
   await storage.setScripts(scripts);
+} catch {
+  // No managed storage.
 }
 
 // NotifyTools needed by Experiment code to access WebExtension code.

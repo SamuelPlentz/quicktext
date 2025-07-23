@@ -119,29 +119,31 @@ var gQuicktext = {
 
     // Get prefs
     this.mViewToolbar = await notifyTools.notifyBackground({ command: "getPref", pref: "toolbar" });
+    this.mCollapseState = await notifyTools.notifyBackground({ command: "getPref", pref: "collapseState" });
+
     this.mCollapseGroup = await notifyTools.notifyBackground({ command: "getPref", pref: "menuCollapse" });
-    this.mKeywordKey = await notifyTools.notifyBackground({ command: "getPref", pref: "keywordKey" });
     this.mViewPopup = await notifyTools.notifyBackground({ command: "getPref", pref: "popup" });
+    this.mKeywordKey = await notifyTools.notifyBackground({ command: "getPref", pref: "keywordKey" });
     this.mShortcutTypeAdv = await notifyTools.notifyBackground({ command: "getPref", pref: "shortcutTypeAdv" });
     this.mShortcutModifier = await notifyTools.notifyBackground({ command: "getPref", pref: "shortcutModifier" });
-    this.mCollapseState = await notifyTools.notifyBackground({ command: "getPref", pref: "collapseState" });
     this.mDefaultImport = await notifyTools.notifyBackground({ command: "getPref", pref: "defaultImport" });
 
     // Managed prefs cannot be changed by the user.
-    for (let [pref, field] of [
-      ["defaultImport","text-defaultImport"],
-      ["menuCollapse", "checkbox-collapseGroup"],
-      ["popup", "checkbox-viewPopup"],
-      ["keywordKey", "select-keywordKey"],
-      ["shortcutModifier", "select-shortcutModifier"],
-      ["shortcutTypeAdv", "checkbox-shortcutTypeAdv"],
+    for (let {pref, elemId, m} of [
+      { pref: "menuCollapse", elemId: "checkbox-collapseGroup", m: this.mCollapseGroup },
+      { pref: "popup", elemId: "checkbox-viewPopup", m: this.mViewPopup },
+      { pref: "keywordKey", elemId: "select-keywordKey", m: this.mKeywordKey },
+      { pref: "shortcutTypeAdv", elemId: "checkbox-shortcutTypeAdv", m: this.mShortcutTypeAdv },
+      { pref: "shortcutModifier", elemId: "select-shortcutModifier", m: this.mShortcutModifier },
+      { pref: "defaultImport", elemId: "text-defaultImport", m: this.mDefaultImport },
     ]) {
-      const isManaged = await notifyTools.notifyBackground({
-        command: "getPref",
-        pref: `${pref}.managed`
+      const { value, isManaged } = await notifyTools.notifyBackground({
+        command: "getPrefWithManagedInfo",
+        pref
       });
+      m = value;
       if (isManaged) {
-        const element = document.getElementById(field);
+        const element = document.getElementById(elemId);
         element.setAttribute("disabled", "true");
         element.setAttribute('tooltiptext', extension.localeData.localizeMessage("controlled-via-managed-storage"));
       }

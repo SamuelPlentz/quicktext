@@ -4,20 +4,72 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-export async function getPref(aName, aFallback = null) {
-  const defaultPref = await browser.storage.local
-    .get({ [`${aName}.default`]: aFallback })
-    .then(o => o[`${aName}.default`]);
+const defaultPrefs = {
+  "counter": 0,
+  "templateFolder": "",
+  "defaultImport": "",
+  "menuCollapse": true,
+  "toolbar": true,
+  "popup": true,
+  "keywordKey": "Tab",
+  "shortcutModifier": "alt",
+  "shortcutTypeAdv": false,
+  "collapseState": ""
+};
+
+const managedPrefs = [
+  "defaultImport",
+  "menuCollapse",
+  "popup",
+  "keywordKey",
+  "shortcutModifier",
+  "shortcutTypeAdv",
+];
+
+async function getManagedPref(aName) {
+  if (!managedPrefs.includes(aName)) {
+    return undefined;
+  }
+  try {
+    let override = await browser.storage.managed.get({ [aName]: undefined });
+    return override[aName];
+  } catch {
+    // No managed storage available.
+  }
+  return undefined;
+}
+async function getLocalPref(aName, aFallback = undefined) {
+  const defaultPref = Object.hasOwn(defaultPrefs, aName)
+    ? defaultPrefs[aName]
+    : aFallback
 
   return browser.storage.local
-    .get({ [`${aName}.value`]: defaultPref })
-    .then(o => o[`${aName}.value`]);
+    .get({ [aName]: defaultPref })
+    .then(o => o[aName]);
 }
+
+export async function getPrefWithManagedInfo(aName, aFallback = undefined) {
+  let managedPref = await getManagedPref(aName);
+  if (managedPref !== undefined) {
+    return { value: managedPref, isManaged: true }
+  }
+  let localPref = await getLocalPref(aName, aFallback);
+  return { value: localPref, isManaged: false }
+}
+
+export async function getPref(aName, aFallback = undefined) {
+  const managedPref = await getManagedPref(aName);
+  if (managedPref !== undefined) {
+    return managedPref;
+  }
+  return getLocalPref(aName, aFallback);
+}
+
 export async function setPref(aName, aValue) {
-  await browser.storage.local.set({ [`${aName}.value`]: aValue });
+  await browser.storage.local.set({ [aName]: aValue });
 }
 export async function clearPref(aName) {
-  await browser.storage.local.remove(`${aName}.value`);
+  await browser.storage.local.remove(aName);
 }
 
 export async function setTemplates(templates) {
@@ -36,33 +88,39 @@ export async function getScripts() {
     e => e.scripts ? JSON.parse(e.scripts) : null);
 }
 
-export async function init(defaults = null) {
+export async function migrate() {
   // Migrate options from sync to local storage, as sync storage can only hold
   // 100 KB which will not be enough for templates.
-  const { userPrefs: syncUserPrefs } = await browser.storage.sync.get({ userPrefs: null });
+  const { userPrefs: syncUserPrefs } = await browser.storage.sync.get({ userPrefs: undefined });
   if (syncUserPrefs) {
     await browser.storage.local.set({ userPrefs: syncUserPrefs });
-    await browser.storage.sync.set({ userPrefs: null });
+    await browser.storage.sync.remove("userPrefs");
   }
 
-  // Migrate from userPrefs/defaultPrefs objects to *.value and *.default
-  const { userPrefs } = await browser.storage.local.get({ userPrefs: null });
-  if (userPrefs) {
-    for (let [key, value] of Object.entries(userPrefs)) {
+  // Migrate from userPrefs/defaultPrefs objects to *.value and *.default.
+  const { userPrefs: v1UserPrefs } = await browser.storage.local.get({ userPrefs: undefined });
+  if (v1UserPrefs) {
+    for (let [key, value] of Object.entries(v1UserPrefs)) {
       await browser.storage.local.set({ [`${key}.value`]: value });
     }
     await browser.storage.local.remove("userPrefs");
   }
-  const { defaultPrefs } = await browser.storage.local.get({ defaultPrefs: null });
-  if (defaultPrefs) {
+  const { defaultPrefs: v1DefaultPrefs } = await browser.storage.local.get({ defaultPrefs: undefined });
+  if (v1DefaultPrefs) {
     await browser.storage.local.remove("defaultPrefs");
   }
 
-  // If defaults are given, push them into storage.local
-  if (defaults) {
-    for (let [key, value] of Object.entries(defaults)) {
-      await browser.storage.local.set({ [`${key}.default`]: value });
+  // Migrate from *.value and *.default to simple values.
+  for (let aName of Object.keys(defaultPrefs)) {
+    const aValue = await browser.storage.local
+      .get({ [`${aName}.value`]: undefined })
+      .then(o => o[`${aName}.value`]);
+    if (aValue) {
+      await browser.storage.local.remove(`${aName}.value`);
+      await browser.storage.local.set({ [aName]: aValue });
     }
+    await browser.storage.local.remove(`${aName}.default`);
+    await browser.storage.local.remove(`${aName}.managed`);
   }
 }
 
@@ -77,10 +135,16 @@ export class StorageListener {
     this.#changedWatchedPrefs = {}
   }
 
-  #eventCollapse = (changes, area) => {
+  #eventCollapse = async (changes, area) => {
     if (area == "local") {
       for (let [key, value] of Object.entries(changes)) {
-        const watchedPref = this.#watchedPrefs.find(p => key == `${p}.value` || key == p);
+        const watchedPref = this.#watchedPrefs.find(p => key == p);
+        
+        // Do not monitor managed prefs.
+        let managedPref = await getManagedPref(key);
+        if (managedPref !== undefined) {
+          continue;
+        }
 
         if (watchedPref && value.oldValue != value.newValue) {
           this.#changedWatchedPrefs[watchedPref] = value;

@@ -47,49 +47,14 @@ await browser.LegacyHelper.registerGlobalUrls([
   ["resource", "quicktext", "."],
 ]);
 
-// Define default prefs.
-let defaultPrefs = {
-  "counter": 0,
-  "templateFolder": "",
-  "defaultImport": "",
-  "menuCollapse": true,
-  "toolbar": true,
-  "popup": true,
-  "keywordKey": "Tab",
-  "shortcutModifier": "alt",
-  "shortcutTypeAdv": false,
-  "collapseState": ""
-};
-await storage.init(defaultPrefs);
+// Over the years, the storage concept has changed.
+await storage.migrate();
 
 // Fix invalid options:
 // - reset the value of shortcutModifier to "alt", if it has not a valid value - see issue #177
 const shortcutModifier = await storage.getPref("shortcutModifier");
 if (!["alt", "control", "meta"].includes(shortcutModifier)) {
   await storage.setPref("shortcutModifier", "alt");
-}
-
-// Define prefs, which can be overridden by system admins.
-const managedPrefs = [
-  "defaultImport",
-  "menuCollapse",
-  "popup",
-  "keywordKey",
-  "shortcutModifier",
-  "shortcutTypeAdv",
-];
-
-for (let managedPref of managedPrefs) {
-  await storage.setPref(`${managedPref}.managed`, false);
-  try {
-    let override = await browser.storage.managed.get({ [managedPref]: null });
-    if (override[managedPref] !== null) {
-      await storage.setPref(managedPref, override[managedPref]);
-      await storage.setPref(`${managedPref}.managed`, true);
-    }
-  } catch {
-    // No managed storage available.
-  }
 }
 
 // Legacy: The XML files will be kept for backup, but are read only if they have
@@ -119,6 +84,35 @@ if (!scripts) {
 }
 if (!scripts) {
   scripts = [];
+  await storage.setScripts(scripts);
+}
+
+// Remove previously imported templates.
+const managedTemplatesIndices = new Set(
+  templates.groups.reduce((indices, value, index) => {
+    if (value.protected) {
+      indices.push(index);
+    }
+    return indices;
+  }, [])
+);
+if (managedTemplatesIndices.size > 0) {
+  templates.groups = templates.groups.filter((_, index) => !managedTemplatesIndices.has(index));
+  templates.texts = templates.texts.filter((_, index) => !managedTemplatesIndices.has(index));
+  await storage.setTemplates(templates);
+}
+
+// Remove previously imported scripts.
+const managedScriptsIndices = new Set(
+  scripts.reduce((indices, value, index) => {
+    if (value.protected) {
+      indices.push(index);
+    }
+    return indices;
+  }, [])
+);
+if (managedScriptsIndices.size > 0) {
+  scripts = scripts.filter((_, index) => !managedScriptsIndices.has(index));
   await storage.setScripts(scripts);
 }
 
@@ -176,7 +170,8 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
       return storage.setPref(info.pref, info.value);
     case "getPref":
       return storage.getPref(info.pref);
-
+    case "getPrefWithManagedInfo":
+      return storage.getPrefWithManagedInfo(info.pref);
     case "setScripts":
       return storage.setScripts(info.data);
     case "getScripts":

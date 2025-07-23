@@ -192,16 +192,14 @@ var gQuicktext = {
     await notifyTools.notifyBackground({ command: "setPref", pref: "collapseState", value: this.mCollapseState });
     await notifyTools.notifyBackground({ command: "setPref", pref: "defaultImport", value: this.mDefaultImport });
 
-    const templates = { texts: this.prettify(this.mTexts), groups: this.prettify(this.mGroup) }
-    const scripts = this.prettify(this.mScripts);
-
     // Save templates and scripts.
     this.endEditing();
+    const templates = { texts: this.prettify(this.mTexts), groups: this.prettify(this.mGroup) }
+    const scripts = this.prettify(this.mScripts);
     await notifyTools.notifyBackground({ command: "setScripts", data: scripts });
     await notifyTools.notifyBackground({ command: "setTemplates", data: templates });
-    this.startEditing();
-
     await notifyTools.notifyBackground({ command: "checkBadNameEntries", data: { scripts, templates } });
+    this.startEditing();
 
     this.notifyObservers("updatesettings", "");
   },

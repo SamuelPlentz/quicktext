@@ -129,7 +129,7 @@ var gQuicktext = {
     this.mDefaultImport = await notifyTools.notifyBackground({ command: "getPref", pref: "defaultImport" });
 
     // Managed prefs cannot be changed by the user.
-    for (let {pref, elemId, m} of [
+    for (let { pref, elemId, m } of [
       { pref: "menuCollapse", elemId: "checkbox-collapseGroup", m: this.mCollapseGroup },
       { pref: "popup", elemId: "checkbox-viewPopup", m: this.mViewPopup },
       { pref: "keywordKey", elemId: "select-keywordKey", m: this.mKeywordKey },
@@ -192,11 +192,16 @@ var gQuicktext = {
     await notifyTools.notifyBackground({ command: "setPref", pref: "collapseState", value: this.mCollapseState });
     await notifyTools.notifyBackground({ command: "setPref", pref: "defaultImport", value: this.mDefaultImport });
 
+    const templates = { texts: this.prettify(this.mTexts), groups: this.prettify(this.mGroup) }
+    const scripts = this.prettify(this.mScripts);
+
     // Save templates and scripts.
     this.endEditing();
-    await notifyTools.notifyBackground({ command: "setScripts", data: this.prettify(this.mScripts) });
-    await notifyTools.notifyBackground({ command: "setTemplates", data: { texts: this.prettify(this.mTexts), groups: this.prettify(this.mGroup) } });
+    await notifyTools.notifyBackground({ command: "setScripts", data: scripts });
+    await notifyTools.notifyBackground({ command: "setTemplates", data: templates });
     this.startEditing();
+
+    await notifyTools.notifyBackground({ command: "checkBadNameEntries", data: { scripts, templates } });
 
     this.notifyObservers("updatesettings", "");
   },
@@ -1314,7 +1319,7 @@ var settingsDialog = {
     const file = await gQuicktext.pickFile([5, 3], 0, extension.localeData.localizeMessage("importFile"));
     if (!file) return;
     const templates = await notifyTools.notifyBackground({ command: "parseTemplateFileForImport", path: file.path });
-    
+
     if (!templates) return;
 
     this.saveText();
@@ -1339,7 +1344,7 @@ var settingsDialog = {
     const file = await gQuicktext.pickFile([5, 3], 0, extension.localeData.localizeMessage("importFile"));
     if (!file) return;
     const scripts = await notifyTools.notifyBackground({ command: "parseScriptFileForImport", path: file.path });
-    
+
     if (!scripts) return;
 
     this.saveText();

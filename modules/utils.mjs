@@ -328,3 +328,23 @@ export async function removeProtectedScripts(scripts) {
     }
     return scripts;
 }
+
+export async function checkBadNameEntries(templates, scripts) {
+    let badEntries = 0;
+    if (templates?.groups) {
+        badEntries += templates.groups.filter(e => e.name.includes("|")).length;
+    }
+    if (templates?.texts) {
+        badEntries += templates.texts.flat().filter(e => e.name.includes("|")).length;
+    }
+    if (scripts) {
+        badEntries += scripts.filter(e => e.name.includes("|")).length
+    }
+    if (badEntries > 0) {
+        browser.notifications.create("qt-bad-entries", {
+            type: "basic",
+            title: "Quicktext v6",
+            message: `Some of your template, group or script names include the forbidden pipe char ("|"). These entries will not work.`,
+        });
+    }
+}

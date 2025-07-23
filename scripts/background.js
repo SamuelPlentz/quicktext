@@ -31,13 +31,15 @@ browser.notifications.onClicked.addListener(notificationId => {
     case "qt-deprecate-default-file-import":
       browser.tabs.create({
         url: `https://github.com/jobisoft/quicktext/wiki/Centrally-manage-configurations-and-templates`,
-      })
+      });
       break;
     case "qt-update":
       browser.tabs.create({
         url: `https://github.com/jobisoft/quicktext/releases/tag/v${browser.runtime.getManifest().version}`,
-      })
+      });
       break;
+    case "qt-bad-entries":
+      browser.Quicktext.openTemplateManager();
   }
 })
 
@@ -90,7 +92,6 @@ if (!scripts) {
 // Remove managed templates.
 let cleanedTemplates = await utils.removeProtectedTemplates(templates);
 if (templates != cleanedTemplates) {
-  console.log("Removed protected templates", cleanedTemplates, templates)
   templates = cleanedTemplates;
   await storage.setTemplates(templates);
 }
@@ -98,7 +99,6 @@ if (templates != cleanedTemplates) {
 // Remove managed scripts.
 let cleanedScripts = await utils.removeProtectedScripts(scripts);
 if (scripts != cleanedScripts) {
-  console.log("Removed protected scripts")
   scripts = cleanedScripts;
   await storage.setScripts(scripts);
 }
@@ -150,6 +150,9 @@ try {
   // No managed storage.
 }
 
+// Check if templates or scripts use the pipe char ("|") in names.
+await utils.checkBadNameEntries(templates, scripts);
+
 // NotifyTools needed by Experiment code to access WebExtension code.
 messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
   switch (info.command) {
@@ -168,7 +171,9 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
       return storage.setTemplates(info.data);
     case "getTemplates":
       return storage.getTemplates();
-
+    case "checkBadNameEntries": {
+      return utils.checkBadNameEntries(info.data.templates, info.data.scripts)
+    }
     case "openWebPage":
       return browser.windows.openDefaultBrowser(info.url);
 

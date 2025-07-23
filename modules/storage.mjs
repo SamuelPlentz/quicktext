@@ -115,12 +115,12 @@ export async function migrate() {
     const aValue = await browser.storage.local
       .get({ [`${aName}.value`]: undefined })
       .then(o => o[`${aName}.value`]);
-    if (aValue) {
+    if (aValue !== undefined) {
       await browser.storage.local.remove(`${aName}.value`);
       await browser.storage.local.set({ [aName]: aValue });
     }
     await browser.storage.local.remove(`${aName}.default`);
-    await browser.storage.local.remove(`${aName}.managed`);
+    await browser.storage.local.remove(`${aName}.managed.value`);
   }
 }
 

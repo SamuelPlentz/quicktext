@@ -1,0 +1,35 @@
+{
+    "name": "{8845E3B3-E8FB-40E2-95E9-EC40294818C4}",
+    "description": "Managed storage for Quicktext Thunderbird Add-on",
+    "type": "storage",
+    "data": {
+        "menuCollapse": true,
+        "defaultImport": "C:\\Users\\John\\Documents\\GitHub\\quicktext\\storage.json",
+        "templates": {
+            "groups": [
+                {
+                    "name": "Imported"
+                }
+            ],
+            "texts": [
+                [
+                    {
+                        "name": "Imported #1",
+                        "text": "(asdasd [[CURSOR]] sdsfsdfs)\n\n[[TEXT=Test2|HTML]]",
+                        "shortcut": "1",
+                        "type": "text/html",
+                        "keyword": "hi",
+                        "subject": "",
+                        "attachments": ""
+                    }
+                ]
+            ]
+        },
+        "scripts": [
+            {
+                "name": "console2",
+                "script": "console.log(this)"
+            }
+        ]
+    }
+}

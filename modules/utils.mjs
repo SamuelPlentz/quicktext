@@ -109,14 +109,28 @@ export async function writeFileToDisc(data, filename) {
     const url = URL.createObjectURL(blob);
 
     try {
-        await browser.downloads.download({
+        let id = null;
+        const { promise, resolve } = Promise.withResolvers();
+
+        const listener = delta => {
+            if (id == delta.id && delta.state?.current === 'complete') {
+                browser.downloads.onChanged.removeListener(listener);
+                resolve();
+            }
+        }
+
+        browser.downloads.onChanged.addListener(listener);
+        id = await browser.downloads.download({
             url,
             filename,
             saveAs: true,
         });
+
+        await promise;
     } catch (error) {
         console.error("Error downloading the file:", error);
     }
+
     URL.revokeObjectURL(url);
 }
 

@@ -87,32 +87,19 @@ if (!scripts) {
   await storage.setScripts(scripts);
 }
 
-// Remove previously imported templates.
-const managedTemplatesIndices = new Set(
-  templates.groups.reduce((indices, value, index) => {
-    if (value.protected) {
-      indices.push(index);
-    }
-    return indices;
-  }, [])
-);
-if (managedTemplatesIndices.size > 0) {
-  templates.groups = templates.groups.filter((_, index) => !managedTemplatesIndices.has(index));
-  templates.texts = templates.texts.filter((_, index) => !managedTemplatesIndices.has(index));
+// Remove managed templates.
+let cleanedTemplates = await utils.removeProtectedTemplates(templates);
+if (templates != cleanedTemplates) {
+  console.log("Removed protected templates", cleanedTemplates, templates)
+  templates = cleanedTemplates;
   await storage.setTemplates(templates);
 }
 
-// Remove previously imported scripts.
-const managedScriptsIndices = new Set(
-  scripts.reduce((indices, value, index) => {
-    if (value.protected) {
-      indices.push(index);
-    }
-    return indices;
-  }, [])
-);
-if (managedScriptsIndices.size > 0) {
-  scripts = scripts.filter((_, index) => !managedScriptsIndices.has(index));
+// Remove managed scripts.
+let cleanedScripts = await utils.removeProtectedScripts(scripts);
+if (scripts != cleanedScripts) {
+  console.log("Removed protected scripts")
+  scripts = cleanedScripts;
   await storage.setScripts(scripts);
 }
 
@@ -185,8 +172,14 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
     case "openWebPage":
       return browser.windows.openDefaultBrowser(info.url);
 
-    case "parseConfigFile":
-      return browser.Quicktext.readTextFile(info.path).then(quicktext.parseConfigFileData);
+    case "parseTemplateFileForImport":
+      return browser.Quicktext.readTextFile(info.path)
+        .then(quicktext.parseConfigFileData)
+        .then(parsedData => utils.removeProtectedTemplates(parsedData?.templates))
+    case "parseScriptFileForImport":
+      return browser.Quicktext.readTextFile(info.path)
+        .then(quicktext.parseConfigFileData)
+        .then(parsedData => utils.removeProtectedScripts(parsedData?.scripts))
     case "pickAndParseConfigFile":
       // Currently not used. Instead the settings window keeps using the legacy
       // file picker.

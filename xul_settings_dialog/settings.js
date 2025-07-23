@@ -1313,15 +1313,15 @@ var settingsDialog = {
     // const parsedData = await notifyTools.notifyBackground({ command: "pickAndParseConfigFile" });
     const file = await gQuicktext.pickFile([5, 3], 0, extension.localeData.localizeMessage("importFile"));
     if (!file) return;
-    const parsedData = await notifyTools.notifyBackground({ command: "parseConfigFile", path: file.path });
+    const templates = await notifyTools.notifyBackground({ command: "parseTemplateFileForImport", path: file.path });
     
-    if (!parsedData || !parsedData.templates) return;
+    if (!templates) return;
 
     this.saveText();
     this.saveScript();
     var length = this.mTreeArray.length;
 
-    gQuicktext.importTemplates(parsedData.templates)
+    gQuicktext.importTemplates(templates)
 
     this.changesMade();
     this.makeTreeArray();
@@ -1338,14 +1338,14 @@ var settingsDialog = {
     // const parsedData = await notifyTools.notifyBackground({ command: "pickAndParseConfigFile" });
     const file = await gQuicktext.pickFile([5, 3], 0, extension.localeData.localizeMessage("importFile"));
     if (!file) return;
-    const parsedData = await notifyTools.notifyBackground({ command: "parseConfigFile", path: file.path });
+    const scripts = await notifyTools.notifyBackground({ command: "parseScriptFileForImport", path: file.path });
     
-    if (!parsedData || !parsedData.scripts) return;
+    if (!scripts) return;
 
     this.saveText();
     this.saveScript();
 
-    gQuicktext.importScripts(parsedData.scripts)
+    gQuicktext.importScripts(scripts)
 
     this.changesMade();
     this.updateScriptGUI();

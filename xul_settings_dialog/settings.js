@@ -1513,13 +1513,26 @@ var settingsDialog = {
     }
   },
 
+  makeUnique: function (name, arr) {
+    let suffix = 1;
+    let unique = name;
+    while (arr.includes(unique)) {
+      suffix++;
+      unique = `${name} #${suffix}`
+    }
+    return unique;
+  },
+
   /*
    * Add/Remove groups/templates
    */
   addGroup: function () {
-    var title = extension.localeData.localizeMessage("newGroup");
     this.saveText();
 
+    let title = this.makeUnique(
+      extension.localeData.localizeMessage("newGroup"),
+      gQuicktext.mEditingGroup.map(g => g.mName)
+    );
     gQuicktext.addGroup(title, true);
     this.mCollapseState.push(true);
 
@@ -1539,7 +1552,6 @@ var settingsDialog = {
     titleElem.setSelectionRange(0, title.length);
   },
   addText: function () {
-    var title = extension.localeData.localizeMessage("newTemplate");
     this.saveText();
 
     var groupIndex = -1;
@@ -1554,6 +1566,10 @@ var settingsDialog = {
         groupIndex = 0;
     }
 
+    let title = this.makeUnique(
+      extension.localeData.localizeMessage("newTemplate"),
+      gQuicktext.mEditingTexts[groupIndex].map(t => t.mName)
+    );
     gQuicktext.addText(groupIndex, title, true);
 
     this.makeTreeArray();
@@ -1641,7 +1657,10 @@ var settingsDialog = {
   addScript: function () {
     this.saveScript();
 
-    var title = extension.localeData.localizeMessage("newScript");
+    let title = this.makeUnique(
+      extension.localeData.localizeMessage("newScript"),
+      gQuicktext.mEditingScripts.map(s => s.mName)
+    );
     gQuicktext.addScript(title, true);
 
     this.updateScriptGUI();

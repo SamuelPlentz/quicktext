@@ -362,3 +362,54 @@ export async function checkBadNameEntries(templates, scripts) {
         });
     }
 }
+
+export async function checkDuplicatedEntries(templates) {
+    const findDuplicates = array => {
+        const seen = new Set();
+        const duplicates = new Set();
+        for (const item of array) {
+            if (seen.has(item)) {
+                duplicates.add(item);
+            } else {
+                seen.add(item);
+            }
+        }
+        return [...duplicates];
+    }
+    const createNotification = async message => {
+        await browser.notifications.create(
+            "qt-duplicated-entries", {
+            type: "basic",
+            title: "Quicktext v6",
+            message
+        });
+        console.warn(`[Quicktext v6] ${message}`)
+    }
+
+    const groupNames = templates?.groups
+        ? templates.groups.map(e => e.name.trim())
+        : []
+    const duplicatedGroupNames = findDuplicates(groupNames);
+    if (duplicatedGroupNames.length) {
+        await createNotification(
+            `Invalid template data, multiple groups with the same name: ${duplicatedGroupNames.join(", ")}`
+        );
+    }
+
+    if (templates?.texts) {
+        if (templates.texts.length != groupNames.length) {
+            await createNotification(
+                `Invalid template data, number of groups does not match number of template groups.`
+            );
+        }
+        for (let i = 0; i < templates.texts.length; i++) {
+            const names = templates.texts[i].map(e => e.name.trim());
+            const duplicatedNames = findDuplicates(names);
+            if (duplicatedNames.length) {
+                await createNotification(
+                    `Invalid template data, multiple templates in group "${groupNames[i]}" with the same name: ${duplicatedNames.join(", ")}`
+                )
+            }
+        }
+    }
+}

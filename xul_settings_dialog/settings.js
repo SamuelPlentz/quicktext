@@ -198,7 +198,7 @@ var gQuicktext = {
     const scripts = this.prettify(this.mScripts);
     await notifyTools.notifyBackground({ command: "setScripts", data: scripts });
     await notifyTools.notifyBackground({ command: "setTemplates", data: templates });
-    await notifyTools.notifyBackground({ command: "checkBadNameEntries", data: { scripts, templates } });
+    await notifyTools.notifyBackground({ command: "checkBadEntries", data: { scripts, templates } });
     this.startEditing();
 
     this.notifyObservers("updatesettings", "");

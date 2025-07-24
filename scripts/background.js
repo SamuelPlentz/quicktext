@@ -150,8 +150,9 @@ try {
   // No managed storage.
 }
 
-// Check if templates or scripts use the pipe char ("|") in names.
+// Check if templates or scripts are invalid.
 await utils.checkBadNameEntries(templates, scripts);
+await utils.checkDuplicatedEntries(templates);
 
 // NotifyTools needed by Experiment code to access WebExtension code.
 messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
@@ -171,9 +172,9 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
       return storage.setTemplates(info.data);
     case "getTemplates":
       return storage.getTemplates();
-    case "checkBadNameEntries": {
-      return utils.checkBadNameEntries(info.data.templates, info.data.scripts)
-    }
+    case "checkBadEntries":
+      await utils.checkBadNameEntries(info.data.templates, info.data.scripts);
+      return utils.checkDuplicatedEntries(info.data.templates);
     case "openWebPage":
       return browser.windows.openDefaultBrowser(info.url);
 

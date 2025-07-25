@@ -601,7 +601,7 @@ var settingsDialog = {
     this.mScriptChangesMade = [];
     this.mGeneralChangesMade = [];
     this.disableSave();
-    this.updateGUI();
+    await this.updateGUI();
   },
   saveText: function () {
     if (this.mPickedIndex != null) {
@@ -754,7 +754,7 @@ var settingsDialog = {
         gQuicktext.mEditingTexts[this.mPickedIndex[0]][this.mPickedIndex[1]].mName = value;
       } else {
         gQuicktext.mEditingGroup[this.mPickedIndex[0]].mName = value;
-      } 
+      }
     }
 
     if (aIndex == 0 || aIndex == 2) {
@@ -876,15 +876,9 @@ var settingsDialog = {
   /*
    * GUI CHANGES
    */
-  updateGUI: function () {
-    const dateTimeFormat = (format, timeStamp) => {
-      let options = {};
-      options["date-short"] = { dateStyle: "short" };
-      options["date-long"] = { dateStyle: "long" };
-      options["date-monthname"] = { month: "long" };
-      options["time-noseconds"] = { timeStyle: "short" };
-      options["time-seconds"] = { timeStyle: "long" };
-      return new Services.intl.DateTimeFormat(undefined, options[format.toLowerCase()]).format(timeStamp)
+  updateGUI: async function () {
+    const dateTimeFormat = async (format, timeStamp) => {
+      return notifyTools.notifyBackground({ command: "getDateTimeFormat", data: { format, timeStamp } });
     }
 
     // Set the date/time in the variablemenu
@@ -892,11 +886,11 @@ var settingsDialog = {
     let fields = ["date-short", "date-long", "date-monthname", "time-noseconds", "time-seconds"];
     for (let i = 0; i < fields.length; i++) {
       let field = fields[i];
-      let fieldtype = field.split("-")[0];
+      let fieldType = field.split("-")[0];
       if (document.getElementById(field)) {
         document.getElementById(field).setAttribute(
           "label",
-          extension.localeData.localizeMessage(fieldtype, [dateTimeFormat(field, timeStamp)])
+          extension.localeData.localizeMessage(fieldType, [await dateTimeFormat(field, timeStamp)])
         );
       }
     }

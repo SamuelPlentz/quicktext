@@ -178,6 +178,9 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
     case "openWebPage":
       return browser.windows.openDefaultBrowser(info.url);
 
+    case "getDateTimeFormat":
+      return utils.getDateTimeFormat(info.data.format, info.data.timeStamp);
+
     case "parseTemplateFileForImport":
       return browser.Quicktext.readTextFile(info.path)
         .then(quicktext.parseConfigFileData)

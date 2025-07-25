@@ -606,11 +606,11 @@ var settingsDialog = {
   saveText: function () {
     if (this.mPickedIndex != null) {
       if (this.mPickedIndex[1] > -1) {
-        var title = document.getElementById('text-title').value;
-        if (title.replace(/[\s]/g, '') == "")
-          title = extension.localeData.localizeMessage("newTemplate");
-
-        this.saveTextCell(this.mPickedIndex[0], this.mPickedIndex[1], 'name', title);
+        // The title is updated in the onchange event.
+        //var title = document.getElementById('text-title').value;
+        //if (title.replace(/[\s]/g, '') == "")
+        //  title = extension.localeData.localizeMessage("newTemplate");
+        //this.saveTextCell(this.mPickedIndex[0], this.mPickedIndex[1], 'name', title);
         this.saveTextCell(this.mPickedIndex[0], this.mPickedIndex[1], 'text', document.getElementById('text').value);
 
         if (gQuicktext.shortcutTypeAdv)
@@ -624,11 +624,11 @@ var settingsDialog = {
         this.saveTextCell(this.mPickedIndex[0], this.mPickedIndex[1], 'attachments', document.getElementById('text-attachments').value);
       }
       else {
-        var title = document.getElementById('text-title').value;
-        if (title.replace(/[\s]/g, '') == "")
-          title = extension.localeData.localizeMessage("newGroup");
-
-        this.saveGroupCell(this.mPickedIndex[0], 'name', title);
+        // The title is updated in the onchange event.
+        //var title = document.getElementById('text-title').value;
+        //if (title.replace(/[\s]/g, '') == "")
+        //  title = extension.localeData.localizeMessage("newGroup");
+        //this.saveGroupCell(this.mPickedIndex[0], 'name', title);
       }
     }
   },
@@ -654,11 +654,11 @@ var settingsDialog = {
   },
   saveScript: function () {
     if (this.mScriptIndex != null) {
-      var title = document.getElementById('script-title').value;
-      if (title.replace(/[\s]/g, '') == "")
-        title = extension.localeData.localizeMessage("newScript");
-
-      this.saveScriptCell(this.mScriptIndex, 'name', title);
+      // The title is updated in the onchange event.
+      //var title = document.getElementById('script-title').value;
+      //if (title.replace(/[\s]/g, '') == "")
+      //  title = extension.localeData.localizeMessage("newScript");
+      //this.saveScriptCell(this.mScriptIndex, 'name', title);
       this.saveScriptCell(this.mScriptIndex, 'script', document.getElementById('script').value);
     }
   },
@@ -704,37 +704,57 @@ var settingsDialog = {
     if (gQuicktext.shortcutTypeAdv)
       ids[2] = 'text-shortcutAdv';
 
-    var value = document.getElementById(ids[aIndex]).value;
+    let element = document.getElementById(ids[aIndex])
+    var value = element.value;
     switch (aIndex) {
       case 0:
-        if (value.replace(/[\s]/g, '') == "")
-          if (this.mPickedIndex[1] > -1)
+        if (this.mPickedIndex[1] > -1) {
+          if (value.replace(/[\s]/g, '') == "") {
             value = extension.localeData.localizeMessage("newTemplate");
-          else
+          }
+          // Prevent duplicated names.
+          value = this.makeUnique(value, gQuicktext.mEditingTexts[this.mPickedIndex[0]].map(t => t.mName));
+        } else {
+          if (value.replace(/[\s]/g, '') == "") {
             value = extension.localeData.localizeMessage("newGroup");
+          }
+          // Prevent duplicated names.
+          value = this.makeUnique(value, gQuicktext.mEditingGroup.map(g => g.mName))
+        }
         break;
       case 2:
         if (gQuicktext.shortcutTypeAdv) {
           value = value.replace(/[^\d]/g, '');
-          document.getElementById(ids[aIndex]).value = value;
+          element.value = value;
         }
       case 4:
         value = value.replace(/[\s]/g, '');
-        document.getElementById(ids[aIndex]).value = value;
+        element.value = value;
         break;
     }
 
     if (this.mPickedIndex[1] > -1) {
-      if (gQuicktext.getText(this.mPickedIndex[0], this.mPickedIndex[1], true)[keys[aIndex]] != value)
+      if (gQuicktext.getText(this.mPickedIndex[0], this.mPickedIndex[1], true)[keys[aIndex]] != value) {
         this.textChangeMade(aIndex);
-      else
+      } else {
         this.noTextChangeMade(aIndex);
+      }
     }
     else {
-      if (gQuicktext.getGroup(this.mPickedIndex[0], true)[keys[aIndex]] != value)
+      if (gQuicktext.getGroup(this.mPickedIndex[0], true)[keys[aIndex]] != value) {
         this.textChangeMade(aIndex);
-      else
+      } else {
         this.noTextChangeMade(aIndex);
+      }
+    }
+
+    // Auto-save names.
+    if (aIndex == 0) {
+      if (this.mPickedIndex[1] > -1) {
+        gQuicktext.mEditingTexts[this.mPickedIndex[0]][this.mPickedIndex[1]].mName = value;
+      } else {
+        gQuicktext.mEditingGroup[this.mPickedIndex[0]].mName = value;
+      } 
     }
 
     if (aIndex == 0 || aIndex == 2) {
@@ -759,8 +779,11 @@ var settingsDialog = {
     var value = document.getElementById(ids[aIndex]).value;
     switch (aIndex) {
       case 0:
-        if (value.replace(/[\s]/g, '') == "")
+        if (value.replace(/[\s]/g, '') == "") {
           value = extension.localeData.localizeMessage("newScript");
+        }
+        // Prevent duplicated names.
+        value = this.makeUnique(value, gQuicktext.mEditingScripts.map(t => t.mName));
         break;
     }
 
@@ -770,6 +793,9 @@ var settingsDialog = {
       this.noScriptChangeMade(aIndex);
 
     if (aIndex == 0) {
+      // Auto-save names.
+      gQuicktext.mEditingScripts[this.mScriptIndex].mName = value;
+
       this.updateVariableGUI();
       var listItem = document.getElementById('script-list').getItemAtIndex(this.mScriptIndex);
       listItem.firstChild.value = value;

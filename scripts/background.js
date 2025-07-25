@@ -152,7 +152,7 @@ try {
 
 // Check if templates or scripts are invalid.
 await utils.checkBadNameEntries(templates, scripts);
-await utils.checkDuplicatedEntries(templates);
+await utils.checkDuplicatedEntries(templates, scripts);
 
 // NotifyTools needed by Experiment code to access WebExtension code.
 messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
@@ -174,7 +174,7 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
       return storage.getTemplates();
     case "checkBadEntries":
       await utils.checkBadNameEntries(info.data.templates, info.data.scripts);
-      return utils.checkDuplicatedEntries(info.data.templates);
+      return utils.checkDuplicatedEntries(info.data.templates, info.data.scripts);
     case "openWebPage":
       return browser.windows.openDefaultBrowser(info.url);
 

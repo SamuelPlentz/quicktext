@@ -363,7 +363,7 @@ export async function checkBadNameEntries(templates, scripts) {
     }
 }
 
-export async function checkDuplicatedEntries(templates) {
+export async function checkDuplicatedEntries(templates, scripts) {
     const findDuplicates = array => {
         const seen = new Set();
         const duplicates = new Set();
@@ -386,7 +386,17 @@ export async function checkDuplicatedEntries(templates) {
         console.warn(`[Quicktext v6] ${message}`)
     }
 
-    const groupNames = templates?.groups
+    const scriptNames = Array.isArray(scripts)
+        ? scripts.map(e => e.name.trim())
+        : []
+    const duplicatedScriptNames = findDuplicates(scriptNames);
+    if (duplicatedScriptNames.length) {
+        await createNotification(
+            `Invalid script data, multiple scripts with the same name: ${duplicatedScriptNames.join(", ")}`
+        );
+    }
+
+    const groupNames = Array.isArray(templates?.groups)
         ? templates.groups.map(e => e.name.trim())
         : []
     const duplicatedGroupNames = findDuplicates(groupNames);
@@ -396,15 +406,15 @@ export async function checkDuplicatedEntries(templates) {
         );
     }
 
-    if (templates?.texts) {
+    if (Array.isArray(templates?.texts)) {
         if (templates.texts.length != groupNames.length) {
             await createNotification(
                 `Invalid template data, number of groups does not match number of template groups.`
             );
         }
         for (let i = 0; i < templates.texts.length; i++) {
-            const names = templates.texts[i].map(e => e.name.trim());
-            const duplicatedNames = findDuplicates(names);
+            const textNames = templates.texts[i].map(e => e.name.trim());
+            const duplicatedNames = findDuplicates(textNames);
             if (duplicatedNames.length) {
                 await createNotification(
                     `Invalid template data, multiple templates in group "${groupNames[i]}" with the same name: ${duplicatedNames.join(", ")}`

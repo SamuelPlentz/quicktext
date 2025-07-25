@@ -1534,11 +1534,12 @@ var settingsDialog = {
   },
 
   makeUnique: function (name, arr) {
+    let sanitizedName = name.replaceAll("|", "/");
     let suffix = 1;
-    let unique = name;
+    let unique = sanitizedName;
     while (arr.includes(unique)) {
       suffix++;
-      unique = `${name} #${suffix}`
+      unique = `${sanitizedName} #${suffix}`
     }
     return unique;
   },

@@ -150,10 +150,6 @@ try {
   // No managed storage.
 }
 
-// Check if templates or scripts are invalid.
-await utils.checkBadNameEntries(templates, scripts);
-await utils.checkDuplicatedEntries(templates, scripts);
-
 // NotifyTools needed by Experiment code to access WebExtension code.
 messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
   switch (info.command) {
@@ -321,3 +317,7 @@ new storage.StorageListener(
     }
   }
 )
+
+// Check if templates or scripts are invalid.
+await utils.checkBadNameEntries(templates, scripts);
+await utils.checkDuplicatedEntries(templates, scripts);

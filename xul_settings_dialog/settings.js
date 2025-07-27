@@ -531,6 +531,11 @@ var settingsDialog = {
     document.getElementById("savebutton").addEventListener("command", function (e) { settingsDialog.save(); }, false);
     document.getElementById("closebutton").addEventListener("command", function (e) { settingsDialog.close(true); }, false);
     document.getElementById("helpbutton").addEventListener("command", function (e) { settingsDialog.openHomepage(); }, false);
+
+    // Update boxHeightOffset
+    let scriptListElem = document.getElementById('script-list');
+    let elementHeight = scriptListElem.getBoundingClientRect().height;
+    boxHeightOffset = window.innerHeight-elementHeight;
   },
   unload: function () {
     gQuicktext.removeObserver(this);
@@ -997,12 +1002,15 @@ var settingsDialog = {
           listItem.value = i;
         }
         else {
+          // Keep the height of the script list fixed, prevent it growing.
+          let elementHeight = listElem.getBoundingClientRect().height;
           let newItem = document.createXULElement("richlistitem");
           newItem.value = i;
           let newItemLabel = document.createXULElement("label");
           newItemLabel.value = script.name;
           newItem.appendChild(newItemLabel);
           listElem.appendChild(newItem);
+          listElem.style.height = `${elementHeight}px`;
         }
       }
     }
@@ -1752,3 +1760,11 @@ var settingsDialog = {
 
 window.addEventListener("DOMContentLoaded", () => settingsDialog.init());
 window.addEventListener("unload", () => settingsDialog.unload());
+window.addEventListener('resize', () => {
+  // Keep the known offset between window size and script list size, to make it
+  // correctly adjust to the changed window size.
+  let listElem = document.getElementById('script-list');
+  listElem.style.height = `${Math.max(150, window.innerHeight - boxHeightOffset)}px`;
+});
+
+

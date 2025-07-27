@@ -7,7 +7,6 @@
   xmlns:xul="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
   persist="width height screenX screenY sizemode"
-  sstyle="padding: 5px;"
   width="600"
   height="400">
 
@@ -327,7 +326,9 @@
                     <hbox><legend class="insideTab">__MSG_quicktext.title.label__</legend></hbox>
                     <hbox><button id="script-button-add" label="__MSG_quicktext.addScript.label__" flex="1" oncommand="settingsDialog.addScript();" accesskey="__MSG_quicktext.accesskey.addScript__"/></hbox>
                     <hbox><button label="__MSG_quicktext.getScript.label__" flex="1" oncommand="settingsDialog.getCommunityScripts();" accesskey="__MSG_quicktext.accesskey.communityScripts__"/></hbox>
-                    <richlistbox id="script-list" flex="1" onselect="settingsDialog.pickScript();"/>
+                    <hbox flex="1">
+                      <richlistbox id="script-list" onselect="settingsDialog.pickScript();"/>
+                    </hbox>
                     <hbox><button id="script-button-remove" label="__MSG_quicktext.remove.label__" flex="1" oncommand="settingsDialog.removeScript();" accesskey="__MSG_quicktext.accesskey.remove__"/></hbox>
                   </vbox>
                 </fieldset>

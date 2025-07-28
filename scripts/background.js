@@ -10,11 +10,16 @@ import * as menus from "../modules/menus.mjs";
 import * as utils from "../modules/utils.mjs";
 
 browser.runtime.onInstalled.addListener(details => {
+  let manifest = browser.runtime.getManifest();
+  if (!manifest.browser_specific_settings.gecko.update_url) {
+    return
+  };
+
   if (details.reason == "update") {
     browser.notifications.create("qt-update", {
       type: "basic",
       title: "Quicktext v6",
-      message: `Quicktext pre-release was updated to v${browser.runtime.getManifest().version}\n(new script engine, click for details)`,
+      message: `Quicktext GitHub Edition was updated to v${manifest.version}. Click for details.`,
     });
   }
 });

@@ -19,6 +19,12 @@ const OS = Services.appinfo.OS;
 
 Services.scriptloader.loadSubScript("resource://quicktext/api/NotifyTools/notifyTools.js", window, "UTF-8");
 
+
+function isIncompatibleScript(script) {
+  const targets = ["this.mWindow", "this.mVariables", "this.mQuicktext"];
+  return script && targets.some(target => script.script.includes(target));
+}
+
 // This exists for historic reasons, but all of it is related to the settings
 // dialog as well.
 var gQuicktext = {
@@ -531,11 +537,12 @@ var settingsDialog = {
     document.getElementById("savebutton").addEventListener("command", function (e) { settingsDialog.save(); }, false);
     document.getElementById("closebutton").addEventListener("command", function (e) { settingsDialog.close(true); }, false);
     document.getElementById("helpbutton").addEventListener("command", function (e) { settingsDialog.openHomepage(); }, false);
+    document.getElementById("scripthelpbutton").addEventListener("command", function (e) { settingsDialog.openScriptHelp(); }, false);
 
     // Update boxHeightOffset
     let scriptListElem = document.getElementById('script-list');
     let elementHeight = scriptListElem.getBoundingClientRect().height;
-    boxHeightOffset = window.innerHeight-elementHeight;
+    boxHeightOffset = window.innerHeight - elementHeight;
   },
   unload: function () {
     gQuicktext.removeObserver(this);
@@ -1000,15 +1007,31 @@ var settingsDialog = {
           var listItem = listElem.getItemAtIndex(i);
           listItem.firstChild.value = script.name;
           listItem.value = i;
-        }
-        else {
+
+          let isIncompatible = isIncompatibleScript(script);
+          if (listItem.children.length > 1 && !isIncompatible) {
+            listItem.children[1].remove();
+          } else if (listItem.children.length == 1 && isIncompatible) {
+            let newItemWarning = document.createXULElement("label");
+            newItemWarning.value = "⚠️";
+            listItem.appendChild(newItemWarning);
+          };
+        } else {
           // Keep the height of the script list fixed, prevent it growing.
           let elementHeight = listElem.getBoundingClientRect().height;
           let newItem = document.createXULElement("richlistitem");
           newItem.value = i;
+
           let newItemLabel = document.createXULElement("label");
           newItemLabel.value = script.name;
           newItem.appendChild(newItemLabel);
+
+          if (isIncompatibleScript(script)) {
+            let newItemWarning = document.createXULElement("label");
+            newItemWarning.value = "⚠️";
+            newItem.appendChild(newItemWarning);
+          }
+
           listElem.appendChild(newItem);
           listElem.style.height = `${elementHeight}px`;
         }
@@ -1430,6 +1453,15 @@ var settingsDialog = {
       document.getElementById('script-button-remove').setAttribute("disabled", true);
     else
       document.getElementById('script-button-remove').removeAttribute("disabled");
+
+    if (isIncompatibleScript(script)) {
+      document.getElementById('scripthelpbutton').style.display = "block";
+      document.getElementById('scriptwarning').style.display = "block";
+    } else {
+      document.getElementById('scripthelpbutton').style.display = "none";
+      document.getElementById('scriptwarning').style.display = "none";
+    }
+
   },
   pickText: function () {
     var index = document.getElementById('group-tree').view.selection.currentIndex;
@@ -1743,6 +1775,9 @@ var settingsDialog = {
   },
   openHomepage: function () {
     notifyTools.notifyBackground({ command: "openWebPage", url: "https://github.com/jobisoft/quicktext/wiki/" });
+  },
+  openScriptHelp: function () {
+    notifyTools.notifyBackground({ command: "openWebPage", url: "https://github.com/jobisoft/quicktext/issues/451" });
   },
   resetCounter: function () {
     notifyTools.notifyBackground({ command: "setPref", pref: "counter", value: 0 });

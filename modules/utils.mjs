@@ -423,3 +423,18 @@ export async function checkDuplicatedEntries(templates, scripts) {
         }
     }
 }
+
+export async function checkForIncompatibleScripts(scripts) {
+    const targets = ["this.mWindow", "this.mVariables", "this.mQuicktext"];
+    const incompatibleScripts = scripts.filter(s =>
+        targets.some(target => s.script.includes(target))
+    );
+    if (incompatibleScripts.length > 0) {
+        browser.notifications.create("qt-incompatible-scripts", {
+            type: "basic",
+            title: "Quicktext v6 - Incompatible Scripts!",
+            message: `Some of your scripts (for example ${incompatibleScripts.map(s => `'${s.name}'`).slice(0,2).join(" and ")}) are incompatible with Quicktext v6. Click for more details.`,
+        });
+
+    }
+}

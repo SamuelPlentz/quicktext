@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "applications": {
+  "browser_specific_settings": {
     "gecko": {
       "id": "{8845E3B3-E8FB-40E2-95E9-EC40294818C4}",
       "update_url": "https://raw.githubusercontent.com/jobisoft/quicktext/refs/heads/Main/updates.json",

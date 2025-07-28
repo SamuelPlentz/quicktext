@@ -45,6 +45,12 @@ browser.notifications.onClicked.addListener(notificationId => {
       break;
     case "qt-bad-entries":
       browser.Quicktext.openTemplateManager();
+      break;
+    case "qt-incompatible-scripts":
+      browser.tabs.create({
+        url: `https://github.com/jobisoft/quicktext/issues/451`,
+      });
+      break;
   }
 })
 
@@ -326,3 +332,4 @@ new storage.StorageListener(
 // Check if templates or scripts are invalid.
 await utils.checkBadNameEntries(templates, scripts);
 await utils.checkDuplicatedEntries(templates, scripts);
+await utils.checkForIncompatibleScripts(scripts);

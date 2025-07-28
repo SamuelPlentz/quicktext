@@ -356,6 +356,19 @@
 
                       <vbox class="textarea-container" style="display:flex; flex-direction: column;" flex="1">
                         <html:textarea id="script" style="font-family:Consolas,Courier New,monospace; flex:1" disabled="true" wrap="off" oninput="settingsDialog.checkForScriptChanges(1);"/>
+                        <html:div id="scriptwarning" style="
+                            display:none;
+                            position: absolute;
+                            bottom: 2em;
+                            right: 15px;
+                            font-size: 1em;
+                            color: red;
+                            pointer-events: none; ">
+                            ⚠️ __MSG_quicktext.scripthelp.label__ (Quicktext v6)
+                          </html:div>
+                      </vbox>
+                      <vbox>
+
                       </vbox>
                   </vbox>
                 </fieldset>
@@ -368,6 +381,7 @@
 
     <hbox style="margin: 5px">
       <div flex="1"></div>
+      <button id="scripthelpbutton" label="__MSG_quicktext.scripthelp.label__?" style="display:none"/>
       <button id="helpbutton" label="__MSG_quicktext.help.label__"/>
       <button id="savebutton" label="__MSG_quicktext.save.label__"/>
       <button id="closebutton" label="__MSG_quicktext.close.label__"/>

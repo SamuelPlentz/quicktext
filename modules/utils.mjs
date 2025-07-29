@@ -344,21 +344,23 @@ export async function removeProtectedScripts(scripts) {
 }
 
 export async function checkBadNameEntries(templates, scripts) {
+    const badSubstrings = ["|", "[[", "]]"];
     let badEntries = 0;
+
     if (templates?.groups) {
-        badEntries += templates.groups.filter(e => e.name.includes("|")).length;
+        badEntries += templates.groups.filter(e => badSubstrings.some(sub => e.name.includes(sub))).length;
     }
     if (templates?.texts) {
-        badEntries += templates.texts.flat().filter(e => e.name.includes("|")).length;
+        badEntries += templates.texts.flat().filter(e => badSubstrings.some(sub => e.name.includes(sub))).length;
     }
     if (scripts) {
-        badEntries += scripts.filter(e => e.name.includes("|")).length
+        badEntries += scripts.filter(e => badSubstrings.some(sub => e.name.includes(sub))).length
     }
     if (badEntries > 0) {
         browser.notifications.create("qt-bad-entries", {
             type: "basic",
             title: "Quicktext v6",
-            message: `Some of your template, group or script names include the forbidden pipe char ("|"). These entries will not work.`,
+            message: `Some of your template, group or script names include one or more forbidden chars ("|", "[[" or "]]"). These entries will not work.`,
         });
     }
 }

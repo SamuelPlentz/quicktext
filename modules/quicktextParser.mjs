@@ -8,7 +8,7 @@ import * as utils from "/modules/utils.mjs";
 import * as storage from "/modules/storage.mjs";
 
 const allowedTags = [
-  'ALERT', 'ATT', 'CLIPBOARD', 'COUNTER', 'CSCRIPT', 'DATE', 'ESCRIPT', 'FILE', 'IMAGE', 'FROM', 'INPUT', 'ORGATT',
+  'ALERT', 'ATT', 'ATTACHMENT', 'CLIPBOARD', 'COUNTER', 'CSCRIPT', 'DATE', 'ESCRIPT', 'FILE', 'IMAGE', 'FROM', 'INPUT', 'ORGATT',
   'ORGHEADER', 'SCRIPT', 'SUBJECT', 'TEXT', 'TIME', 'TO', 'URL', 'VERSION', 'SELECTION', 'HEADER'
 ];
 
@@ -779,6 +779,24 @@ export class QuicktextParser {
     return "";
   }
 
+
+  async process_attachment(aVariables) {
+    let [mode, source, name] = aVariables;
+    switch (mode.toLowerCase()) {
+      case "file": {
+        let bytes = await browser.Quicktext.readBinaryFile(source);
+        let leafName = name ?? utils.getLeafName(source);
+        let type = utils.getTypeFromExtension(leafName);
+        let file = new File([bytes], leafName, { type });
+        await this.addAttachment(file);
+      }
+    }
+    return "";
+  }
+  async get_attachment(aVariables) {
+    return this.process_attachment(aVariables);
+  }
+
   async process_subject(aVariables) {
     if (this.mData['SUBJECT'] && this.mData['SUBJECT'].checked)
       return this.mData['SUBJECT'].data;
@@ -1132,6 +1150,7 @@ export class QuicktextParser {
         case 'text':
         case 'header':
         case 'escript':
+        case 'attachment':
           variable_limit = 2;
           break;
       }
@@ -1154,7 +1173,8 @@ export class QuicktextParser {
 function getTags(aStr) {
   // We only get the beginning of the tag.
   // This is because we want to handle recursive use of tags.
-  let rexp = new RegExp("\\[\\[((" + allowedTags.join("|") + ")(\\_[a-z]+)?)", "ig");
+  // Sorting to test for longer tags first (ATTACHMENT vs ATT).
+  let rexp = new RegExp("\\[\\[((" + allowedTags.sort((a, b) => b.length - a.length).join("|") + ")(\\_[a-z]+)?)", "ig");
   let results = [];
   let result = null;
   while ((result = rexp.exec(aStr)))

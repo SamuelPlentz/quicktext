@@ -805,13 +805,28 @@ export class QuicktextParser {
 
   async process_attachment(aVariables) {
     let [mode, source, name] = aVariables;
-    switch (mode.toLowerCase()) {
+    let mode_lc = mode.toLowerCase();
+
+    // The first parameter is optional, defaults to FILE.
+    if (!["url", "file"].includes(mode_lc)) {
+      name = source;
+      source = mode;
+      mode_lc = "file";
+    }
+
+    switch (mode_lc) {
+      case "url": {
+        let file = await utils.fetchFileAsFile(source, name);
+        await this.addAttachment(file);
+        break;
+      }
       case "file": {
         let bytes = await browser.Quicktext.readBinaryFile(source);
         let leafName = name ?? utils.getLeafName(source);
         let type = utils.getTypeFromExtension(leafName);
         let file = new File([bytes], leafName, { type });
         await this.addAttachment(file);
+        break;
       }
     }
     return "";
@@ -1168,12 +1183,12 @@ export class QuicktextParser {
         case 'cscript':
         case 'to':
         case 'url':
+        case 'attachment':
           variable_limit = 1;
           break;
         case 'text':
         case 'header':
         case 'escript':
-        case 'attachment':
           variable_limit = 2;
           break;
       }

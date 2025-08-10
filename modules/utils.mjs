@@ -192,7 +192,21 @@ export async function getTextFileContent(file) {
     return content;
 }
 
-export async function fetchFileFromServer(url) {
+export async function fetchFileAsFile(url, name) {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);
+  }
+
+  const blob = await response.blob();
+  const filename = name ?? getLeafName(url);
+  const contentType = blob.type || getTypeFromExtension(filename)
+  
+  return new File([blob], filename, { type: contentType });
+}
+
+export async function fetchFileAsText(url) {
     try {
         const response = await fetch(url);
         if (response?.ok) {

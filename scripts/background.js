@@ -129,7 +129,7 @@ if (defaultImport) {
     }
     try {
       // Import XML or JSON config data from remote server.
-      const data = await utils.fetchFileFromServer(path);
+      const data = await utils.fetchFileAsText(path);
       const imports = await quicktext.parseConfigFileData(data);
       if (imports.templates) {
         quicktext.mergeTemplates(templates, imports.templates, true);

@@ -333,3 +333,4 @@ new storage.StorageListener(
 await utils.checkBadNameEntries(templates, scripts);
 await utils.checkDuplicatedEntries(templates, scripts);
 await utils.checkForIncompatibleScripts(scripts);
+await utils.checkForDeprecatedAttachmentUsage(templates);

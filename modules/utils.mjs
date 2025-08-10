@@ -193,17 +193,17 @@ export async function getTextFileContent(file) {
 }
 
 export async function fetchFileAsFile(url, name) {
-  const response = await fetch(url);
+    const response = await fetch(url);
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);
-  }
+    if (!response.ok) {
+        throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);
+    }
 
-  const blob = await response.blob();
-  const filename = name ?? getLeafName(url);
-  const contentType = blob.type || getTypeFromExtension(filename)
-  
-  return new File([blob], filename, { type: contentType });
+    const blob = await response.blob();
+    const filename = name ?? getLeafName(url);
+    const contentType = blob.type || getTypeFromExtension(filename)
+
+    return new File([blob], filename, { type: contentType });
 }
 
 export async function fetchFileAsText(url) {
@@ -219,19 +219,19 @@ export async function fetchFileAsText(url) {
 }
 
 export async function fetchFileAsDataUrl(url) {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
-  }
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+    }
 
-  const blob = await response.blob();
+    const blob = await response.blob();
 
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
 }
 
 export async function openPopup(tabId, config) {
@@ -395,6 +395,16 @@ export async function checkBadNameEntries(templates, scripts) {
     }
 }
 
+const createNotification = async message => {
+    await browser.notifications.create(
+        "qt-duplicated-entries", {
+        type: "basic",
+        title: "Quicktext v6",
+        message
+    });
+    console.warn(`[Quicktext v6] ${message}`)
+}
+
 export async function checkDuplicatedEntries(templates, scripts) {
     const findDuplicates = array => {
         const seen = new Set();
@@ -408,15 +418,7 @@ export async function checkDuplicatedEntries(templates, scripts) {
         }
         return [...duplicates];
     }
-    const createNotification = async message => {
-        await browser.notifications.create(
-            "qt-duplicated-entries", {
-            type: "basic",
-            title: "Quicktext v6",
-            message
-        });
-        console.warn(`[Quicktext v6] ${message}`)
-    }
+
 
     const scriptNames = Array.isArray(scripts)
         ? scripts.map(e => e.name.trim())
@@ -465,8 +467,27 @@ export async function checkForIncompatibleScripts(scripts) {
         browser.notifications.create("qt-incompatible-scripts", {
             type: "basic",
             title: "Quicktext v6 - Incompatible Scripts!",
-            message: `Some of your scripts (for example ${incompatibleScripts.map(s => `'${s.name}'`).slice(0,2).join(" and ")}) are incompatible with Quicktext v6. Click for more details.`,
+            message: `Some of your scripts (for example ${incompatibleScripts.map(s => `'${s.name}'`).slice(0, 2).join(" and ")}) are incompatible with Quicktext v6. Click for more details.`,
         });
 
+    }
+}
+
+export async function checkForDeprecatedAttachmentUsage(templates) {
+    const groupNames = Array.isArray(templates?.groups)
+        ? templates.groups.map(e => e.name.trim())
+        : []
+
+    if (templates?.texts) {
+        for (let i = 0; i < templates.texts.length; i++) {
+            const badEntries = templates.texts[i].filter(e => e.attachments).map(
+                e => e.name.trim()
+            );
+            if (badEntries.length) {
+                await createNotification(
+                    `Some of your templates in group "${groupNames[i]}" use the deprecated attachments field instead of the ATTACHMENT tag: ${badEntries.join(", ")}`
+                );
+            }
+        }
     }
 }

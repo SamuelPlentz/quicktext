@@ -204,6 +204,22 @@ export async function fetchFileFromServer(url) {
     }
 }
 
+export async function fetchFileAsDataUrl(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
+  }
+
+  const blob = await response.blob();
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
 export async function openPopup(tabId, config) {
     let status = "none";
     let popup = Promise.withResolvers();

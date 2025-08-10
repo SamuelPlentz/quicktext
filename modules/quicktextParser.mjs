@@ -492,27 +492,50 @@ export class QuicktextParser {
   }
 
   async process_image_content(aVariables) {
-    let rv = "";
+    let [mode, source, type] = aVariables;
+    let mode_lc = mode.toLowerCase();
 
-    if (aVariables.length > 0 && aVariables[0] != "") {
-      let mode = (aVariables.length > 1 && "src" == aVariables[1].toString().toLowerCase()) ? "src" : "tag";
+    // The first parameter is optional, defaults to FILE.
+    if (!["url", "file"].includes(mode_lc)) {
+      type = source;
+      source = mode;
+      mode_lc = "file";
+    }
 
-      // Tries to open the file and returning the content
+    if (!type) {
+      type = "tag"
+    }
+
+    let src = "";
+    if (mode && source && type) {
+      // Tries to open the file and return the content
       try {
-        let bytes = await browser.Quicktext.readBinaryFile(aVariables[0]);
-        let leafName = utils.getLeafName(aVariables[0]);
-        let type = utils.getTypeFromExtension(leafName);
-        let binContent = utils.uint8ArrayToBase64(bytes);
-        let src = "data:" + type + ";filename=" + leafName + ";base64," + binContent;
-        rv = (mode == "tag")
-          ? "<img src='" + src + "'>"
-          : src;
+        switch (mode_lc) {
+          case "url": {
+            src = await utils.fetchFileAsDataUrl(source);
+            break;
+          }
+          case "file": {
+            let bytes = await browser.Quicktext.readBinaryFile(source);
+            let leafName = utils.getLeafName(source);
+            let type = utils.getTypeFromExtension(leafName);
+            let binContent = utils.uint8ArrayToBase64(bytes);
+            src = "data:" + type + ";filename=" + leafName + ";base64," + binContent;
+            break;
+          }
+        }        
       } catch (e) {
         console.error(e);
       }
     }
-    return rv;
+    if (src) {
+      return (type == "tag")
+        ? "<img src='" + src + "'>"
+        : src;
+    }
+    return "";
   }
+
   async get_image(aVariables) {
     let details = await this.getDetails();
     if (!details.isPlainText) {

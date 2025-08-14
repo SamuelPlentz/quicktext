@@ -40,12 +40,17 @@ export async function parseDisplayName(addr) {
     }
 }
 
-export function replaceText(tag, value, text) {
+export function replaceText(tag, value, text, { collapse }) {
+    const escapedTag = escapeRegExp(tag);
+
     var replaceRegExp;
-    if (value != "")
-        replaceRegExp = new RegExp(escapeRegExp(tag), 'g');
-    else
-        replaceRegExp = new RegExp("( )?" + escapeRegExp(tag), 'g');
+    if (value != "") {
+        replaceRegExp = new RegExp(escapedTag, 'g');
+    } else {
+        // Collapse any whitespace (newlines, tabs, spaces) if requested, otherwise collapse only a single whitespace.
+        const prefix = collapse ? `(\\s)?` : `( )?`;
+        replaceRegExp = new RegExp(`${prefix}${escapedTag}`, 'g');
+    }
     return text.replace(replaceRegExp, value);
 }
 

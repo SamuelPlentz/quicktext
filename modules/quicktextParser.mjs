@@ -12,6 +12,11 @@ const allowedTags = [
   'ORGHEADER', 'SCRIPT', 'SUBJECT', 'TEXT', 'TIME', 'TO', 'URL', 'VERSION', 'SELECTION', 'HEADER'
 ];
 
+// These tags do not generate content and should be collapsed with a leading line break.
+const collapsingTags = [
+  'ALERT', 'ATTACHMENT', 'HEADER'
+]
+
 // The value of these tags are persistent and only computed once per tab. All other
 // tags are computed once per template insertion and then re-use the computed value.
 // If another template is inserted (or the same template again), the state is cleared.
@@ -523,7 +528,7 @@ export class QuicktextParser {
             src = "data:" + type + ";filename=" + leafName + ";base64," + binContent;
             break;
           }
-        }        
+        }
       } catch (e) {
         console.error(e);
       }
@@ -1201,7 +1206,7 @@ export class QuicktextParser {
       // Save state.
       await this.saveState();
 
-      aStr = utils.replaceText(tags[i].tag, value, aStr);
+      aStr = utils.replaceText(tags[i].tag, value, aStr, { collapse: collapsingTags.includes(tags[i].tagName) });
     }
 
     return aStr;
@@ -1218,11 +1223,11 @@ function getTags(aStr) {
   while ((result = rexp.exec(aStr)))
     results.push(result);
 
-  // If we don't found any tags we return
+  // If we did't find any tags we return.
   if (results.length == 0)
     return [];
 
-  // Take care of the tags starting with the last one
+  // Take care of the tags starting with the last one.
   let hits = [];
   results.reverse();
   let strLen = aStr.length;
@@ -1242,15 +1247,15 @@ function getTags(aStr) {
     else
       tmpHit.tagName = results[i][1];
 
-    // Get the end of the starttag
+    // Get the end of the starttag.
     pos = results[i].index + results[i][1].length + 2;
 
-    // If the tag ended here we're done
+    // If the tag ended here we're done.
     if (aStr.substr(pos, 2) == "]]") {
       tmpHit.tag += "]]";
       hits = addTag(hits, tmpHit);
     }
-    // If there is arguments we get them
+    // If there are arguments we get them.
     else if (aStr[pos] == "=") {
       // We go through until we find ]] but we must have went
       // through the same amount of [ and ] before. So if there
@@ -1273,7 +1278,7 @@ function getTags(aStr) {
         pos++;
       }
 
-      // If we found the end we parses the arguments
+      // If we found the end we parse the arguments.
       if (ready) {
         tmpHit.tag += "=" + vars + "]]";
         vars = vars.split("|");

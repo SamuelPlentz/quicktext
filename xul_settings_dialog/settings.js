@@ -1343,6 +1343,13 @@ var settingsDialog = {
     this.enableSave();
   },
   // TODO: Hardcoding files is no longer possible in pure WebExt, either Exp only or gallery.
+  insertAttachmentVariable: async function () {
+    if ((file = await gQuicktext.pickFile([2], 0, extension.localeData.localizeMessage("attachmentFile"))) != null) {
+      this.insertVariable('ATTACHMENT=FILE|' + file.path);
+    }
+    this.enableSave();
+  },
+  // TODO: Hardcoding files is no longer possible in pure WebExt, either Exp only or gallery.
   insertFileVariable: async function () {
     if ((file = await gQuicktext.pickFile([2], 0, extension.localeData.localizeMessage("insertFile"))) != null) {
       this.insertVariable('FILE=' + file.path);
@@ -1352,7 +1359,7 @@ var settingsDialog = {
   // TODO: Hardcoding files is no longer possible in pure WebExt, either Exp only or gallery.
   insertImageVariable: async function () {
     if ((file = await gQuicktext.pickFile([4], 0, extension.localeData.localizeMessage("insertImage"))) != null) {
-      this.insertVariable('IMAGE=' + file.path);
+      this.insertVariable('IMAGE=FILE|' + file.path);
     }
     this.enableSave();
   },

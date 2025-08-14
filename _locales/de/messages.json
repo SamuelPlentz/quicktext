@@ -1,4 +1,7 @@
 {
+    "deprecated_attachment_field": {
+        "message": "Deprecated! Bitte den neuen [[ATTACHMENT=FILE|<path>]] Tag benutzen."
+    },
     "altKey": {
         "message": "Alt"
     },

@@ -743,6 +743,9 @@ var settingsDialog = {
         value = value.replace(/[\s]/g, '');
         element.value = value;
         break;
+      case 6:
+        document.getElementById("deprecated_attachment").style.display = document.getElementById('text-attachments').value ? "" : "none"
+        break;
     }
 
     if (this.mPickedIndex[1] > -1) {
@@ -1494,6 +1497,7 @@ var settingsDialog = {
       document.getElementById('text-keyword').value = text.keyword;
       document.getElementById('text-subject').value = text.subject;
       document.getElementById('text-attachments').value = text.attachments;
+      document.getElementById("deprecated_attachment").style.display = text.attachments ? "" : "none"
 
       document.getElementById('label-shortcutModifier').value = extension.localeData.localizeMessage(document.getElementById('select-shortcutModifier').value + "Key") + "+";
 
@@ -1530,6 +1534,7 @@ var settingsDialog = {
       document.getElementById("text-keyword").value = "";
       document.getElementById("text-subject").value = "";
       document.getElementById("text-attachments").value = "";
+      document.getElementById("deprecated_attachment").style.display = "none";
     }
 
     var disabled = false;

@@ -1206,7 +1206,7 @@ export class QuicktextParser {
       // Save state.
       await this.saveState();
 
-      aStr = utils.replaceText(tags[i].tag, value, aStr, { collapse: collapsingTags.includes(tags[i].tagName) });
+      aStr = utils.replaceText(tags[i].tag, value, aStr, { collapseLineBreaks: collapsingTags.includes(tags[i].tagName) });
     }
 
     return aStr;

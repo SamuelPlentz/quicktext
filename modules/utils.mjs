@@ -69,7 +69,7 @@ export function replaceText(tag, value, text, { collapseLineBreaks }) {
 }
 
 function escapeRegExp(aStr) {
-    return aStr.replace(/([\^\$\_\.\\\[\]\(\)\|\+\?])/g, "\\$1");
+    return aStr.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 export function removeBadHTML(aStr) {

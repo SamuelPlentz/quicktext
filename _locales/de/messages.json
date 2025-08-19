@@ -1,6 +1,6 @@
 {
     "deprecated_attachment_field": {
-        "message": "Deprecated! Bitte den neuen [[ATTACHMENT=FILE|<path>]] Tag benutzen."
+        "message": "Dieses Eingabefeld ist veraltet. Verwenden Sie stattdessen [[ATTACHMENT=FILE|<Pfad>]] direkt im Vorlagentext."
     },
     "altKey": {
         "message": "Alt"

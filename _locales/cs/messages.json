@@ -1,6 +1,6 @@
 {
     "deprecated_attachment_field": {
-        "message": "Deprecated! Use the new [[ATTACHMENT=FILE|<path>]] tag instead."
+        "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
     },
     "altKey": {
         "message": "Alt"

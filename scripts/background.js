@@ -115,12 +115,16 @@ if (scripts != cleanedScripts) {
 }
 
 // Startup import.
+const {
+  value: defaultImportFieldValue,
+  isManaged: defaultImportFieldIsManaged
+} = await storage.getPrefWithManagedInfo("defaultImport");
+
 let defaultImports;
-const storedDefaultImports = await storage.getPref("defaultImport");
-if (storedDefaultImports) {
+if (defaultImportFieldValue) {
   // Try to parse the string as JSON first.
   try {
-    defaultImports = JSON.parse(storedDefaultImports);
+    defaultImports = JSON.parse(defaultImportFieldValue);
   } catch {
     // Does not seem to be a JSON format.
   }
@@ -129,7 +133,7 @@ if (storedDefaultImports) {
     // Fallback, assume legacy string, separated by ";"
     let needsMigration = false;
     defaultImports = [];
-    for (let path of storedDefaultImports.split(";").map(e => e.trim())) {
+    for (let path of defaultImportFieldValue.split(";").map(e => e.trim())) {
       if (!path.match(/^(http|https):\/\//)) {
         defaultImports.push({
           source: "FILE",
@@ -143,19 +147,19 @@ if (storedDefaultImports) {
       }
       needsMigration = true;
     }
-    if (needsMigration) {
+    if (needsMigration && !defaultImportFieldIsManaged) {
       await storage.setPref("defaultImport", JSON.stringify(defaultImports));
     }
   }
 
   if (Array.isArray(defaultImports)) {
-    for (let defaultImport of defaultImports) {
+    for (let defaultImportEntry of defaultImports) {
       let data;
-      switch (defaultImport.source.toLowerCase()) {
+      switch (defaultImportEntry.source.toLowerCase()) {
         case "file":
           try {
             // Import XML or JSON config data from the local file system.
-            data = await browser.Quicktext.readTextFile(defaultImport.path);
+            data = await browser.Quicktext.readTextFile(defaultImportEntry.path);
           } catch (ex) {
             console.error("Failed to read file", ex);
           }
@@ -163,7 +167,7 @@ if (storedDefaultImports) {
         case "url":
           try {
             // Import XML or JSON config data from remote server.
-            data = await utils.fetchFileAsText(defaultImport.path);
+            data = await utils.fetchFileAsText(defaultImportEntry.path);
           } catch (ex) {
             console.error("Failed to read url", ex);
           }

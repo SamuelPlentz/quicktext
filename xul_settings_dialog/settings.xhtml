@@ -85,7 +85,13 @@
                   <fieldset>
                     <vbox flex="1">
                       <hbox><legend class="insideTab">__MSG_quicktext.defaultImport.label__</legend></hbox>
-                      <hbox class="input-container"><html:input id="text-defaultImport" oninput="settingsDialog.checkForGeneralChanges(5);" /></hbox>
+                      <hbox class="input-container"><html:input id="text-defaultImport" oninput="settingsDialog.checkForGeneralChanges(5);" style="display:none"/></hbox>
+                      <hbox flex="1">
+                        <richlistbox id="defaultImport"/>
+                      </hbox>
+                      <hbox>
+                        <button id="defaultImport_addFileItem" label="+ File" /> <button id="defaultImport_addUrlItem" label="+ Url" /> <button id="defaultImport_remove" label="-"/>
+                      </hbox>
                     </vbox>
                   </fieldset>
                 </vbox>

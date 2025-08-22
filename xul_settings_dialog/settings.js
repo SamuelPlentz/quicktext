@@ -498,6 +498,135 @@ var gQuicktext = {
   }
 }
 
+class defaultImportUI {
+  static get defaultUrlValue() {
+    return "https://";
+  }
+
+  static get listBox() {
+    return document.getElementById("defaultImport");
+  }
+
+  static async load() {
+    const {
+      value: defaultImportEntries,
+      isManaged: defaultImportIsManaged
+    } = await notifyTools.notifyBackground({
+      command: "getPrefWithManagedInfo",
+      pref: "defaultImport"
+    });
+
+    for (let entry of JSON.parse(defaultImportEntries)) {
+      defaultImportUI.addItem(entry);
+    }
+  }
+
+  static update() {
+    let updatedDefaultImports = [];
+    for (let child of defaultImportUI.listBox.children) {
+      updatedDefaultImports.push({
+        source: child.dataset.source,
+        path: child.dataset.path,
+      })
+    }
+    document.getElementById("text-defaultImport").value = JSON.stringify(updatedDefaultImports);
+    settingsDialog.checkForGeneralChanges(5);
+  }
+
+  static addItem(entry) {
+    let newItem = document.createXULElement("richlistitem");
+    newItem.dataset.source = entry.source;
+    newItem.dataset.path = entry.path;
+
+    const ICONS = {
+      "url": "🌎",
+      "file": "🗎",
+    }
+
+    let newItemType = document.createXULElement("label");
+    newItemType.value = ICONS[entry.source.toLowerCase()] ?? "⚠️";
+    newItemType.style.width = "16px";
+    newItemType.style.display = "block";
+    newItemType.style.textAlign = "center";
+    newItem.appendChild(newItemType);
+
+    let newItemLabel = document.createXULElement("label");
+    newItemLabel.value = entry.path;
+    if (entry.source.toLowerCase() == "url") {
+      newItem.addEventListener("dblclick", () => {
+        let input = document.createElement("input");
+        input.value = newItemLabel.value;
+        input.dataset.originalValue = newItemLabel.value;
+        newItemLabel.parentNode.replaceChild(input, newItemLabel);
+        input.focus();
+
+        // commit value on Enter
+        const commit = (path) => {
+          newItemLabel.value = path;
+          input.parentNode.replaceChild(newItemLabel, input);
+          newItem.dataset.path = path;
+        };
+
+        input.addEventListener("blur", (e) => {
+          commit(input.value);
+          defaultImportUI.update();
+        });
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            commit(input.value);
+            defaultImportUI.update();
+          }
+          if (e.key === "Escape") {
+            if (input.dataset.originalValue == defaultImportUI.defaultUrlValue) {
+              defaultImportUI.listBox.removeChild(newItem);
+            } else {
+              commit(input.dataset.originalValue);
+            }
+            defaultImportUI.update();
+          }
+        }, true);
+
+      });
+    }
+    newItem.appendChild(newItemLabel);
+
+    defaultImportUI.listBox.appendChild(newItem);
+    defaultImportUI.update();
+    return newItem;
+  }
+
+  static addUrlItem() {
+    const item = defaultImportUI.addItem({
+      source: "URL",
+      path: defaultImportUI.defaultUrlValue,
+    });
+    item.dispatchEvent(new MouseEvent("dblclick", {
+      bubbles: true,
+      cancelable: true,
+      view: window,
+      detail: 2
+    }));
+  }
+
+  static async addFileItem() {
+    const file = await gQuicktext.pickFile([5, 3], 0, extension.localeData.localizeMessage("importFile"));
+    if (!file) return;
+    defaultImportUI.addItem({
+      source: "FILE",
+      path: file.path,
+    });
+  }
+
+  static removeItem() {
+    const listBox = defaultImportUI.listBox;
+    let item = listBox.getItemAtIndex(listBox.selectedIndex);
+    if (item) {
+      listBox.removeChild(item);
+    }
+    defaultImportUI.update();
+  }
+}
+
 var settingsDialog = {
   mChangesMade: false,
   mTextChangesMade: [],
@@ -546,6 +675,13 @@ var settingsDialog = {
     let scriptListElem = document.getElementById('script-list');
     let elementHeight = scriptListElem.getBoundingClientRect().height;
     boxHeightOffset = window.innerHeight - elementHeight;
+
+    // Load defaultImport
+    await defaultImportUI.load();
+    document.getElementById("defaultImport_remove").addEventListener("command", defaultImportUI.removeItem, false);
+    document.getElementById("defaultImport_addUrlItem").addEventListener("command", defaultImportUI.addUrlItem, false);
+    document.getElementById("defaultImport_addFileItem").addEventListener("command", defaultImportUI.addFileItem, false);
+
   },
   unload: function () {
     gQuicktext.removeObserver(this);
@@ -561,7 +697,7 @@ var settingsDialog = {
     this.saveText();
     this.saveScript();
 
-    if (this.mChangesMade) {
+    if (this.anyChangesMade()) {
       promptService = Services.prompt;
       if (promptService) {
         result = promptService.confirmEx(window,

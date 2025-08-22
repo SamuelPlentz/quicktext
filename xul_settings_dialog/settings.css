@@ -36,3 +36,9 @@ textarea {
 #scripthelpbutton[data-selected-index="2"][data-is-incompatible="true"] {
   display: block;
 }
+
+#defaultImport {
+  overflow-y: auto;
+  height: 120px;
+  width: 100%
+}

@@ -519,6 +519,17 @@ class defaultImportUI {
     for (let entry of JSON.parse(defaultImportEntries)) {
       defaultImportUI.addItem(entry);
     }
+    
+    if (!defaultImportIsManaged) {
+      document.getElementById("defaultImport_remove").removeAttribute("disabled");
+      document.getElementById("defaultImport_addUrlItem").removeAttribute("disabled");
+      document.getElementById("defaultImport_addFileItem").removeAttribute("disabled");
+    }
+
+    document.getElementById("defaultImport_remove").addEventListener("command", defaultImportUI.removeItem, false);
+    document.getElementById("defaultImport_addUrlItem").addEventListener("command", defaultImportUI.addUrlItem, false);
+    document.getElementById("defaultImport_addFileItem").addEventListener("command", defaultImportUI.addFileItem, false);
+
   }
 
   static update() {
@@ -678,10 +689,6 @@ var settingsDialog = {
 
     // Load defaultImport
     await defaultImportUI.load();
-    document.getElementById("defaultImport_remove").addEventListener("command", defaultImportUI.removeItem, false);
-    document.getElementById("defaultImport_addUrlItem").addEventListener("command", defaultImportUI.addUrlItem, false);
-    document.getElementById("defaultImport_addFileItem").addEventListener("command", defaultImportUI.addFileItem, false);
-
   },
   unload: function () {
     gQuicktext.removeObserver(this);

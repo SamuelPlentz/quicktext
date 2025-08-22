@@ -530,6 +530,9 @@ var settingsDialog = {
     }
 
     document.getElementById('tabbox-main').selectedIndex = 1;
+    document.getElementById('tabpanels-main').addEventListener("select", function (e) {
+      document.getElementById('scripthelpbutton').dataset.selectedIndex = document.getElementById('tabbox-main').selectedIndex;
+    }, false);
 
     document.getElementById('text-keyword').addEventListener("keypress", function (e) { settingsDialog.noSpaceForKeyword(e); }, false);
 
@@ -1465,10 +1468,10 @@ var settingsDialog = {
       document.getElementById('script-button-remove').removeAttribute("disabled");
 
     if (isIncompatibleScript(script)) {
-      document.getElementById('scripthelpbutton').style.display = "block";
+      document.getElementById('scripthelpbutton').dataset.isIncompatible = "true";
       document.getElementById('scriptwarning').style.display = "block";
     } else {
-      document.getElementById('scripthelpbutton').style.display = "none";
+      document.getElementById('scripthelpbutton').dataset.isIncompatible = "false";
       document.getElementById('scriptwarning').style.display = "none";
     }
 
@@ -1771,6 +1774,7 @@ var settingsDialog = {
         else {
           this.mScriptIndex = null;
           selectedIndex = -1;
+          document.getElementById('scriptwarning').style.display = "none";
         }
 
         document.getElementById('script-list').selectedIndex = selectedIndex;

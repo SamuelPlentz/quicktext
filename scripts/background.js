@@ -127,6 +127,7 @@ if (storedDefaultImports) {
 
   if (!defaultImports) {
     // Fallback, assume legacy string, separated by ";"
+    let needsMigration = false;
     defaultImports = [];
     for (let path of storedDefaultImports.split(";").map(e => e.trim())) {
       if (!path.match(/^(http|https):\/\//)) {
@@ -140,43 +141,50 @@ if (storedDefaultImports) {
           path
         })
       }
+      needsMigration = true;
+    }
+    if (needsMigration) {
+      await storage.setPref("defaultImport", JSON.stringify(defaultImports));
     }
   }
 
-  for (let defaultImport of defaultImports) {
-    let data;
-    switch (defaultImport.source.toLowerCase()) {
-      case "file":
+  if (Array.isArray(defaultImports)) {
+    for (let defaultImport of defaultImports) {
+      let data;
+      switch (defaultImport.source.toLowerCase()) {
+        case "file":
+          try {
+            // Import XML or JSON config data from the local file system.
+            data = await browser.Quicktext.readTextFile(defaultImport.path);
+          } catch (ex) {
+            console.error("Failed to read file", ex);
+          }
+          break;
+        case "url":
+          try {
+            // Import XML or JSON config data from remote server.
+            data = await utils.fetchFileAsText(defaultImport.path);
+          } catch (ex) {
+            console.error("Failed to read url", ex);
+          }
+          break;
+      }
+      if (data) {
         try {
-          // Import XML or JSON config data from the local file system.
-          data = await browser.Quicktext.readTextFile(defaultImport.path);
+          const imports = await quicktext.parseConfigFileData(data);
+          if (imports.templates) {
+            quicktext.mergeTemplates(templates, imports.templates, true);
+          }
+          if (imports.scripts) {
+            quicktext.mergeScripts(scripts, imports.scripts, true);
+          }
         } catch (ex) {
-          console.error("Failed to read file", ex);
+          console.error("Failed to parse data", ex);
         }
-        break;
-      case "url":
-        try {
-          // Import XML or JSON config data from remote server.
-          data = await utils.fetchFileAsText(defaultImport.path);
-        } catch (ex) {
-          console.error("Failed to read url", ex);
-        }
-        break;
-    }
-    if (data) {
-      try {
-        const imports = await quicktext.parseConfigFileData(data);
-        if (imports.templates) {
-          quicktext.mergeTemplates(templates, imports.templates, true);
-        }
-        if (imports.scripts) {
-          quicktext.mergeScripts(scripts, imports.scripts, true);
-        }
-      } catch (ex) {
-        console.error("Failed to parse data", ex);
       }
     }
   }
+
   await storage.setTemplates(templates);
   await storage.setScripts(scripts);
 }

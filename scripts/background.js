@@ -115,30 +115,66 @@ if (scripts != cleanedScripts) {
 }
 
 // Startup import.
-const defaultImport = await storage.getPref("defaultImport");
-if (defaultImport) {
-  const defaultImports = defaultImport.split(";").map(e => e.trim()).reverse();
-  for (let path of defaultImports) {
-    if (!path.match(/^(http|https):\/\//)) {
-      browser.notifications.create("qt-deprecate-default-file-import", {
-        type: "basic",
-        title: "Quicktext v6",
-        message: `Default imports from the local file system have been replaced by managed storage.\n(click for details)`,
-      });
-      continue;
+let defaultImports;
+const storedDefaultImports = await storage.getPref("defaultImport");
+if (storedDefaultImports) {
+  // Try to parse the string as JSON first.
+  try {
+    defaultImports = JSON.parse(storedDefaultImports);
+  } catch {
+    // Does not seem to be a JSON format.
+  }
+
+  if (!defaultImports) {
+    // Fallback, assume legacy string, separated by ";"
+    defaultImports = [];
+    for (let path of storedDefaultImports.split(";").map(e => e.trim())) {
+      if (!path.match(/^(http|https):\/\//)) {
+        defaultImports.push({
+          source: "FILE",
+          path
+        })
+      } else {
+        defaultImports.push({
+          source: "URL",
+          path
+        })
+      }
     }
-    try {
-      // Import XML or JSON config data from remote server.
-      const data = await utils.fetchFileAsText(path);
-      const imports = await quicktext.parseConfigFileData(data);
-      if (imports.templates) {
-        quicktext.mergeTemplates(templates, imports.templates, true);
+  }
+
+  for (let defaultImport of defaultImports) {
+    let data;
+    switch (defaultImport.source.toLowerCase()) {
+      case "file":
+        try {
+          // Import XML or JSON config data from the local file system.
+          data = await browser.Quicktext.readTextFile(defaultImport.path);
+        } catch (ex) {
+          console.error("Failed to read file", ex);
+        }
+        break;
+      case "url":
+        try {
+          // Import XML or JSON config data from remote server.
+          data = await utils.fetchFileAsText(defaultImport.path);
+        } catch (ex) {
+          console.error("Failed to read url", ex);
+        }
+        break;
+    }
+    if (data) {
+      try {
+        const imports = await quicktext.parseConfigFileData(data);
+        if (imports.templates) {
+          quicktext.mergeTemplates(templates, imports.templates, true);
+        }
+        if (imports.scripts) {
+          quicktext.mergeScripts(scripts, imports.scripts, true);
+        }
+      } catch (ex) {
+        console.error("Failed to parse data", ex);
       }
-      if (imports.scripts) {
-        quicktext.mergeScripts(scripts, imports.scripts, true);
-      }
-    } catch (e) {
-      console.error(e);
     }
   }
   await storage.setTemplates(templates);

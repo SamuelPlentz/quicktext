@@ -33,7 +33,7 @@ textarea {
   display: none;
 }
 
-#scripthelpbutton[data-selected-index="2"][data-is-incompatible="true"] {
+#scripthelpbutton[data-selected-tab-index="2"][data-is-incompatible="true"] {
   display: block;
 }
 
@@ -41,4 +41,13 @@ textarea {
   overflow-y: auto;
   height: 120px;
   width: 100%
+}
+
+#primaryStorage {
+  overflow-y: auto;
+  height: 120px;
+}
+
+#primaryStorage richlistitem[data-active] {
+  background-color: skyblue
 }

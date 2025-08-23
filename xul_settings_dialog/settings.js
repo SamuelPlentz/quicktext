@@ -405,11 +405,14 @@ var gQuicktext = {
   },
 
   /*
-   * FILE FUNCTIONS
+   * FILE FUNCTIONS (will be replaced by picker from the planned vfs API)
    */
   async pickFile(aTypes, aMode, aTitle) {
     let filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
     switch (aMode) {
+      case 2: // modeGetFolder
+        filePicker.init(window.browsingContext, aTitle, filePicker.modeGetFolder);
+        break;
       case 1: // save
         filePicker.init(window.browsingContext, aTitle, filePicker.modeSave);
         break;
@@ -498,60 +501,127 @@ var gQuicktext = {
   }
 }
 
-class defaultImportUI {
-  static get defaultUrlValue() {
+class SourceListBox {
+  #listBox
+  #loadCallback
+  #updateCallback
+  #selectCallback
+  #canRemoveCallback
+  #canSelectCallback
+  #buttonDefinitions
+
+  constructor({ listBoxId, loadCallback, updateCallback, selectCallback, canRemoveCallback, canSelectCallback, buttonDefinitions }) {
+    this.#listBox = document.getElementById(listBoxId);
+    this.#loadCallback = loadCallback;
+    this.#updateCallback = updateCallback;
+    this.#selectCallback = selectCallback;
+    this.#canRemoveCallback = canRemoveCallback;
+    this.#canSelectCallback = canSelectCallback;
+    this.#buttonDefinitions = buttonDefinitions;
+  }
+
+  get defaultUrlValue() {
     return "https://";
   }
 
-  static get listBox() {
-    return document.getElementById("defaultImport");
+  get listBox() {
+    return this.#listBox;
   }
 
-  static async load() {
+  async load() {
     const {
-      value: defaultImportEntries,
-      isManaged: defaultImportIsManaged
-    } = await notifyTools.notifyBackground({
-      command: "getPrefWithManagedInfo",
-      pref: "defaultImport"
-    });
+      entries,
+      activeIdx,
+    } = await this.#loadCallback();
 
-    for (let entry of JSON.parse(defaultImportEntries)) {
-      defaultImportUI.addItem(entry);
-    }
-    
-    if (!defaultImportIsManaged) {
-      document.getElementById("defaultImport_remove").removeAttribute("disabled");
-      document.getElementById("defaultImport_addUrlItem").removeAttribute("disabled");
-      document.getElementById("defaultImport_addFileItem").removeAttribute("disabled");
+
+    for (let [elementId, definition] of Object.entries(this.#buttonDefinitions)) {
+      if (!definition.isManaged) {
+        document.getElementById(elementId).removeAttribute("disabled");
+      }
+      document.getElementById(elementId).addEventListener("command", () => this[definition.callback](), false);
     }
 
-    document.getElementById("defaultImport_remove").addEventListener("command", defaultImportUI.removeItem, false);
-    document.getElementById("defaultImport_addUrlItem").addEventListener("command", defaultImportUI.addUrlItem, false);
-    document.getElementById("defaultImport_addFileItem").addEventListener("command", defaultImportUI.addFileItem, false);
+    for (let i = 0; i < entries.length; i++) {
+      const item = await this.addItem(entries[i]);
+      if (i == activeIdx) {
+        item.dataset.active = "true";
+        this.listBox.selectedIndex = i;
+      }
+    }
 
+    this.listBox.addEventListener("select", () => this.checkButtons());
+    this.checkButtons();
   }
 
-  static update() {
-    let updatedDefaultImports = [];
-    for (let child of defaultImportUI.listBox.children) {
-      updatedDefaultImports.push({
+  checkButtons() {
+    if (this.#canRemoveCallback) {
+      const canRemove = this.#canRemoveCallback(this.listBox.selectedIndex, this.activeIdx);
+      let btns = Object.entries(this.#buttonDefinitions).filter(e => e[1].callback == "removeItem");
+      for (let [btnId, definition] of btns) {
+        if (definition.isManaged) {
+          continue;
+        }
+
+        if (canRemove) {
+          document.getElementById(btnId).removeAttribute("disabled");
+        } else {
+          document.getElementById(btnId).setAttribute("disabled", "true");
+        }
+      }
+    }
+    if (this.#canSelectCallback) {
+      const canSelect = this.#canSelectCallback(this.listBox.selectedIndex, this.activeIdx);
+      let btns = Object.entries(this.#buttonDefinitions).filter(e => e[1].callback == "selectItem");
+      for (let [btnId, definition] of btns) {
+        if (definition.isManaged) {
+          continue;
+        }
+
+        if (canSelect) {
+          document.getElementById(btnId).removeAttribute("disabled");
+        } else {
+          document.getElementById(btnId).setAttribute("disabled", "true");
+        }
+      }
+    }
+  }
+
+  get activeIdx() {
+    const childrenArray = Array.from(this.listBox.children);
+    const activeIdx = childrenArray.findIndex(e => e.dataset.active === "true");
+    return activeIdx;
+  }
+
+  async update() {
+    let updatedEntries = [];
+    for (let child of this.listBox.children) {
+      updatedEntries.push({
         source: child.dataset.source,
-        path: child.dataset.path,
+        data: child.dataset.data,
       })
     }
-    document.getElementById("text-defaultImport").value = JSON.stringify(updatedDefaultImports);
-    settingsDialog.checkForGeneralChanges(5);
+    if (this.#updateCallback) {
+      await this.#updateCallback(updatedEntries, this.activeIdx);
+    }
+    this.checkButtons();
   }
 
-  static addItem(entry) {
+  getLabel(entry) {
+    return entry.source.toLowerCase() == "internal"
+      ? extension.localeData.localizeMessage(`quicktext.primaryStorage.internal.${entry.data.toLowerCase()}.label`)
+      : entry.data
+  }
+
+  async addItem(entry) {
     let newItem = document.createXULElement("richlistitem");
     newItem.dataset.source = entry.source;
-    newItem.dataset.path = entry.path;
+    newItem.dataset.data = entry.data;
 
     const ICONS = {
       "url": "🌎",
-      "file": "🗎",
+      "file": "💻", // 🗎
+      "internal": "📦", // 🏠,📦
     }
 
     let newItemType = document.createXULElement("label");
@@ -562,7 +632,7 @@ class defaultImportUI {
     newItem.appendChild(newItemType);
 
     let newItemLabel = document.createXULElement("label");
-    newItemLabel.value = entry.path;
+    newItemLabel.value = this.getLabel(entry);
     if (entry.source.toLowerCase() == "url") {
       newItem.addEventListener("dblclick", () => {
         let input = document.createElement("input");
@@ -572,28 +642,28 @@ class defaultImportUI {
         input.focus();
 
         // commit value on Enter
-        const commit = (path) => {
-          newItemLabel.value = path;
+        const commit = (data) => {
+          newItemLabel.value = data;
           input.parentNode.replaceChild(newItemLabel, input);
-          newItem.dataset.path = path;
+          newItem.dataset.data = data;
         };
 
         input.addEventListener("blur", (e) => {
           commit(input.value);
-          defaultImportUI.update();
+          this.update();
         });
         input.addEventListener("keydown", (e) => {
           if (e.key === "Enter") {
             commit(input.value);
-            defaultImportUI.update();
+            this.update();
           }
           if (e.key === "Escape") {
-            if (input.dataset.originalValue == defaultImportUI.defaultUrlValue) {
-              defaultImportUI.listBox.removeChild(newItem);
+            if (input.dataset.originalValue == this.defaultUrlValue) {
+              this.listBox.removeChild(newItem);
             } else {
               commit(input.dataset.originalValue);
             }
-            defaultImportUI.update();
+            this.update();
           }
         }, true);
 
@@ -601,16 +671,16 @@ class defaultImportUI {
     }
     newItem.appendChild(newItemLabel);
 
-    defaultImportUI.listBox.appendChild(newItem);
-    defaultImportUI.update();
+    this.listBox.appendChild(newItem);
     return newItem;
   }
 
-  static addUrlItem() {
-    const item = defaultImportUI.addItem({
+  async addUrlItem() {
+    const item = await this.addItem({
       source: "URL",
-      path: defaultImportUI.defaultUrlValue,
+      data: this.defaultUrlValue,
     });
+    await this.update();
     item.dispatchEvent(new MouseEvent("dblclick", {
       bubbles: true,
       cancelable: true,
@@ -619,22 +689,38 @@ class defaultImportUI {
     }));
   }
 
-  static async addFileItem() {
+  async addFileItem() {
     const file = await gQuicktext.pickFile([5, 3], 0, extension.localeData.localizeMessage("importFile"));
     if (!file) return;
-    defaultImportUI.addItem({
+    await this.addItem({
       source: "FILE",
-      path: file.path,
+      data: file.path,
     });
+    await this.update();
   }
 
-  static removeItem() {
-    const listBox = defaultImportUI.listBox;
-    let item = listBox.getItemAtIndex(listBox.selectedIndex);
-    if (item) {
-      listBox.removeChild(item);
+  async addFolderItem() {
+    const folder = await gQuicktext.pickFile([], 2, "select folder");
+    if (!folder) return;
+    await this.addItem({
+      source: "FILE",
+      data: folder.path,
+    });
+    await this.update();
+  }
+
+  async selectItem() {
+    if (this.#selectCallback) {
+      await this.#selectCallback(this.listBox.selectedIndex);
     }
-    defaultImportUI.update();
+  }
+
+  async removeItem() {
+    let item = this.listBox.getItemAtIndex(this.listBox.selectedIndex);
+    if (item) {
+      this.listBox.removeChild(item);
+    }
+    await this.update();
   }
 }
 
@@ -671,7 +757,7 @@ var settingsDialog = {
 
     document.getElementById('tabbox-main').selectedIndex = 1;
     document.getElementById('tabpanels-main').addEventListener("select", function (e) {
-      document.getElementById('scripthelpbutton').dataset.selectedIndex = document.getElementById('tabbox-main').selectedIndex;
+      document.getElementById('scripthelpbutton').dataset.selectedTabIndex = document.getElementById('tabbox-main').selectedIndex;
     }, false);
 
     document.getElementById('text-keyword').addEventListener("keypress", function (e) { settingsDialog.noSpaceForKeyword(e); }, false);
@@ -688,7 +774,106 @@ var settingsDialog = {
     boxHeightOffset = window.innerHeight - elementHeight;
 
     // Load defaultImport
-    await defaultImportUI.load();
+    {
+      const {
+        value: defaultImportEntries,
+        isManaged: defaultImportEntriesManaged,
+      } = await notifyTools.notifyBackground({
+        command: "getPrefWithManagedInfo",
+        pref: "defaultImport"
+      });
+
+      const defaultImportUI = new SourceListBox({
+        listBoxId: "defaultImport",
+        loadCallback: async () => {
+          return {
+            entries: JSON.parse(defaultImportEntries),
+          }
+        },
+        updateCallback: (updatedEntries, activeIdx) => {
+          document.getElementById("text-defaultImport").value = JSON.stringify(updatedEntries);
+          settingsDialog.checkForGeneralChanges(5);
+        },
+        buttonDefinitions: {
+          "defaultImport_remove": { callback: "removeItem", isManaged: defaultImportEntriesManaged },
+          "defaultImport_addUrlItem": { callback: "addUrlItem", isManaged: defaultImportEntriesManaged },
+          "defaultImport_addFileItem": { callback: "addFileItem", isManaged: defaultImportEntriesManaged },
+        }
+      })
+      await defaultImportUI.load();
+    }
+
+    // Storage location
+    {
+      const {
+        value: storageLocationEntries,
+        isManaged: storageLocationsManaged,
+      } = await notifyTools.notifyBackground({
+        command: "getPrefWithManagedInfo",
+        pref: "storageLocations"
+      });
+      const {
+        value: selectedStorageLocationIdx,
+        isManaged: selectedStorageLocationIdxManaged,
+      } = await notifyTools.notifyBackground({
+        command: "getPrefWithManagedInfo",
+        pref: "activeStorageLocationIdx"
+      });
+
+      const primaryStorageUI = new SourceListBox({
+        listBoxId: "primaryStorage",
+        loadCallback: async () => {
+          const entries = JSON.parse(storageLocationEntries);
+          if (!(
+            entries.some(e => e.source.toLowerCase() == "internal") &&
+            entries.some(e => e.data.toLowerCase() == "local")
+          )) {
+            entries.unshift({
+              source: "INTERNAL",
+              data: "local",
+            })
+          }
+          return {
+            entries,
+            activeIdx: selectedStorageLocationIdx,
+          }
+        },
+        updateCallback: async (updatedEntries, activeIdx) => {
+          await notifyTools.notifyBackground({
+            command: "setPref",
+            pref: "storageLocations",
+            value: JSON.stringify(updatedEntries)
+          });
+          await notifyTools.notifyBackground({
+            command: "setPref",
+            pref: "activeStorageLocationIdx",
+            value: activeIdx
+          });
+        },
+        selectCallback: async (idx) => {
+          await notifyTools.notifyBackground({
+            command: "setPref",
+            pref: "activeStorageLocationIdx",
+            value: idx
+          });
+          notifyTools.notifyBackground({
+            command: "reload",
+          });
+        },
+        canRemoveCallback: (idx, activeIdx) => {
+          return idx > 0 && idx != activeIdx
+        },
+        canSelectCallback: (idx, activeIdx) => {
+          return idx > -1 && idx != activeIdx
+        },
+        buttonDefinitions: {
+          "primaryStorage_remove": { callback: "removeItem", isManaged: storageLocationsManaged },
+          "primaryStorage_addFolderItem": { callback: "addFolderItem", isManaged: storageLocationsManaged },
+          "primaryStorage_select": { callback: "selectItem", isManaged: selectedStorageLocationIdxManaged },
+        }
+      })
+      await primaryStorageUI.load();
+    }
   },
   unload: function () {
     gQuicktext.removeObserver(this);

@@ -159,7 +159,7 @@ if (defaultImportFieldValue) {
         case "file":
           try {
             // Import XML or JSON config data from the local file system.
-            data = await browser.Quicktext.readTextFile(defaultImportEntry.path);
+            data = await browser.Quicktext.readTextFile(defaultImportEntry.data);
           } catch (ex) {
             console.error("Failed to read file", ex);
           }
@@ -167,7 +167,7 @@ if (defaultImportFieldValue) {
         case "url":
           try {
             // Import XML or JSON config data from remote server.
-            data = await utils.fetchFileAsText(defaultImportEntry.path);
+            data = await utils.fetchFileAsText(defaultImportEntry.data);
           } catch (ex) {
             console.error("Failed to read url", ex);
           }
@@ -212,6 +212,8 @@ try {
 // NotifyTools needed by Experiment code to access WebExtension code.
 messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
   switch (info.command) {
+    case "reload":
+      browser.runtime.reload();
     case "setPref":
       return storage.setPref(info.pref, info.value);
     case "getPref":

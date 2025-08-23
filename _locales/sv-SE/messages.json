@@ -66,6 +66,12 @@
     "quicktext.HTML.label": {
         "message": "HTML"
     },
+    "quicktext.advanced.label": {
+        "message": "Avancerat"
+    },
+    "quicktext.accesskey.advanced": {
+        "message": "a"
+    },
     "quicktext.accesskey.addGroup": {
         "message": "g"
     },
@@ -89,9 +95,6 @@
     },
     "quicktext.accesskey.general": {
         "message": "w"
-    },
-    "quicktext.accesskey.goToHomepage": {
-        "message": "h"
     },
     "quicktext.accesskey.help": {
         "message": "p"
@@ -184,7 +187,7 @@
         "message": "Datum/Tid"
     },
     "quicktext.defaultImport.label": {
-        "message": "Importeras vid uppstart"
+        "message": "Importera mallar och skript vid start (endast läsning)"
     },
     "quicktext.displayname.label": {
         "message": "Kortnamn"
@@ -242,9 +245,6 @@
     },
     "quicktext.getScript.label": {
         "message": "Community Scripts"
-    },
-    "quicktext.goToHomepage.label": {
-        "message": "Gå till hemsidan"
     },
     "quicktext.group.label": {
         "message": "Grupp"
@@ -317,6 +317,15 @@
     },
     "quicktext.other.label": {
         "message": "Övrigt"
+    },
+    "quicktext.primaryStorage.label": {
+        "message": "Storage location for templates and scripts"
+    },
+    "quicktext.primaryStorage.description": {
+        "message": "Changing the storage location for templates and scripts will restart Quicktext and load the new files. Any unsaved settings may be lost."
+    },
+    "quicktext.primaryStorage.internal.local.label": {
+        "message": "Internt lagringsutrymme (standard)"
     },
     "quicktext.remove.label": {
         "message": "Ta bort"

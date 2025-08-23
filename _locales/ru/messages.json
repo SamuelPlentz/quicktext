@@ -66,6 +66,12 @@
     "quicktext.HTML.label": {
         "message": "HTML"
     },
+    "quicktext.advanced.label": {
+        "message": "Дополнительно"
+    },
+    "quicktext.accesskey.advanced": {
+        "message": "a"
+    },
     "quicktext.accesskey.addGroup": {
         "message": "Д"
     },
@@ -89,9 +95,6 @@
     },
     "quicktext.accesskey.general": {
         "message": "Г"
-    },
-    "quicktext.accesskey.goToHomepage": {
-        "message": "д"
     },
     "quicktext.accesskey.help": {
         "message": "П"
@@ -184,7 +187,7 @@
         "message": "Дата/Время"
     },
     "quicktext.defaultImport.label": {
-        "message": "Импорт при запуске"
+        "message": "Импорт шаблонов и скриптов при запуске (только для чтения)"
     },
     "quicktext.displayname.label": {
         "message": "Отображаемое имя"
@@ -242,9 +245,6 @@
     },
     "quicktext.getScript.label": {
         "message": "Скрипты сообщества"
-    },
-    "quicktext.goToHomepage.label": {
-        "message": "На домашнюю страницу"
     },
     "quicktext.group.label": {
         "message": "Группа"
@@ -317,6 +317,15 @@
     },
     "quicktext.other.label": {
         "message": "Прочее"
+    },
+    "quicktext.primaryStorage.label": {
+        "message": "Storage location for templates and scripts"
+    },
+    "quicktext.primaryStorage.description": {
+        "message": "Changing the storage location for templates and scripts will restart Quicktext and load the new files. Any unsaved settings may be lost."
+    },
+    "quicktext.primaryStorage.internal.local.label": {
+        "message": "Внутреннее хранилище (по умолчанию)"
     },
     "quicktext.remove.label": {
         "message": "Удалить"

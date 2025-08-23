@@ -66,6 +66,12 @@
     "quicktext.HTML.label": {
         "message": "HTML"
     },
+    "quicktext.advanced.label": {
+        "message": "詳細設定"
+    },
+    "quicktext.accesskey.advanced": {
+        "message": "a"
+    },
     "quicktext.accesskey.addGroup": {
         "message": "p"
     },
@@ -89,9 +95,6 @@
     },
     "quicktext.accesskey.general": {
         "message": "g"
-    },
-    "quicktext.accesskey.goToHomepage": {
-        "message": "h"
     },
     "quicktext.accesskey.help": {
         "message": "p"
@@ -184,7 +187,7 @@
         "message": "日付と時間"
     },
     "quicktext.defaultImport.label": {
-        "message": "起動時にインポート"
+        "message": "起動時にテンプレートとスクリプトを読み込む（読み取り専用）"
     },
     "quicktext.displayname.label": {
         "message": "表示名"
@@ -242,9 +245,6 @@
     },
     "quicktext.getScript.label": {
         "message": "コミュニティスクリプト"
-    },
-    "quicktext.goToHomepage.label": {
-        "message": "ホームページへ移動"
     },
     "quicktext.group.label": {
         "message": "グループ"
@@ -318,8 +318,17 @@
     "quicktext.other.label": {
         "message": "その他"
     },
+    "quicktext.primaryStorage.label": {
+        "message": "Storage location for templates and scripts"
+    },
     "quicktext.remove.label": {
         "message": "削除"
+    },
+    "quicktext.primaryStorage.description": {
+        "message": "Changing the storage location for templates and scripts will restart Quicktext and load the new files. Any unsaved settings may be lost."
+    },
+    "quicktext.primaryStorage.internal.local.label": {
+        "message": "内部ストレージ（デフォルト)"
     },
     "quicktext.resetcounter.label": {
         "message": "カウンターをリセット"

@@ -66,6 +66,12 @@
     "quicktext.HTML.label": {
         "message": "HTML"
     },
+    "quicktext.advanced.label": {
+        "message": "Avancé"
+    },
+    "quicktext.accesskey.advanced": {
+        "message": "a"
+    },
     "quicktext.accesskey.addGroup": {
         "message": "p"
     },
@@ -89,9 +95,6 @@
     },
     "quicktext.accesskey.general": {
         "message": "g"
-    },
-    "quicktext.accesskey.goToHomepage": {
-        "message": "w"
     },
     "quicktext.accesskey.help": {
         "message": "d"
@@ -184,7 +187,7 @@
         "message": "Date/Heure"
     },
     "quicktext.defaultImport.label": {
-        "message": "Importé au démarrage"
+        "message": "Importer les modèles et scripts au démarrage (lecture seule)"
     },
     "quicktext.displayname.label": {
         "message": "Nom à afficher"
@@ -242,9 +245,6 @@
     },
     "quicktext.getScript.label": {
         "message": "Scripts partagés"
-    },
-    "quicktext.goToHomepage.label": {
-        "message": "Visiter le site Web"
     },
     "quicktext.group.label": {
         "message": "Groupe"
@@ -317,6 +317,15 @@
     },
     "quicktext.other.label": {
         "message": "Autres"
+    },
+    "quicktext.primaryStorage.label": {
+        "message": "Storage location for templates and scripts"
+    },
+    "quicktext.primaryStorage.description": {
+        "message": "Changing the storage location for templates and scripts will restart Quicktext and load the new files. Any unsaved settings may be lost."
+    },
+    "quicktext.primaryStorage.internal.local.label": {
+        "message": "Stockage interne (par défaut)"
     },
     "quicktext.remove.label": {
         "message": "Supprimer"

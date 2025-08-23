@@ -69,6 +69,12 @@
     "quicktext.HTML.label": {
         "message": "HTML"
     },
+    "quicktext.advanced.label": {
+        "message": "Haladó"
+    },
+    "quicktext.accesskey.advanced": {
+        "message": "a"
+    },
     "quicktext.accesskey.addGroup": {
         "message": "p"
     },
@@ -92,9 +98,6 @@
     },
     "quicktext.accesskey.general": {
         "message": "n"
-    },
-    "quicktext.accesskey.goToHomepage": {
-        "message": "h"
     },
     "quicktext.accesskey.help": {
         "message": "g"
@@ -187,7 +190,7 @@
         "message": "Dátum/idő"
     },
     "quicktext.defaultImport.label": {
-        "message": "Importálás indításkor"
+        "message": "Sablonok és szkriptek indításkor importálása (csak olvasható)"
     },
     "quicktext.displayname.label": {
         "message": "Megjelenítendő név"
@@ -245,9 +248,6 @@
     },
     "quicktext.getScript.label": {
         "message": "Közösségi parancsfájlok"
-    },
-    "quicktext.goToHomepage.label": {
-        "message": "Ugrás a honlapra"
     },
     "quicktext.group.label": {
         "message": "Csoport"
@@ -320,6 +320,15 @@
     },
     "quicktext.other.label": {
         "message": "Más"
+    },
+    "quicktext.primaryStorage.label": {
+        "message": "Storage location for templates and scripts"
+    },
+    "quicktext.primaryStorage.description": {
+        "message": "Changing the storage location for templates and scripts will restart Quicktext and load the new files. Any unsaved settings may be lost."
+    },
+    "quicktext.primaryStorage.internal.local.label": {
+        "message": "Belső tároló (alapértelmezett)"
     },
     "quicktext.remove.label": {
         "message": "Eltávolítás"

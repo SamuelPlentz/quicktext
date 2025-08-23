@@ -69,6 +69,12 @@
     "quicktext.HTML.label": {
         "message": "HTML"
     },
+    "quicktext.advanced.label": {
+        "message": "Avanzate"
+    },
+    "quicktext.accesskey.advanced": {
+        "message": "a"
+    },
     "quicktext.accesskey.addGroup": {
         "message": "p"
     },
@@ -92,9 +98,6 @@
     },
     "quicktext.accesskey.general": {
         "message": "g"
-    },
-    "quicktext.accesskey.goToHomepage": {
-        "message": "h"
     },
     "quicktext.accesskey.help": {
         "message": "p"
@@ -187,7 +190,7 @@
         "message": "Data/Ora"
     },
     "quicktext.defaultImport.label": {
-        "message": "Importa all'avvio"
+        "message": "Importa modelli e script all’avvio (sola lettura)"
     },
     "quicktext.displayname.label": {
         "message": "Nome visualizzato"
@@ -245,9 +248,6 @@
     },
     "quicktext.getScript.label": {
         "message": "Script della community"
-    },
-    "quicktext.goToHomepage.label": {
-        "message": "Vai alla homepage"
     },
     "quicktext.group.label": {
         "message": "Gruppo"
@@ -321,8 +321,17 @@
     "quicktext.other.label": {
         "message": "Altro"
     },
+    "quicktext.primaryStorage.label": {
+        "message": "Storage location for templates and scripts"
+    },
     "quicktext.remove.label": {
         "message": "Rimuovi"
+    },
+    "quicktext.primaryStorage.description": {
+        "message": "Changing the storage location for templates and scripts will restart Quicktext and load the new files. Any unsaved settings may be lost."
+    },
+    "quicktext.primaryStorage.internal.local.label": {
+        "message": "Archiviazione interna (predefinita)"
     },
     "quicktext.resetcounter.label": {
         "message": "Azzera il contatore"

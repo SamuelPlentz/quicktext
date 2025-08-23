@@ -14,10 +14,17 @@ const defaultPrefs = {
   "keywordKey": "Tab",
   "shortcutModifier": "alt",
   "shortcutTypeAdv": false,
-  "collapseState": ""
+  "collapseState": "",
+  "storageLocations": JSON.stringify([{
+    source: "INTERNAL",
+    data: "local",
+  }]),
+  "activeStorageLocationIdx": 0
 };
 
 const managedPrefs = [
+  "storageLocations",
+  "activeStorageLocationIdx",
   "defaultImport",
   "menuCollapse",
   "popup",

@@ -66,6 +66,12 @@
     "quicktext.HTML.label": {
         "message": "HTML"
     },
+    "quicktext.advanced.label": {
+        "message": "Pokročilé"
+    },
+    "quicktext.accesskey.advanced": {
+        "message": "a"
+    },
     "quicktext.accesskey.addGroup": {
         "message": "p"
     },
@@ -89,9 +95,6 @@
     },
     "quicktext.accesskey.general": {
         "message": "g"
-    },
-    "quicktext.accesskey.goToHomepage": {
-        "message": "w"
     },
     "quicktext.accesskey.help": {
         "message": "p"
@@ -184,7 +187,7 @@
         "message": "Datum/čas"
     },
     "quicktext.defaultImport.label": {
-        "message": "Importovat po spuštění"
+        "message": "Importovat šablony a skripty při spuštění (pouze ke čtení)"
     },
     "quicktext.displayname.label": {
         "message": "Zobrazované jméno"
@@ -242,9 +245,6 @@
     },
     "quicktext.getScript.label": {
         "message": "Komunitní skripty"
-    },
-    "quicktext.goToHomepage.label": {
-        "message": "Přejít na webové stránky"
     },
     "quicktext.group.label": {
         "message": "Skupina"
@@ -317,6 +317,15 @@
     },
     "quicktext.other.label": {
         "message": "Ostatní"
+    },
+    "quicktext.primaryStorage.label": {
+        "message": "Storage location for templates and scripts"
+    },
+    "quicktext.primaryStorage.description": {
+        "message": "Changing the storage location for templates and scripts will restart Quicktext and load the new files. Any unsaved settings may be lost."
+    },
+    "quicktext.primaryStorage.internal.local.label": {
+        "message": "Interní úložiště (výchozí)"
     },
     "quicktext.remove.label": {
         "message": "Odstranit"

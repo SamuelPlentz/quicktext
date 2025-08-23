@@ -137,12 +137,12 @@ if (defaultImportFieldValue) {
       if (!path.match(/^(http|https):\/\//)) {
         defaultImports.push({
           source: "FILE",
-          path
+          data: path
         })
       } else {
         defaultImports.push({
           source: "URL",
-          path
+          data: path
         })
       }
       needsMigration = true;

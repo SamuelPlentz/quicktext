@@ -132,6 +132,18 @@
     "quicktext.accesskeyTemplate.import": {
         "message": "i"
     },
+    "quicktext.buttons.selectStorage.label": {
+        "message": "ストレージを選択"
+    },
+    "quicktext.buttons.addFolder.label": {
+        "message": "＋フォルダー"
+    },
+    "quicktext.buttons.addFile.label": {
+        "message": "＋ファイル"
+    },
+    "quicktext.buttons.addUrl.label": {
+        "message": "＋URL"
+    },
     "quicktext.addGroup.label": {
         "message": "グループを追加"
     },
@@ -318,16 +330,16 @@
     "quicktext.other.label": {
         "message": "その他"
     },
-    "quicktext.primaryStorage.label": {
-        "message": "Storage location for templates and scripts"
+    "quicktext.storageLocations.label": {
+        "message": "テンプレートとスクリプトの保存場所"
     },
     "quicktext.remove.label": {
         "message": "削除"
     },
-    "quicktext.primaryStorage.description": {
-        "message": "Changing the storage location for templates and scripts will restart Quicktext and load the new files. Any unsaved settings may be lost."
+    "quicktext.storageLocations.description": {
+        "message": "テンプレートとスクリプトの保存場所を変更すると、現在の保存場所リストが保存され、Quicktext が再起動して新しい場所からファイルを読み込みます。その他の未保存の設定は失われます。"
     },
-    "quicktext.primaryStorage.internal.local.label": {
+    "quicktext.storage.internal.local.label": {
         "message": "内部ストレージ（デフォルト)"
     },
     "quicktext.resetcounter.label": {

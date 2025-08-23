@@ -132,6 +132,9 @@
     "quicktext.accesskeyTemplate.import": {
         "message": "i"
     },
+    "quicktext.buttons.selectStorage.label": {
+        "message": "Välj lagring"
+    },
     "quicktext.addGroup.label": {
         "message": "Lägg till grupp"
     },
@@ -318,13 +321,13 @@
     "quicktext.other.label": {
         "message": "Övrigt"
     },
-    "quicktext.primaryStorage.label": {
-        "message": "Storage location for templates and scripts"
+    "quicktext.storageLocations.label": {
+        "message": "Lagringsplats för mallar och skript"
     },
-    "quicktext.primaryStorage.description": {
-        "message": "Changing the storage location for templates and scripts will restart Quicktext and load the new files. Any unsaved settings may be lost."
+    "quicktext.storageLocations.description": {
+        "message": "Att ändra lagringsplatsen för mallar och skript sparar din aktuella lista över lagringsplatser och startar om Quicktext för att ladda filerna från den nya platsen. Alla andra osparade inställningar kommer att gå förlorade."
     },
-    "quicktext.primaryStorage.internal.local.label": {
+    "quicktext.storage.internal.local.label": {
         "message": "Internt lagringsutrymme (standard)"
     },
     "quicktext.remove.label": {

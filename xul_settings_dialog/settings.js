@@ -70,6 +70,11 @@ var gQuicktext = {
     this.mDefaultImport = aDefaultImport;
     return this.mDefaultImport;
   },
+  get storageLocations() { return this.mStorageLocations; },
+  set storageLocations(aStorageLocations) {
+    this.mStorageLocations = aStorageLocations;
+    return this.mStorageLocations;
+  },
   get keywordKey() { return this.mKeywordKey; },
   set keywordKey(aKeywordKey) {
     this.mKeywordKey = aKeywordKey;
@@ -180,6 +185,7 @@ var gQuicktext = {
     await notifyTools.notifyBackground({ command: "setPref", pref: "shortcutModifier", value: this.mShortcutModifier });
     await notifyTools.notifyBackground({ command: "setPref", pref: "collapseState", value: this.mCollapseState });
     await notifyTools.notifyBackground({ command: "setPref", pref: "defaultImport", value: this.mDefaultImport });
+    await notifyTools.notifyBackground({ command: "setPref", pref: "storageLocations", value: this.mStorageLocations });
 
     // Save templates and scripts.
     this.endEditing();
@@ -532,7 +538,6 @@ class SourceListBox {
         this.listBox.selectedIndex = i;
       }
     }
-
     this.listBox.addEventListener("select", () => this.checkButtons());
     this.checkButtons();
   }
@@ -576,23 +581,27 @@ class SourceListBox {
     return activeIdx;
   }
 
-  async update() {
-    let updatedEntries = [];
+  get value() {
+    let entries = [];
     for (let child of this.listBox.children) {
-      updatedEntries.push({
+      entries.push({
         source: child.dataset.source,
         data: child.dataset.data,
       })
     }
+    return entries;
+  }
+
+  async update() {
     if (this.#updateCallback) {
-      await this.#updateCallback(updatedEntries, this.activeIdx);
+      await this.#updateCallback(this.value, this.activeIdx);
     }
     this.checkButtons();
   }
 
   getLabel(entry) {
     return entry.source.toLowerCase() == "internal"
-      ? extension.localeData.localizeMessage(`quicktext.primaryStorage.internal.${entry.data.toLowerCase()}.label`)
+      ? extension.localeData.localizeMessage(`quicktext.storage.internal.${entry.data.toLowerCase()}.label`)
       : entry.data
   }
 
@@ -769,6 +778,7 @@ var settingsDialog = {
       const defaultImportUI = new SourceListBox({
         listBoxId: "box-defaultImport",
         loadCallback: async () => {
+          document.getElementById("box-defaultImport").dataset.value = defaultImportEntries;
           return {
             entries: JSON.parse(defaultImportEntries),
           }
@@ -796,15 +806,15 @@ var settingsDialog = {
         pref: "storageLocations"
       });
       const {
-        value: selectedStorageLocationIdx,
-        isManaged: selectedStorageLocationIdxManaged,
+        value: activeStorageLocationIdx,
+        isManaged: activeStorageLocationIdxManaged,
       } = await notifyTools.notifyBackground({
         command: "getPrefWithManagedInfo",
         pref: "activeStorageLocationIdx"
       });
 
-      const primaryStorageUI = new SourceListBox({
-        listBoxId: "primaryStorage",
+      const storageLocationsUI = new SourceListBox({
+        listBoxId: "box-storageLocations",
         loadCallback: async () => {
           const entries = JSON.parse(storageLocationEntries);
           if (!(
@@ -816,24 +826,25 @@ var settingsDialog = {
               data: "local",
             })
           }
+          document.getElementById("box-storageLocations").dataset.value = storageLocationEntries;
+          document.getElementById("box-storageLocations").dataset.activeIdx = activeStorageLocationIdx;
           return {
             entries,
-            activeIdx: selectedStorageLocationIdx,
+            activeIdx: activeStorageLocationIdx,
           }
         },
         updateCallback: async (updatedEntries, activeIdx) => {
+          document.getElementById("box-storageLocations").dataset.value = JSON.stringify(updatedEntries);
+          document.getElementById("box-storageLocations").dataset.activeIdx = activeIdx;
+          settingsDialog.checkForGeneralChanges(6);
+        },
+        selectCallback: async (idx) => {
+          // Save the current list of storage entries.
           await notifyTools.notifyBackground({
             command: "setPref",
             pref: "storageLocations",
-            value: JSON.stringify(updatedEntries)
+            value: document.getElementById("box-storageLocations").dataset.value
           });
-          await notifyTools.notifyBackground({
-            command: "setPref",
-            pref: "activeStorageLocationIdx",
-            value: activeIdx
-          });
-        },
-        selectCallback: async (idx) => {
           await notifyTools.notifyBackground({
             command: "setPref",
             pref: "activeStorageLocationIdx",
@@ -850,12 +861,12 @@ var settingsDialog = {
           return idx > -1 && idx != activeIdx
         },
         buttonDefinitions: {
-          "primaryStorage_remove": { callback: "removeItem", isManaged: storageLocationsManaged },
-          "primaryStorage_addFolderItem": { callback: "addFolderItem", isManaged: storageLocationsManaged },
-          "primaryStorage_select": { callback: "selectItem", isManaged: selectedStorageLocationIdxManaged },
+          "storageLocations_remove": { callback: "removeItem", isManaged: storageLocationsManaged || activeStorageLocationIdxManaged},
+          "storageLocations_addFolderItem": { callback: "addFolderItem", isManaged: storageLocationsManaged || activeStorageLocationIdxManaged},
+          "storageLocations_select": { callback: "selectItem", isManaged: activeStorageLocationIdxManaged },
         }
       })
-      await primaryStorageUI.load();
+      await storageLocationsUI.load();
     }
   },
   unload: function () {
@@ -911,6 +922,8 @@ var settingsDialog = {
       gQuicktext.viewPopup = document.getElementById("checkbox-viewPopup").checked;
     if (document.getElementById("box-defaultImport"))
       gQuicktext.defaultImport = document.getElementById("box-defaultImport").dataset.value;
+    if (document.getElementById("box-storageLocations"))
+      gQuicktext.storageLocations = document.getElementById("box-storageLocations").dataset.value;
     if (document.getElementById("select-shortcutModifier"))
       gQuicktext.shortcutModifier = document.getElementById("select-shortcutModifier").value;
     if (document.getElementById("checkbox-shortcutTypeAdv"))
@@ -1006,14 +1019,14 @@ var settingsDialog = {
     }
   },
   checkForGeneralChanges: function (aIndex) {
-    const ids = ['checkbox-viewPopup', 'checkbox-collapseGroup', 'select-shortcutModifier', 'checkbox-shortcutTypeAdv', 'select-keywordKey', 'box-defaultImport'];
-    const type = ['checked', 'checked', 'value', 'checked', 'value', 'dataset'];
-    const keys = ['viewPopup', 'collapseGroup', 'shortcutModifier', 'shortcutTypeAdv', 'keywordKey', 'defaultImport'];
+    const ids = ['checkbox-viewPopup', 'checkbox-collapseGroup', 'select-shortcutModifier', 'checkbox-shortcutTypeAdv', 'select-keywordKey', 'box-defaultImport', 'box-storageLocations'];
+    const type = ['checked', 'checked', 'value', 'checked', 'value', 'dataset', 'dataset'];
+    const keys = ['viewPopup', 'collapseGroup', 'shortcutModifier', 'shortcutTypeAdv', 'keywordKey', 'defaultImport', 'storageLocations'];
 
     if (typeof ids[aIndex] == 'undefined')
       return;
 
-    const value =  (type[aIndex] === "dataset") 
+    const value = (type[aIndex] === "dataset")
       ? document.getElementById(ids[aIndex]).dataset.value
       : document.getElementById(ids[aIndex])[type[aIndex]];
 

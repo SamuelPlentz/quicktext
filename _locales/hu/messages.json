@@ -135,6 +135,18 @@
     "quicktext.accesskeyTemplate.import": {
         "message": "i"
     },
+    "quicktext.buttons.selectStorage.label": {
+        "message": "Tároló kiválasztása"
+    },
+    "quicktext.buttons.addFolder.label": {
+        "message": "+ Mappa"
+    },
+    "quicktext.buttons.addFile.label": {
+        "message": "+ Fájl"
+    },
+    "quicktext.buttons.addUrl.label": {
+        "message": "+ URL"
+    },
     "quicktext.addGroup.label": {
         "message": "Csoport hozzáadása"
     },
@@ -321,13 +333,13 @@
     "quicktext.other.label": {
         "message": "Más"
     },
-    "quicktext.primaryStorage.label": {
-        "message": "Storage location for templates and scripts"
+    "quicktext.storageLocations.label": {
+        "message": "Tárolási hely a sablonokhoz és szkriptekhez"
     },
-    "quicktext.primaryStorage.description": {
-        "message": "Changing the storage location for templates and scripts will restart Quicktext and load the new files. Any unsaved settings may be lost."
+    "quicktext.storageLocations.description": {
+        "message": "A sablonok és szkriptek tárolási helyének megváltoztatása elmenti a tárolási helyek aktuális listáját, majd újraindítja a Quicktextet, hogy betöltse a fájlokat az új helyről. Minden egyéb nem mentett beállítás elvész."
     },
-    "quicktext.primaryStorage.internal.local.label": {
+    "quicktext.storage.internal.local.label": {
         "message": "Belső tároló (alapértelmezett)"
     },
     "quicktext.remove.label": {

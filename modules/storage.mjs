@@ -7,7 +7,7 @@
 const defaultPrefs = {
   "counter": 0,
   "templateFolder": "",
-  "defaultImport": "",
+  "defaultImport": JSON.stringify([]),
   "menuCollapse": true,
   "toolbar": true,
   "popup": true,

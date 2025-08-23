@@ -135,6 +135,18 @@
     "quicktext.accesskeyTemplate.import": {
         "message": "i"
     },
+    "quicktext.buttons.selectStorage.label": {
+        "message": "Select storage"
+    },
+    "quicktext.buttons.addFolder.label": {
+        "message": "+ Folder"
+    },
+    "quicktext.buttons.addFile.label": {
+        "message": "+ File"
+    },
+    "quicktext.buttons.addUrl.label": {
+        "message": "+ URL"
+    },
     "quicktext.addGroup.label": {
         "message": "Add group"
     },
@@ -321,13 +333,13 @@
     "quicktext.other.label": {
         "message": "Other"
     },
-    "quicktext.primaryStorage.label": {
+    "quicktext.storageLocations.label": {
         "message": "Storage location for templates and scripts"
     },
-    "quicktext.primaryStorage.description": {
-        "message": "Changing the storage location for templates and scripts will restart Quicktext and load the new files. Any unsaved settings may be lost."
+    "quicktext.storageLocations.description": {
+        "message": "Changing the storage location for templates and scripts will save your current list of storage locations and restart Quicktext to load the files from the new location. Any other unsaved settings will be lost."
     },
-    "quicktext.primaryStorage.internal.local.label": {
+    "quicktext.storage.internal.local.label": {
         "message": "Internal storage (default)"
     },
     "quicktext.remove.label": {

@@ -39,11 +39,11 @@ textarea {
   width: 100%
 }
 
-#primaryStorage {
+#box-storageLocations {
   overflow-y: auto;
   height: 120px;
 }
 
-#primaryStorage richlistitem[data-active] {
+#box-storageLocations richlistitem[data-active] {
   background-color: skyblue
 }

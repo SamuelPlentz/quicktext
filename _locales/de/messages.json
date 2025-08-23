@@ -132,6 +132,18 @@
     "quicktext.accesskeyTemplate.import": {
         "message": "i"
     },
+    "quicktext.buttons.selectStorage.label": {
+        "message": "Speicher auswählen"
+    },
+    "quicktext.buttons.addFolder.label": {
+        "message": "+ Ordner"
+    },
+    "quicktext.buttons.addFile.label": {
+        "message": "+ Datei"
+    },
+    "quicktext.buttons.addUrl.label": {
+        "message": "+ URL"
+    },
     "quicktext.addGroup.label": {
         "message": "Gruppe hinzufügen"
     },
@@ -318,13 +330,13 @@
     "quicktext.other.label": {
         "message": "Andere"
     },
-    "quicktext.primaryStorage.label": {
+    "quicktext.storageLocations.label": {
         "message": "Speicherort für Vorlagen und Skripte"
     },
-    "quicktext.primaryStorage.description": {
-        "message": "Changing the storage location for templates and scripts will restart Quicktext and load the new files. Any unsaved settings may be lost."
+    "quicktext.storageLocations.description": {
+        "message": "Das Ändern des Speicherorts für Vorlagen und Skripte speichert Ihre aktuelle Liste der Speicherorte und startet Quicktext neu, um die Dateien vom neuen Speicherort zu laden. Alle anderen nicht gespeicherten Einstellungen gehen verloren."
     },
-    "quicktext.primaryStorage.internal.local.label": {
+    "quicktext.storage.internal.local.label": {
         "message": "Interner Speicher (Standard)"
     },
     "quicktext.remove.label": {

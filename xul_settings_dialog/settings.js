@@ -49,8 +49,6 @@ var gQuicktext = {
   get viewToolbar() { return this.mViewToolbar; },
   set viewToolbar(aViewToolbar) {
     this.mViewToolbar = aViewToolbar;
-
-    notifyTools.notifyBackground({ command: "setPref", pref: "toolbar", value: aViewToolbar });
     this.notifyObservers("updatetoolbar", "");
 
     return this.mViewToolbar;
@@ -58,15 +56,11 @@ var gQuicktext = {
   get viewPopup() { return this.mViewPopup; },
   set viewPopup(aViewPopup) {
     this.mViewPopup = aViewPopup;
-    notifyTools.notifyBackground({ command: "setPref", pref: "popup", value: aViewPopup });
-
     return this.mViewPopup;
   },
   get collapseGroup() { return this.mCollapseGroup; },
   set collapseGroup(aCollapseGroup) {
     this.mCollapseGroup = aCollapseGroup;
-    notifyTools.notifyBackground({ command: "setPref", pref: "menuCollapse", value: aCollapseGroup });
-
     this.notifyObservers("updatesettings", "");
 
     return this.mCollapseGroup;
@@ -74,29 +68,21 @@ var gQuicktext = {
   get defaultImport() { return this.mDefaultImport; },
   set defaultImport(aDefaultImport) {
     this.mDefaultImport = aDefaultImport;
-    notifyTools.notifyBackground({ command: "setPref", pref: "defaultImport", value: aDefaultImport });
-
     return this.mDefaultImport;
   },
   get keywordKey() { return this.mKeywordKey; },
   set keywordKey(aKeywordKey) {
     this.mKeywordKey = aKeywordKey;
-    notifyTools.notifyBackground({ command: "setPref", pref: "keywordKey", value: aKeywordKey });
-
     return this.mKeywordKey;
   },
   get shortcutModifier() { return this.mShortcutModifier; },
   set shortcutModifier(aShortcutModifier) {
     this.mShortcutModifier = aShortcutModifier;
-    notifyTools.notifyBackground({ command: "setPref", pref: "shortcutModifier", value: aShortcutModifier });
-
     return this.mShortcutModifier;
   },
   get collapseState() { return this.mCollapseState; },
   set collapseState(aCollapseState) {
     this.mCollapseState = aCollapseState;
-    notifyTools.notifyBackground({ command: "setPref", pref: "collapseState", value: aCollapseState });
-
     return this.mCollapseState;
   },
   get shortcutTypeAdv() {
@@ -107,8 +93,6 @@ var gQuicktext = {
   },
   set shortcutTypeAdv(aShortcutTypeAdv) {
     this.mShortcutTypeAdv = aShortcutTypeAdv;
-    notifyTools.notifyBackground({ command: "setPref", pref: "shortcutTypeAdv", value: aShortcutTypeAdv });
-
     return this.mShortcutTypeAdv;
   },
   loadSettings: async function () {
@@ -141,7 +125,6 @@ var gQuicktext = {
       { pref: "keywordKey", elemId: "select-keywordKey", m: this.mKeywordKey },
       { pref: "shortcutTypeAdv", elemId: "checkbox-shortcutTypeAdv", m: this.mShortcutTypeAdv },
       { pref: "shortcutModifier", elemId: "select-shortcutModifier", m: this.mShortcutModifier },
-      { pref: "defaultImport", elemId: "text-defaultImport", m: this.mDefaultImport },
     ]) {
       const { value, isManaged } = await notifyTools.notifyBackground({
         command: "getPrefWithManagedInfo",

@@ -19,10 +19,6 @@ textarea {
   resize: none;
 }
 
-#text-defaultImport:disabled {
-  background-color: #ccc;
-}
-
 #script-list {
   overflow-y: auto;
   height: 100%;

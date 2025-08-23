@@ -33,7 +33,7 @@ textarea {
   display: block;
 }
 
-#defaultImport {
+#box-defaultImport {
   overflow-y: auto;
   height: 120px;
   width: 100%

@@ -767,14 +767,14 @@ var settingsDialog = {
       });
 
       const defaultImportUI = new SourceListBox({
-        listBoxId: "defaultImport",
+        listBoxId: "box-defaultImport",
         loadCallback: async () => {
           return {
             entries: JSON.parse(defaultImportEntries),
           }
         },
         updateCallback: (updatedEntries, activeIdx) => {
-          document.getElementById("text-defaultImport").value = JSON.stringify(updatedEntries);
+          document.getElementById("box-defaultImport").dataset.value = JSON.stringify(updatedEntries);
           settingsDialog.checkForGeneralChanges(5);
         },
         buttonDefinitions: {
@@ -909,8 +909,8 @@ var settingsDialog = {
 
     if (document.getElementById("checkbox-viewPopup"))
       gQuicktext.viewPopup = document.getElementById("checkbox-viewPopup").checked;
-    if (document.getElementById("text-defaultImport"))
-      gQuicktext.defaultImport = document.getElementById("text-defaultImport").value;
+    if (document.getElementById("box-defaultImport"))
+      gQuicktext.defaultImport = document.getElementById("box-defaultImport").dataset.value;
     if (document.getElementById("select-shortcutModifier"))
       gQuicktext.shortcutModifier = document.getElementById("select-shortcutModifier").value;
     if (document.getElementById("checkbox-shortcutTypeAdv"))
@@ -1006,14 +1006,16 @@ var settingsDialog = {
     }
   },
   checkForGeneralChanges: function (aIndex) {
-    var ids = ['checkbox-viewPopup', 'checkbox-collapseGroup', 'select-shortcutModifier', 'checkbox-shortcutTypeAdv', 'select-keywordKey', 'text-defaultImport'];
-    var type = ['checked', 'checked', 'value', 'checked', 'value', 'value'];
-    var keys = ['viewPopup', 'collapseGroup', 'shortcutModifier', 'shortcutTypeAdv', 'keywordKey', 'defaultImport'];
+    const ids = ['checkbox-viewPopup', 'checkbox-collapseGroup', 'select-shortcutModifier', 'checkbox-shortcutTypeAdv', 'select-keywordKey', 'box-defaultImport'];
+    const type = ['checked', 'checked', 'value', 'checked', 'value', 'dataset'];
+    const keys = ['viewPopup', 'collapseGroup', 'shortcutModifier', 'shortcutTypeAdv', 'keywordKey', 'defaultImport'];
 
     if (typeof ids[aIndex] == 'undefined')
       return;
 
-    var value = document.getElementById(ids[aIndex])[type[aIndex]];
+    const value =  (type[aIndex] === "dataset") 
+      ? document.getElementById(ids[aIndex]).dataset.value
+      : document.getElementById(ids[aIndex])[type[aIndex]];
 
     if (gQuicktext[keys[aIndex]] != value)
       this.generalChangeMade(aIndex);
@@ -1236,8 +1238,6 @@ var settingsDialog = {
       elem.checked = gQuicktext.shortcutTypeAdv;
       this.shortcutModifierChange();
     }
-    if (document.getElementById("text-defaultImport"))
-      document.getElementById("text-defaultImport").value = gQuicktext.defaultImport;
     if (document.getElementById("select-keywordKey"))
       document.getElementById("select-keywordKey").value = gQuicktext.keywordKey;
 

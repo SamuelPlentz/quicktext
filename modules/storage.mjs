@@ -110,12 +110,22 @@ async function readDataFromStorage(type) {
   try {
     switch (source) {
       case "internal":
-        return browser.storage.local.get({ [type]: null }).then(
-          e => e[type] ? JSON.parse(e[type]) : null);
+        return browser.storage.local.get({ [type]: null })
+          .then(e => e[type] ? JSON.parse(e[type]) : null);
       case "file": {
+        // Try reading the cache first.
+        const cache = await browser.storage.session.get({ [type]: null })
+          .then(e => e[type] ? JSON.parse(e[type]) : null);
+        if (cache) {
+          return cache;
+        }
+
+        // Read the actual storage.
         const content = await browser.Quicktext.readTextFile(`${type}.json`, path);
         const parsed = await quicktext.parseConfigFileData(content);
         if (parsed[type]) {
+          // Update cache.
+          await browser.storage.session.set({ [type]: JSON.stringify(parsed[type]) });
           return parsed[type];
         }
         break;
@@ -144,7 +154,17 @@ async function writeDataToStorage(type, content) {
         await browser.storage.local.set({ [type]: JSON.stringify(content) });
         break;
       case "file": {
-        await browser.Quicktext.writeTextFile(`${type}.json`, JSON.stringify({[type]: content}), path);
+        // Check for changes.
+        const stringContent = JSON.stringify(content);
+        const cache = await browser.storage.session.get({ [type]: null })
+          .then(e => e[type] ? e[type] : null);
+        if (cache && cache == stringContent) {
+          return;
+        }
+
+        // Update cache and write to the actual storage..
+        await browser.storage.session.set({ [type]: stringContent });
+        await browser.Quicktext.writeTextFile(`${type}.json`, JSON.stringify({ [type]: content }), path);
         break;
       }
       default:
@@ -166,7 +186,7 @@ export async function setScripts(scripts) {
   return writeDataToStorage("scripts", scripts);
 }
 export async function getScripts() {
-    return readDataFromStorage("scripts")
+  return readDataFromStorage("scripts")
 }
 
 export async function migrate() {

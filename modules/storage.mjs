@@ -4,6 +4,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+import * as quicktext from "./quicktext.mjs";
+
 const defaultPrefs = {
   "counter": 0,
   "templateFolder": "",
@@ -32,6 +34,21 @@ const managedPrefs = [
   "shortcutModifier",
   "shortcutTypeAdv",
 ];
+
+let ACTIVE_STORAGE;
+
+async function getActiveStorage() {
+  if (!ACTIVE_STORAGE) {
+    let storageLocations = JSON.parse(await getPref("storageLocations"));
+    let activeStorageLocationIdx = await getPref("activeStorageLocationIdx");
+    let { source, data } = storageLocations[activeStorageLocationIdx];
+    ACTIVE_STORAGE = {
+      source: source.toLowerCase(),
+      data,
+    }
+  }
+  return ACTIVE_STORAGE;
+}
 
 async function getManagedPref(aName) {
   if (!managedPrefs.includes(aName)) {
@@ -79,20 +96,77 @@ export async function clearPref(aName) {
   await browser.storage.local.remove(aName);
 }
 
-export async function setTemplates(templates) {
-  await browser.storage.local.set({ templates: JSON.stringify(templates) });
-}
-export async function getTemplates() {
-  return browser.storage.local.get({ templates: null }).then(
-    e => e.templates ? JSON.parse(e.templates) : null);
+/**
+ * Read data fronm the active storage.
+ * 
+ * @param {scripts|templates} type 
+ */
+async function readDataFromStorage(type) {
+  const { source, data: path } = await getActiveStorage();
+  const DEFAULT_RV = {
+    scripts: [],
+    templates: { groups: [], texts: [] },
+  }
+  try {
+    switch (source) {
+      case "internal":
+        return browser.storage.local.get({ [type]: null }).then(
+          e => e[type] ? JSON.parse(e[type]) : null);
+      case "file": {
+        const content = await browser.Quicktext.readTextFile(`${type}.json`, path);
+        const parsed = await quicktext.parseConfigFileData(content);
+        if (parsed[type]) {
+          return parsed[type];
+        }
+        break;
+      }
+      default:
+        throw new Error(`Unkown storage source "${source}".`);
+    }
+  } catch (ex) {
+    // Failed, use default.
+    console.log(ex)
+  }
+  return DEFAULT_RV[type];
 }
 
+/**
+ * Write data to the active storage.
+ * 
+ * @param {scripts|templates} type
+ * @param {object} content 
+ */
+async function writeDataToStorage(type, content) {
+  const { source, data: path } = await getActiveStorage();
+  try {
+    switch (source) {
+      case "internal":
+        await browser.storage.local.set({ [type]: JSON.stringify(content) });
+        break;
+      case "file": {
+        await browser.Quicktext.writeTextFile(`${type}.json`, JSON.stringify({[type]: content}), path);
+        break;
+      }
+      default:
+        throw new Error(`Unkown storage source "${source}".`);
+    }
+  } catch (ex) {
+    // Failed.
+    console.log(ex)
+  }
+}
+
+export async function setTemplates(templates) {
+  return writeDataToStorage("templates", templates);
+}
+export async function getTemplates() {
+  return readDataFromStorage("templates")
+}
 export async function setScripts(scripts) {
-  await browser.storage.local.set({ scripts: JSON.stringify(scripts) });
+  return writeDataToStorage("scripts", scripts);
 }
 export async function getScripts() {
-  return browser.storage.local.get({ scripts: null }).then(
-    e => e.scripts ? JSON.parse(e.scripts) : null);
+    return readDataFromStorage("scripts")
 }
 
 export async function migrate() {

@@ -50,13 +50,45 @@ async function getActiveStorage() {
   return ACTIVE_STORAGE;
 }
 
+function migratePrefOnTheFly(data, name) {
+  switch (name) {
+    case "defaultImport": {
+      try {
+        JSON.parse(data[name]);
+        return data[name];
+      } catch {
+        // Is not a JSON and needs to be migrated.
+      }
+
+      // Assume legacy string, separated by ";"
+      let defaultImports = [];
+      for (let path of data[name].split(";").map(e => e.trim()).filter(Boolean)) {
+        if (!path.match(/^(http|https):\/\//)) {
+          defaultImports.push({
+            source: "FILE",
+            data: path
+          })
+        } else {
+          defaultImports.push({
+            source: "URL",
+            data: path
+          })
+        }
+      }
+      return JSON.stringify(defaultImports);
+    }
+    default:
+      return data[name];
+  }
+}
+
 async function getManagedPref(aName) {
   if (!managedPrefs.includes(aName)) {
     return undefined;
   }
   try {
     let override = await browser.storage.managed.get({ [aName]: undefined });
-    return override[aName];
+    return migratePrefOnTheFly(override, aName);
   } catch {
     // No managed storage available.
   }
@@ -69,7 +101,7 @@ async function getLocalPref(aName, aFallback = undefined) {
 
   return browser.storage.local
     .get({ [aName]: defaultPref })
-    .then(o => o[aName]);
+    .then(o => migratePrefOnTheFly(o, aName));
 }
 
 export async function getPrefWithManagedInfo(aName, aFallback = undefined) {

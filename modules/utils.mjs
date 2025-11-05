@@ -261,11 +261,17 @@ export async function openPopup(tabId, config) {
     let lastFocusedWindow = parentId;
 
     const dimension = ({ top, left, width, height }) => {
+        // On Linux, skip centering for wayland compatability
+        // Windows/macOS always center
+        if (navigator.userAgent.includes('Linux')) {
+            return {};
+        }
+
         const excessWidth = 100;
         const excessHeight = 100;
         return {
-            top: top + Math.round(0.5 * excessWidth),
-            left: left + Math.round(0.5 * excessHeight),
+            top: top + Math.round(0.5 * excessHeight),
+            left: left + Math.round(0.5 * excessWidth),
             width: width - excessWidth,
             height: height - excessHeight,
         }
@@ -303,8 +309,13 @@ export async function openPopup(tabId, config) {
 
     };
     const onMessageListener = (info, sender, sendResponse) => {
+        // Validate windowId for all actions, allow first config request to set popupId to resolve race condition
         if (sender.tab.windowId != popupId) {
-            return false;
+            if (info?.action === "config" && !popupId) {
+                popupId = sender.tab.windowId;
+            } else {
+                return false;
+            }
         }
 
         switch (info?.action) {

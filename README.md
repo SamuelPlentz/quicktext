@@ -1,3 +1,5 @@
+**IMPORTANT: Quicktext is still a legacy extension and requires updates for each new Thunderbird version. I’m currently unable to provide updates for Thunderbird’s monthly release channel. Quicktext users need to use Thunderbird’s ESR channel, which only receives a major update once per year. I hope to complete the transition from a legacy extension to a modern WebExtension in 2026.**
+
 [Quicktext](https://addons.thunderbird.net/addon/quicktext/) is a [Thunderbird](https://www.thunderbird.net/) extension, which has been created by Emil Hesslow. However, he was no longer able to update Quicktext or provide any kind of support. Thankfully he changed the license of Quicktext to MPL 2.0, so I could continue to update the extension and make it work with the most recent version of Thunderbird.
 
 I will try to keep Quicktext going, but support will be limited. You may use the [issue section](https://github.com/jobisoft/quicktext/issues) of this repository to report bugs. You may also discuss Quicktext related issues with other users at https://discourse.mozilla.org/c/thunderbird.

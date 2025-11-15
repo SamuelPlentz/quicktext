@@ -16,8 +16,13 @@
 * drakulis
 * Peñalara Software S.L.
 * Samuel Plentz
+* @jmber
+* @uhs-robert
+* @zsugabubus
 
 ## Translators
 * Alexey Sinitsyn (ru)
 * Óvári (hu)
 * Ryota Murai (ja)
+* @bellingeri
+* @Shogix

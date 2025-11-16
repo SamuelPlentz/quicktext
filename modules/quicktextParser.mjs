@@ -422,8 +422,12 @@ export class QuicktextParser {
                 post.push(tag + '[' + i + ']=' + data[i]);
             }
             break;
-          case 'subject':
           case 'clipboard':
+            data = await this.process_clipboard();
+            if (data?.plain)
+              post.push(tag + '=' + data.plain);
+            break;
+          case 'subject':
           case 'selection':
           case 'counter':
             data = await this["process_" + tag]();

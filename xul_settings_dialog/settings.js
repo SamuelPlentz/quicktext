@@ -760,11 +760,6 @@ var settingsDialog = {
     document.getElementById("helpbutton").addEventListener("command", function (e) { settingsDialog.openHomepage(); }, false);
     document.getElementById("scripthelpbutton").addEventListener("command", function (e) { settingsDialog.openScriptHelp(); }, false);
 
-    // Update boxHeightOffset
-    let scriptListElem = document.getElementById('script-list');
-    let elementHeight = scriptListElem.getBoundingClientRect().height;
-    boxHeightOffset = window.innerHeight - elementHeight;
-
     // Load defaultImport
     {
       const {
@@ -2138,11 +2133,6 @@ var settingsDialog = {
 
 window.addEventListener("DOMContentLoaded", () => settingsDialog.init());
 window.addEventListener("unload", () => settingsDialog.unload());
-window.addEventListener('resize', () => {
-  // Keep the known offset between window size and script list size, to make it
-  // correctly adjust to the changed window size.
-  let listElem = document.getElementById('script-list');
-  listElem.style.height = `${Math.max(150, window.innerHeight - boxHeightOffset)}px`;
-});
+
 
 

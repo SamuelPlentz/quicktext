@@ -19,10 +19,10 @@
 [x] implement toolbar reload on template change and time change
 [x] replace compose action button by menu typed action button
 [x] remove as much legacy Quicktext code as possible 
-[ ] move composer toolbar Experiment into a separate add-on
+[x] move composer toolbar Experiment into a separate add-on
 
 [x] make template manager use files loaded from background
-[ ] replace XUL template manager with HTML template manager
+[x] replace XUL template manager with HTML template manager
 [ ] add gallery for attachments, images and text files, which are currently
     references via file system paths, which will not work as a pure webextension
 

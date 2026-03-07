@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <link rel="stylesheet" href="manager.css">
+  <script type="module" src="manager.js"></script>
+</head>
+<body>
+  <div id="app">
+
+    <!-- Tab buttons -->
+    <div id="tabs">
+      <button class="tab-btn" id="tab-general" data-tab="general"></button>
+      <button class="tab-btn active" id="tab-templates" data-tab="templates"></button>
+      <button class="tab-btn" id="tab-scripts" data-tab="scripts"></button>
+      <button class="tab-btn" id="tab-advanced" data-tab="advanced"></button>
+    </div>
+
+    <!-- General Panel -->
+    <div class="tab-panel" id="panel-general" hidden>
+      <div class="two-col">
+        <div class="col">
+          <fieldset>
+            <legend id="lbl-settings"></legend>
+            <div class="field-rows">
+              <label><input type="checkbox" id="chk-popup"> <span id="lbl-chk-popup"></span></label>
+              <label><input type="checkbox" id="chk-collapse"> <span id="lbl-chk-collapse"></span></label>
+              <div class="inline-row">
+                <select id="sel-modifier">
+                  <option value="alt"></option>
+                  <option value="control"></option>
+                  <option value="meta"></option>
+                </select>
+                <span id="lbl-modifier"></span>
+              </div>
+              <label><input type="checkbox" id="chk-shortcut-adv"> <span id="lbl-chk-shortcut-adv"></span></label>
+              <div class="inline-row">
+                <select id="sel-keyword">
+                  <option value="Tab"></option>
+                  <option value="Space"></option>
+                  <option value="Enter"></option>
+                  <option value="F2">F2</option>
+                  <option value="F4">F4</option>
+                  <option value="F5">F5</option>
+                  <option value="F8">F8</option>
+                  <option value="F11">F11</option>
+                  <option value="F12">F12</option>
+                </select>
+                <span id="lbl-keyword-setting"></span>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend id="lbl-default-import"></legend>
+            <ul id="default-import-list" class="source-list"></ul>
+            <div class="btn-row">
+              <button id="btn-add-url"></button>
+              <button id="btn-remove-import" disabled></button>
+            </div>
+          </fieldset>
+        </div>
+        <div class="col">
+          <fieldset>
+            <legend id="lbl-sharing-templates"></legend>
+            <div class="btn-col">
+              <button id="btn-export-templates"></button>
+              <button id="btn-import-templates"></button>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend id="lbl-sharing-scripts"></legend>
+            <div class="btn-col">
+              <button id="btn-export-scripts"></button>
+              <button id="btn-import-scripts"></button>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend id="lbl-counter"></legend>
+            <button id="btn-reset-counter"></button>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+
+    <!-- Templates Panel -->
+    <div class="tab-panel" id="panel-templates">
+      <div class="split-pane">
+        <div class="sidebar">
+          <fieldset class="flex-fieldset">
+            <legend id="lbl-template-title"></legend>
+            <div class="btn-row">
+              <button id="btn-add-group"></button>
+              <button id="btn-add-template" disabled></button>
+            </div>
+            <div id="template-tree" class="tree"></div>
+            <div class="btn-row">
+              <button id="btn-remove-template" disabled></button>
+            </div>
+          </fieldset>
+        </div>
+        <div class="detail">
+          <fieldset class="flex-fieldset">
+            <legend id="detail-caption"></legend>
+            <table class="detail-table">
+              <tr>
+                <td class="detail-label" id="lbl-title"></td>
+                <td><input type="text" id="text-title" disabled style="width:100%"></td>
+              </tr>
+            </table>
+            <div class="template-only var-row">
+              <div style="flex:1"></div>
+              <select id="sel-variables" disabled></select>
+            </div>
+            <div class="template-only body-row">
+              <textarea id="text-body" disabled spellcheck="false"></textarea>
+            </div>
+            <table class="detail-table template-only">
+              <tr>
+                <td class="detail-label" id="lbl-insert-as"></td>
+                <td>
+                  <select id="sel-type" disabled>
+                    <option value="text/plain" id="opt-text"></option>
+                    <option value="text/html" id="opt-html"></option>
+                  </select>
+                  <span class="shortcut-row">
+                    <span id="lbl-shortcut"></span>
+                    <span id="label-modifier"></span>
+                    <select id="sel-shortcut" disabled>
+                      <option value="" id="opt-none"></option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="6">6</option>
+                      <option value="7">7</option>
+                      <option value="8">8</option>
+                      <option value="9">9</option>
+                      <option value="0">0</option>
+                    </select>
+                    <input type="text" id="text-shortcut-adv" disabled hidden style="width:50px">
+                  </span>
+                </td>
+              </tr>
+              <tr>
+                <td class="detail-label" id="lbl-subject"></td>
+                <td><input type="text" id="text-subject" disabled style="width:100%"></td>
+              </tr>
+              <tr>
+                <td class="detail-label" id="lbl-tmpl-keyword"></td>
+                <td><input type="text" id="text-keyword" disabled style="width:100%"></td>
+              </tr>
+              <tr>
+                <td class="detail-label" id="lbl-attachments"></td>
+                <td>
+                  <input type="text" id="text-attachments" disabled style="width:100%">
+                  <div id="deprecated-attachment" hidden style="color:red;font-size:0.85em"></div>
+                </td>
+              </tr>
+            </table>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts Panel -->
+    <div class="tab-panel" id="panel-scripts" hidden>
+      <div class="split-pane">
+        <div class="sidebar">
+          <fieldset class="flex-fieldset">
+            <legend id="lbl-script-title"></legend>
+            <div class="btn-row">
+              <button id="btn-add-script"></button>
+              <button id="btn-community-scripts"></button>
+              <button id="btn-script-docs"></button>
+            </div>
+            <ul id="script-list" class="source-list flex-list"></ul>
+            <div class="btn-row">
+              <button id="btn-remove-script" disabled></button>
+            </div>
+          </fieldset>
+        </div>
+        <div class="detail">
+          <fieldset class="flex-fieldset">
+            <legend id="script-caption"></legend>
+            <table class="detail-table">
+              <tr>
+                <td class="detail-label" id="lbl-script-name"></td>
+                <td><input type="text" id="script-title" disabled style="width:100%"></td>
+              </tr>
+            </table>
+            <div class="body-row" style="position:relative">
+              <textarea id="script-body" disabled spellcheck="false" wrap="off"></textarea>
+              <div id="script-warning" hidden style="position:absolute;bottom:8px;right:12px;color:red;pointer-events:none;font-size:0.9em"></div>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advanced Panel -->
+    <div class="tab-panel" id="panel-advanced" hidden>
+      <fieldset>
+        <legend id="lbl-storage"></legend>
+        <p id="lbl-storage-desc" style="margin:4px 0 8px;font-size:0.9em"></p>
+        <ul id="storage-list" class="source-list"></ul>
+        <div class="btn-row" style="margin-top:4px">
+          <button id="btn-add-storage-folder"></button>
+          <button id="btn-remove-storage" disabled></button>
+          <div style="flex:1"></div>
+          <button id="btn-select-storage" disabled></button>
+        </div>
+      </fieldset>
+    </div>
+
+    <!-- Bottom bar -->
+    <div id="bottom-bar">
+      <div style="flex:1"></div>
+      <button id="btn-script-help" hidden></button>
+      <button id="btn-help"></button>
+      <button id="btn-save" disabled></button>
+      <button id="btn-close"></button>
+    </div>
+
+  </div>
+</body>
+</html>

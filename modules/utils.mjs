@@ -4,6 +4,32 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+export async function openSettingsDialog() {
+  const { settingsWindowId = null } = await browser.storage.session.get({ settingsWindowId: null });
+  if (settingsWindowId !== null) {
+    try {
+      await browser.windows.update(settingsWindowId, { focused: true });
+      return;
+    } catch {
+      await browser.storage.session.remove("settingsWindowId");
+    }
+  }
+  const win = await browser.windows.create({
+    url: "/dialogs/manager/manager.html",
+    type: "popup",
+    allowScriptsToClose: true,
+    width: 800,
+    height: 650,
+  });
+  await browser.storage.session.set({ settingsWindowId: win.id });
+  browser.windows.onRemoved.addListener(function onRemoved(windowId) {
+    if (windowId === win.id) {
+      browser.storage.session.remove("settingsWindowId");
+      browser.windows.onRemoved.removeListener(onRemoved);
+    }
+  });
+}
+
 export async function registerExternalScriptAddon(id, name, scripts) {
     let externalScripts = await browser.storage.session
         .get({ externalScripts: [] })
@@ -341,7 +367,7 @@ export async function openPopup(tabId, config) {
     browser.windows.onFocusChanged.addListener(onFocusChangedListener);
 
     popupId = await browser.windows.create({
-        url: "/html/popup.html",
+        url: "/dialogs/popup/popup.html",
         type: "popup",
         allowScriptsToClose: true,
         ...dimension(await browser.windows.get(parentId))

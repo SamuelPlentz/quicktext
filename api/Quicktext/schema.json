@@ -14,10 +14,15 @@
         ]
       },
       {
-        "name": "openTemplateManager",
+        "name": "pickFolder",
         "type": "function",
         "async": true,
-        "parameters": []
+        "parameters": [
+          {
+            "name": "aTitle",
+            "type": "string"
+          }
+        ]
       },
       {
         "name": "readBinaryFile",

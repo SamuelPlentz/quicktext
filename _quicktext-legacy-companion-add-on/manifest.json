@@ -1,0 +1,51 @@
+{
+  "manifest_version": 2,
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "quicktext-legacy@jobisoft.de",
+      "strict_min_version": "128.0",
+      "strict_max_version": "150.*"
+    }
+  },
+  "name": "Quicktext Legacy Companion Add-on",
+  "version": "1.0.0",
+  "background": {
+    "type": "module",
+    "scripts": [
+      "scripts/background.js"
+    ]
+  },
+  "experiment_apis": {
+    "LegacyHelper": {
+      "schema": "api/LegacyHelper/schema.json",
+      "parent": {
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          [
+            "LegacyHelper"
+          ]
+        ],
+        "script": "api/LegacyHelper/implementation.js"
+      }
+    },
+    "QuicktextToolbar": {
+      "schema": "api/QuicktextToolbar/schema.json",
+      "parent": {
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          [
+            "QuicktextToolbar"
+          ]
+        ],
+        "script": "api/QuicktextToolbar/implementation.js",
+        "events": [
+          "startup"
+        ]
+      }
+    }
+  }
+}

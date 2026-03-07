@@ -2,8 +2,17 @@ var quicktextToolbar = {
   windowId: null,
   extension: null,
 
+  notify(info) {
+    return new Promise(resolve => {
+      Services.obs.notifyObservers(
+        { data: info, resolve },
+        "QuicktextToolbarCommand"
+      );
+    });
+  },
+
   async dateTimeFormat(format, timeStamp) {
-    return this.notifyTools.notifyBackground({ command: "getDateTimeFormat", data: { format, timeStamp } });
+    return this.notify({ command: "getDateTimeFormat", data: { format, timeStamp } });
   },
 
   getPrettyKeyName(key) {
@@ -11,8 +20,6 @@ var quicktextToolbar = {
   },
 
   async load() {
-    Services.scriptloader.loadSubScript("resource://quicktext/api/NotifyTools/notifyTools.js", quicktextToolbar, "UTF-8");
-
     const { ExtensionParent } = ChromeUtils.importESModule(
       "resource://gre/modules/ExtensionParent.sys.mjs"
     );
@@ -61,21 +68,17 @@ var quicktextToolbar = {
       }
 
       // Rebuild template groups (the leftmost entries)
-      const templates = await this.notifyTools.notifyBackground({ command: "getTemplates" });
-      const collapseGroup = await this.notifyTools.notifyBackground({ command: "getPref", pref: "menuCollapse" });
-      const shortcutModifier = await this.notifyTools.notifyBackground({ command: "getPref", pref: "shortcutModifier" });
+      const templates = await this.notify({ command: "getTemplates" });
+      const collapseGroup = await this.notify({ command: "getPref", pref: "menuCollapse" });
+      const shortcutModifier = await this.notify({ command: "getPref", pref: "shortcutModifier" });
 
       var groupLength = templates.groups.length;
       for (var i = 0; i < groupLength; i++) {
         var textLength = templates.texts[i].length;
         if (textLength) {
-          // Add first level element, this will be either a menu or a button (if
-          // only one text in this group).
           var toolbarbuttonGroup;
           let t = document.createXULElement("button");
 
-          // Add a tabindex of -1 (not reachable via sequential keyboard navigation).
-          // see: https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/tabindex
           t.setAttribute("tabindex", "-1");
 
           if (textLength == 1 && collapseGroup) {
@@ -91,7 +94,6 @@ var quicktextToolbar = {
             toolbarbuttonGroup.setAttribute("label", templates.groups[i].name);
             var menupopup = toolbarbuttonGroup.appendChild(document.createXULElement("menupopup"));
 
-            // Add second level elements: all found texts of this group.
             for (var j = 0; j < textLength; j++) {
               var text = templates.texts[i][j];
 
@@ -112,7 +114,6 @@ var quicktextToolbar = {
           }
           toolbarbuttonGroup = null;
 
-          // Update the keyshortcuts.
           for (var j = 0; j < textLength; j++) {
             var text = templates.texts[i][j];
             var shortcut = text.shortcut;
@@ -137,11 +138,8 @@ var quicktextToolbar = {
 
     this.visibleToolbar();
   },
-  // This may not needed, since the toolbar will be an extra add-on and the toolbar
-  // will only be shown, when the extra add-on is installed? The "toolbar" pref has
-  // no config UI at he moment.
   async visibleToolbar() {
-    const toolbar = await this.notifyTools.notifyBackground({ command: "getPref", pref: "toolbar" });
+    const toolbar = await this.notify({ command: "getPref", pref: "toolbar" });
     if (toolbar) {
       document.getElementById("quicktext-toolbar").removeAttribute("collapsed");
     } else {
@@ -149,14 +147,14 @@ var quicktextToolbar = {
     }
   },
   focusMessageBody() {
-    let editor = GetCurrentEditorElement();//document.getElementsByTagName("editor");
+    let editor = GetCurrentEditorElement();
     if (editor) {
       editor.focus();
     }
   },
   async insertVariable(aVar) {
     this.focusMessageBody();
-    await this.notifyTools.notifyBackground({
+    await this.notify({
       command: "insertVariable",
       aVar,
       windowId: this.windowId
@@ -164,7 +162,7 @@ var quicktextToolbar = {
   },
   async insertTemplate(group, text) {
     this.focusMessageBody();
-    await this.notifyTools.notifyBackground({
+    await this.notify({
       command: "insertTemplate",
       group,
       text,
@@ -172,10 +170,10 @@ var quicktextToolbar = {
     });
   },
   async insertContentFromFile(aType) {
-    const file = await this.pickFile(aType, /* open */ 0, ""); // browser.i18n.getMessage("insertFile")
+    const file = await this.pickFile(aType, /* open */ 0, "");
     this.focusMessageBody();
     if (file) {
-      await this.notifyTools.notifyBackground({
+      await this.notify({
         command: "insertFile",
         aType,
         file,
@@ -214,7 +212,6 @@ var quicktextToolbar = {
     });
 
     if (rv == filePicker.returnOK || rv == filePicker.returnReplace) {
-      // Create DOM File from real file.
       const file = await File.createFromNsIFile(filePicker.file);
       return file;
     } else {

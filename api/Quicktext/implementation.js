@@ -52,13 +52,15 @@
             }
             return rv;
           },
-          openTemplateManager() {
-            let window = Services.wm.getMostRecentWindow("mail:3pane");
-            managerWindow = window.openDialog(
-              "chrome://quicktext/content/settings.xhtml",
-              "quicktextConfig",
-              "chrome,resizable,centerscreen"
-            );
+          async pickFolder(aTitle) {
+            let filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
+            let window = Services.wm.getMostRecentWindow(null);
+            filePicker.init(window.browsingContext, aTitle, filePicker.modeGetFolder);
+            let rv = await new Promise(resolve => filePicker.open(resolve));
+            if (rv == filePicker.returnOK) {
+              return filePicker.file.path;
+            }
+            return null;
           },
           async readBinaryFile(aFilePath) {
             return IOUtils.read(aFilePath);

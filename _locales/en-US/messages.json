@@ -1,4 +1,10 @@
 {
+    "quicktext.options.intro": {
+        "message": "All Quicktext settings can be controlled and configured in the Quicktext Manager, alongside your templates and scripts."
+    },
+    "quicktext.options.openManager": {
+        "message": "Quicktext Manager"
+    },
     "deprecated_attachment_field": {
         "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
     },
@@ -261,6 +267,9 @@
     "quicktext.getScript.label": {
         "message": "Community scripts"
     },
+    "quicktext.scriptDocs.label": {
+        "message": "How to create scripts"
+    },
     "quicktext.group.label": {
         "message": "Group"
     },
@@ -367,7 +376,7 @@
         "message": "Settings"
     },
     "quicktext.settings.title": {
-        "message": "Quicktext Settings"
+        "message": "Quicktext Manager"
     },
     "quicktext.sharingScripts.label": {
         "message": "Sharing scripts"

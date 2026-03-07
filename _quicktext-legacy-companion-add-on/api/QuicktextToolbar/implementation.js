@@ -9,9 +9,7 @@
 // Using a closure to not leak anything but the API to the outside world.
 (function (exports) {
   // Helper function to inject a legacy XUL string into the DOM of Thunderbird.
-  // All injected elements will get the data attribute "data-extension-injected"
-  // set to the extension id, for easy removal.
-  const injectElements = function (extension, window, xulString, debug = false) {
+  const injectElements = function (extension, window, xulString, labels, debug = false) {
     function checkElements(stringOfIDs) {
       let arrayOfIDs = stringOfIDs.split(",").map((e) => e.trim());
       for (let id of arrayOfIDs) {
@@ -23,14 +21,12 @@
       return null;
     }
 
-    function localize(entity) {
+    function localize(entity, labels) {
       let msg = entity.slice("__MSG_".length, -2);
-      return extension.localeData.localizeMessage(msg);
+      return labels[msg] || msg;
     }
 
     function injectChildren(elements, container) {
-      if (debug) console.log(elements);
-
       for (let i = 0; i < elements.length; i++) {
         if (
           elements[i].hasAttribute("insertafter") &&
@@ -39,26 +35,6 @@
           let insertAfterElement = checkElements(
             elements[i].getAttribute("insertafter")
           );
-
-          if (debug)
-            console.log(
-              elements[i].tagName +
-              "#" +
-              elements[i].id +
-              ": insertafter " +
-              insertAfterElement.id
-            );
-          if (
-            debug &&
-            elements[i].id &&
-            window.document.getElementById(elements[i].id)
-          ) {
-            console.error(
-              "The id <" +
-              elements[i].id +
-              "> of the injected element already exists in the document!"
-            );
-          }
           elements[i].setAttribute("data-extension-injected", extension.id);
           insertAfterElement.parentNode.insertBefore(
             elements[i],
@@ -71,26 +47,6 @@
           let insertBeforeElement = checkElements(
             elements[i].getAttribute("insertbefore")
           );
-
-          if (debug)
-            console.log(
-              elements[i].tagName +
-              "#" +
-              elements[i].id +
-              ": insertbefore " +
-              insertBeforeElement.id
-            );
-          if (
-            debug &&
-            elements[i].id &&
-            window.document.getElementById(elements[i].id)
-          ) {
-            console.error(
-              "The id <" +
-              elements[i].id +
-              "> of the injected element already exists in the document!"
-            );
-          }
           elements[i].setAttribute("data-extension-injected", extension.id);
           insertBeforeElement.parentNode.insertBefore(
             elements[i],
@@ -100,39 +56,20 @@
           elements[i].id &&
           window.document.getElementById(elements[i].id)
         ) {
-          // existing container match, dive into recursively
-          if (debug)
-            console.log(
-              elements[i].tagName +
-              "#" +
-              elements[i].id +
-              " is an existing container, injecting into " +
-              elements[i].id
-            );
           injectChildren(
             Array.from(elements[i].children),
             window.document.getElementById(elements[i].id)
           );
         } else {
-          // append element to the current container
-          if (debug)
-            console.log(
-              elements[i].tagName +
-              "#" +
-              elements[i].id +
-              ": append to " +
-              container.id
-            );
           elements[i].setAttribute("data-extension-injected", extension.id);
           container.appendChild(elements[i]);
         }
       }
     }
 
-    if (debug) console.log("Injecting into root document:");
     let localizedXulString = xulString.replace(
       /__MSG_(.*?)__/g,
-      localize
+      entity => localize(entity, labels)
     );
     injectChildren(
       Array.from(
@@ -142,9 +79,6 @@
     );
   };
 
-  // Helper function to inject a css file into as "link" element into the DOM of
-  // Thunderbird. The injected element will get the data attribute
-  // "data-extension-injected" set to the extension id, for easy removal.
   const injectCSS = function (extension, window, cssFile) {
     let element = window.document.createElement("link");
     element.setAttribute("data-extension-injected", extension.id);
@@ -153,18 +87,38 @@
     return window.document.documentElement.appendChild(element);
   };
 
+  // Listeners registered via the onCommand EventManager.
+  var commandListeners = new Set();
+
   var QuicktextToolbar = class extends ExtensionCommon.ExtensionAPI {
     getAPI(context) {
       return {
         QuicktextToolbar: {
-          async injectLegacyToolbar(windowId) {
-            // Get the native window belonging to the specified windowId.
+          onCommand: new ExtensionCommon.EventManager({
+            context,
+            name: "QuicktextToolbar.onCommand",
+            register(fire) {
+              commandListeners.add(fire.async);
+              return () => commandListeners.delete(fire.async);
+            },
+          }).api(),
+
+          async injectLegacyToolbar(windowId, labels) {
             let { window } = context.extension.windowManager.get(windowId);
-            // Load an additional JavaScript file into the window scope.
-            Services.scriptloader.loadSubScript("resource://quicktext/api/QuicktextToolbar/composerToolbar.js", window, "UTF-8");
+
+            // Remove any previously injected elements and unload toolbar state.
+            for (const element of window.document.querySelectorAll(`[data-extension-injected="${context.extension.id}"]`)) {
+              element.remove();
+            }
+            if (window.quicktextToolbar) {
+              window.quicktextToolbar.unload();
+              window.quicktextToolbar = null;
+            }
+
+            Services.scriptloader.loadSubScript("resource://quicktext-legacy/api/QuicktextToolbar/composerToolbar.js", window, "UTF-8");
             window.quicktextToolbar.windowId = windowId;
 
-            injectCSS(context.extension, window, "resource://quicktext/api/QuicktextToolbar/composerToolbar.css");
+            injectCSS(context.extension, window, "resource://quicktext-legacy/api/QuicktextToolbar/composerToolbar.css");
             injectElements(context.extension, window, `
   <toolbar id="quicktext-toolbar" insertbefore="messageEditor">
     <html:div id="quicktext-templates-toolbar" />
@@ -182,8 +136,7 @@
               <menuitem label="__MSG_quicktext.email.label__" oncommand="quicktextToolbar.insertVariable('TO=email');" />
               <menuitem label="__MSG_quicktext.workphone.label__" oncommand="quicktextToolbar.insertVariable('TO=workphone');" />
               <menuitem label="__MSG_quicktext.faxnumber.label__" oncommand="quicktextToolbar.insertVariable('TO=faxnumber');" />
-              <menuitem label="__MSG_quicktext.cellularnumber.label__"
-                oncommand="quicktextToolbar.insertVariable('TO=cellularnumber');" />
+              <menuitem label="__MSG_quicktext.cellularnumber.label__" oncommand="quicktextToolbar.insertVariable('TO=cellularnumber');" />
               <menuitem label="__MSG_quicktext.jobtitle.label__" oncommand="quicktextToolbar.insertVariable('TO=jobtitle');" />
               <menuitem label="__MSG_quicktext.custom1.label__" oncommand="quicktextToolbar.insertVariable('TO=custom1');" />
               <menuitem label="__MSG_quicktext.custom2.label__" oncommand="quicktextToolbar.insertVariable('TO=custom2');" />
@@ -201,8 +154,7 @@
               <menuitem label="__MSG_quicktext.email.label__" oncommand="quicktextToolbar.insertVariable('FROM=email');" />
               <menuitem label="__MSG_quicktext.workphone.label__" oncommand="quicktextToolbar.insertVariable('FROM=workphone');" />
               <menuitem label="__MSG_quicktext.faxnumber.label__" oncommand="quicktextToolbar.insertVariable('FROM=faxnumber');" />
-              <menuitem label="__MSG_quicktext.cellularnumber.label__"
-                oncommand="quicktextToolbar.insertVariable('FROM=cellularnumber');" />
+              <menuitem label="__MSG_quicktext.cellularnumber.label__" oncommand="quicktextToolbar.insertVariable('FROM=cellularnumber');" />
               <menuitem label="__MSG_quicktext.jobtitle.label__" oncommand="quicktextToolbar.insertVariable('FROM=jobtitle');" />
               <menuitem label="__MSG_quicktext.custom1.label__" oncommand="quicktextToolbar.insertVariable('FROM=custom1');" />
               <menuitem label="__MSG_quicktext.custom2.label__" oncommand="quicktextToolbar.insertVariable('FROM=custom2');" />
@@ -242,7 +194,7 @@
         </menupopup>
       </button>
     </hbox>
-  </toolbar>`
+  </toolbar>`, labels
             );
 
             await window.quicktextToolbar.load();
@@ -257,10 +209,27 @@
       };
     }
 
+    onStartup() {
+      this.commandObserver = async (aSubject, aTopic, aData) => {
+        if (commandListeners.size === 0) return;
+        let payload = aSubject.wrappedJSObject;
+        if (!payload.resolve) return;
+        let results = [];
+        for (let listener of commandListeners) {
+          let rv = await listener(payload.data);
+          if (rv != null) results.push(rv);
+        }
+        payload.resolve(results.length > 0 ? results[0] : undefined);
+      };
+      Services.obs.addObserver(this.commandObserver, "QuicktextToolbarCommand", false);
+    }
+
     onShutdown(isAppShutdown) {
       if (isAppShutdown) {
-        return; // the application gets unloaded anyway
+        return;
       }
+
+      Services.obs.removeObserver(this.commandObserver, "QuicktextToolbarCommand");
 
       const { extension } = this;
       for (const window of Services.wm.getEnumerator("msgcompose")) {
@@ -279,6 +248,8 @@
           }
         }
       }
+
+      Services.obs.notifyObservers(null, "startupcache-invalidate");
     }
   };
   exports.QuicktextToolbar = QuicktextToolbar;

@@ -238,7 +238,7 @@ async function getComposeBodyMenuData() {
             contexts,
             id: "settings",
             title: messenger.i18n.getMessage("quicktext.settings.title"),
-            onclick: (info, tab) => messenger.Quicktext.openTemplateManager()
+            onclick: (info, tab) => utils.openSettingsDialog()
         },
     );
 

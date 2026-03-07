@@ -9,6 +9,7 @@ import * as storage from "../modules/storage.mjs";
 import * as menus from "../modules/menus.mjs";
 import * as utils from "../modules/utils.mjs";
 
+
 browser.runtime.onInstalled.addListener(details => {
   let manifest = browser.runtime.getManifest();
   if (!manifest.browser_specific_settings.gecko.update_url) {
@@ -44,7 +45,7 @@ browser.notifications.onClicked.addListener(notificationId => {
       });
       break;
     case "qt-bad-entries":
-      browser.Quicktext.openTemplateManager();
+      utils.openSettingsDialog();
       break;
     case "qt-incompatible-scripts":
       browser.tabs.create({
@@ -53,12 +54,6 @@ browser.notifications.onClicked.addListener(notificationId => {
       break;
   }
 })
-
-// Legacy: Register global urls.
-await browser.LegacyHelper.registerGlobalUrls([
-  ["content", "quicktext", "xul_settings_dialog/"],
-  ["resource", "quicktext", "."],
-]);
 
 // Over the years, the storage concept has changed.
 await storage.migrate();
@@ -171,66 +166,16 @@ try {
   // No managed storage.
 }
 
-// NotifyTools needed by Experiment code to access WebExtension code.
-messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
+// Listener for the quicktext-legacy add-on (proxied toolbar commands).
+messenger.runtime.onMessageExternal.addListener((info, sender) => {
+  if (sender.id !== "quicktext-legacy@jobisoft.de") return;
   switch (info.command) {
-    case "reload":
-      browser.runtime.reload();
-    case "setPref":
-      return storage.setPref(info.pref, info.value);
-    case "getPref":
-      return storage.getPref(info.pref);
-    case "getPrefWithManagedInfo":
-      return storage.getPrefWithManagedInfo(info.pref);
-    case "setScripts":
-      return storage.setScripts(info.data);
-    case "getScripts":
-      return storage.getScripts();
-
-    case "setTemplates":
-      return storage.setTemplates(info.data);
     case "getTemplates":
       return storage.getTemplates();
-    case "checkBadEntries":
-      await utils.checkBadNameEntries(info.data.templates, info.data.scripts);
-      return utils.checkDuplicatedEntries(info.data.templates, info.data.scripts);
-    case "openWebPage":
-      return browser.windows.openDefaultBrowser(info.url);
-
+    case "getPref":
+      return storage.getPref(info.pref);
     case "getDateTimeFormat":
       return utils.getDateTimeFormat(info.data.format, info.data.timeStamp);
-
-    case "parseTemplateFileForImport":
-      return browser.Quicktext.readTextFile(info.path)
-        .then(quicktext.parseConfigFileData)
-        .then(parsedData => utils.removeProtectedTemplates(parsedData?.templates))
-    case "parseScriptFileForImport":
-      return browser.Quicktext.readTextFile(info.path)
-        .then(quicktext.parseConfigFileData)
-        .then(parsedData => utils.removeProtectedScripts(parsedData?.scripts))
-    case "pickAndParseConfigFile":
-      // Currently not used. Instead the settings window keeps using the legacy
-      // file picker.
-      return utils.pickFileFromDisc([3, 5])
-        .then(utils.getTextFileContent)
-        .then(quicktext.parseConfigFileData);
-
-    case "exportTemplates":
-      return storage.getTemplates().then(templates => templates
-        ? utils.writeFileToDisc(JSON.stringify({ templates }, null, 2), "templates.json")
-        : null
-      );
-    case "exportScripts":
-      return storage.getScripts().then(scripts => scripts
-        ? utils.writeFileToDisc(JSON.stringify({ scripts }, null, 2), "scripts.json")
-        : null
-      );
-
-    // Experiment toolbar actions from the compose window.
-    case "insertFile":
-      return messenger.tabs
-        .query({ windowId: info.windowId, type: "messageCompose" })
-        .then(tabs => quicktext.insertFile(tabs[0].id, info.file, info.aType));
     case "insertVariable":
       return messenger.tabs
         .query({ windowId: info.windowId, type: "messageCompose" })
@@ -239,6 +184,10 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
       return messenger.tabs
         .query({ windowId: info.windowId, type: "messageCompose" })
         .then(tabs => quicktext.insertTemplate(tabs[0].id, info.group, info.text));
+    case "insertFile":
+      return messenger.tabs
+        .query({ windowId: info.windowId, type: "messageCompose" })
+        .then(tabs => quicktext.insertFile(tabs[0].id, info.file, info.aType));
   }
 });
 
@@ -246,18 +195,25 @@ messenger.NotifyTools.onNotifyBackground.addListener(async (info) => {
 messenger.runtime.onMessage.addListener((info, sender, sendResponse) => {
   // All these functions return Promises.
   switch (info.command) {
+    // Sent by scripts/compose.js
     case "getKeywordsAndShortcuts":
       return quicktext.getKeywordsAndShortcuts();
+    // Sent by scripts/compose.js
     case "insertTemplate":
       return quicktext.insertTemplate(sender.tab.id, info.group, info.text);
+    // Sent by modules/quicktextParser.mjs (running in compose window context)
     case "composeAPI":
       return browser.compose[info.func](sender.tab.id, ...info.params);
+    // Sent by modules/quicktextParser.mjs (running in compose window context)
     case "messagesAPI":
       return browser.messages[info.func](...info.params);
+    // Sent by modules/quicktextParser.mjs (running in compose window context)
     case "identitiesAPI":
       return browser.identities[info.func](...info.params);
+    // Sent by modules/quicktextParser.mjs (running in compose window context)
     case "processTag":
       return quicktext.processTag({ tabId: info.tabId, tag: info.tag, variables: info.variables });
+    // Sent by modules/quicktextParser.mjs (running in compose window context)
     case "getTag":
       return quicktext.getTag({ tabId: info.tabId, tag: info.tag, variables: info.variables });
     default:
@@ -268,7 +224,7 @@ messenger.runtime.onMessage.addListener((info, sender, sendResponse) => {
 // Add entry to tools menu.
 browser.menus.create({
   contexts: ["tools_menu"],
-  onclick: () => browser.Quicktext.openTemplateManager(),
+  onclick: () => utils.openSettingsDialog(),
   title: browser.i18n.getMessage("quicktext.label"),
 })
 
@@ -276,8 +232,8 @@ browser.menus.create({
 await menus.buildComposeBodyMenu();
 
 // Add listeners to open template manager.
-browser.composeAction.onClicked.addListener(tab => { browser.Quicktext.openTemplateManager() });
-browser.browserAction.onClicked.addListener(tab => { browser.Quicktext.openTemplateManager() });
+browser.composeAction.onClicked.addListener(tab => { utils.openSettingsDialog() });
+browser.browserAction.onClicked.addListener(tab => { utils.openSettingsDialog() });
 
 // TODO: Move this into a module.
 async function prepareComposeTab(tab) {
@@ -317,16 +273,44 @@ browser.compose.onBeforeSend.addListener(async (tab, details) => {
   }
 })
 
+// Collect the i18n strings needed by the legacy toolbar XUL template.
+function getLegacyToolbarLabels() {
+  return Object.fromEntries([
+    "quicktext.variables.label", "quicktext.to.label", "quicktext.from.label",
+    "quicktext.firstname.label", "quicktext.lastname.label", "quicktext.fullname.label",
+    "quicktext.displayname.label", "quicktext.nickname.label", "quicktext.email.label",
+    "quicktext.workphone.label", "quicktext.faxnumber.label", "quicktext.cellularnumber.label",
+    "quicktext.jobtitle.label", "quicktext.custom1.label", "quicktext.custom2.label",
+    "quicktext.custom3.label", "quicktext.custom4.label",
+    "quicktext.attachments.label", "quicktext.filename.label", "quicktext.filenameAndSize.label",
+    "quicktext.dateTime.label", "quicktext.other.label",
+    "quicktext.clipboard.label", "quicktext.counter.label", "quicktext.subject.label",
+    "quicktext.version.label", "quicktext.insertTextFromFileAsText.label",
+    "quicktext.insertTextFromFileAsHTML.label",
+  ].map(key => [key, browser.i18n.getMessage(key)]));
+}
+
 // Legacy: Inject toolbar into all already open compose windows.
-let windows = await browser.windows.getAll({ windowTypes: ["messageCompose"] })
-for (let window of windows) {
-  await browser.QuicktextToolbar.injectLegacyToolbar(window.id);
+{
+  let legacyAddon;
+  try { legacyAddon = await browser.management.get("quicktext-legacy@jobisoft.de"); } catch { }
+  if (legacyAddon?.enabled) {
+    const labels = getLegacyToolbarLabels();
+    let windows = await browser.windows.getAll({ windowTypes: ["messageCompose"] })
+    for (let window of windows) {
+      browser.runtime.sendMessage("quicktext-legacy@jobisoft.de", { command: "injectLegacyToolbar", windowId: window.id, labels });
+    }
+  }
 }
 
 // Legacy: Inject toolbar into any new compose window being opened.
 browser.windows.onCreated.addListener(async window => {
   if (window.type == "messageCompose") {
-    await browser.QuicktextToolbar.injectLegacyToolbar(window.id);
+    let legacyAddon;
+    try { legacyAddon = await browser.management.get("quicktext-legacy@jobisoft.de"); } catch { }
+    if (legacyAddon?.enabled) {
+      browser.runtime.sendMessage("quicktext-legacy@jobisoft.de", { command: "injectLegacyToolbar", windowId: window.id, labels: getLegacyToolbarLabels() });
+    }
   }
 });
 
@@ -335,8 +319,11 @@ new storage.StorageListener(
   {
     watchedPrefs: ["templates", "menuCollapse", "shortcutModifier"],
     listener: async (changes) => {
+      let legacyAddon;
+      try { legacyAddon = await browser.management.get("quicktext-legacy@jobisoft.de"); } catch { }
+      if (!legacyAddon || legacyAddon.enabled === false) return;
       let windows = await browser.windows.getAll({ windowTypes: ["messageCompose"] })
-      windows.forEach(window => browser.QuicktextToolbar.updateLegacyToolbar(window.id));
+      windows.forEach(window => browser.runtime.sendMessage("quicktext-legacy@jobisoft.de", { command: "updateLegacyToolbar", windowId: window.id }));
     }
   }
 )

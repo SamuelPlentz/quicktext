@@ -1,6 +1,19 @@
 [
   {
     "namespace": "QuicktextToolbar",
+    "events": [
+      {
+        "name": "onCommand",
+        "type": "function",
+        "description": "Fired when composerToolbar.js sends a command from the compose window.",
+        "parameters": [
+          {
+            "name": "info",
+            "type": "any"
+          }
+        ]
+      }
+    ],
     "functions": [
       {
         "name": "injectLegacyToolbar",
@@ -10,6 +23,11 @@
           {
             "name": "windowId",
             "type": "integer"
+          },
+          {
+            "name": "labels",
+            "type": "object",
+            "additionalProperties": { "type": "string" }
           }
         ]
       },

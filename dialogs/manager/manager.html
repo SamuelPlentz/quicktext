@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title></title>
+  <title data-i18n-content="quicktext.settings.title"></title>
   <link rel="stylesheet" href="manager.css">
   <script type="module" src="manager.js"></script>
 </head>
@@ -11,10 +11,10 @@
 
     <!-- Tab buttons -->
     <div id="tabs">
-      <button class="tab-btn" id="tab-general" data-tab="general"></button>
-      <button class="tab-btn active" id="tab-templates" data-tab="templates"></button>
-      <button class="tab-btn" id="tab-scripts" data-tab="scripts"></button>
-      <button class="tab-btn" id="tab-advanced" data-tab="advanced"></button>
+      <button class="tab-btn" id="tab-general" data-tab="general" data-i18n-content="quicktext.general.label"></button>
+      <button class="tab-btn active" id="tab-templates" data-tab="templates" data-i18n-content="quicktext.templates.label"></button>
+      <button class="tab-btn" id="tab-scripts" data-tab="scripts" data-i18n-content="quicktext.scripts.label"></button>
+      <button class="tab-btn" id="tab-advanced" data-tab="advanced" data-i18n-content="quicktext.advanced.label"></button>
     </div>
 
     <!-- General Panel -->
@@ -22,24 +22,24 @@
       <div class="two-col">
         <div class="col">
           <fieldset>
-            <legend id="lbl-settings"></legend>
+            <legend id="lbl-settings" data-i18n-content="quicktext.settings.label"></legend>
             <div class="field-rows">
-              <label><input type="checkbox" id="chk-popup"> <span id="lbl-chk-popup"></span></label>
-              <label><input type="checkbox" id="chk-collapse"> <span id="lbl-chk-collapse"></span></label>
+              <label><input type="checkbox" id="chk-popup"> <span id="lbl-chk-popup" data-i18n-content="quicktext.showContextMenu.label"></span></label>
+              <label><input type="checkbox" id="chk-collapse"> <span id="lbl-chk-collapse" data-i18n-content="quicktext.collapseSetting.label"></span></label>
               <div class="inline-row">
                 <select id="sel-modifier">
-                  <option value="alt"></option>
-                  <option value="control"></option>
-                  <option value="meta"></option>
+                  <option value="alt" data-i18n-content="quicktext.altKey.label"></option>
+                  <option value="control" data-i18n-content="quicktext.controlKey.label"></option>
+                  <option value="meta" data-i18n-content="quicktext.metaKey.label"></option>
                 </select>
-                <span id="lbl-modifier"></span>
+                <span id="lbl-modifier" data-i18n-content="quicktext.modifierSetting.label"></span>
               </div>
-              <label><input type="checkbox" id="chk-shortcut-adv"> <span id="lbl-chk-shortcut-adv"></span></label>
+              <label><input type="checkbox" id="chk-shortcut-adv"> <span id="lbl-chk-shortcut-adv" data-i18n-content="quicktext.shortcutTypeAdv.label"></span></label>
               <div class="inline-row">
                 <select id="sel-keyword">
-                  <option value="Tab"></option>
-                  <option value="Space"></option>
-                  <option value="Enter"></option>
+                  <option value="Tab" data-i18n-content="quicktext.tabKey.label"></option>
+                  <option value="Space" data-i18n-content="quicktext.spaceKey.label"></option>
+                  <option value="Enter" data-i18n-content="quicktext.enterKey.label"></option>
                   <option value="F2">F2</option>
                   <option value="F4">F4</option>
                   <option value="F5">F5</option>
@@ -47,37 +47,37 @@
                   <option value="F11">F11</option>
                   <option value="F12">F12</option>
                 </select>
-                <span id="lbl-keyword-setting"></span>
+                <span id="lbl-keyword-setting" data-i18n-content="quicktext.keywordKeySetting.label"></span>
               </div>
             </div>
           </fieldset>
           <fieldset>
-            <legend id="lbl-default-import"></legend>
+            <legend id="lbl-default-import" data-i18n-content="quicktext.defaultImport.label"></legend>
             <ul id="default-import-list" class="source-list"></ul>
             <div class="btn-row">
-              <button id="btn-add-url"></button>
-              <button id="btn-remove-import" disabled></button>
+              <button id="btn-add-url" data-i18n-content="quicktext.buttons.addUrl.label"></button>
+              <button id="btn-remove-import" disabled data-i18n-content="quicktext.remove.label"></button>
             </div>
           </fieldset>
         </div>
         <div class="col">
           <fieldset>
-            <legend id="lbl-sharing-templates"></legend>
+            <legend id="lbl-sharing-templates" data-i18n-content="quicktext.sharingTemplates.label"></legend>
             <div class="btn-col">
-              <button id="btn-export-templates"></button>
-              <button id="btn-import-templates"></button>
+              <button id="btn-export-templates" data-i18n-content="quicktext.export.label"></button>
+              <button id="btn-import-templates" data-i18n-content="quicktext.import.label"></button>
             </div>
           </fieldset>
           <fieldset>
-            <legend id="lbl-sharing-scripts"></legend>
+            <legend id="lbl-sharing-scripts" data-i18n-content="quicktext.sharingScripts.label"></legend>
             <div class="btn-col">
-              <button id="btn-export-scripts"></button>
-              <button id="btn-import-scripts"></button>
+              <button id="btn-export-scripts" data-i18n-content="quicktext.export.label"></button>
+              <button id="btn-import-scripts" data-i18n-content="quicktext.import.label"></button>
             </div>
           </fieldset>
           <fieldset>
             <legend id="lbl-counter"></legend>
-            <button id="btn-reset-counter"></button>
+            <button id="btn-reset-counter" data-i18n-content="quicktext.resetcounter.label"></button>
           </fieldset>
         </div>
       </div>
@@ -88,14 +88,14 @@
       <div class="split-pane">
         <div class="sidebar">
           <fieldset class="flex-fieldset">
-            <legend id="lbl-template-title"></legend>
+            <legend id="lbl-template-title" data-i18n-content="quicktext.title.label"></legend>
             <div class="btn-row">
-              <button id="btn-add-group"></button>
-              <button id="btn-add-template" disabled></button>
+              <button id="btn-add-group" data-i18n-content="quicktext.addGroup.label"></button>
+              <button id="btn-add-template" disabled data-i18n-content="quicktext.addTemplate.label"></button>
             </div>
             <div id="template-tree" class="tree"></div>
             <div class="btn-row">
-              <button id="btn-remove-template" disabled></button>
+              <button id="btn-remove-template" disabled data-i18n-content="quicktext.remove.label"></button>
             </div>
           </fieldset>
         </div>
@@ -104,7 +104,7 @@
             <legend id="detail-caption"></legend>
             <table class="detail-table">
               <tr>
-                <td class="detail-label" id="lbl-title"></td>
+                <td class="detail-label" id="lbl-title" data-i18n-content="quicktext.title.label"></td>
                 <td><input type="text" id="text-title" disabled style="width:100%"></td>
               </tr>
             </table>
@@ -117,17 +117,17 @@
             </div>
             <table class="detail-table template-only">
               <tr>
-                <td class="detail-label" id="lbl-insert-as"></td>
+                <td class="detail-label" id="lbl-insert-as" data-i18n-content="quicktext.insertAs.label"></td>
                 <td>
                   <select id="sel-type" disabled>
-                    <option value="text/plain" id="opt-text"></option>
-                    <option value="text/html" id="opt-html"></option>
+                    <option value="text/plain" id="opt-text" data-i18n-content="quicktext.text.label"></option>
+                    <option value="text/html" id="opt-html" data-i18n-content="quicktext.HTML.label"></option>
                   </select>
                   <span class="shortcut-row">
-                    <span id="lbl-shortcut"></span>
+                    <span id="lbl-shortcut" data-i18n-content="quicktext.shortcut.label"></span>
                     <span id="label-modifier"></span>
                     <select id="sel-shortcut" disabled>
-                      <option value="" id="opt-none"></option>
+                      <option value="" id="opt-none" data-i18n-content="quicktext.none.label"></option>
                       <option value="1">1</option>
                       <option value="2">2</option>
                       <option value="3">3</option>
@@ -144,18 +144,18 @@
                 </td>
               </tr>
               <tr>
-                <td class="detail-label" id="lbl-subject"></td>
+                <td class="detail-label" id="lbl-subject" data-i18n-content="quicktext.subject.label"></td>
                 <td><input type="text" id="text-subject" disabled style="width:100%"></td>
               </tr>
               <tr>
-                <td class="detail-label" id="lbl-tmpl-keyword"></td>
+                <td class="detail-label" id="lbl-tmpl-keyword" data-i18n-content="quicktext.keyword.label"></td>
                 <td><input type="text" id="text-keyword" disabled style="width:100%"></td>
               </tr>
               <tr>
-                <td class="detail-label" id="lbl-attachments"></td>
+                <td class="detail-label" id="lbl-attachments" data-i18n-content="quicktext.attachments.label"></td>
                 <td>
                   <input type="text" id="text-attachments" disabled style="width:100%">
-                  <div id="deprecated-attachment" hidden style="color:red;font-size:0.85em"></div>
+                  <div id="deprecated-attachment" hidden style="color:red;font-size:0.85em" data-i18n-content="deprecated_attachment_field"></div>
                 </td>
               </tr>
             </table>
@@ -169,24 +169,24 @@
       <div class="split-pane">
         <div class="sidebar">
           <fieldset class="flex-fieldset">
-            <legend id="lbl-script-title"></legend>
+            <legend id="lbl-script-title" data-i18n-content="quicktext.title.label"></legend>
             <div class="btn-row">
-              <button id="btn-add-script"></button>
-              <button id="btn-community-scripts"></button>
-              <button id="btn-script-docs"></button>
+              <button id="btn-add-script" data-i18n-content="quicktext.addScript.label"></button>
+              <button id="btn-community-scripts" data-i18n-content="quicktext.getScript.label"></button>
+              <button id="btn-script-docs" data-i18n-content="quicktext.scriptDocs.label"></button>
             </div>
             <ul id="script-list" class="source-list flex-list"></ul>
             <div class="btn-row">
-              <button id="btn-remove-script" disabled></button>
+              <button id="btn-remove-script" disabled data-i18n-content="quicktext.remove.label"></button>
             </div>
           </fieldset>
         </div>
         <div class="detail">
           <fieldset class="flex-fieldset">
-            <legend id="script-caption"></legend>
+            <legend id="script-caption" data-i18n-content="quicktext.script.label"></legend>
             <table class="detail-table">
               <tr>
-                <td class="detail-label" id="lbl-script-name"></td>
+                <td class="detail-label" id="lbl-script-name" data-i18n-content="quicktext.title.label"></td>
                 <td><input type="text" id="script-title" disabled style="width:100%"></td>
               </tr>
             </table>
@@ -202,14 +202,14 @@
     <!-- Advanced Panel -->
     <div class="tab-panel" id="panel-advanced" hidden>
       <fieldset>
-        <legend id="lbl-storage"></legend>
-        <p id="lbl-storage-desc" style="margin:4px 0 8px;font-size:0.9em"></p>
+        <legend id="lbl-storage" data-i18n-content="quicktext.storageLocations.label"></legend>
+        <p id="lbl-storage-desc" style="margin:4px 0 8px;font-size:0.9em" data-i18n-content="quicktext.storageLocations.description"></p>
         <ul id="storage-list" class="source-list"></ul>
         <div class="btn-row" style="margin-top:4px">
-          <button id="btn-add-storage-folder"></button>
-          <button id="btn-remove-storage" disabled></button>
+          <button id="btn-add-storage-folder" data-i18n-content="quicktext.buttons.addFolder.label"></button>
+          <button id="btn-remove-storage" disabled data-i18n-content="quicktext.remove.label"></button>
           <div style="flex:1"></div>
-          <button id="btn-select-storage" disabled></button>
+          <button id="btn-select-storage" disabled data-i18n-content="quicktext.buttons.selectStorage.label"></button>
         </div>
       </fieldset>
     </div>
@@ -217,10 +217,10 @@
     <!-- Bottom bar -->
     <div id="bottom-bar">
       <div style="flex:1"></div>
-      <button id="btn-script-help" hidden></button>
-      <button id="btn-help"></button>
-      <button id="btn-save" disabled></button>
-      <button id="btn-close"></button>
+      <button id="btn-script-help" hidden data-i18n-content="quicktext.scripthelp.label"></button>
+      <button id="btn-help" data-i18n-content="quicktext.help.label"></button>
+      <button id="btn-save" disabled data-i18n-content="quicktext.save.label"></button>
+      <button id="btn-close" data-i18n-content="quicktext.close.label"></button>
     </div>
 
   </div>

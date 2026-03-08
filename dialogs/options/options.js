@@ -1,10 +1,8 @@
 import * as utils from "/modules/utils.mjs";
+import { localizeDocument } from "/modules/i18n.mjs";
 
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("intro").textContent =
-    browser.i18n.getMessage("quicktext.options.intro");
-  document.getElementById("open-settings").textContent =
-    browser.i18n.getMessage("quicktext.options.openManager");
+  localizeDocument();
   document.getElementById("open-settings").addEventListener("click", () =>
     utils.openSettingsDialog()
   );

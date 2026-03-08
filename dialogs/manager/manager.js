@@ -7,6 +7,7 @@
 import * as quicktext from "/modules/quicktext.mjs";
 import * as storage from "/modules/storage.mjs";
 import * as utils from "/modules/utils.mjs";
+import { localizeDocument } from "/modules/i18n.mjs";
 
 const i18n = (key, subs) => browser.i18n.getMessage(key, subs) || key;
 const deepClone = obj => JSON.parse(JSON.stringify(obj));
@@ -946,93 +947,10 @@ window.addEventListener("beforeunload", e => {
   e.returnValue = "";
 });
 
-// ---------- i18n ----------
-
-function applyI18n() {
-  document.title = i18n("quicktext.settings.title");
-
-  const idMap = {
-    "tab-general":           "quicktext.general.label",
-    "tab-templates":         "quicktext.templates.label",
-    "tab-scripts":           "quicktext.scripts.label",
-    "tab-advanced":          "quicktext.advanced.label",
-    "lbl-settings":          "quicktext.settings.label",
-    "lbl-default-import":    "quicktext.defaultImport.label",
-    "lbl-sharing-templates": "quicktext.sharingTemplates.label",
-    "lbl-sharing-scripts":   "quicktext.sharingScripts.label",
-    "lbl-counter":           "quicktext.counter.label",
-    "lbl-modifier":          "quicktext.modifierSetting.label",
-    "lbl-keyword-setting":   "quicktext.keywordKeySetting.label",
-    "btn-export-templates":  "quicktext.export.label",
-    "btn-import-templates":  "quicktext.import.label",
-    "btn-export-scripts":    "quicktext.export.label",
-    "btn-import-scripts":    "quicktext.import.label",
-    "btn-reset-counter":     "quicktext.resetcounter.label",
-    "lbl-template-title":    "quicktext.title.label",
-    "btn-add-group":         "quicktext.addGroup.label",
-    "btn-add-template":      "quicktext.addTemplate.label",
-    "btn-remove-template":   "quicktext.remove.label",
-    "lbl-title":             "quicktext.title.label",
-    "lbl-insert-as":         "quicktext.insertAs.label",
-    "lbl-shortcut":          "quicktext.shortcut.label",
-    "lbl-subject":           "quicktext.subject.label",
-    "lbl-tmpl-keyword":      "quicktext.keyword.label",
-    "lbl-attachments":       "quicktext.attachments.label",
-    "lbl-script-title":      "quicktext.title.label",
-    "btn-add-script":        "quicktext.addScript.label",
-    "btn-remove-script":     "quicktext.remove.label",
-    "btn-community-scripts": "quicktext.getScript.label",
-    "btn-script-docs":       "quicktext.scriptDocs.label",
-    "script-caption":        "quicktext.script.label",
-    "lbl-script-name":       "quicktext.title.label",
-    "lbl-storage":           "quicktext.storageLocations.label",
-    "lbl-storage-desc":      "quicktext.storageLocations.description",
-    "btn-add-storage-folder": "quicktext.buttons.addFolder.label",
-    "btn-remove-storage":    "quicktext.remove.label",
-    "btn-select-storage":    "quicktext.buttons.selectStorage.label",
-    "btn-add-url":           "quicktext.buttons.addUrl.label",
-    "btn-remove-import":     "quicktext.remove.label",
-    "btn-save":              "quicktext.save.label",
-    "btn-close":             "quicktext.close.label",
-    "btn-help":              "quicktext.help.label",
-    "btn-script-help":       "quicktext.scripthelp.label",
-    "deprecated-attachment": "deprecated_attachment_field",
-    "opt-text":              "quicktext.text.label",
-    "opt-html":              "quicktext.HTML.label",
-    "opt-none":              "quicktext.none.label",
-  };
-  for (const [id, key] of Object.entries(idMap)) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = i18n(key);
-  }
-
-  // Checkbox labels (via dedicated span IDs)
-  const chkMap = {
-    "lbl-chk-popup":        "quicktext.showContextMenu.label",
-    "lbl-chk-collapse":     "quicktext.collapseSetting.label",
-    "lbl-chk-shortcut-adv": "quicktext.shortcutTypeAdv.label",
-  };
-  for (const [id, key] of Object.entries(chkMap)) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = i18n(key);
-  }
-
-  // Select options that need i18n
-  const selMod = document.getElementById("sel-modifier");
-  selMod.options[0].textContent = i18n("quicktext.altKey.label");
-  selMod.options[1].textContent = i18n("quicktext.controlKey.label");
-  selMod.options[2].textContent = i18n("quicktext.metaKey.label");
-
-  const selKw = document.getElementById("sel-keyword");
-  selKw.options[0].textContent = i18n("quicktext.tabKey.label");
-  selKw.options[1].textContent = i18n("quicktext.spaceKey.label");
-  selKw.options[2].textContent = i18n("quicktext.enterKey.label");
-}
-
 // ---------- Init ----------
 
 async function init() {
-  applyI18n();
+  localizeDocument();
   await loadAll();
 
   // Tab buttons

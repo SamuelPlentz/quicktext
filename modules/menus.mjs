@@ -7,6 +7,7 @@
 import * as quicktext from "/modules/quicktext.mjs";
 import * as storage from "/modules/storage.mjs";
 import * as utils from "/modules/utils.mjs";
+import { getStaticVariablesMenuStructure, getStaticOtherMenuStructure } from "/modules/menuStructure.mjs";
 
 let composeContextEntries = [];
 
@@ -22,7 +23,7 @@ export async function buildComposeBodyMenu() {
     new storage.StorageListener(
         {
             watchedPrefs: ["templates", "popup", "menuCollapse"],
-            listener: async (changes) => {
+            listener: async (_changes) => {
                 // Throw away the menu.
                 for (let entry of composeContextEntries.reverse()) {
                     await messenger.menus.remove(entry);
@@ -78,17 +79,51 @@ async function processMenuData(menuData, parentId) {
     }
 }
 
-async function getContactMenuData(type) {
-    let fields = ["firstname", "lastname", "fullname", "displayname", "nickname", "email", "workphone", "faxnumber", "cellularnumber", "jobtitle", "custom1", "custom2", "custom3", "custom4"];
-    let children = [];
-    for (let field of fields) {
-        children.push({
-            id: field,
-            onclick: (info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: `${type}=${field}` })
-        })
-    }
-    return children;
+function structureToMenuData(nodes, now) {
+    return nodes.flatMap(node => {
+        if (node.type === "separator") return [{ type: "separator" }];
+
+        const entry = { id: node.id };
+        if (node.localeKey) entry.title = messenger.i18n.getMessage(node.localeKey);
+        if (node.type === "dateTime") entry.title = getDateTimeMenuTitle(node.format, now);
+
+        if (node.value?.includes("<path>")) {
+            // Open a file picker before inserting the variable.
+            let filter, titleKey;
+            if (node.value.startsWith("IMAGE=")) {
+                filter = "images";
+                titleKey = "quicktext.insertImage.label";
+            } else if (node.value.startsWith("ATTACHMENT=")) {
+                filter = "any";
+                titleKey = "quicktext.attachmentFile.label";
+            } else {
+                filter = "any";
+                titleKey = "quicktext.insertFile.label";
+            }
+            const title = messenger.i18n.getMessage(titleKey);
+            entry.onclick = async (_info, tab) => {
+                const path = await browser.FileSystemAccess.pickFile(title, filter);
+                if (path) quicktext.insertVariable({ tabId: tab.id, variable: node.value.replace("<path>", path) });
+            };
+        } else if (node.value?.includes("<url>")) {
+            // Prompt for a URL — run in the compose tab context where native dialogs are allowed.
+            const promptLabel = messenger.i18n.getMessage("quicktext.prompt.addUrl.label");
+            entry.onclick = async (_info, tab) => {
+                const results = await messenger.tabs.executeScript(tab.id, {
+                    code: `window.prompt(${JSON.stringify(promptLabel)}, "https://")`,
+                });
+                const url = results?.[0];
+                if (url) quicktext.insertVariable({ tabId: tab.id, variable: node.value.replace("<url>", url) });
+            };
+        } else if (node.value) {
+            entry.onclick = (_info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: node.value });
+        }
+
+        if (node.children) entry.children = structureToMenuData(node.children, now);
+        return [entry];
+    });
 }
+
 
 async function getComposeBodyMenuData() {
     let menuData = [];
@@ -100,7 +135,7 @@ async function getComposeBodyMenuData() {
             children.push({
                 id: `group-${i}-text-${j}`,
                 title: templates.texts[i][j].name,
-                onclick: (info, tab) => quicktext.insertTemplate(tab.id, i, j)
+                onclick: (_info, tab) => quicktext.insertTemplate(tab.id, i, j)
             });
 
         }
@@ -140,94 +175,15 @@ async function getComposeBodyMenuData() {
         {
             contexts,
             id: "variables",
-            children: [
-                {
-                    id: "to",
-                    children: await getContactMenuData("TO")
-                },
-                {
-                    id: "from",
-                    children: await getContactMenuData("FROM")
-                },
-                {
-                    id: "attachments",
-                    children: [
-                        {
-                            id: "filename",
-                            onclick: (info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: 'ATT=name' })
-                        },
-                        {
-                            id: "filenameAndSize",
-                            onclick: (info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: 'ATT=full' })
-                        },
-                    ]
-                },
-                {
-                    id: "dateTime",
-                    children: [
-                        {
-                            id: "quicktext.date.label",
-                            title: getDateTimeMenuTitle("date-short", now),
-                            onclick: (info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: "DATE" })
-                        },
-                        {
-                            id: "date-long",
-                            title: getDateTimeMenuTitle("date-long", now),
-                            onclick: (info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: "DATE=long" })
-                        },
-                        {
-                            id: "date-month",
-                            title: getDateTimeMenuTitle("date-monthname", now),
-                            onclick: (info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: "DATE=monthname" })
-                        },
-                        {
-                            id: "quicktext.time.label",
-                            title: getDateTimeMenuTitle("time-noseconds", now),
-                            onclick: (info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: "TIME" })
-                        },
-                        {
-                            id: "time-seconds",
-                            title: getDateTimeMenuTitle("time-seconds", now),
-                            onclick: (info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: "TIME=seconds" })
-                        }
-                    ]
-                },
-                {
-                    id: "other",
-                    children: [
-                        {
-                            id: "clipboard",
-                            onclick: (info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: 'CLIPBOARD' })
-                        },
-                        {
-                            id: "counter",
-                            onclick: (info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: 'COUNTER' })
-                        },
-                        {
-                            id: "subject",
-                            onclick: (info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: 'SUBJECT' })
-                        },
-                        {
-                            id: "version",
-                            onclick: (info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: 'VERSION' })
-                        },
-                    ]
-                }
-            ]
+            children: structureToMenuData(getStaticVariablesMenuStructure(), now)
         },
         {
             contexts,
             id: "other",
-            children: [
-                {
-                    id: "insertTextFromFileAsText",
-                    onclick: (info, tab) => quicktext.insertContentFromFile(tab.id, "text/plain")
-                },
-                {
-                    id: "insertTextFromFileAsHTML",
-                    onclick: (info, tab) => quicktext.insertContentFromFile(tab.id, "text/html")
-                },
-            ]
+            children: getStaticOtherMenuStructure().map(node => ({
+                id: node.id,
+                onclick: (_info, tab) => quicktext.insertContentFromFile(tab.id, node.mimeType)
+            }))
         },
         {
             contexts,
@@ -238,7 +194,7 @@ async function getComposeBodyMenuData() {
             contexts,
             id: "settings",
             title: messenger.i18n.getMessage("quicktext.settings.title"),
-            onclick: (info, tab) => utils.openSettingsDialog()
+            onclick: () => utils.openSettingsDialog()
         },
     );
 

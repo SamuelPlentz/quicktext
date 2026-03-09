@@ -8,6 +8,7 @@ import * as quicktext from "../modules/quicktext.mjs";
 import * as storage from "../modules/storage.mjs";
 import * as menus from "../modules/menus.mjs";
 import * as utils from "../modules/utils.mjs";
+import { getStaticVariablesMenuStructure, getStaticOtherMenuStructure } from "../modules/menuStructure.mjs";
 
 
 browser.runtime.onInstalled.addListener(details => {
@@ -174,6 +175,10 @@ messenger.runtime.onMessageExternal.addListener((info, sender) => {
       return storage.getTemplates();
     case "getPref":
       return storage.getPref(info.pref);
+    case "getVariablesMenuStructure":
+      return buildVariablesMenuStructure();
+    case "getOtherMenuStructure":
+      return buildOtherMenuStructure();
     case "getDateTimeFormat":
       return utils.getDateTimeFormat(info.data.format, info.data.timeStamp);
     case "insertVariable":
@@ -273,21 +278,63 @@ browser.compose.onBeforeSend.addListener(async (tab, details) => {
   }
 })
 
-// Collect the i18n strings needed by the legacy toolbar XUL template.
+// Collect the i18n strings still needed as __MSG_*__ placeholders in the XUL template.
 function getLegacyToolbarLabels() {
   return Object.fromEntries([
-    "quicktext.variables.label", "quicktext.to.label", "quicktext.from.label",
-    "quicktext.firstname.label", "quicktext.lastname.label", "quicktext.fullname.label",
-    "quicktext.displayname.label", "quicktext.nickname.label", "quicktext.email.label",
-    "quicktext.workphone.label", "quicktext.faxnumber.label", "quicktext.cellularnumber.label",
-    "quicktext.jobtitle.label", "quicktext.custom1.label", "quicktext.custom2.label",
-    "quicktext.custom3.label", "quicktext.custom4.label",
-    "quicktext.attachments.label", "quicktext.filename.label", "quicktext.filenameAndSize.label",
-    "quicktext.dateTime.label", "quicktext.other.label",
-    "quicktext.clipboard.label", "quicktext.counter.label", "quicktext.subject.label",
-    "quicktext.version.label", "quicktext.insertTextFromFileAsText.label",
-    "quicktext.insertTextFromFileAsHTML.label",
+    "quicktext.variables.label",
+    "quicktext.other.label",
   ].map(key => [key, browser.i18n.getMessage(key)]));
+}
+
+// Build the full variables menu structure for the legacy toolbar.
+// Resolves the abstract structure from menuStructure.mjs into a
+// label-resolved tree that the companion add-on builds into XUL elements.
+async function buildVariablesMenuStructure() {
+  const i18n = (key, subs) => browser.i18n.getMessage(key, subs) || key;
+
+  const now = new Date();
+  function resolve(nodes) {
+    return nodes.map(node => {
+      if (node.type === "separator") return { type: "separator" };
+      if (node.type === "dateTime") {
+        const fieldType = node.format.split("-")[0];
+        const label = i18n(`quicktext.${fieldType}.label`, [utils.getDateTimeFormat(node.format, now)]);
+        return { type: "item", label, value: node.value };
+      }
+      const label = i18n(node.localeKey || `quicktext.${node.id}.label`);
+      if (node.type === "group") return { type: "group", label, children: resolve(node.children) };
+      return { type: "item", label, value: node.value };
+    });
+  }
+
+  const structure = resolve(getStaticVariablesMenuStructure());
+
+  const { groups, texts } = await storage.getTemplates();
+  const templatePairs = [];
+  for (let gi = 0; gi < groups.length; gi++) {
+    for (const tmpl of (texts[gi] || [])) {
+      templatePairs.push({ type: "item", label: `${groups[gi].name} / ${tmpl.name}`, value: `TEXT=${groups[gi].name}|${tmpl.name}` });
+    }
+  }
+  if (templatePairs.length) {
+    structure.push({ type: "group", label: i18n("quicktext.templates.label"), children: templatePairs });
+  }
+
+  const scripts = await storage.getScripts();
+  if (scripts.length) {
+    structure.push({ type: "group", label: i18n("quicktext.scripts.label"), children: scripts.map(s => ({ type: "item", label: s.name, value: `SCRIPT=${s.name}` })) });
+  }
+
+  return structure;
+}
+
+async function buildOtherMenuStructure() {
+  const i18n = key => browser.i18n.getMessage(key) || key;
+  return getStaticOtherMenuStructure().map(node => ({
+    type: "item",
+    label: i18n(`quicktext.${node.id}.label`),
+    mimeType: node.mimeType,
+  }));
 }
 
 // Legacy: Inject toolbar into all already open compose windows.

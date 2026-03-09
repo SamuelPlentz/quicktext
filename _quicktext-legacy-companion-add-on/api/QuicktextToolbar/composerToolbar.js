@@ -29,29 +29,76 @@ var quicktextToolbar = {
     await this.update();
     document.getElementById("quicktext-variables-popup").addEventListener(
       "popupshowing",
-      () => this.updateTimeMenus(),
+      async (event) => {
+        // Only rebuild when the root variables popup opens, not when a submenu opens.
+        if (event.target.id !== "quicktext-variables-popup") return;
+        const popup = document.getElementById("quicktext-variables-popup");
+        const menuStructure = await this.notify({ command: "getVariablesMenuStructure" });
+        this.buildVariablesMenu(popup, menuStructure);
+      },
       true
     );
   },
   unload() {
   },
-  async updateTimeMenus() {
-    // Set the date/time in the variable menu.
-    var timeStamp = new Date();
-    let fields = ["date-short", "date-long", "date-monthname", "time-noseconds", "time-seconds"];
-    for (let i = 0; i < fields.length; i++) {
-      let field = fields[i];
-      let fieldType = field.split("-")[0];
-      if (document.getElementById(field)) {
-        document.getElementById(field).setAttribute(
-          "label",
-          this.extension.localeData.localizeMessage(fieldType, [await this.dateTimeFormat(field, timeStamp)])
-        );
+  buildVariablesMenu(container, items) {
+    while (container.firstChild) container.removeChild(container.firstChild);
+    for (const item of items) {
+      switch (item.type) {
+        case "group": {
+          const menu = document.createXULElement("menu");
+          menu.setAttribute("label", item.label);
+          const popup = menu.appendChild(document.createXULElement("menupopup"));
+          this.buildVariablesMenu(popup, item.children);
+          container.appendChild(menu);
+          break;
+        }
+        case "item": {
+          const mi = document.createXULElement("menuitem");
+          mi.setAttribute("label", item.label);
+          if (item.value?.includes("<path>")) {
+            const filter = item.value.startsWith("IMAGE=") ? "images" : "any";
+            mi.addEventListener("command", async () => {
+              const path = await this.pickFilePath(filter);
+              if (path) this.insertVariable(item.value.replace("<path>", path));
+            });
+          } else if (item.value?.includes("<url>")) {
+            mi.addEventListener("command", () => {
+              const url = window.prompt(this.extension.localeData.localizeMessage("quicktext.prompt.addUrl.label"), "https://");
+              if (url) this.insertVariable(item.value.replace("<url>", url));
+            });
+          } else {
+            mi.addEventListener("command", () => this.insertVariable(item.value));
+          }
+          container.appendChild(mi);
+          break;
+        }
+        case "separator":
+          container.appendChild(document.createXULElement("menuseparator"));
+          break;
       }
     }
   },
+  buildOtherMenu(container, items) {
+    while (container.firstChild) container.removeChild(container.firstChild);
+    for (const item of items) {
+      const mi = document.createXULElement("menuitem");
+      mi.setAttribute("label", item.label);
+      mi.addEventListener("command", () => this.insertContentFromFile(item.mimeType));
+      container.appendChild(mi);
+    }
+  },
   async update() {
-    this.updateTimeMenus();
+    const variablesPopup = document.getElementById("quicktext-variables-popup");
+    if (variablesPopup) {
+      const menuStructure = await this.notify({ command: "getVariablesMenuStructure" });
+      this.buildVariablesMenu(variablesPopup, menuStructure);
+    }
+    const otherPopup = document.getElementById("quicktext-other-popup");
+    if (otherPopup) {
+      const otherStructure = await this.notify({ command: "getOtherMenuStructure" });
+      if (otherStructure) this.buildOtherMenu(otherPopup, otherStructure);
+    }
 
     // Empty all shortcuts and keywords ?????
     this.mShortcuts = {};
@@ -181,6 +228,18 @@ var quicktextToolbar = {
       });
     }
   },
+  async pickFilePath(filter) {
+    let filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
+    filePicker.init(window.browsingContext, "", filePicker.modeOpen);
+    if (filter === "images") {
+      filePicker.appendFilters(filePicker.filterImages);
+    } else {
+      filePicker.appendFilters(filePicker.filterAll);
+    }
+    let rv = await new Promise(resolve => filePicker.open(resolve));
+    if (rv == filePicker.returnOK) return filePicker.file.path;
+    return null;
+  },
   async pickFile(aType, aMode, aTitle) {
     let filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
     switch (aMode) {
@@ -205,7 +264,7 @@ var quicktextToolbar = {
 
     filePicker.appendFilters(filePicker.filterAll);
 
-    let rv = await new Promise(function (resolve, reject) {
+    let rv = await new Promise(function (resolve) {
       filePicker.open(result => {
         resolve(result);
       });

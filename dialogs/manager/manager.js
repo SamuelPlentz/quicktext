@@ -8,6 +8,7 @@ import * as quicktext from "/modules/quicktext.mjs";
 import * as storage from "/modules/storage.mjs";
 import * as utils from "/modules/utils.mjs";
 import { localizeDocument } from "/vendor/i18n.mjs";
+import { getStaticVariablesMenuStructure } from "/modules/menuStructure.mjs";
 const { computePosition, flip, shift } = FloatingUIDOM;
 
 const i18n = (key, subs) => browser.i18n.getMessage(key, subs) || key;
@@ -814,71 +815,31 @@ function buildVariablesMenu() {
     return grp;
   };
 
-  const addGrp = (label, pairs, className = "") => {
-    const grp = makeGrp(label, pairs);
-    if (className) grp.classList.add(className);
-    menu.appendChild(grp);
-    return grp;
+  const now = new Date();
+
+  const getDateTimeLabel = node => {
+    switch (node.format) {
+      case "date-short":     return i18n("quicktext.date.label", [now.toLocaleDateString()]);
+      case "date-long":      return i18n("quicktext.date.label", [now.toLocaleDateString(undefined, { dateStyle: "full" })]);
+      case "date-monthname": return now.toLocaleDateString(undefined, { month: "long" });
+      case "time-noseconds": return i18n("quicktext.time.label", [now.toLocaleTimeString(undefined, { timeStyle: "short" })]);
+      case "time-seconds":   return i18n("quicktext.time.label", [now.toLocaleTimeString(undefined, { timeStyle: "medium" })]);
+      default: return node.id;
+    }
   };
 
-  const contactFields = name => [
-    [i18n("quicktext.firstname.label"), `${name}=firstname`],
-    [i18n("quicktext.lastname.label"), `${name}=lastname`],
-    [i18n("quicktext.fullname.label"), `${name}=fullname`],
-    [i18n("quicktext.displayname.label"), `${name}=displayname`],
-    [i18n("quicktext.nickname.label"), `${name}=nickname`],
-    [i18n("quicktext.email.label"), `${name}=email`],
-    [i18n("quicktext.workphone.label"), `${name}=workphone`],
-    [i18n("quicktext.faxnumber.label"), `${name}=faxnumber`],
-    [i18n("quicktext.cellularnumber.label"), `${name}=cellularnumber`],
-    [i18n("quicktext.jobtitle.label"), `${name}=jobtitle`],
-    [i18n("quicktext.custom1.label"), `${name}=custom1`],
-    [i18n("quicktext.custom2.label"), `${name}=custom2`],
-    [i18n("quicktext.custom3.label"), `${name}=custom3`],
-    [i18n("quicktext.custom4.label"), `${name}=custom4`],
-  ];
+  const nodeToElement = node => {
+    if (node.type === "separator") return makeSeparator();
+    const label = node.type === "dateTime"
+      ? getDateTimeLabel(node)
+      : i18n(node.localeKey || `quicktext.${node.id}.label`);
+    if (node.type === "group") return makeGrp(label, node.children.map(nodeToElement));
+    return makeItem(label, node.value);
+  };
 
-  addGrp(i18n("quicktext.to.label"), contactFields("TO"));
-  addGrp(i18n("quicktext.from.label"), contactFields("FROM"));
-
-  addGrp(i18n("quicktext.attachments.label"), [
-    [i18n("quicktext.filename.label"), "ATT=name"],
-    [i18n("quicktext.filenameAndSize.label"), "ATT=full"],
-    null,
-    makeGrp(i18n("quicktext.attachmentFile.label"), [
-      [i18n("quicktext.mode.file.label"), "ATTACHMENT=FILE|<path>"],
-      [i18n("quicktext.mode.url.label"), "ATTACHMENT=URL|<url>"],
-    ]),
-  ]);
-
-  const now = new Date();
-  addGrp(i18n("quicktext.dateTime.label"), [
-    [i18n("quicktext.date.label", [now.toLocaleDateString()]), "DATE"],
-    [i18n("quicktext.date.label", [now.toLocaleDateString(undefined, { dateStyle: "full" })]), "DATE=long"],
-    [now.toLocaleDateString(undefined, { month: "long" }), "DATE=monthname"],
-    [i18n("quicktext.time.label", [now.toLocaleTimeString(undefined, { timeStyle: "short" })]), "TIME"],
-    [i18n("quicktext.time.label", [now.toLocaleTimeString(undefined, { timeStyle: "medium" })]), "TIME=seconds"],
-  ]);
-
-  addGrp(i18n("quicktext.other.label"), [
-    [i18n("quicktext.clipboard.label"), "CLIPBOARD"],
-    [i18n("quicktext.counter.label"), "COUNTER"],
-    [i18n("quicktext.input.label"), "INPUT=name|type|options"],
-    [i18n("quicktext.selection.label"), "SELECTION"],
-    [i18n("quicktext.orgatt.label"), "ORGATT=\\n"],
-    [i18n("quicktext.orgheader.label"), "ORGHEADER=type|\\n"],
-    [i18n("quicktext.subject.label"), "SUBJECT"],
-    [i18n("quicktext.url.label"), "URL=url|data"],
-    [i18n("quicktext.insertfile.label"), "FILE=<path>"],
-    makeGrp(i18n("quicktext.image.label"), [
-      [i18n("quicktext.mode.file.label"), "IMAGE=FILE|<path>"],
-      [i18n("quicktext.mode.url.label"), "IMAGE=URL|<url>"],
-    ]),
-    [i18n("quicktext.version.label"), "VERSION"],
-    null,
-    [i18n("quicktext.header.label"), "HEADER=type|value"],
-    [i18n("quicktext.cursor.label"), "CURSOR"],
-  ]);
+  for (const node of getStaticVariablesMenuStructure()) {
+    menu.appendChild(nodeToElement(node));
+  }
 
   updateVariablesMenu();
 }
@@ -1073,6 +1034,7 @@ async function init() {
 
   document.getElementById("btn-variables").addEventListener("click", e => {
     const menu = document.getElementById("variables-menu");
+    if (menu.hidden) buildVariablesMenu();
     menu.hidden = !menu.hidden;
     e.stopPropagation();
   });
@@ -1114,6 +1076,9 @@ async function init() {
       }
       const path = await browser.FileSystemAccess.pickFile(title, filter);
       if (path) insertVariable(val.replace("<path>", path));
+    } else if (val.includes("<url>")) {
+      const url = prompt(i18n("quicktext.prompt.addUrl.label"), "https://");
+      if (url) insertVariable(val.replace("<url>", url));
     } else {
       insertVariable(val);
     }

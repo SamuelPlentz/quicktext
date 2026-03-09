@@ -125,73 +125,10 @@
     <spacer flex="1" />
     <hbox>
       <button type="menu" id="quicktext-variables" label="__MSG_quicktext.variables.label__" tabindex="-1">
-        <menupopup id="quicktext-variables-popup">
-          <menu label="__MSG_quicktext.to.label__">
-            <menupopup>
-              <menuitem label="__MSG_quicktext.firstname.label__" oncommand="quicktextToolbar.insertVariable('TO=firstname');" />
-              <menuitem label="__MSG_quicktext.lastname.label__" oncommand="quicktextToolbar.insertVariable('TO=lastname');" />
-              <menuitem label="__MSG_quicktext.fullname.label__" oncommand="quicktextToolbar.insertVariable('TO=fullname');" />
-              <menuitem label="__MSG_quicktext.displayname.label__" oncommand="quicktextToolbar.insertVariable('TO=displayname');" />
-              <menuitem label="__MSG_quicktext.nickname.label__" oncommand="quicktextToolbar.insertVariable('TO=nickname');" />
-              <menuitem label="__MSG_quicktext.email.label__" oncommand="quicktextToolbar.insertVariable('TO=email');" />
-              <menuitem label="__MSG_quicktext.workphone.label__" oncommand="quicktextToolbar.insertVariable('TO=workphone');" />
-              <menuitem label="__MSG_quicktext.faxnumber.label__" oncommand="quicktextToolbar.insertVariable('TO=faxnumber');" />
-              <menuitem label="__MSG_quicktext.cellularnumber.label__" oncommand="quicktextToolbar.insertVariable('TO=cellularnumber');" />
-              <menuitem label="__MSG_quicktext.jobtitle.label__" oncommand="quicktextToolbar.insertVariable('TO=jobtitle');" />
-              <menuitem label="__MSG_quicktext.custom1.label__" oncommand="quicktextToolbar.insertVariable('TO=custom1');" />
-              <menuitem label="__MSG_quicktext.custom2.label__" oncommand="quicktextToolbar.insertVariable('TO=custom2');" />
-              <menuitem label="__MSG_quicktext.custom3.label__" oncommand="quicktextToolbar.insertVariable('TO=custom3');" />
-              <menuitem label="__MSG_quicktext.custom4.label__" oncommand="quicktextToolbar.insertVariable('TO=custom4');" />
-            </menupopup>
-          </menu>
-          <menu label="__MSG_quicktext.from.label__">
-            <menupopup>
-              <menuitem label="__MSG_quicktext.firstname.label__" oncommand="quicktextToolbar.insertVariable('FROM=firstname');" />
-              <menuitem label="__MSG_quicktext.lastname.label__" oncommand="quicktextToolbar.insertVariable('FROM=lastname');" />
-              <menuitem label="__MSG_quicktext.fullname.label__" oncommand="quicktextToolbar.insertVariable('FROM=fullname');" />
-              <menuitem label="__MSG_quicktext.displayname.label__" oncommand="quicktextToolbar.insertVariable('FROM=displayname');" />
-              <menuitem label="__MSG_quicktext.nickname.label__" oncommand="quicktextToolbar.insertVariable('FROM=nickname');" />
-              <menuitem label="__MSG_quicktext.email.label__" oncommand="quicktextToolbar.insertVariable('FROM=email');" />
-              <menuitem label="__MSG_quicktext.workphone.label__" oncommand="quicktextToolbar.insertVariable('FROM=workphone');" />
-              <menuitem label="__MSG_quicktext.faxnumber.label__" oncommand="quicktextToolbar.insertVariable('FROM=faxnumber');" />
-              <menuitem label="__MSG_quicktext.cellularnumber.label__" oncommand="quicktextToolbar.insertVariable('FROM=cellularnumber');" />
-              <menuitem label="__MSG_quicktext.jobtitle.label__" oncommand="quicktextToolbar.insertVariable('FROM=jobtitle');" />
-              <menuitem label="__MSG_quicktext.custom1.label__" oncommand="quicktextToolbar.insertVariable('FROM=custom1');" />
-              <menuitem label="__MSG_quicktext.custom2.label__" oncommand="quicktextToolbar.insertVariable('FROM=custom2');" />
-              <menuitem label="__MSG_quicktext.custom3.label__" oncommand="quicktextToolbar.insertVariable('FROM=custom3');" />
-              <menuitem label="__MSG_quicktext.custom4.label__" oncommand="quicktextToolbar.insertVariable('FROM=custom4');" />
-            </menupopup>
-          </menu>
-          <menu label="__MSG_quicktext.attachments.label__">
-            <menupopup>
-              <menuitem label="__MSG_quicktext.filename.label__" oncommand="quicktextToolbar.insertVariable('ATT=name');" />
-              <menuitem label="__MSG_quicktext.filenameAndSize.label__" oncommand="quicktextToolbar.insertVariable('ATT=full');" />
-            </menupopup>
-          </menu>
-          <menu label="__MSG_quicktext.dateTime.label__">
-            <menupopup>
-              <menuitem id="date-short" oncommand="quicktextToolbar.insertVariable('DATE');" />
-              <menuitem id="date-long" oncommand="quicktextToolbar.insertVariable('DATE=long');" />
-              <menuitem id="date-monthname" oncommand="quicktextToolbar.insertVariable('DATE=monthname');" />
-              <menuitem id="time-noseconds" oncommand="quicktextToolbar.insertVariable('TIME');" />
-              <menuitem id="time-seconds" oncommand="quicktextToolbar.insertVariable('TIME=seconds');" />
-            </menupopup>
-          </menu>
-          <menu label="__MSG_quicktext.other.label__">
-            <menupopup>
-              <menuitem label="__MSG_quicktext.clipboard.label__" oncommand="quicktextToolbar.insertVariable('CLIPBOARD');" />
-              <menuitem label="__MSG_quicktext.counter.label__" oncommand="quicktextToolbar.insertVariable('COUNTER');" />
-              <menuitem label="__MSG_quicktext.subject.label__" oncommand="quicktextToolbar.insertVariable('SUBJECT');" />
-              <menuitem label="__MSG_quicktext.version.label__" oncommand="quicktextToolbar.insertVariable('VERSION');" />
-            </menupopup>
-          </menu>
-        </menupopup>
+        <menupopup id="quicktext-variables-popup" />
       </button>
       <button type="menu" id="quicktext-other" label="__MSG_quicktext.other.label__" tabindex="-1">
-        <menupopup>
-          <menuitem label="__MSG_quicktext.insertTextFromFileAsText.label__" oncommand="quicktextToolbar.insertContentFromFile('text/plain');" />
-          <menuitem label="__MSG_quicktext.insertTextFromFileAsHTML.label__" oncommand="quicktextToolbar.insertContentFromFile('text/html');" />
-        </menupopup>
+        <menupopup id="quicktext-other-popup" />
       </button>
     </hbox>
   </toolbar>`, labels

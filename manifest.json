@@ -61,18 +61,18 @@
     ]
   },
   "experiment_apis": {
-    "Quicktext": {
-      "schema": "api/Quicktext/schema.json",
+    "FileSystemAccess": {
+      "schema": "api/FileSystemAccess/schema.json",
       "parent": {
         "scopes": [
           "addon_parent"
         ],
         "paths": [
           [
-            "Quicktext"
+            "FileSystemAccess"
           ]
         ],
-        "script": "api/Quicktext/implementation.js"
+        "script": "api/FileSystemAccess/implementation.js"
       }
     }
   }

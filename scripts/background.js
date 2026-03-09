@@ -118,7 +118,7 @@ if (Array.isArray(defaultImports) && defaultImports.length > 0) {
       case "file":
         try {
           // Import XML or JSON config data from the local file system.
-          data = await browser.Quicktext.readTextFile(defaultImportEntry.data);
+          data = await browser.FileSystemAccess.readTextFile(defaultImportEntry.data);
         } catch (ex) {
           console.error("Failed to read file", ex);
         }

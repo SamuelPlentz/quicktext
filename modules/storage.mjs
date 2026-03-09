@@ -153,7 +153,7 @@ async function readDataFromStorage(type) {
         }
 
         // Read the actual storage.
-        const content = await browser.Quicktext.readTextFile(`${type}.json`, path);
+        const content = await browser.FileSystemAccess.readTextFile(`${type}.json`, path);
         const parsed = await quicktext.parseConfigFileData(content);
         if (parsed[type]) {
           // Update cache.
@@ -196,7 +196,7 @@ async function writeDataToStorage(type, content) {
 
         // Update cache and write to the actual storage..
         await browser.storage.session.set({ [type]: stringContent });
-        await browser.Quicktext.writeTextFile(`${type}.json`, JSON.stringify({ [type]: content }), path);
+        await browser.FileSystemAccess.writeTextFile(`${type}.json`, JSON.stringify({ [type]: content }), path);
         break;
       }
       default:

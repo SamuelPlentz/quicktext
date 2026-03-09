@@ -498,7 +498,7 @@ export class QuicktextParser {
     if (aVariables.length > 0 && aVariables[0] != "") {
       // Tries to open the file and returning the content.
       try {
-        let content = await browser.Quicktext.readTextFile(aVariables[0]);
+        let content = await browser.FileSystemAccess.readTextFile(aVariables[0]);
         let insertMode = aVariables.length > 1 && aVariables[1].includes("force_as_text")
           ? "text/plain"
           : "text/html";
@@ -553,7 +553,7 @@ export class QuicktextParser {
             break;
           }
           case "file": {
-            let bytes = await browser.Quicktext.readBinaryFile(source);
+            let bytes = await browser.FileSystemAccess.readBinaryFile(source);
             let leafName = utils.getLeafName(source);
             let type = utils.getTypeFromExtension(leafName);
             let binContent = utils.uint8ArrayToBase64(bytes);
@@ -860,7 +860,7 @@ export class QuicktextParser {
         break;
       }
       case "file": {
-        let bytes = await browser.Quicktext.readBinaryFile(source);
+        let bytes = await browser.FileSystemAccess.readBinaryFile(source);
         let leafName = name ?? utils.getLeafName(source);
         let type = utils.getTypeFromExtension(leafName);
         let file = new File([bytes], leafName, { type });

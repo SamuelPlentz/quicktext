@@ -10,10 +10,10 @@
 (function (exports) {
 
   let managerWindow = null;
-  var Quicktext = class extends ExtensionCommon.ExtensionAPI {
+  var FileSystemAccess = class extends ExtensionCommon.ExtensionAPI {
     getAPI(context) {
       return {
-        Quicktext: {
+        FileSystemAccess: {
           async getQuicktextFilePaths(templateFolder) {
             let rv = {};
 
@@ -106,5 +106,5 @@
       }
     }
   };
-  exports.Quicktext = Quicktext;
+  exports.FileSystemAccess = FileSystemAccess;
 })(this);

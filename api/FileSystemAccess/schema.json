@@ -1,6 +1,6 @@
 [
   {
-    "namespace": "Quicktext",
+    "namespace": "FileSystemAccess",
     "functions": [
       {
         "name": "getQuicktextFilePaths",

@@ -225,7 +225,7 @@ function renderDefaultImportList() {
 }
 
 async function addDefaultImportFile() {
-  const path = await browser.Quicktext.pickFile(i18n("quicktext.buttons.addFile.label"), "any");
+  const path = await browser.FileSystemAccess.pickFile(i18n("quicktext.buttons.addFile.label"), "any");
   if (!path) return;
   state.defaultImportEntries.push({ source: "FILE", data: path });
   markChanged();
@@ -746,7 +746,7 @@ function updateStorageButtons() {
 }
 
 async function addStorageFolder() {
-  const folder = await browser.Quicktext.pickFolder(i18n("quicktext.buttons.addFolder.label"));
+  const folder = await browser.FileSystemAccess.pickFolder(i18n("quicktext.buttons.addFolder.label"));
   if (!folder) return;
   state.storageEntries.push({ source: "FILE", data: folder });
   markChanged();
@@ -1100,7 +1100,7 @@ async function init() {
         console.error(`pickFile: unknown variable type for value "${val}"`);
         return;
       }
-      const path = await browser.Quicktext.pickFile(title, filter);
+      const path = await browser.FileSystemAccess.pickFile(title, filter);
       if (path) insertVariable(val.replace("<path>", path));
     } else {
       insertVariable(val);

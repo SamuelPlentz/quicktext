@@ -12,15 +12,15 @@ import { QuicktextParser } from "/modules/quicktextParser.mjs";
 
 export async function readLegacyXmlTemplateFile() {
   let templateFolder = await storage.getPref("templateFolder");
-  let { templateFilePath } = await browser.Quicktext.getQuicktextFilePaths(templateFolder);
-  let xmlData = await browser.Quicktext.readTextFile(templateFilePath);
+  let { templateFilePath } = await browser.FileSystemAccess.getQuicktextFilePaths(templateFolder);
+  let xmlData = await browser.FileSystemAccess.readTextFile(templateFilePath);
   return parseLegacyXmlData(xmlData);
 }
 
 export async function readXmlScriptFile() {
   let templateFolder = await storage.getPref("templateFolder");
-  let { scriptFilePath } = await browser.Quicktext.getQuicktextFilePaths(templateFolder);
-  let xmlData = await browser.Quicktext.readTextFile(scriptFilePath);
+  let { scriptFilePath } = await browser.FileSystemAccess.getQuicktextFilePaths(templateFolder);
+  let xmlData = await browser.FileSystemAccess.readTextFile(scriptFilePath);
   return parseLegacyXmlData(xmlData);
 }
 
@@ -249,7 +249,7 @@ async function insertAttachments({ qParser, attachments }) {
     if (!attachment) {
       continue;
     }
-    let bytes = await browser.Quicktext.readBinaryFile(attachment);
+    let bytes = await browser.FileSystemAccess.readBinaryFile(attachment);
     let leafName = utils.getLeafName(attachment);
     let type = utils.getTypeFromExtension(leafName);
     let file = new File([bytes], leafName, { type });

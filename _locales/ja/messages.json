@@ -1,417 +1,417 @@
 {
-    "quicktext.options.intro": {
-        "message": "すべてのQuicktextの設定は、テンプレートやスクリプトとともに、Quicktextマネージャーで制御・設定できます。"
-    },
-    "deprecated_attachment_field": {
-        "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
-    },
-    "attachmentFile": {
-        "message": "添付するファイルを選択してください"
-    },
-    "controlled-via-managed-storage": {
-        "message": "管理ストレージ経由で制御"
-    },
-    "date": {
-        "message": "日付 ($P1$)",
-        "placeholders": {
-            "P1": {
-                "content": "$1"
-            }
-        }
-    },
-    "extensionDescription": {
-        "message": "定型文を素早く挿入できるツールバーをメール編集画面に追加します。[[TO=firstname]]のような変数も使用できます。"
-    },
-    "group": {
-        "message": "グループ"
-    },
-    "inputText": {
-        "message": "$P1$ の値を入力してください",
-        "placeholders": {
-            "P1": {
-                "content": "$1"
-            }
-        }
-    },
-    "insertFile": {
-        "message": "挿入するファイルの選択 (UTF-8)"
-    },
-    "insertImage": {
-        "message": "挿入する画像を選択"
-    },
-    "newGroup": {
-        "message": "新しいグループ"
-    },
-    "newScript": {
-        "message": "新しいスクリプト"
-    },
-    "newTemplate": {
-        "message": "新しいテンプレート"
-    },
-    "quicktext.HTML.label": {
-        "message": "HTML"
-    },
-    "quicktext.advanced.label": {
-        "message": "詳細設定"
-    },
-    "quicktext.accesskey.advanced": {
-        "message": "a"
-    },
-    "quicktext.accesskey.addGroup": {
-        "message": "p"
-    },
-    "quicktext.accesskey.addScript": {
-        "message": "a"
-    },
-    "quicktext.accesskey.addTemplate": {
-        "message": "l"
-    },
-    "quicktext.accesskey.close": {
-        "message": "c"
-    },
-    "quicktext.accesskey.communityScripts": {
-        "message": "c"
-    },
-    "quicktext.accesskey.general": {
-        "message": "g"
-    },
-    "quicktext.accesskey.help": {
-        "message": "p"
-    },
-    "quicktext.accesskey.remove": {
-        "message": "d"
-    },
-    "quicktext.accesskey.resetCounter": {
-        "message": "r"
-    },
-    "quicktext.accesskey.save": {
-        "message": "s"
-    },
-    "quicktext.accesskey.scripts": {
-        "message": "s"
-    },
-    "quicktext.accesskey.templates": {
-        "message": "t"
-    },
-    "quicktext.accesskey.exportScripts": {
-        "message": "x"
-    },
-    "quicktext.accesskey.importScripts": {
-        "message": "m"
-    },
-    "quicktext.accesskey.exportTemplates": {
-        "message": "e"
-    },
-    "quicktext.accesskey.importTemplates": {
-        "message": "i"
-    },
-    "quicktext.buttons.selectStorage.label": {
-        "message": "ストレージを選択"
-    },
-    "quicktext.buttons.addFolder.label": {
-        "message": "＋フォルダー"
-    },
-    "quicktext.buttons.addFile.label": {
-        "message": "＋ファイル"
-    },
-    "quicktext.buttons.addUrl.label": {
-        "message": "＋URL"
-    },
-    "quicktext.addGroup.label": {
-        "message": "グループを追加"
-    },
-    "quicktext.addScript.label": {
-        "message": "スクリプトを追加"
-    },
-    "quicktext.addTemplate.label": {
-        "message": "テンプレートを追加"
-    },
-    "quicktext.altKey.label": {
-        "message": "Alt"
-    },
-    "quicktext.attachments.label": {
-        "message": "添付ファイル"
-    },
-    "quicktext.browse.label": {
-        "message": "参照"
-    },
-    "quicktext.cellularnumber.label": {
-        "message": "携帯電話の番号"
-    },
-    "quicktext.clipboard.label": {
-        "message": "クリップボード"
-    },
-    "quicktext.close.label": {
-        "message": "閉じる"
-    },
-    "quicktext.collapseSetting.label": {
-        "message": "グループにテンプレートが1つしか含まれていない時は、グループとして表示しない"
-    },
-    "quicktext.controlKey.label": {
-        "message": "Ctrl"
-    },
-    "quicktext.counter.label": {
-        "message": "カウンター"
-    },
-    "quicktext.cursor.label": {
-        "message": "カーソルの位置"
-    },
-    "quicktext.custom1.label": {
-        "message": "カスタム 1"
-    },
-    "quicktext.custom2.label": {
-        "message": "カスタム 2"
-    },
-    "quicktext.custom3.label": {
-        "message": "カスタム 3"
-    },
-    "quicktext.custom4.label": {
-        "message": "カスタム 4"
-    },
-    "quicktext.dateTime.label": {
-        "message": "日付と時間"
-    },
-    "quicktext.defaultImport.label": {
-        "message": "起動時にテンプレートとスクリプトを読み込む（読み取り専用）"
-    },
-    "quicktext.displayname.label": {
-        "message": "表示名"
-    },
-    "quicktext.email.label": {
-        "message": "メール"
-    },
-    "quicktext.enterKey.label": {
-        "message": "Enter"
-    },
-    "quicktext.export.label": {
-        "message": "エクスポート"
-    },
-    "quicktext.f11Key.label": {
-        "message": "F11"
-    },
-    "quicktext.f12Key.label": {
-        "message": "F12"
-    },
-    "quicktext.f2Key.label": {
-        "message": "F2"
-    },
-    "quicktext.f4Key.label": {
-        "message": "F4"
-    },
-    "quicktext.f5Key.label": {
-        "message": "F5"
-    },
-    "quicktext.f8Key.label": {
-        "message": "F8"
-    },
-    "quicktext.faxnumber.label": {
-        "message": "FAX 番号"
-    },
-    "quicktext.filename.label": {
-        "message": "ファイルの名前"
-    },
-    "quicktext.filenameAndSize.label": {
-        "message": "ファイルの名前と容量"
-    },
-    "quicktext.firstname.label": {
-        "message": "名"
-    },
-    "quicktext.from.label": {
-        "message": "差出人"
-    },
-    "quicktext.fullname.label": {
-        "message": "名前"
-    },
-    "quicktext.general.label": {
-        "message": "全般"
-    },
-    "quicktext.getScript.label": {
-        "message": "コミュニティスクリプト"
-    },
-    "quicktext.scriptDocs.label": {
-        "message": "スクリプトの作成方法"
-    },
-    "quicktext.header.label": {
-        "message": "ヘッダー (To, Cc, Bcc)"
-    },
-    "quicktext.help.label": {
-        "message": "ヘルプ"
-    },
-    "quicktext.scripthelp.label": {
-        "message": "互換性のないスクリプトですか"
-    },
-    "quicktext.image.label": {
-        "message": "埋め込みHTML画像"
-    },
-    "quicktext.import.label": {
-        "message": "インポート"
-    },
-    "quicktext.input.label": {
-        "message": "ユーザープロンプトからの入力値"
-    },
-    "quicktext.insertAs.label": {
-        "message": "挿入形式"
-    },
-    "quicktext.insertTextFromFileAsHTML.label": {
-        "message": "ファイルを HTML として挿入"
-    },
-    "quicktext.insertTextFromFileAsText.label": {
-        "message": "ファイルをテキストとして挿入"
-    },
-    "quicktext.insertfile.label": {
-        "message": "ファイルの内容（quicktext変数が置き換えられます）"
-    },
-    "quicktext.jobtitle.label": {
-        "message": "肩書き"
-    },
-    "quicktext.keyword.label": {
-        "message": "キーワード"
-    },
-    "quicktext.keywordKeySetting.label": {
-        "message": "をキーワードの起動に使用する"
-    },
-    "quicktext.label": {
-        "message": "Quicktext"
-    },
-    "quicktext.lastname.label": {
-        "message": "姓"
-    },
-    "quicktext.metaKey.label": {
-        "message": "Meta"
-    },
-    "quicktext.modifierSetting.label": {
-        "message": "をキーボードショートカットの修飾キーとして使用する"
-    },
-    "quicktext.nickname.label": {
-        "message": "ニックネーム"
-    },
-    "quicktext.none.label": {
-        "message": "なし"
-    },
-    "quicktext.orgatt.label": {
-        "message": "オリジナル添付ファイル情報"
-    },
-    "quicktext.orgheader.label": {
-        "message": "オリジナルヘッダー情報"
-    },
-    "quicktext.other.label": {
-        "message": "その他"
-    },
-    "quicktext.storageLocations.label": {
-        "message": "テンプレートとスクリプトの保存場所"
-    },
-    "quicktext.remove.label": {
-        "message": "削除"
-    },
-    "quicktext.storageLocations.description": {
-        "message": "テンプレートとスクリプトの保存場所を変更すると、現在の保存場所リストが保存され、Quicktext が再起動して新しい場所からファイルを読み込みます。その他の未保存の設定は失われます。"
-    },
-    "quicktext.storage.internal.local.label": {
-        "message": "内部ストレージ（デフォルト)"
-    },
-    "quicktext.resetcounter.label": {
-        "message": "カウンターをリセット"
-    },
-    "quicktext.showContextMenu.label": {
-        "message": "コンテキストメニューに Quicktext を表示する"
-    },
-    "quicktext.save.label": {
-        "message": "保存"
-    },
-    "quicktext.script.label": {
-        "message": "スクリプト"
-    },
-    "quicktext.scripts.label": {
-        "message": "スクリプト"
-    },
-    "quicktext.selection.label": {
-        "message": "選択"
-    },
-    "quicktext.settings.label": {
-        "message": "設定"
-    },
-    "quicktext.settings.title": {
-        "message": "Quicktext マネージャー"
-    },
-    "quicktext.sharingScripts.label": {
-        "message": "共有スクリプト"
-    },
-    "quicktext.sharingTemplates.label": {
-        "message": "共有テンプレート"
-    },
-    "quicktext.shortcut.label": {
-        "message": "ショートカット"
-    },
-    "quicktext.shortcutTypeAdv.label": {
-        "message": "アドバンスモードでショートカットを使用"
-    },
-    "quicktext.spaceKey.label": {
-        "message": "Space"
-    },
-    "quicktext.subject.label": {
-        "message": "件名"
-    },
-    "quicktext.tabKey.label": {
-        "message": "Tab"
-    },
-    "quicktext.templates.label": {
-        "message": "テンプレート"
-    },
-    "quicktext.text.label": {
-        "message": "テキスト"
-    },
-    "quicktext.title.label": {
-        "message": "タイトル"
-    },
-    "quicktext.to.label": {
-        "message": "宛先"
-    },
-    "quicktext.url.label": {
-        "message": "URLからの応答"
-    },
-    "quicktext.variables.label": {
-        "message": "タグ"
-    },
-    "quicktext.version.label": {
-        "message": "Thunderbird のバージョン"
-    },
-    "quicktext.workphone.label": {
-        "message": "勤務先の電話番号"
-    },
-    "remove": {
-        "message": "「$P1$」 を削除してもよろしいですか?",
-        "placeholders": {
-            "P1": {
-                "content": "$1"
-            }
-        }
-    },
-    "scriptError": {
-        "message": "Quicktextスクリプトにエラーがあります:"
-    },
-    "scriptNotFound": {
-        "message": "Quicktextスクリプト 「$P1$」 が見つかりません!",
-        "placeholders": {
-            "P1": {
-                "content": "$1"
-            }
-        }
-    },
-    "template": {
-        "message": "テンプレート"
-    },
-    "time": {
-        "message": "時間 ($P1$)",
-        "placeholders": {
-            "P1": {
-                "content": "$1"
-            }
-        }
-    },
-    "quicktext.prompt.addUrl.label": {
-        "message": "URLを入力:"
-    },
-    "quicktext.advanced.description": {
-        "message": "テンプレートとスクリプトをファイルシステムアクセスで直接ディスクに保存する方法は将来的に維持されず、最終的にはQuicktext から削除される予定です。Quicktext Legacy Companion アドオンを通じて引き続き利用できる可能性がありますが、公式サポートは行われず、Thunderbird ESR のみで動作します（Thunderbird Release では動作しません）。"
+  "quicktext.options.intro": {
+    "message": "すべてのQuicktextの設定は、テンプレートやスクリプトとともに、Quicktextマネージャーで制御・設定できます。"
+  },
+  "quicktext.deprecatedAttachmentField.label": {
+    "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
+  },
+  "quicktext.attachmentFile.label": {
+    "message": "添付するファイルを選択してください"
+  },
+  "quicktext.controlledViaManagedStorage.label": {
+    "message": "管理ストレージ経由で制御"
+  },
+  "quicktext.date.label": {
+    "message": "日付 ($P1$)",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
     }
+  },
+  "quicktext.group.label": {
+    "message": "グループ"
+  },
+  "quicktext.inputText.label": {
+    "message": "$P1$ の値を入力してください",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
+  },
+  "quicktext.insertFile.label": {
+    "message": "挿入するファイルの選択 (UTF-8)"
+  },
+  "quicktext.insertImage.label": {
+    "message": "挿入する画像を選択"
+  },
+  "quicktext.newGroup.label": {
+    "message": "新しいグループ"
+  },
+  "quicktext.newScript.label": {
+    "message": "新しいスクリプト"
+  },
+  "quicktext.newTemplate.label": {
+    "message": "新しいテンプレート"
+  },
+  "quicktext.HTML.label": {
+    "message": "HTML"
+  },
+  "quicktext.advanced.label": {
+    "message": "詳細設定"
+  },
+  "quicktext.accesskey.advanced": {
+    "message": "a"
+  },
+  "quicktext.accesskey.addGroup": {
+    "message": "p"
+  },
+  "quicktext.accesskey.addScript": {
+    "message": "a"
+  },
+  "quicktext.accesskey.addTemplate": {
+    "message": "l"
+  },
+  "quicktext.accesskey.close": {
+    "message": "c"
+  },
+  "quicktext.accesskey.communityScripts": {
+    "message": "c"
+  },
+  "quicktext.accesskey.general": {
+    "message": "g"
+  },
+  "quicktext.accesskey.help": {
+    "message": "p"
+  },
+  "quicktext.accesskey.remove": {
+    "message": "d"
+  },
+  "quicktext.accesskey.resetCounter": {
+    "message": "r"
+  },
+  "quicktext.accesskey.save": {
+    "message": "s"
+  },
+  "quicktext.accesskey.scripts": {
+    "message": "s"
+  },
+  "quicktext.accesskey.templates": {
+    "message": "t"
+  },
+  "quicktext.accesskey.exportScripts": {
+    "message": "x"
+  },
+  "quicktext.accesskey.importScripts": {
+    "message": "m"
+  },
+  "quicktext.accesskey.exportTemplates": {
+    "message": "e"
+  },
+  "quicktext.accesskey.importTemplates": {
+    "message": "i"
+  },
+  "quicktext.buttons.selectStorage.label": {
+    "message": "ストレージを選択"
+  },
+  "quicktext.buttons.addFolder.label": {
+    "message": "＋フォルダー"
+  },
+  "quicktext.buttons.addFile.label": {
+    "message": "＋ファイル"
+  },
+  "quicktext.buttons.addUrl.label": {
+    "message": "＋URL"
+  },
+  "quicktext.addGroup.label": {
+    "message": "グループを追加"
+  },
+  "quicktext.addScript.label": {
+    "message": "スクリプトを追加"
+  },
+  "quicktext.addTemplate.label": {
+    "message": "テンプレートを追加"
+  },
+  "quicktext.altKey.label": {
+    "message": "Alt"
+  },
+  "quicktext.attachments.label": {
+    "message": "添付ファイル"
+  },
+  "quicktext.browse.label": {
+    "message": "参照"
+  },
+  "quicktext.cellularnumber.label": {
+    "message": "携帯電話の番号"
+  },
+  "quicktext.clipboard.label": {
+    "message": "クリップボード"
+  },
+  "quicktext.close.label": {
+    "message": "閉じる"
+  },
+  "quicktext.collapseSetting.label": {
+    "message": "グループにテンプレートが1つしか含まれていない時は、グループとして表示しない"
+  },
+  "quicktext.controlKey.label": {
+    "message": "Ctrl"
+  },
+  "quicktext.counter.label": {
+    "message": "カウンター"
+  },
+  "quicktext.cursor.label": {
+    "message": "カーソルの位置"
+  },
+  "quicktext.custom1.label": {
+    "message": "カスタム 1"
+  },
+  "quicktext.custom2.label": {
+    "message": "カスタム 2"
+  },
+  "quicktext.custom3.label": {
+    "message": "カスタム 3"
+  },
+  "quicktext.custom4.label": {
+    "message": "カスタム 4"
+  },
+  "quicktext.dateTime.label": {
+    "message": "日付と時間"
+  },
+  "quicktext.defaultImport.label": {
+    "message": "起動時にテンプレートとスクリプトを読み込む（読み取り専用）"
+  },
+  "quicktext.displayname.label": {
+    "message": "表示名"
+  },
+  "quicktext.email.label": {
+    "message": "メール"
+  },
+  "quicktext.enterKey.label": {
+    "message": "Enter"
+  },
+  "quicktext.export.label": {
+    "message": "エクスポート"
+  },
+  "quicktext.f11Key.label": {
+    "message": "F11"
+  },
+  "quicktext.f12Key.label": {
+    "message": "F12"
+  },
+  "quicktext.f2Key.label": {
+    "message": "F2"
+  },
+  "quicktext.f4Key.label": {
+    "message": "F4"
+  },
+  "quicktext.f5Key.label": {
+    "message": "F5"
+  },
+  "quicktext.f8Key.label": {
+    "message": "F8"
+  },
+  "quicktext.faxnumber.label": {
+    "message": "FAX 番号"
+  },
+  "quicktext.filename.label": {
+    "message": "ファイルの名前"
+  },
+  "quicktext.filenameAndSize.label": {
+    "message": "ファイルの名前と容量"
+  },
+  "quicktext.firstname.label": {
+    "message": "名"
+  },
+  "quicktext.from.label": {
+    "message": "差出人"
+  },
+  "quicktext.fullname.label": {
+    "message": "名前"
+  },
+  "quicktext.general.label": {
+    "message": "全般"
+  },
+  "quicktext.getScript.label": {
+    "message": "コミュニティスクリプト"
+  },
+  "quicktext.scriptDocs.label": {
+    "message": "スクリプトの作成方法"
+  },
+  "quicktext.header.label": {
+    "message": "ヘッダー (To, Cc, Bcc)"
+  },
+  "quicktext.help.label": {
+    "message": "ヘルプ"
+  },
+  "quicktext.scripthelp.label": {
+    "message": "互換性のないスクリプトですか"
+  },
+  "quicktext.image.label": {
+    "message": "埋め込みHTML画像"
+  },
+  "quicktext.import.label": {
+    "message": "インポート"
+  },
+  "quicktext.input.label": {
+    "message": "ユーザープロンプトからの入力値"
+  },
+  "quicktext.insertAs.label": {
+    "message": "挿入形式"
+  },
+  "quicktext.insertTextFromFileAsHTML.label": {
+    "message": "ファイルを HTML として挿入"
+  },
+  "quicktext.insertTextFromFileAsText.label": {
+    "message": "ファイルをテキストとして挿入"
+  },
+  "quicktext.insertfile.label": {
+    "message": "ファイルの内容（quicktext変数が置き換えられます）"
+  },
+  "quicktext.jobtitle.label": {
+    "message": "肩書き"
+  },
+  "quicktext.keyword.label": {
+    "message": "キーワード"
+  },
+  "quicktext.keywordKeySetting.label": {
+    "message": "をキーワードの起動に使用する"
+  },
+  "quicktext.label": {
+    "message": "Quicktext"
+  },
+  "quicktext.lastname.label": {
+    "message": "姓"
+  },
+  "quicktext.metaKey.label": {
+    "message": "Meta"
+  },
+  "quicktext.modifierSetting.label": {
+    "message": "をキーボードショートカットの修飾キーとして使用する"
+  },
+  "quicktext.nickname.label": {
+    "message": "ニックネーム"
+  },
+  "quicktext.none.label": {
+    "message": "なし"
+  },
+  "quicktext.orgatt.label": {
+    "message": "オリジナル添付ファイル情報"
+  },
+  "quicktext.orgheader.label": {
+    "message": "オリジナルヘッダー情報"
+  },
+  "quicktext.other.label": {
+    "message": "その他"
+  },
+  "quicktext.storageLocations.label": {
+    "message": "テンプレートとスクリプトの保存場所"
+  },
+  "quicktext.remove.label": {
+    "message": "削除"
+  },
+  "quicktext.storageLocations.description": {
+    "message": "テンプレートとスクリプトの保存場所を変更すると、現在の保存場所リストが保存され、Quicktext が再起動して新しい場所からファイルを読み込みます。その他の未保存の設定は失われます。"
+  },
+  "quicktext.storage.internal.local.label": {
+    "message": "内部ストレージ（デフォルト)"
+  },
+  "quicktext.resetcounter.label": {
+    "message": "カウンターをリセット"
+  },
+  "quicktext.showContextMenu.label": {
+    "message": "コンテキストメニューに Quicktext を表示する"
+  },
+  "quicktext.save.label": {
+    "message": "保存"
+  },
+  "quicktext.script.label": {
+    "message": "スクリプト"
+  },
+  "quicktext.scripts.label": {
+    "message": "スクリプト"
+  },
+  "quicktext.selection.label": {
+    "message": "選択"
+  },
+  "quicktext.settings.label": {
+    "message": "設定"
+  },
+  "quicktext.settings.title": {
+    "message": "Quicktext マネージャー"
+  },
+  "quicktext.sharingScripts.label": {
+    "message": "共有スクリプト"
+  },
+  "quicktext.sharingTemplates.label": {
+    "message": "共有テンプレート"
+  },
+  "quicktext.shortcut.label": {
+    "message": "ショートカット"
+  },
+  "quicktext.shortcutTypeAdv.label": {
+    "message": "アドバンスモードでショートカットを使用"
+  },
+  "quicktext.spaceKey.label": {
+    "message": "Space"
+  },
+  "quicktext.subject.label": {
+    "message": "件名"
+  },
+  "quicktext.tabKey.label": {
+    "message": "Tab"
+  },
+  "quicktext.templates.label": {
+    "message": "テンプレート"
+  },
+  "quicktext.text.label": {
+    "message": "テキスト"
+  },
+  "quicktext.title.label": {
+    "message": "タイトル"
+  },
+  "quicktext.to.label": {
+    "message": "宛先"
+  },
+  "quicktext.url.label": {
+    "message": "URLからの応答"
+  },
+  "quicktext.variables.label": {
+    "message": "タグ"
+  },
+  "quicktext.version.label": {
+    "message": "Thunderbird のバージョン"
+  },
+  "quicktext.workphone.label": {
+    "message": "勤務先の電話番号"
+  },
+  "quicktext.confirmRemove.label": {
+    "message": "「$P1$」 を削除してもよろしいですか?",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
+  },
+  "quicktext.scriptError.label": {
+    "message": "Quicktextスクリプトにエラーがあります:"
+  },
+  "quicktext.scriptNotFound.label": {
+    "message": "Quicktextスクリプト 「$P1$」 が見つかりません!",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
+  },
+  "quicktext.template.label": {
+    "message": "テンプレート"
+  },
+  "quicktext.time.label": {
+    "message": "時間 ($P1$)",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
+  },
+  "quicktext.prompt.addUrl.label": {
+    "message": "URLを入力:"
+  },
+  "quicktext.advanced.description": {
+    "message": "テンプレートとスクリプトをファイルシステムアクセスで直接ディスクに保存する方法は将来的に維持されず、最終的にはQuicktext から削除される予定です。Quicktext Legacy Companion アドオンを通じて引き続き利用できる可能性がありますが、公式サポートは行われず、Thunderbird ESR のみで動作します（Thunderbird Release では動作しません）。"
+  },
+  "extensionDescription": {
+    "message": "定型文を素早く挿入できるツールバーをメール編集画面に追加します。[[TO=firstname]]のような変数も使用できます。"
+  }
 }

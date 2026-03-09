@@ -1,417 +1,417 @@
 {
-    "quicktext.options.intro": {
-        "message": "Az összes Quicktext-beállítás a Quicktext-kezelőben vezérelhető és konfigurálható, a sablonok és szkriptek mellett."
-    },
-    "deprecated_attachment_field": {
-        "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
-    },
-    "attachmentFile": {
-        "message": "Fájl kiválasztása mellékletek hozzáadása"
-    },
-    "controlled-via-managed-storage": {
-        "message": "Felügyelt tárhelyen keresztül vezérelve"
-    },
-    "date": {
-        "message": "Dátum ($P1$)",
-        "placeholders": {
-            "P1": {
-                "content": "$1"
-            }
-        }
-    },
-    "extensionDescription": {
-        "message": "Eszköztár, parancsfájlok és sablonok korlátlan lehetoségekkel, beleértve a [[TO=firstname]] változókat, a gyors szövegbeillesztéshez"
-    },
-    "group": {
-        "message": "Csoport"
-    },
-    "inputText": {
-        "message": "A(z) $P1$ érték bevitele",
-        "placeholders": {
-            "P1": {
-                "content": "$1"
-            }
-        }
-    },
-    "insertFile": {
-        "message": "Fájl kiválasztás beszúrása (UTF-8)"
-    },
-    "insertImage": {
-        "message": "Beillesztendő képfájl kiválasztása"
-    },
-    "newGroup": {
-        "message": "Új csoport"
-    },
-    "newScript": {
-        "message": "Új parancsfájl"
-    },
-    "newTemplate": {
-        "message": "Új sablon"
-    },
-    "quicktext.HTML.label": {
-        "message": "HTML"
-    },
-    "quicktext.advanced.label": {
-        "message": "Haladó"
-    },
-    "quicktext.accesskey.advanced": {
-        "message": "a"
-    },
-    "quicktext.accesskey.addGroup": {
-        "message": "p"
-    },
-    "quicktext.accesskey.addScript": {
-        "message": "t"
-    },
-    "quicktext.accesskey.addTemplate": {
-        "message": "l"
-    },
-    "quicktext.accesskey.close": {
-        "message": "z"
-    },
-    "quicktext.accesskey.communityScripts": {
-        "message": "s"
-    },
-    "quicktext.accesskey.general": {
-        "message": "n"
-    },
-    "quicktext.accesskey.help": {
-        "message": "g"
-    },
-    "quicktext.accesskey.remove": {
-        "message": "v"
-    },
-    "quicktext.accesskey.resetCounter": {
-        "message": "i"
-    },
-    "quicktext.accesskey.save": {
-        "message": "c"
-    },
-    "quicktext.accesskey.scripts": {
-        "message": "p"
-    },
-    "quicktext.accesskey.templates": {
-        "message": "o"
-    },
-    "quicktext.accesskey.exportScripts": {
-        "message": "x"
-    },
-    "quicktext.accesskey.importScripts": {
-        "message": "m"
-    },
-    "quicktext.accesskey.exportTemplates": {
-        "message": "e"
-    },
-    "quicktext.accesskey.importTemplates": {
-        "message": "i"
-    },
-    "quicktext.buttons.selectStorage.label": {
-        "message": "Tároló kiválasztása"
-    },
-    "quicktext.buttons.addFolder.label": {
-        "message": "+ Mappa"
-    },
-    "quicktext.buttons.addFile.label": {
-        "message": "+ Fájl"
-    },
-    "quicktext.buttons.addUrl.label": {
-        "message": "+ URL"
-    },
-    "quicktext.addGroup.label": {
-        "message": "Csoport hozzáadása"
-    },
-    "quicktext.addScript.label": {
-        "message": "Parancsfájl hozzáadása"
-    },
-    "quicktext.addTemplate.label": {
-        "message": "Sablon hozzáadása"
-    },
-    "quicktext.altKey.label": {
-        "message": "Alt"
-    },
-    "quicktext.attachments.label": {
-        "message": "Mellékletek"
-    },
-    "quicktext.browse.label": {
-        "message": "Tallózás…"
-    },
-    "quicktext.cellularnumber.label": {
-        "message": "Mobiltelefonszám"
-    },
-    "quicktext.clipboard.label": {
-        "message": "Vágólap"
-    },
-    "quicktext.close.label": {
-        "message": "Bezárás"
-    },
-    "quicktext.collapseSetting.label": {
-        "message": "Csoport összecsukása amikor egy sablont tartalmaz"
-    },
-    "quicktext.controlKey.label": {
-        "message": "Ctrl"
-    },
-    "quicktext.counter.label": {
-        "message": "Számláló"
-    },
-    "quicktext.cursor.label": {
-        "message": "Kurzor helyezkedő"
-    },
-    "quicktext.custom1.label": {
-        "message": "1. egyéni"
-    },
-    "quicktext.custom2.label": {
-        "message": "2. egyéni"
-    },
-    "quicktext.custom3.label": {
-        "message": "3. egyéni"
-    },
-    "quicktext.custom4.label": {
-        "message": "4. egyéni"
-    },
-    "quicktext.dateTime.label": {
-        "message": "Dátum/idő"
-    },
-    "quicktext.defaultImport.label": {
-        "message": "Sablonok és szkriptek indításkor importálása (csak olvasható)"
-    },
-    "quicktext.displayname.label": {
-        "message": "Megjelenítendő név"
-    },
-    "quicktext.email.label": {
-        "message": "E-mail"
-    },
-    "quicktext.enterKey.label": {
-        "message": "Enter"
-    },
-    "quicktext.export.label": {
-        "message": "Exportálása"
-    },
-    "quicktext.f11Key.label": {
-        "message": "F11"
-    },
-    "quicktext.f12Key.label": {
-        "message": "F12"
-    },
-    "quicktext.f2Key.label": {
-        "message": "F2"
-    },
-    "quicktext.f4Key.label": {
-        "message": "F4"
-    },
-    "quicktext.f5Key.label": {
-        "message": "F5"
-    },
-    "quicktext.f8Key.label": {
-        "message": "F8"
-    },
-    "quicktext.faxnumber.label": {
-        "message": "Fax szám"
-    },
-    "quicktext.filename.label": {
-        "message": "Fájlnév"
-    },
-    "quicktext.filenameAndSize.label": {
-        "message": "Fájlnév és fájlméret"
-    },
-    "quicktext.firstname.label": {
-        "message": "Keresztnév"
-    },
-    "quicktext.from.label": {
-        "message": "Feladó"
-    },
-    "quicktext.fullname.label": {
-        "message": "Teljes név"
-    },
-    "quicktext.general.label": {
-        "message": "Általános"
-    },
-    "quicktext.getScript.label": {
-        "message": "Közösségi parancsfájlok"
-    },
-    "quicktext.scriptDocs.label": {
-        "message": "Hogyan hozzon létre szkripteket"
-    },
-    "quicktext.header.label": {
-        "message": "Fejléc (Címzett [To], Másolat [Cc], Rejtett másolat [Bcc])"
-    },
-    "quicktext.help.label": {
-        "message": "Súgó"
-    },
-    "quicktext.scripthelp.label": {
-        "message": "Nem kompatibilis szkript"
-    },
-    "quicktext.image.label": {
-        "message": "Beágyazott HTML-kép"
-    },
-    "quicktext.import.label": {
-        "message": "Importálása"
-    },
-    "quicktext.input.label": {
-        "message": "Bemeneti érték a parancssorból"
-    },
-    "quicktext.insertAs.label": {
-        "message": "Irányított beszúrása…"
-    },
-    "quicktext.insertTextFromFileAsHTML.label": {
-        "message": "Fájl beszúrása mint HTML formátum"
-    },
-    "quicktext.insertTextFromFileAsText.label": {
-        "message": "Fájl beszúrása mint szöveg formátum"
-    },
-    "quicktext.insertfile.label": {
-        "message": "Tartalom a fájlból (gyorsszöveg változók lecseréli)"
-    },
-    "quicktext.jobtitle.label": {
-        "message": "Munka megnevezése"
-    },
-    "quicktext.keyword.label": {
-        "message": "Kulcsszó"
-    },
-    "quicktext.keywordKeySetting.label": {
-        "message": "billentyű a kulcsszó aktiválásához"
-    },
-    "quicktext.label": {
-        "message": "Gyorsszöveg"
-    },
-    "quicktext.lastname.label": {
-        "message": "Vezetéknév"
-    },
-    "quicktext.metaKey.label": {
-        "message": "Meta"
-    },
-    "quicktext.modifierSetting.label": {
-        "message": "billentyű módosít a billentyűparancsot"
-    },
-    "quicktext.nickname.label": {
-        "message": "Becenév"
-    },
-    "quicktext.none.label": {
-        "message": "Nincs"
-    },
-    "quicktext.orgatt.label": {
-        "message": "Eredeti melléklet adatai"
-    },
-    "quicktext.orgheader.label": {
-        "message": "Eredeti fejléc adatai"
-    },
-    "quicktext.other.label": {
-        "message": "Más"
-    },
-    "quicktext.storageLocations.label": {
-        "message": "Tárolási hely a sablonokhoz és szkriptekhez"
-    },
-    "quicktext.storageLocations.description": {
-        "message": "A sablonok és szkriptek tárolási helyének megváltoztatása elmenti a tárolási helyek aktuális listáját, majd újraindítja a Quicktextet, hogy betöltse a fájlokat az új helyről. Minden egyéb nem mentett beállítás elvész."
-    },
-    "quicktext.storage.internal.local.label": {
-        "message": "Belső tároló (alapértelmezett)"
-    },
-    "quicktext.remove.label": {
-        "message": "Eltávolítás"
-    },
-    "quicktext.resetcounter.label": {
-        "message": "Számláló visszaállítása"
-    },
-    "quicktext.showContextMenu.label": {
-        "message": "Jobb kattintással a gyorsszöveg menü megnyitása"
-    },
-    "quicktext.save.label": {
-        "message": "Mentés"
-    },
-    "quicktext.script.label": {
-        "message": "Parancsfájl"
-    },
-    "quicktext.scripts.label": {
-        "message": "Parancsfájlok"
-    },
-    "quicktext.selection.label": {
-        "message": "Kijelölés"
-    },
-    "quicktext.settings.label": {
-        "message": "Beállítások"
-    },
-    "quicktext.settings.title": {
-        "message": "Quicktext-kezelő"
-    },
-    "quicktext.sharingScripts.label": {
-        "message": "Parancsfájlok megosztása"
-    },
-    "quicktext.sharingTemplates.label": {
-        "message": "Sablonok megosztása"
-    },
-    "quicktext.shortcut.label": {
-        "message": "Gyorsbillentyű"
-    },
-    "quicktext.shortcutTypeAdv.label": {
-        "message": "Használja a speciális módot a gyorsbillentyűkhöz"
-    },
-    "quicktext.spaceKey.label": {
-        "message": "Szóköz"
-    },
-    "quicktext.subject.label": {
-        "message": "Tárgy"
-    },
-    "quicktext.tabKey.label": {
-        "message": "Fül"
-    },
-    "quicktext.templates.label": {
-        "message": "Sablonok"
-    },
-    "quicktext.text.label": {
-        "message": "Szöveg"
-    },
-    "quicktext.title.label": {
-        "message": "Cím"
-    },
-    "quicktext.to.label": {
-        "message": "Címzett"
-    },
-    "quicktext.url.label": {
-        "message": "Válasz az URL-címtől"
-    },
-    "quicktext.variables.label": {
-        "message": "Változók"
-    },
-    "quicktext.version.label": {
-        "message": "Thunderbird verzió"
-    },
-    "quicktext.workphone.label": {
-        "message": "Munkahelyi szám"
-    },
-    "remove": {
-        "message": "Biztos benne, hogy el akarja távolítani a(z) „$P1$”-t?",
-        "placeholders": {
-            "P1": {
-                "content": "$1"
-            }
-        }
-    },
-    "scriptError": {
-        "message": "Hiba történt a gyorsszöveg parancsfájlban:"
-    },
-    "scriptNotFound": {
-        "message": "Gyorsszöveg „$P1$”-parancsfájl nem található!",
-        "placeholders": {
-            "P1": {
-                "content": "$1"
-            }
-        }
-    },
-    "template": {
-        "message": "Sablon"
-    },
-    "time": {
-        "message": "Idő ($P1$)",
-        "placeholders": {
-            "P1": {
-                "content": "$1"
-            }
-        }
-    },
-    "quicktext.prompt.addUrl.label": {
-        "message": "URL megadása:"
-    },
-    "quicktext.advanced.description": {
-        "message": "A sablonok és szkriptek közvetlen lemezre mentése fájlrendszer-hozzáférésen keresztül nem jövőbiztos, és végül eltávolításra kerül a Quicktextből. Lehetséges, hogy elérhető marad a Quicktext Legacy Companion kiegészítőn keresztül, de az nem lesz hivatalosan támogatott, és csak Thunderbird ESR-en működik majd, Thunderbird Release-en soha."
+  "quicktext.options.intro": {
+    "message": "Az összes Quicktext-beállítás a Quicktext-kezelőben vezérelhető és konfigurálható, a sablonok és szkriptek mellett."
+  },
+  "quicktext.deprecatedAttachmentField.label": {
+    "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
+  },
+  "quicktext.attachmentFile.label": {
+    "message": "Fájl kiválasztása mellékletek hozzáadása"
+  },
+  "quicktext.controlledViaManagedStorage.label": {
+    "message": "Felügyelt tárhelyen keresztül vezérelve"
+  },
+  "quicktext.date.label": {
+    "message": "Dátum ($P1$)",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
     }
+  },
+  "quicktext.group.label": {
+    "message": "Csoport"
+  },
+  "quicktext.inputText.label": {
+    "message": "A(z) $P1$ érték bevitele",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
+  },
+  "quicktext.insertFile.label": {
+    "message": "Fájl kiválasztás beszúrása (UTF-8)"
+  },
+  "quicktext.insertImage.label": {
+    "message": "Beillesztendő képfájl kiválasztása"
+  },
+  "quicktext.newGroup.label": {
+    "message": "Új csoport"
+  },
+  "quicktext.newScript.label": {
+    "message": "Új parancsfájl"
+  },
+  "quicktext.newTemplate.label": {
+    "message": "Új sablon"
+  },
+  "quicktext.HTML.label": {
+    "message": "HTML"
+  },
+  "quicktext.advanced.label": {
+    "message": "Haladó"
+  },
+  "quicktext.accesskey.advanced": {
+    "message": "a"
+  },
+  "quicktext.accesskey.addGroup": {
+    "message": "p"
+  },
+  "quicktext.accesskey.addScript": {
+    "message": "t"
+  },
+  "quicktext.accesskey.addTemplate": {
+    "message": "l"
+  },
+  "quicktext.accesskey.close": {
+    "message": "z"
+  },
+  "quicktext.accesskey.communityScripts": {
+    "message": "s"
+  },
+  "quicktext.accesskey.general": {
+    "message": "n"
+  },
+  "quicktext.accesskey.help": {
+    "message": "g"
+  },
+  "quicktext.accesskey.remove": {
+    "message": "v"
+  },
+  "quicktext.accesskey.resetCounter": {
+    "message": "i"
+  },
+  "quicktext.accesskey.save": {
+    "message": "c"
+  },
+  "quicktext.accesskey.scripts": {
+    "message": "p"
+  },
+  "quicktext.accesskey.templates": {
+    "message": "o"
+  },
+  "quicktext.accesskey.exportScripts": {
+    "message": "x"
+  },
+  "quicktext.accesskey.importScripts": {
+    "message": "m"
+  },
+  "quicktext.accesskey.exportTemplates": {
+    "message": "e"
+  },
+  "quicktext.accesskey.importTemplates": {
+    "message": "i"
+  },
+  "quicktext.buttons.selectStorage.label": {
+    "message": "Tároló kiválasztása"
+  },
+  "quicktext.buttons.addFolder.label": {
+    "message": "+ Mappa"
+  },
+  "quicktext.buttons.addFile.label": {
+    "message": "+ Fájl"
+  },
+  "quicktext.buttons.addUrl.label": {
+    "message": "+ URL"
+  },
+  "quicktext.addGroup.label": {
+    "message": "Csoport hozzáadása"
+  },
+  "quicktext.addScript.label": {
+    "message": "Parancsfájl hozzáadása"
+  },
+  "quicktext.addTemplate.label": {
+    "message": "Sablon hozzáadása"
+  },
+  "quicktext.altKey.label": {
+    "message": "Alt"
+  },
+  "quicktext.attachments.label": {
+    "message": "Mellékletek"
+  },
+  "quicktext.browse.label": {
+    "message": "Tallózás…"
+  },
+  "quicktext.cellularnumber.label": {
+    "message": "Mobiltelefonszám"
+  },
+  "quicktext.clipboard.label": {
+    "message": "Vágólap"
+  },
+  "quicktext.close.label": {
+    "message": "Bezárás"
+  },
+  "quicktext.collapseSetting.label": {
+    "message": "Csoport összecsukása amikor egy sablont tartalmaz"
+  },
+  "quicktext.controlKey.label": {
+    "message": "Ctrl"
+  },
+  "quicktext.counter.label": {
+    "message": "Számláló"
+  },
+  "quicktext.cursor.label": {
+    "message": "Kurzor helyezkedő"
+  },
+  "quicktext.custom1.label": {
+    "message": "1. egyéni"
+  },
+  "quicktext.custom2.label": {
+    "message": "2. egyéni"
+  },
+  "quicktext.custom3.label": {
+    "message": "3. egyéni"
+  },
+  "quicktext.custom4.label": {
+    "message": "4. egyéni"
+  },
+  "quicktext.dateTime.label": {
+    "message": "Dátum/idő"
+  },
+  "quicktext.defaultImport.label": {
+    "message": "Sablonok és szkriptek indításkor importálása (csak olvasható)"
+  },
+  "quicktext.displayname.label": {
+    "message": "Megjelenítendő név"
+  },
+  "quicktext.email.label": {
+    "message": "E-mail"
+  },
+  "quicktext.enterKey.label": {
+    "message": "Enter"
+  },
+  "quicktext.export.label": {
+    "message": "Exportálása"
+  },
+  "quicktext.f11Key.label": {
+    "message": "F11"
+  },
+  "quicktext.f12Key.label": {
+    "message": "F12"
+  },
+  "quicktext.f2Key.label": {
+    "message": "F2"
+  },
+  "quicktext.f4Key.label": {
+    "message": "F4"
+  },
+  "quicktext.f5Key.label": {
+    "message": "F5"
+  },
+  "quicktext.f8Key.label": {
+    "message": "F8"
+  },
+  "quicktext.faxnumber.label": {
+    "message": "Fax szám"
+  },
+  "quicktext.filename.label": {
+    "message": "Fájlnév"
+  },
+  "quicktext.filenameAndSize.label": {
+    "message": "Fájlnév és fájlméret"
+  },
+  "quicktext.firstname.label": {
+    "message": "Keresztnév"
+  },
+  "quicktext.from.label": {
+    "message": "Feladó"
+  },
+  "quicktext.fullname.label": {
+    "message": "Teljes név"
+  },
+  "quicktext.general.label": {
+    "message": "Általános"
+  },
+  "quicktext.getScript.label": {
+    "message": "Közösségi parancsfájlok"
+  },
+  "quicktext.scriptDocs.label": {
+    "message": "Hogyan hozzon létre szkripteket"
+  },
+  "quicktext.header.label": {
+    "message": "Fejléc (Címzett [To], Másolat [Cc], Rejtett másolat [Bcc])"
+  },
+  "quicktext.help.label": {
+    "message": "Súgó"
+  },
+  "quicktext.scripthelp.label": {
+    "message": "Nem kompatibilis szkript"
+  },
+  "quicktext.image.label": {
+    "message": "Beágyazott HTML-kép"
+  },
+  "quicktext.import.label": {
+    "message": "Importálása"
+  },
+  "quicktext.input.label": {
+    "message": "Bemeneti érték a parancssorból"
+  },
+  "quicktext.insertAs.label": {
+    "message": "Irányított beszúrása…"
+  },
+  "quicktext.insertTextFromFileAsHTML.label": {
+    "message": "Fájl beszúrása mint HTML formátum"
+  },
+  "quicktext.insertTextFromFileAsText.label": {
+    "message": "Fájl beszúrása mint szöveg formátum"
+  },
+  "quicktext.insertfile.label": {
+    "message": "Tartalom a fájlból (gyorsszöveg változók lecseréli)"
+  },
+  "quicktext.jobtitle.label": {
+    "message": "Munka megnevezése"
+  },
+  "quicktext.keyword.label": {
+    "message": "Kulcsszó"
+  },
+  "quicktext.keywordKeySetting.label": {
+    "message": "billentyű a kulcsszó aktiválásához"
+  },
+  "quicktext.label": {
+    "message": "Gyorsszöveg"
+  },
+  "quicktext.lastname.label": {
+    "message": "Vezetéknév"
+  },
+  "quicktext.metaKey.label": {
+    "message": "Meta"
+  },
+  "quicktext.modifierSetting.label": {
+    "message": "billentyű módosít a billentyűparancsot"
+  },
+  "quicktext.nickname.label": {
+    "message": "Becenév"
+  },
+  "quicktext.none.label": {
+    "message": "Nincs"
+  },
+  "quicktext.orgatt.label": {
+    "message": "Eredeti melléklet adatai"
+  },
+  "quicktext.orgheader.label": {
+    "message": "Eredeti fejléc adatai"
+  },
+  "quicktext.other.label": {
+    "message": "Más"
+  },
+  "quicktext.storageLocations.label": {
+    "message": "Tárolási hely a sablonokhoz és szkriptekhez"
+  },
+  "quicktext.storageLocations.description": {
+    "message": "A sablonok és szkriptek tárolási helyének megváltoztatása elmenti a tárolási helyek aktuális listáját, majd újraindítja a Quicktextet, hogy betöltse a fájlokat az új helyről. Minden egyéb nem mentett beállítás elvész."
+  },
+  "quicktext.storage.internal.local.label": {
+    "message": "Belső tároló (alapértelmezett)"
+  },
+  "quicktext.remove.label": {
+    "message": "Eltávolítás"
+  },
+  "quicktext.resetcounter.label": {
+    "message": "Számláló visszaállítása"
+  },
+  "quicktext.showContextMenu.label": {
+    "message": "Jobb kattintással a gyorsszöveg menü megnyitása"
+  },
+  "quicktext.save.label": {
+    "message": "Mentés"
+  },
+  "quicktext.script.label": {
+    "message": "Parancsfájl"
+  },
+  "quicktext.scripts.label": {
+    "message": "Parancsfájlok"
+  },
+  "quicktext.selection.label": {
+    "message": "Kijelölés"
+  },
+  "quicktext.settings.label": {
+    "message": "Beállítások"
+  },
+  "quicktext.settings.title": {
+    "message": "Quicktext-kezelő"
+  },
+  "quicktext.sharingScripts.label": {
+    "message": "Parancsfájlok megosztása"
+  },
+  "quicktext.sharingTemplates.label": {
+    "message": "Sablonok megosztása"
+  },
+  "quicktext.shortcut.label": {
+    "message": "Gyorsbillentyű"
+  },
+  "quicktext.shortcutTypeAdv.label": {
+    "message": "Használja a speciális módot a gyorsbillentyűkhöz"
+  },
+  "quicktext.spaceKey.label": {
+    "message": "Szóköz"
+  },
+  "quicktext.subject.label": {
+    "message": "Tárgy"
+  },
+  "quicktext.tabKey.label": {
+    "message": "Fül"
+  },
+  "quicktext.templates.label": {
+    "message": "Sablonok"
+  },
+  "quicktext.text.label": {
+    "message": "Szöveg"
+  },
+  "quicktext.title.label": {
+    "message": "Cím"
+  },
+  "quicktext.to.label": {
+    "message": "Címzett"
+  },
+  "quicktext.url.label": {
+    "message": "Válasz az URL-címtől"
+  },
+  "quicktext.variables.label": {
+    "message": "Változók"
+  },
+  "quicktext.version.label": {
+    "message": "Thunderbird verzió"
+  },
+  "quicktext.workphone.label": {
+    "message": "Munkahelyi szám"
+  },
+  "quicktext.confirmRemove.label": {
+    "message": "Biztos benne, hogy el akarja távolítani a(z) „$P1$”-t?",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
+  },
+  "quicktext.scriptError.label": {
+    "message": "Hiba történt a gyorsszöveg parancsfájlban:"
+  },
+  "quicktext.scriptNotFound.label": {
+    "message": "Gyorsszöveg „$P1$”-parancsfájl nem található!",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
+  },
+  "quicktext.template.label": {
+    "message": "Sablon"
+  },
+  "quicktext.time.label": {
+    "message": "Idő ($P1$)",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
+  },
+  "quicktext.prompt.addUrl.label": {
+    "message": "URL megadása:"
+  },
+  "quicktext.advanced.description": {
+    "message": "A sablonok és szkriptek közvetlen lemezre mentése fájlrendszer-hozzáférésen keresztül nem jövőbiztos, és végül eltávolításra kerül a Quicktextből. Lehetséges, hogy elérhető marad a Quicktext Legacy Companion kiegészítőn keresztül, de az nem lesz hivatalosan támogatott, és csak Thunderbird ESR-en működik majd, Thunderbird Release-en soha."
+  },
+  "extensionDescription": {
+    "message": "Eszköztár, parancsfájlok és sablonok korlátlan lehetoségekkel, beleértve a [[TO=firstname]] változókat, a gyors szövegbeillesztéshez"
+  }
 }

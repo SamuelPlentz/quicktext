@@ -1,417 +1,417 @@
 {
-    "quicktext.options.intro": {
-        "message": "Veškerá nastavení Quicktext lze ovládat a konfigurovat ve Správci Quicktext, společně s vašimi šablonami a skripty."
-    },
-    "deprecated_attachment_field": {
-        "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
-    },
-    "attachmentFile": {
-        "message": "Vyberte soubor, který se má přidat do příloh"
-    },
-    "controlled-via-managed-storage": {
-        "message": "Řízeno přes spravované úložiště"
-    },
-    "date": {
-        "message": "Datum ($P1$)",
-        "placeholders": {
-            "P1": {
-                "content": "$1"
-            }
-        }
-    },
-    "extensionDescription": {
-        "message": "Přidá panel nástrojů do okna pro úpravy e-mailu, takže přidání standardního textu je rychlé a snadné. Je také možné použít proměnné jako [[TO=firstname]]."
-    },
-    "group": {
-        "message": "Skupina"
-    },
-    "inputText": {
-        "message": "Zadejte hodnotu $P1$",
-        "placeholders": {
-            "P1": {
-                "content": "$1"
-            }
-        }
-    },
-    "insertFile": {
-        "message": "Vyberte soubor k vložení (UTF-8)"
-    },
-    "insertImage": {
-        "message": "Vyberte soubor obrázku ke vložení"
-    },
-    "newGroup": {
-        "message": "Nová skupina"
-    },
-    "newScript": {
-        "message": "Nový skript"
-    },
-    "newTemplate": {
-        "message": "Nová šablona"
-    },
-    "quicktext.HTML.label": {
-        "message": "HTML"
-    },
-    "quicktext.advanced.label": {
-        "message": "Pokročilé"
-    },
-    "quicktext.accesskey.advanced": {
-        "message": "a"
-    },
-    "quicktext.accesskey.addGroup": {
-        "message": "p"
-    },
-    "quicktext.accesskey.addScript": {
-        "message": "t"
-    },
-    "quicktext.accesskey.addTemplate": {
-        "message": "l"
-    },
-    "quicktext.accesskey.close": {
-        "message": "z"
-    },
-    "quicktext.accesskey.communityScripts": {
-        "message": "s"
-    },
-    "quicktext.accesskey.general": {
-        "message": "g"
-    },
-    "quicktext.accesskey.help": {
-        "message": "p"
-    },
-    "quicktext.accesskey.remove": {
-        "message": "v"
-    },
-    "quicktext.accesskey.resetCounter": {
-        "message": "u"
-    },
-    "quicktext.accesskey.save": {
-        "message": "s"
-    },
-    "quicktext.accesskey.scripts": {
-        "message": "s"
-    },
-    "quicktext.accesskey.templates": {
-        "message": "y"
-    },
-    "quicktext.accesskey.exportScripts": {
-        "message": "x"
-    },
-    "quicktext.accesskey.importScripts": {
-        "message": "m"
-    },
-    "quicktext.accesskey.exportTemplates": {
-        "message": "e"
-    },
-    "quicktext.accesskey.importTemplates": {
-        "message": "i"
-    },
-    "quicktext.buttons.selectStorage.label": {
-        "message": "Vyberte úložiště"
-    },
-    "quicktext.buttons.addFolder.label": {
-        "message": "+ Složka"
-    },
-    "quicktext.buttons.addFile.label": {
-        "message": "+ Soubor"
-    },
-    "quicktext.buttons.addUrl.label": {
-        "message": "+ URL"
-    },
-    "quicktext.addGroup.label": {
-        "message": "Přidat skupinu"
-    },
-    "quicktext.addScript.label": {
-        "message": "Přidat skript"
-    },
-    "quicktext.addTemplate.label": {
-        "message": "Přidat šablonu"
-    },
-    "quicktext.altKey.label": {
-        "message": "Alt"
-    },
-    "quicktext.attachments.label": {
-        "message": "Přílohy"
-    },
-    "quicktext.browse.label": {
-        "message": "Procházet"
-    },
-    "quicktext.cellularnumber.label": {
-        "message": "Mobilní telefon"
-    },
-    "quicktext.clipboard.label": {
-        "message": "Schránka"
-    },
-    "quicktext.close.label": {
-        "message": "Zavřít"
-    },
-    "quicktext.collapseSetting.label": {
-        "message": "Skrývat názvy skupin, pokud obsahují jen jednu šablonu"
-    },
-    "quicktext.controlKey.label": {
-        "message": "Ctrl"
-    },
-    "quicktext.counter.label": {
-        "message": "Počítadlo"
-    },
-    "quicktext.cursor.label": {
-        "message": "Nastavit pozici kurzoru"
-    },
-    "quicktext.custom1.label": {
-        "message": "Vlastní 1"
-    },
-    "quicktext.custom2.label": {
-        "message": "Vlastní 2"
-    },
-    "quicktext.custom3.label": {
-        "message": "Vlastní 3"
-    },
-    "quicktext.custom4.label": {
-        "message": "Vlastní 4"
-    },
-    "quicktext.dateTime.label": {
-        "message": "Datum/čas"
-    },
-    "quicktext.defaultImport.label": {
-        "message": "Importovat šablony a skripty při spuštění (pouze ke čtení)"
-    },
-    "quicktext.displayname.label": {
-        "message": "Zobrazované jméno"
-    },
-    "quicktext.email.label": {
-        "message": "E-mail"
-    },
-    "quicktext.enterKey.label": {
-        "message": "Enter"
-    },
-    "quicktext.export.label": {
-        "message": "Exportovat"
-    },
-    "quicktext.f11Key.label": {
-        "message": "F11"
-    },
-    "quicktext.f12Key.label": {
-        "message": "F12"
-    },
-    "quicktext.f2Key.label": {
-        "message": "F2"
-    },
-    "quicktext.f4Key.label": {
-        "message": "F4"
-    },
-    "quicktext.f5Key.label": {
-        "message": "F5"
-    },
-    "quicktext.f8Key.label": {
-        "message": "F8"
-    },
-    "quicktext.faxnumber.label": {
-        "message": "Fax"
-    },
-    "quicktext.filename.label": {
-        "message": "Název souboru"
-    },
-    "quicktext.filenameAndSize.label": {
-        "message": "Název souboru a velikost"
-    },
-    "quicktext.firstname.label": {
-        "message": "Jméno"
-    },
-    "quicktext.from.label": {
-        "message": "Od"
-    },
-    "quicktext.fullname.label": {
-        "message": "Celé jméno"
-    },
-    "quicktext.general.label": {
-        "message": "Obecné"
-    },
-    "quicktext.getScript.label": {
-        "message": "Komunitní skripty"
-    },
-    "quicktext.scriptDocs.label": {
-        "message": "Jak vytvářet skripty"
-    },
-    "quicktext.header.label": {
-        "message": "Přidat záhlaví (komu, kopie, skrytá kopie)"
-    },
-    "quicktext.help.label": {
-        "message": "Nápověda"
-    },
-    "quicktext.scripthelp.label": {
-        "message": "Nekompatibilní skripts"
-    },
-    "quicktext.image.label": {
-        "message": "Vložený HTML obrázek"
-    },
-    "quicktext.import.label": {
-        "message": "Importovat"
-    },
-    "quicktext.input.label": {
-        "message": "Vstupní hodnota zadaná uživatelem"
-    },
-    "quicktext.insertAs.label": {
-        "message": "Vložit jako"
-    },
-    "quicktext.insertTextFromFileAsHTML.label": {
-        "message": "Vložit soubor jako HTML"
-    },
-    "quicktext.insertTextFromFileAsText.label": {
-        "message": "Vložit soubor jako text"
-    },
-    "quicktext.insertfile.label": {
-        "message": "Obsah ze souboru (Quicktext proměnné budou nahrazeny)"
-    },
-    "quicktext.jobtitle.label": {
-        "message": "Pozice"
-    },
-    "quicktext.keyword.label": {
-        "message": "Klíčové slovo"
-    },
-    "quicktext.keywordKeySetting.label": {
-        "message": "je klávesa, kterou chci aktivovat klíčové slovo"
-    },
-    "quicktext.label": {
-        "message": "Quicktext"
-    },
-    "quicktext.lastname.label": {
-        "message": "Příjmení"
-    },
-    "quicktext.metaKey.label": {
-        "message": "Meta"
-    },
-    "quicktext.modifierSetting.label": {
-        "message": "je modifikátor, který chci používat pro klávesové zkratky"
-    },
-    "quicktext.nickname.label": {
-        "message": "Přezdívka"
-    },
-    "quicktext.none.label": {
-        "message": "Žádná"
-    },
-    "quicktext.orgatt.label": {
-        "message": "Informace o původní příloze"
-    },
-    "quicktext.orgheader.label": {
-        "message": "Informace o původním záhlaví"
-    },
-    "quicktext.other.label": {
-        "message": "Ostatní"
-    },
-    "quicktext.storageLocations.label": {
-        "message": "Umístění úložiště pro šablony a skripty"
-    },
-    "quicktext.storageLocations.description": {
-        "message": "Změna umístění úložiště pro šablony a skripty uloží aktuální seznam umístění úložišť a restartuje Quicktext, aby načetl soubory z nového umístění. Všechna ostatní neuložená nastavení budou ztracena."
-    },
-    "quicktext.storage.internal.local.label": {
-        "message": "Interní úložiště (výchozí)"
-    },
-    "quicktext.remove.label": {
-        "message": "Odstranit"
-    },
-    "quicktext.resetcounter.label": {
-        "message": "Vynulovat počítadlo"
-    },
-    "quicktext.showContextMenu.label": {
-        "message": "Zobrazovat Quicktext v nabídce pod pravým tlačítkem myši"
-    },
-    "quicktext.save.label": {
-        "message": "Uložit"
-    },
-    "quicktext.script.label": {
-        "message": "Skript"
-    },
-    "quicktext.scripts.label": {
-        "message": "Skripty"
-    },
-    "quicktext.selection.label": {
-        "message": "Výběr"
-    },
-    "quicktext.settings.label": {
-        "message": "Nastavení"
-    },
-    "quicktext.settings.title": {
-        "message": "Správce Quicktext"
-    },
-    "quicktext.sharingScripts.label": {
-        "message": "Sdílení skriptů"
-    },
-    "quicktext.sharingTemplates.label": {
-        "message": "Sdílení šablon"
-    },
-    "quicktext.shortcut.label": {
-        "message": "Zkratka"
-    },
-    "quicktext.shortcutTypeAdv.label": {
-        "message": "Používat pokročilý režim zkratek"
-    },
-    "quicktext.spaceKey.label": {
-        "message": "Mezera"
-    },
-    "quicktext.subject.label": {
-        "message": "Předmět"
-    },
-    "quicktext.tabKey.label": {
-        "message": "Tab"
-    },
-    "quicktext.templates.label": {
-        "message": "Šablony"
-    },
-    "quicktext.text.label": {
-        "message": "Text"
-    },
-    "quicktext.title.label": {
-        "message": "Název"
-    },
-    "quicktext.to.label": {
-        "message": "Komu"
-    },
-    "quicktext.url.label": {
-        "message": "Odpověď z URL"
-    },
-    "quicktext.variables.label": {
-        "message": "Proměnné"
-    },
-    "quicktext.version.label": {
-        "message": "Verze Thunderbirdu"
-    },
-    "quicktext.workphone.label": {
-        "message": "Telefon do zaměstnání"
-    },
-    "remove": {
-        "message": "Opravdu chcete odstranit “$P1$”?",
-        "placeholders": {
-            "P1": {
-                "content": "$1"
-            }
-        }
-    },
-    "scriptError": {
-        "message": "Ve vašem Quicktext skriptu se objevila chyba:"
-    },
-    "scriptNotFound": {
-        "message": "Quicktext script “$P1$” not found!",
-        "placeholders": {
-            "P1": {
-                "content": "$1"
-            }
-        }
-    },
-    "template": {
-        "message": "Šablona"
-    },
-    "time": {
-        "message": "Čas ($P1$)",
-        "placeholders": {
-            "P1": {
-                "content": "$1"
-            }
-        }
-    },
-    "quicktext.prompt.addUrl.label": {
-        "message": "Zadejte URL:"
-    },
-    "quicktext.advanced.description": {
-        "message": "Ukládání šablon a skriptů přímo na disk prostřednictvím přístupu k souborovému systému není do budoucna zaručeno a bude z Quicktext nakonec odstraněno. Může zůstat dostupné prostřednictvím doplňku Quicktext Legacy Companion, ale ten nebude oficiálně podporován a bude fungovat pouze v Thunderbirdu ESR, nikdy v Thunderbirdu Release."
+  "quicktext.options.intro": {
+    "message": "Veškerá nastavení Quicktext lze ovládat a konfigurovat ve Správci Quicktext, společně s vašimi šablonami a skripty."
+  },
+  "quicktext.deprecatedAttachmentField.label": {
+    "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
+  },
+  "quicktext.attachmentFile.label": {
+    "message": "Vyberte soubor, který se má přidat do příloh"
+  },
+  "quicktext.controlledViaManagedStorage.label": {
+    "message": "Řízeno přes spravované úložiště"
+  },
+  "quicktext.date.label": {
+    "message": "Datum ($P1$)",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
     }
+  },
+  "quicktext.group.label": {
+    "message": "Skupina"
+  },
+  "quicktext.inputText.label": {
+    "message": "Zadejte hodnotu $P1$",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
+  },
+  "quicktext.insertFile.label": {
+    "message": "Vyberte soubor k vložení (UTF-8)"
+  },
+  "quicktext.insertImage.label": {
+    "message": "Vyberte soubor obrázku ke vložení"
+  },
+  "quicktext.newGroup.label": {
+    "message": "Nová skupina"
+  },
+  "quicktext.newScript.label": {
+    "message": "Nový skript"
+  },
+  "quicktext.newTemplate.label": {
+    "message": "Nová šablona"
+  },
+  "quicktext.HTML.label": {
+    "message": "HTML"
+  },
+  "quicktext.advanced.label": {
+    "message": "Pokročilé"
+  },
+  "quicktext.accesskey.advanced": {
+    "message": "a"
+  },
+  "quicktext.accesskey.addGroup": {
+    "message": "p"
+  },
+  "quicktext.accesskey.addScript": {
+    "message": "t"
+  },
+  "quicktext.accesskey.addTemplate": {
+    "message": "l"
+  },
+  "quicktext.accesskey.close": {
+    "message": "z"
+  },
+  "quicktext.accesskey.communityScripts": {
+    "message": "s"
+  },
+  "quicktext.accesskey.general": {
+    "message": "g"
+  },
+  "quicktext.accesskey.help": {
+    "message": "p"
+  },
+  "quicktext.accesskey.remove": {
+    "message": "v"
+  },
+  "quicktext.accesskey.resetCounter": {
+    "message": "u"
+  },
+  "quicktext.accesskey.save": {
+    "message": "s"
+  },
+  "quicktext.accesskey.scripts": {
+    "message": "s"
+  },
+  "quicktext.accesskey.templates": {
+    "message": "y"
+  },
+  "quicktext.accesskey.exportScripts": {
+    "message": "x"
+  },
+  "quicktext.accesskey.importScripts": {
+    "message": "m"
+  },
+  "quicktext.accesskey.exportTemplates": {
+    "message": "e"
+  },
+  "quicktext.accesskey.importTemplates": {
+    "message": "i"
+  },
+  "quicktext.buttons.selectStorage.label": {
+    "message": "Vyberte úložiště"
+  },
+  "quicktext.buttons.addFolder.label": {
+    "message": "+ Složka"
+  },
+  "quicktext.buttons.addFile.label": {
+    "message": "+ Soubor"
+  },
+  "quicktext.buttons.addUrl.label": {
+    "message": "+ URL"
+  },
+  "quicktext.addGroup.label": {
+    "message": "Přidat skupinu"
+  },
+  "quicktext.addScript.label": {
+    "message": "Přidat skript"
+  },
+  "quicktext.addTemplate.label": {
+    "message": "Přidat šablonu"
+  },
+  "quicktext.altKey.label": {
+    "message": "Alt"
+  },
+  "quicktext.attachments.label": {
+    "message": "Přílohy"
+  },
+  "quicktext.browse.label": {
+    "message": "Procházet"
+  },
+  "quicktext.cellularnumber.label": {
+    "message": "Mobilní telefon"
+  },
+  "quicktext.clipboard.label": {
+    "message": "Schránka"
+  },
+  "quicktext.close.label": {
+    "message": "Zavřít"
+  },
+  "quicktext.collapseSetting.label": {
+    "message": "Skrývat názvy skupin, pokud obsahují jen jednu šablonu"
+  },
+  "quicktext.controlKey.label": {
+    "message": "Ctrl"
+  },
+  "quicktext.counter.label": {
+    "message": "Počítadlo"
+  },
+  "quicktext.cursor.label": {
+    "message": "Nastavit pozici kurzoru"
+  },
+  "quicktext.custom1.label": {
+    "message": "Vlastní 1"
+  },
+  "quicktext.custom2.label": {
+    "message": "Vlastní 2"
+  },
+  "quicktext.custom3.label": {
+    "message": "Vlastní 3"
+  },
+  "quicktext.custom4.label": {
+    "message": "Vlastní 4"
+  },
+  "quicktext.dateTime.label": {
+    "message": "Datum/čas"
+  },
+  "quicktext.defaultImport.label": {
+    "message": "Importovat šablony a skripty při spuštění (pouze ke čtení)"
+  },
+  "quicktext.displayname.label": {
+    "message": "Zobrazované jméno"
+  },
+  "quicktext.email.label": {
+    "message": "E-mail"
+  },
+  "quicktext.enterKey.label": {
+    "message": "Enter"
+  },
+  "quicktext.export.label": {
+    "message": "Exportovat"
+  },
+  "quicktext.f11Key.label": {
+    "message": "F11"
+  },
+  "quicktext.f12Key.label": {
+    "message": "F12"
+  },
+  "quicktext.f2Key.label": {
+    "message": "F2"
+  },
+  "quicktext.f4Key.label": {
+    "message": "F4"
+  },
+  "quicktext.f5Key.label": {
+    "message": "F5"
+  },
+  "quicktext.f8Key.label": {
+    "message": "F8"
+  },
+  "quicktext.faxnumber.label": {
+    "message": "Fax"
+  },
+  "quicktext.filename.label": {
+    "message": "Název souboru"
+  },
+  "quicktext.filenameAndSize.label": {
+    "message": "Název souboru a velikost"
+  },
+  "quicktext.firstname.label": {
+    "message": "Jméno"
+  },
+  "quicktext.from.label": {
+    "message": "Od"
+  },
+  "quicktext.fullname.label": {
+    "message": "Celé jméno"
+  },
+  "quicktext.general.label": {
+    "message": "Obecné"
+  },
+  "quicktext.getScript.label": {
+    "message": "Komunitní skripty"
+  },
+  "quicktext.scriptDocs.label": {
+    "message": "Jak vytvářet skripty"
+  },
+  "quicktext.header.label": {
+    "message": "Přidat záhlaví (komu, kopie, skrytá kopie)"
+  },
+  "quicktext.help.label": {
+    "message": "Nápověda"
+  },
+  "quicktext.scripthelp.label": {
+    "message": "Nekompatibilní skripts"
+  },
+  "quicktext.image.label": {
+    "message": "Vložený HTML obrázek"
+  },
+  "quicktext.import.label": {
+    "message": "Importovat"
+  },
+  "quicktext.input.label": {
+    "message": "Vstupní hodnota zadaná uživatelem"
+  },
+  "quicktext.insertAs.label": {
+    "message": "Vložit jako"
+  },
+  "quicktext.insertTextFromFileAsHTML.label": {
+    "message": "Vložit soubor jako HTML"
+  },
+  "quicktext.insertTextFromFileAsText.label": {
+    "message": "Vložit soubor jako text"
+  },
+  "quicktext.insertfile.label": {
+    "message": "Obsah ze souboru (Quicktext proměnné budou nahrazeny)"
+  },
+  "quicktext.jobtitle.label": {
+    "message": "Pozice"
+  },
+  "quicktext.keyword.label": {
+    "message": "Klíčové slovo"
+  },
+  "quicktext.keywordKeySetting.label": {
+    "message": "je klávesa, kterou chci aktivovat klíčové slovo"
+  },
+  "quicktext.label": {
+    "message": "Quicktext"
+  },
+  "quicktext.lastname.label": {
+    "message": "Příjmení"
+  },
+  "quicktext.metaKey.label": {
+    "message": "Meta"
+  },
+  "quicktext.modifierSetting.label": {
+    "message": "je modifikátor, který chci používat pro klávesové zkratky"
+  },
+  "quicktext.nickname.label": {
+    "message": "Přezdívka"
+  },
+  "quicktext.none.label": {
+    "message": "Žádná"
+  },
+  "quicktext.orgatt.label": {
+    "message": "Informace o původní příloze"
+  },
+  "quicktext.orgheader.label": {
+    "message": "Informace o původním záhlaví"
+  },
+  "quicktext.other.label": {
+    "message": "Ostatní"
+  },
+  "quicktext.storageLocations.label": {
+    "message": "Umístění úložiště pro šablony a skripty"
+  },
+  "quicktext.storageLocations.description": {
+    "message": "Změna umístění úložiště pro šablony a skripty uloží aktuální seznam umístění úložišť a restartuje Quicktext, aby načetl soubory z nového umístění. Všechna ostatní neuložená nastavení budou ztracena."
+  },
+  "quicktext.storage.internal.local.label": {
+    "message": "Interní úložiště (výchozí)"
+  },
+  "quicktext.remove.label": {
+    "message": "Odstranit"
+  },
+  "quicktext.resetcounter.label": {
+    "message": "Vynulovat počítadlo"
+  },
+  "quicktext.showContextMenu.label": {
+    "message": "Zobrazovat Quicktext v nabídce pod pravým tlačítkem myši"
+  },
+  "quicktext.save.label": {
+    "message": "Uložit"
+  },
+  "quicktext.script.label": {
+    "message": "Skript"
+  },
+  "quicktext.scripts.label": {
+    "message": "Skripty"
+  },
+  "quicktext.selection.label": {
+    "message": "Výběr"
+  },
+  "quicktext.settings.label": {
+    "message": "Nastavení"
+  },
+  "quicktext.settings.title": {
+    "message": "Správce Quicktext"
+  },
+  "quicktext.sharingScripts.label": {
+    "message": "Sdílení skriptů"
+  },
+  "quicktext.sharingTemplates.label": {
+    "message": "Sdílení šablon"
+  },
+  "quicktext.shortcut.label": {
+    "message": "Zkratka"
+  },
+  "quicktext.shortcutTypeAdv.label": {
+    "message": "Používat pokročilý režim zkratek"
+  },
+  "quicktext.spaceKey.label": {
+    "message": "Mezera"
+  },
+  "quicktext.subject.label": {
+    "message": "Předmět"
+  },
+  "quicktext.tabKey.label": {
+    "message": "Tab"
+  },
+  "quicktext.templates.label": {
+    "message": "Šablony"
+  },
+  "quicktext.text.label": {
+    "message": "Text"
+  },
+  "quicktext.title.label": {
+    "message": "Název"
+  },
+  "quicktext.to.label": {
+    "message": "Komu"
+  },
+  "quicktext.url.label": {
+    "message": "Odpověď z URL"
+  },
+  "quicktext.variables.label": {
+    "message": "Proměnné"
+  },
+  "quicktext.version.label": {
+    "message": "Verze Thunderbirdu"
+  },
+  "quicktext.workphone.label": {
+    "message": "Telefon do zaměstnání"
+  },
+  "quicktext.confirmRemove.label": {
+    "message": "Opravdu chcete odstranit “$P1$”?",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
+  },
+  "quicktext.scriptError.label": {
+    "message": "Ve vašem Quicktext skriptu se objevila chyba:"
+  },
+  "quicktext.scriptNotFound.label": {
+    "message": "Quicktext script “$P1$” not found!",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
+  },
+  "quicktext.template.label": {
+    "message": "Šablona"
+  },
+  "quicktext.time.label": {
+    "message": "Čas ($P1$)",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
+  },
+  "quicktext.prompt.addUrl.label": {
+    "message": "Zadejte URL:"
+  },
+  "quicktext.advanced.description": {
+    "message": "Ukládání šablon a skriptů přímo na disk prostřednictvím přístupu k souborovému systému není do budoucna zaručeno a bude z Quicktext nakonec odstraněno. Může zůstat dostupné prostřednictvím doplňku Quicktext Legacy Companion, ale ten nebude oficiálně podporován a bude fungovat pouze v Thunderbirdu ESR, nikdy v Thunderbirdu Release."
+  },
+  "extensionDescription": {
+    "message": "Přidá panel nástrojů do okna pro úpravy e-mailu, takže přidání standardního textu je rychlé a snadné. Je také možné použít proměnné jako [[TO=firstname]]."
+  }
 }

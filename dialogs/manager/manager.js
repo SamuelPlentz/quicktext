@@ -14,7 +14,7 @@ const i18n = (key, subs) => browser.i18n.getMessage(key, subs) || key;
 const deepClone = obj => JSON.parse(JSON.stringify(obj));
 const applyManaged = (el, isManaged) => {
   el.disabled = isManaged;
-  el.title = isManaged ? i18n("controlled-via-managed-storage") : "";
+  el.title = isManaged ? i18n("quicktext.controlledViaManagedStorage.label") : "";
 };
 
 function makeUnique(name, arr) {
@@ -194,7 +194,7 @@ function updateShortcutAdvAvailability() {
   const chk = document.getElementById("chk-shortcut-adv");
   const isManaged = state.managedPrefs.has("shortcutTypeAdv");
   chk.disabled = isManaged || forceOff;
-  chk.title = isManaged ? i18n("controlled-via-managed-storage") : "";
+  chk.title = isManaged ? i18n("quicktext.controlledViaManagedStorage.label") : "";
 }
 
 function renderDefaultImportList() {
@@ -215,7 +215,7 @@ function renderDefaultImportList() {
     });
     list.appendChild(li);
   }
-  const managedTooltip = managed ? i18n("controlled-via-managed-storage") : "";
+  const managedTooltip = managed ? i18n("quicktext.controlledViaManagedStorage.label") : "";
   document.getElementById("btn-add-file").disabled = managed;
   document.getElementById("btn-add-file").title = managedTooltip;
   document.getElementById("btn-add-url").disabled = managed;
@@ -362,7 +362,7 @@ function renderTemplateDetail() {
   const ti = state.selectedTextIdx;
 
   if (gi === -1) {
-    document.getElementById("detail-caption").textContent = i18n("group");
+    document.getElementById("detail-caption").textContent = i18n("quicktext.group.label");
     setTemplateFieldsVisible(false);
     setTemplateFieldsEnabled(false);
     document.getElementById("text-title").value = "";
@@ -372,7 +372,7 @@ function renderTemplateDetail() {
   const isGroup = ti === -1;
   const prot = !!state.groups[gi]?.protected;
 
-  document.getElementById("detail-caption").textContent = i18n(isGroup ? "group" : "template");
+  document.getElementById("detail-caption").textContent = i18n(isGroup ? "quicktext.group.label" : "quicktext.template.label");
   setTemplateFieldsVisible(!isGroup);
   setTemplateFieldsEnabled(!prot);
 
@@ -451,7 +451,7 @@ function updateTemplateButtons() {
 
 function addGroup() {
   commitTemplateEdits();
-  const name = makeUnique(i18n("newGroup"), state.groups.map(g => g.name));
+  const name = makeUnique(i18n("quicktext.newGroup.label"), state.groups.map(g => g.name));
   state.groups.push({ name, protected: false });
   state.texts.push([]);
   state.collapseState.push(true);
@@ -470,7 +470,7 @@ function addTemplate() {
   commitTemplateEdits();
   let gi = state.selectedGroupIdx;
   if (gi === -1) { if (!state.groups.length) return; gi = 0; }
-  const name = makeUnique(i18n("newTemplate"), (state.texts[gi] || []).map(t => t.name));
+  const name = makeUnique(i18n("quicktext.newTemplate.label"), (state.texts[gi] || []).map(t => t.name));
   if (!state.texts[gi]) state.texts[gi] = [];
   state.texts[gi].push({ name, text: "", shortcut: "", type: "text/plain", keyword: "", subject: "", attachments: "" });
   state.collapseState[gi] = true;
@@ -489,7 +489,7 @@ function removeTemplateOrGroup() {
   const ti = state.selectedTextIdx;
   if (gi === -1) return;
   const name = ti === -1 ? state.groups[gi].name : state.texts[gi][ti].name;
-  if (!confirm(i18n("remove", [name]))) return;
+  if (!confirm(i18n("quicktext.confirmRemove.label", [name]))) return;
   if (ti === -1) {
     state.groups.splice(gi, 1);
     state.texts.splice(gi, 1);
@@ -512,12 +512,12 @@ function removeTemplateOrGroup() {
 
 function setupGroupDrag(el, gi) {
   el.addEventListener("dragstart", e => {
-    dragSrc = { type: "group", gi };
+    dragSrc = { type: "quicktext.group.label", gi };
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", "group");
+    e.dataTransfer.setData("text/plain", "quicktext.group.label");
   });
   el.addEventListener("dragover", e => {
-    if (dragSrc?.type !== "group") return;
+    if (dragSrc?.type !== "quicktext.group.label") return;
     e.preventDefault();
     el.classList.add("drag-over");
   });
@@ -525,7 +525,7 @@ function setupGroupDrag(el, gi) {
   el.addEventListener("drop", e => {
     e.preventDefault();
     el.classList.remove("drag-over");
-    if (dragSrc?.type !== "group" || dragSrc.gi === gi) { dragSrc = null; return; }
+    if (dragSrc?.type !== "quicktext.group.label" || dragSrc.gi === gi) { dragSrc = null; return; }
     commitTemplateEdits();
     const src = dragSrc.gi;
     const [grp] = state.groups.splice(src, 1);
@@ -546,12 +546,12 @@ function setupGroupDrag(el, gi) {
 
 function setupTemplateDrag(el, gi, ti) {
   el.addEventListener("dragstart", e => {
-    dragSrc = { type: "template", gi, ti };
+    dragSrc = { type: "quicktext.template.label", gi, ti };
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", "template");
+    e.dataTransfer.setData("text/plain", "quicktext.template.label");
   });
   el.addEventListener("dragover", e => {
-    if (dragSrc?.type !== "template") return;
+    if (dragSrc?.type !== "quicktext.template.label") return;
     e.preventDefault();
     el.classList.add("drag-over");
   });
@@ -559,7 +559,7 @@ function setupTemplateDrag(el, gi, ti) {
   el.addEventListener("drop", e => {
     e.preventDefault();
     el.classList.remove("drag-over");
-    if (dragSrc?.type !== "template" || (dragSrc.gi === gi && dragSrc.ti === ti)) { dragSrc = null; return; }
+    if (dragSrc?.type !== "quicktext.template.label" || (dragSrc.gi === gi && dragSrc.ti === ti)) { dragSrc = null; return; }
     commitTemplateEdits();
     const [tmpl] = state.texts[dragSrc.gi].splice(dragSrc.ti, 1);
     if (!state.texts[gi]) state.texts[gi] = [];
@@ -580,7 +580,7 @@ function onTitleInput() {
   const gi = state.selectedGroupIdx;
   const ti = state.selectedTextIdx;
   if (gi === -1) return;
-  let value = document.getElementById("text-title").value.trim() || i18n(ti === -1 ? "newGroup" : "newTemplate");
+  let value = document.getElementById("text-title").value.trim() || i18n(ti === -1 ? "quicktext.newGroup.label" : "quicktext.newTemplate.label");
 
   if (ti === -1) {
     const others = state.groups.map((g, i) => i === gi ? null : g.name).filter(Boolean);
@@ -662,7 +662,7 @@ function updateScriptButtons() {
 function onScriptTitleInput() {
   const idx = state.selectedScriptIdx;
   if (idx === -1) return;
-  let value = document.getElementById("script-title").value.trim() || i18n("newScript");
+  let value = document.getElementById("script-title").value.trim() || i18n("quicktext.newScript.label");
   const others = state.scripts.map((s, i) => i === idx ? null : s.name).filter(Boolean);
   value = makeUnique(value, others);
   state.scripts[idx].name = value;
@@ -674,7 +674,7 @@ function onScriptTitleInput() {
 
 function addScript() {
   commitScriptEdits();
-  const name = makeUnique(i18n("newScript"), state.scripts.map(s => s.name));
+  const name = makeUnique(i18n("quicktext.newScript.label"), state.scripts.map(s => s.name));
   state.scripts.push({ name, script: "", protected: false });
   state.selectedScriptIdx = state.scripts.length - 1;
   markChanged();
@@ -689,7 +689,7 @@ function addScript() {
 function removeScript() {
   const idx = state.selectedScriptIdx;
   if (idx === -1) return;
-  if (!confirm(i18n("remove", [state.scripts[idx].name]))) return;
+  if (!confirm(i18n("quicktext.confirmRemove.label", [state.scripts[idx].name]))) return;
   state.scripts.splice(idx, 1);
   state.selectedScriptIdx = state.scripts.length > 0 ? Math.max(0, idx - 1) : -1;
   markChanged();
@@ -736,7 +736,7 @@ function updateStorageButtons() {
   const list = document.getElementById("storage-list");
   const sel = list.querySelector("li.selected");
   const idx = sel ? parseInt(sel.dataset.idx) : -1;
-  const managedTooltip = managed ? i18n("controlled-via-managed-storage") : "";
+  const managedTooltip = managed ? i18n("quicktext.controlledViaManagedStorage.label") : "";
   document.getElementById("btn-add-storage-folder").disabled = managed;
   document.getElementById("btn-add-storage-folder").title = managedTooltip;
   document.getElementById("btn-remove-storage").disabled = managed || idx <= 0 || idx === state.activeStorageIdx;
@@ -839,16 +839,16 @@ function buildVariablesMenu() {
     [i18n("quicktext.filename.label"), "ATT=name"],
     [i18n("quicktext.filenameAndSize.label"), "ATT=full"],
     null,
-    [i18n("attachmentFile"), "ATTACHMENT=FILE|<path>"],
+    [i18n("quicktext.attachmentFile.label"), "ATTACHMENT=FILE|<path>"],
   ]);
 
   const now = new Date();
   addGrp(i18n("quicktext.dateTime.label"), [
-    [i18n("date", [now.toLocaleDateString()]), "DATE"],
-    [i18n("date", [now.toLocaleDateString(undefined, { dateStyle: "full" })]), "DATE=long"],
+    [i18n("quicktext.date.label", [now.toLocaleDateString()]), "DATE"],
+    [i18n("quicktext.date.label", [now.toLocaleDateString(undefined, { dateStyle: "full" })]), "DATE=long"],
     [now.toLocaleDateString(undefined, { month: "long" }), "DATE=monthname"],
-    [i18n("time", [now.toLocaleTimeString(undefined, { timeStyle: "short" })]), "TIME"],
-    [i18n("time", [now.toLocaleTimeString(undefined, { timeStyle: "medium" })]), "TIME=seconds"],
+    [i18n("quicktext.time.label", [now.toLocaleTimeString(undefined, { timeStyle: "short" })]), "TIME"],
+    [i18n("quicktext.time.label", [now.toLocaleTimeString(undefined, { timeStyle: "medium" })]), "TIME=seconds"],
   ]);
 
   addGrp(i18n("quicktext.other.label"), [
@@ -1088,13 +1088,13 @@ async function init() {
     if (val.includes("<path>")) {
       let title, filter;
       if (val.startsWith("IMAGE=")) {
-        title = i18n("insertImage");
+        title = i18n("quicktext.insertImage.label");
         filter = "images";
       } else if (val.startsWith("ATTACHMENT=")) {
-        title = i18n("attachmentFile");
+        title = i18n("quicktext.attachmentFile.label");
         filter = "any";
       } else if (val.startsWith("FILE=")) {
-        title = i18n("insertFile");
+        title = i18n("quicktext.insertFile.label");
         filter = "any";
       } else {
         console.error(`pickFile: unknown variable type for value "${val}"`);

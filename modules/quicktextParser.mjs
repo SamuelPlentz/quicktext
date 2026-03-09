@@ -304,7 +304,7 @@ export class QuicktextParser {
         } catch (e) {
           if (this.mTabId) {
             await messenger.tabs.sendMessage(this.mTabId, {
-              alertLabel: `[${script.name}] ${browser.i18n.getMessage("scriptError")}\n${e.name}: ${e.message}`,
+              alertLabel: `[${script.name}] ${browser.i18n.getMessage("quicktext.scriptError.label")}\n${e.name}: ${e.message}`,
             });
           }
         }
@@ -315,7 +315,7 @@ export class QuicktextParser {
 
     // If we reach this point, the user requested an non-existing script.
     await messenger.tabs.sendMessage(this.mTabId, {
-      alertLabel: browser.i18n.getMessage("scriptNotFound", [scriptName]),
+      alertLabel: browser.i18n.getMessage("quicktext.scriptNotFound.label", [scriptName]),
     });
 
     return "";
@@ -650,7 +650,7 @@ export class QuicktextParser {
 
     if (!states[inputState].checked) {
       let rv;
-      let label = browser.i18n.getMessage("inputText", [aVariables[0]]);
+      let label = browser.i18n.getMessage("quicktext.inputText.label", [aVariables[0]]);
       let value = aVariables[2] ?? "";
 
       // There are two types of input: select and text.

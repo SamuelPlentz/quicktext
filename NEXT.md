@@ -23,7 +23,13 @@
 
 [x] make template manager use files loaded from background
 [x] replace XUL template manager with HTML template manager
+[x] keyword + special seems to eat the leading space
+
 [ ] add gallery for attachments, images and text files, which are currently
     references via file system paths, which will not work as a pure webextension
 
-[x] keyword + special seems to eat the leading space
+[ ] URL prompt for ATTACHMENT=URL and IMAGE=URL variables is currently shown via
+    executeScript/window.prompt() bound to the compose tab. Revisit once the
+    Thunderbird team introduces popover support for the entire compose window —
+    a custom WebExtension popup would then be the cleaner solution.
+

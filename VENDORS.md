@@ -4,6 +4,19 @@ This file lists files that were not created by this project and are maintained u
 
 ---
 
+## @floating-ui/dom
+
+| | |
+|---|---|
+| **Files** | `vendor/floating-ui/floating-ui.core.umd.min.js`, `vendor/floating-ui/floating-ui.dom.umd.min.js` |
+| **Version** | 1.7.6 (core: same release) |
+| **Upstream** | https://github.com/floating-ui/floating-ui |
+| **npm** | https://www.npmjs.com/package/@floating-ui/dom |
+| **License** | MIT |
+| **Notes** | UMD builds from unpkg. The core build sets `globalThis.FloatingUICore`; the dom build reads it and sets `globalThis.FloatingUIDOM`. Both are loaded as plain scripts in `manager.html` before the module script. Neither file is modified. |
+
+---
+
 ## i18n.mjs
 
 | | |

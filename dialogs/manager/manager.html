@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <title data-i18n-content="quicktext.settings.title"></title>
   <link rel="stylesheet" href="manager.css">
+  <script src="/vendor/floating-ui/floating-ui.core.umd.min.js"></script>
+  <script src="/vendor/floating-ui/floating-ui.dom.umd.min.js"></script>
   <script type="module" src="manager.js"></script>
 </head>
 <body>
@@ -110,7 +112,10 @@
             </table>
             <div class="template-only var-row">
               <div style="flex:1"></div>
-              <select id="sel-variables" disabled></select>
+              <div id="var-menu-wrap">
+                <button id="btn-variables" disabled data-i18n-content="quicktext.variables.label"></button>
+                <div id="variables-menu" hidden></div>
+              </div>
             </div>
             <div class="template-only body-row">
               <textarea id="text-body" disabled spellcheck="false"></textarea>

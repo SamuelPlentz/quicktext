@@ -8,6 +8,7 @@ import * as quicktext from "/modules/quicktext.mjs";
 import * as storage from "/modules/storage.mjs";
 import * as utils from "/modules/utils.mjs";
 import { localizeDocument } from "/modules/i18n.mjs";
+const { computePosition, flip, shift } = FloatingUIDOM;
 
 const i18n = (key, subs) => browser.i18n.getMessage(key, subs) || key;
 const deepClone = obj => JSON.parse(JSON.stringify(obj));
@@ -387,7 +388,7 @@ function setTemplateFieldsVisible(show) {
 
 function setTemplateFieldsEnabled(enabled) {
   for (const id of ["text-title", "text-body", "sel-type", "sel-shortcut",
-    "text-shortcut-adv", "text-keyword", "text-subject", "text-attachments", "sel-variables"]) {
+    "text-shortcut-adv", "text-keyword", "text-subject", "text-attachments", "btn-variables"]) {
     const el = document.getElementById(id);
     if (el) el.disabled = !enabled;
   }
@@ -764,22 +765,42 @@ async function selectStorage() {
   browser.runtime.reload();
 }
 
-// ---------- Variables dropdown ----------
+// ---------- Variables nested menu ----------
 
 function buildVariablesMenu() {
-  const sel = document.getElementById("sel-variables");
-  sel.innerHTML = "";
+  const menu = document.getElementById("variables-menu");
+  menu.innerHTML = "";
 
-  const placeholder = new Option(i18n("quicktext.variables.label"), "");
-  placeholder.disabled = true;
-  placeholder.selected = true;
-  sel.appendChild(placeholder);
+  const makeItem = (label, val) => {
+    const btn = document.createElement("button");
+    btn.className = "var-item";
+    btn.textContent = label;
+    btn.dataset.val = val;
+    return btn;
+  };
 
-  const addGrp = (label, pairs) => {
-    const grp = document.createElement("optgroup");
-    grp.label = label;
-    for (const [lbl, val] of pairs) grp.appendChild(new Option(lbl, val));
-    sel.appendChild(grp);
+  const makeSeparator = () => {
+    const sep = document.createElement("div");
+    sep.className = "var-separator";
+    return sep;
+  };
+
+  const addGrp = (label, pairs, className = "") => {
+    const grp = document.createElement("div");
+    grp.className = "var-group" + (className ? ` ${className}` : "");
+
+    const lbl = document.createElement("span");
+    lbl.className = "var-group-label";
+    lbl.textContent = label;
+    grp.appendChild(lbl);
+
+    const sub = document.createElement("div");
+    sub.className = "var-submenu";
+    for (const entry of pairs) {
+      sub.appendChild(entry === null ? makeSeparator() : makeItem(entry[0], entry[1]));
+    }
+    grp.appendChild(sub);
+    menu.appendChild(grp);
     return grp;
   };
 
@@ -806,16 +827,17 @@ function buildVariablesMenu() {
   addGrp(i18n("quicktext.attachments.label"), [
     [i18n("quicktext.filename.label"), "ATT=name"],
     [i18n("quicktext.filenameAndSize.label"), "ATT=full"],
+    null,
     [i18n("attachmentFile"), "ATTACHMENT=FILE|<path>"],
   ]);
 
   const now = new Date();
   addGrp(i18n("quicktext.dateTime.label"), [
-    [`${i18n("date",[now.toLocaleDateString()])}`, "DATE"],
-    [`${i18n("date",[now.toLocaleDateString(undefined,{dateStyle:"full"})])}`, "DATE=long"],
+    [i18n("date", [now.toLocaleDateString()]), "DATE"],
+    [i18n("date", [now.toLocaleDateString(undefined, { dateStyle: "full" })]), "DATE=long"],
     [now.toLocaleDateString(undefined, { month: "long" }), "DATE=monthname"],
-    [`${i18n("time",[now.toLocaleTimeString(undefined,{timeStyle:"short"})])}`, "TIME"],
-    [`${i18n("time",[now.toLocaleTimeString(undefined,{timeStyle:"medium"})])}`, "TIME=seconds"],
+    [i18n("time", [now.toLocaleTimeString(undefined, { timeStyle: "short" })]), "TIME"],
+    [i18n("time", [now.toLocaleTimeString(undefined, { timeStyle: "medium" })]), "TIME=seconds"],
   ]);
 
   addGrp(i18n("quicktext.other.label"), [
@@ -830,6 +852,7 @@ function buildVariablesMenu() {
     [i18n("quicktext.insertfile.label"), "FILE=<path>"],
     [i18n("quicktext.image.label"), "IMAGE=FILE|<path>"],
     [i18n("quicktext.version.label"), "VERSION"],
+    null,
     [i18n("quicktext.header.label"), "HEADER=type|value"],
     [i18n("quicktext.cursor.label"), "CURSOR"],
   ]);
@@ -838,28 +861,44 @@ function buildVariablesMenu() {
 }
 
 function updateVariablesMenu() {
-  const sel = document.getElementById("sel-variables");
-  if (!sel) return;
-  for (const grp of [...sel.querySelectorAll("optgroup.dynamic")]) grp.remove();
+  const menu = document.getElementById("variables-menu");
+  if (!menu) return;
+  for (const grp of [...menu.querySelectorAll(".var-group.dynamic")]) grp.remove();
+
+  const addGrp = (label, pairs) => {
+    const grp = document.createElement("div");
+    grp.className = "var-group dynamic";
+
+    const lbl = document.createElement("span");
+    lbl.className = "var-group-label";
+    lbl.textContent = label;
+    grp.appendChild(lbl);
+
+    const sub = document.createElement("div");
+    sub.className = "var-submenu";
+    for (const [itemLabel, val] of pairs) {
+      const btn = document.createElement("button");
+      btn.className = "var-item";
+      btn.textContent = itemLabel;
+      btn.dataset.val = val;
+      sub.appendChild(btn);
+    }
+    grp.appendChild(sub);
+    menu.appendChild(grp);
+  };
 
   if (state.groups.some((_, gi) => (state.texts[gi] || []).length > 0)) {
-    const grp = document.createElement("optgroup");
-    grp.label = i18n("quicktext.templates.label");
-    grp.className = "dynamic";
+    const pairs = [];
     for (let gi = 0; gi < state.groups.length; gi++) {
       for (const tmpl of (state.texts[gi] || [])) {
-        grp.appendChild(new Option(`${state.groups[gi].name} / ${tmpl.name}`, `TEXT=${state.groups[gi].name}|${tmpl.name}`));
+        pairs.push([`${state.groups[gi].name} / ${tmpl.name}`, `TEXT=${state.groups[gi].name}|${tmpl.name}`]);
       }
     }
-    sel.appendChild(grp);
+    addGrp(i18n("quicktext.templates.label"), pairs);
   }
 
   if (state.scripts.length > 0) {
-    const grp = document.createElement("optgroup");
-    grp.label = i18n("quicktext.scripts.label");
-    grp.className = "dynamic";
-    for (const s of state.scripts) grp.appendChild(new Option(s.name, `SCRIPT=${s.name}`));
-    sel.appendChild(grp);
+    addGrp(i18n("quicktext.scripts.label"), state.scripts.map(s => [s.name, `SCRIPT=${s.name}`]));
   }
 }
 
@@ -1006,12 +1045,34 @@ async function init() {
     markChanged();
   });
 
-  // Variables dropdown
+  // Variables nested menu
   buildVariablesMenu();
-  document.getElementById("sel-variables").addEventListener("change", async e => {
-    const val = e.target.value;
-    e.target.selectedIndex = 0;
-    if (!val) return;
+
+  document.getElementById("btn-variables").addEventListener("click", e => {
+    const menu = document.getElementById("variables-menu");
+    menu.hidden = !menu.hidden;
+    e.stopPropagation();
+  });
+
+  document.getElementById("variables-menu").addEventListener("mouseover", e => {
+    const grp = e.target.closest(".var-group");
+    const lbl = grp?.querySelector(":scope > .var-group-label");
+    const sub = grp?.querySelector(":scope > .var-submenu");
+    if (!lbl || !sub) return;
+    computePosition(lbl, sub, {
+      placement: "left-start",
+      middleware: [flip(), shift({ padding: 4 })],
+    }).then(({ x, y }) => {
+      sub.style.left = `${x}px`;
+      sub.style.top = `${y}px`;
+    });
+  });
+
+  document.getElementById("variables-menu").addEventListener("click", async e => {
+    const btn = e.target.closest(".var-item");
+    if (!btn) return;
+    document.getElementById("variables-menu").hidden = true;
+    const val = btn.dataset.val;
 
     if (val.includes("<path>")) {
       let title, filter;
@@ -1033,6 +1094,10 @@ async function init() {
     } else {
       insertVariable(val);
     }
+  });
+
+  document.addEventListener("click", () => {
+    document.getElementById("variables-menu").hidden = true;
   });
 
   // Script tab

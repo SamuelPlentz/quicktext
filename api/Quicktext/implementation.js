@@ -52,6 +52,21 @@
             }
             return rv;
           },
+          async pickFile(aTitle, aFilter) {
+            let filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
+            let window = Services.wm.getMostRecentWindow(null);
+            filePicker.init(window.browsingContext, aTitle, filePicker.modeOpen);
+            if (aFilter === "images") {
+              filePicker.appendFilters(filePicker.filterImages);
+            } else {
+              filePicker.appendFilters(filePicker.filterAll);
+            }
+            let rv = await new Promise(resolve => filePicker.open(resolve));
+            if (rv == filePicker.returnOK) {
+              return filePicker.file.path;
+            }
+            return null;
+          },
           async pickFolder(aTitle) {
             let filePicker = Components.classes["@mozilla.org/filepicker;1"].createInstance(Components.interfaces.nsIFilePicker);
             let window = Services.wm.getMostRecentWindow(null);

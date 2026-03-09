@@ -182,6 +182,7 @@ function renderGeneral() {
     storage.setPref("counter", 0);
     updateCounterLegend();
   });
+  document.getElementById("btn-add-file").addEventListener("click", addDefaultImportFile);
   document.getElementById("btn-add-url").addEventListener("click", addDefaultImportUrl);
   document.getElementById("btn-remove-import").addEventListener("click", removeDefaultImport);
 }
@@ -215,10 +216,20 @@ function renderDefaultImportList() {
     list.appendChild(li);
   }
   const managedTooltip = managed ? i18n("controlled-via-managed-storage") : "";
+  document.getElementById("btn-add-file").disabled = managed;
+  document.getElementById("btn-add-file").title = managedTooltip;
   document.getElementById("btn-add-url").disabled = managed;
   document.getElementById("btn-add-url").title = managedTooltip;
   document.getElementById("btn-remove-import").disabled = true;
   document.getElementById("btn-remove-import").title = managedTooltip;
+}
+
+async function addDefaultImportFile() {
+  const path = await browser.Quicktext.pickFile(i18n("quicktext.buttons.addFile.label"), "any");
+  if (!path) return;
+  state.defaultImportEntries.push({ source: "FILE", data: path });
+  markChanged();
+  renderDefaultImportList();
 }
 
 function addDefaultImportUrl() {

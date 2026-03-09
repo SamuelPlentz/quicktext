@@ -413,5 +413,11 @@
   },
   "extensionDescription": {
     "message": "Fügt eine Symbolleiste zum E-Mail-Bearbeitenfenster hinzu, sodass Textbausteine einfach und schnell hinzugefügt werden können. Es ist auch möglich, Variablen wie [[TO=firstname]] zu verwenden."
+  },
+  "quicktext.mode.file.label": {
+    "message": "Aus lokaler Datei lesen (veraltet)"
+  },
+  "quicktext.mode.url.label": {
+    "message": "Von externer URL lesen"
   }
 }

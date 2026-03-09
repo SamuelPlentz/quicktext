@@ -413,5 +413,11 @@
   },
   "extensionDescription": {
     "message": "定型文を素早く挿入できるツールバーをメール編集画面に追加します。[[TO=firstname]]のような変数も使用できます。"
+  },
+  "quicktext.mode.file.label": {
+    "message": "ローカルファイルから読み込む（非推奨）"
+  },
+  "quicktext.mode.url.label": {
+    "message": "リモートURLから読み込む"
   }
 }

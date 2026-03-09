@@ -413,5 +413,11 @@
   },
   "extensionDescription": {
     "message": "Agrega una barra de herramientas con un número ilimitado de texto para insertar rápidamente. También es posible usar variables como [[TO=firstname]]. Con ajustes para todo."
+  },
+  "quicktext.mode.file.label": {
+    "message": "Leer desde archivo local (obsoleto)"
+  },
+  "quicktext.mode.url.label": {
+    "message": "Leer desde URL remota"
   }
 }

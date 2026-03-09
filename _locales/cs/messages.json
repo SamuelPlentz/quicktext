@@ -413,5 +413,11 @@
   },
   "extensionDescription": {
     "message": "Přidá panel nástrojů do okna pro úpravy e-mailu, takže přidání standardního textu je rychlé a snadné. Je také možné použít proměnné jako [[TO=firstname]]."
+  },
+  "quicktext.mode.file.label": {
+    "message": "Číst z místního souboru (zastaralé)"
+  },
+  "quicktext.mode.url.label": {
+    "message": "Číst ze vzdálené URL"
   }
 }

@@ -796,21 +796,27 @@ function buildVariablesMenu() {
     return sep;
   };
 
-  const addGrp = (label, pairs, className = "") => {
+  const makeGrp = (label, pairs) => {
     const grp = document.createElement("div");
-    grp.className = "var-group" + (className ? ` ${className}` : "");
-
+    grp.className = "var-group";
     const lbl = document.createElement("span");
     lbl.className = "var-group-label";
     lbl.textContent = label;
     grp.appendChild(lbl);
-
     const sub = document.createElement("div");
     sub.className = "var-submenu";
     for (const entry of pairs) {
-      sub.appendChild(entry === null ? makeSeparator() : makeItem(entry[0], entry[1]));
+      if (entry === null) sub.appendChild(makeSeparator());
+      else if (entry instanceof Element) sub.appendChild(entry);
+      else sub.appendChild(makeItem(entry[0], entry[1]));
     }
     grp.appendChild(sub);
+    return grp;
+  };
+
+  const addGrp = (label, pairs, className = "") => {
+    const grp = makeGrp(label, pairs);
+    if (className) grp.classList.add(className);
     menu.appendChild(grp);
     return grp;
   };
@@ -839,7 +845,10 @@ function buildVariablesMenu() {
     [i18n("quicktext.filename.label"), "ATT=name"],
     [i18n("quicktext.filenameAndSize.label"), "ATT=full"],
     null,
-    [i18n("quicktext.attachmentFile.label"), "ATTACHMENT=FILE|<path>"],
+    makeGrp(i18n("quicktext.attachmentFile.label"), [
+      [i18n("quicktext.mode.file.label"), "ATTACHMENT=FILE|<path>"],
+      [i18n("quicktext.mode.url.label"), "ATTACHMENT=URL|<url>"],
+    ]),
   ]);
 
   const now = new Date();
@@ -861,7 +870,10 @@ function buildVariablesMenu() {
     [i18n("quicktext.subject.label"), "SUBJECT"],
     [i18n("quicktext.url.label"), "URL=url|data"],
     [i18n("quicktext.insertfile.label"), "FILE=<path>"],
-    [i18n("quicktext.image.label"), "IMAGE=FILE|<path>"],
+    makeGrp(i18n("quicktext.image.label"), [
+      [i18n("quicktext.mode.file.label"), "IMAGE=FILE|<path>"],
+      [i18n("quicktext.mode.url.label"), "IMAGE=URL|<url>"],
+    ]),
     [i18n("quicktext.version.label"), "VERSION"],
     null,
     [i18n("quicktext.header.label"), "HEADER=type|value"],

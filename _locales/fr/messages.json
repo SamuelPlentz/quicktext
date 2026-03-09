@@ -413,5 +413,11 @@
   },
   "extensionDescription": {
     "message": "Ajoute une barre d’outils à la fenêtre de composition de message afin d'insérer rapidement des modèles de texte. Il est également possible d'utiliser des variables telles que [[TO=firstname]]."
+  },
+  "quicktext.mode.file.label": {
+    "message": "Lire depuis un fichier local (obsolète)"
+  },
+  "quicktext.mode.url.label": {
+    "message": "Lire depuis une URL distante"
   }
 }

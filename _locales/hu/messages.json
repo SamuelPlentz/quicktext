@@ -413,5 +413,11 @@
   },
   "extensionDescription": {
     "message": "Eszköztár, parancsfájlok és sablonok korlátlan lehetoségekkel, beleértve a [[TO=firstname]] változókat, a gyors szövegbeillesztéshez"
+  },
+  "quicktext.mode.file.label": {
+    "message": "Olvasás helyi fájlból (elavult)"
+  },
+  "quicktext.mode.url.label": {
+    "message": "Olvasás távoli URL-ről"
   }
 }

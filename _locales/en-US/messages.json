@@ -413,5 +413,11 @@
   },
   "extensionDescription": {
     "message": "Adds a toolbar with unlimited number of text to quickly insert. It is also possible to use variables like [[TO=firstname]]. With settings for everything."
+  },
+  "quicktext.mode.file.label": {
+    "message": "Read from local file (deprecated)"
+  },
+  "quicktext.mode.url.label": {
+    "message": "Read from remote URL"
   }
 }

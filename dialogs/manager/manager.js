@@ -806,7 +806,7 @@ function buildVariablesMenu() {
   addGrp(i18n("quicktext.attachments.label"), [
     [i18n("quicktext.filename.label"), "ATT=name"],
     [i18n("quicktext.filenameAndSize.label"), "ATT=full"],
-    [i18n("quicktext.image.label"), "ATTACHMENT=FILE|<path>"],
+    [i18n("attachmentFile"), "ATTACHMENT=FILE|<path>"],
   ]);
 
   const now = new Date();
@@ -1008,8 +1008,31 @@ async function init() {
 
   // Variables dropdown
   buildVariablesMenu();
-  document.getElementById("sel-variables").addEventListener("change", e => {
-    if (e.target.value) { insertVariable(e.target.value); e.target.selectedIndex = 0; }
+  document.getElementById("sel-variables").addEventListener("change", async e => {
+    const val = e.target.value;
+    e.target.selectedIndex = 0;
+    if (!val) return;
+
+    if (val.includes("<path>")) {
+      let title, filter;
+      if (val.startsWith("IMAGE=")) {
+        title = i18n("insertImage");
+        filter = "images";
+      } else if (val.startsWith("ATTACHMENT=")) {
+        title = i18n("attachmentFile");
+        filter = "any";
+      } else if (val.startsWith("FILE=")) {
+        title = i18n("insertFile");
+        filter = "any";
+      } else {
+        console.error(`pickFile: unknown variable type for value "${val}"`);
+        return;
+      }
+      const path = await browser.Quicktext.pickFile(title, filter);
+      if (path) insertVariable(val.replace("<path>", path));
+    } else {
+      insertVariable(val);
+    }
   });
 
   // Script tab

@@ -256,7 +256,7 @@
     "message": "ファイルをテキストとして挿入"
   },
   "quicktext.insertfile.label": {
-    "message": "ファイルの内容（quicktext変数が置き換えられます）"
+    "message": "ファイルからのコンテンツ（非推奨）"
   },
   "quicktext.jobtitle.label": {
     "message": "肩書き"

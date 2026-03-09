@@ -256,7 +256,7 @@
     "message": "Vložit soubor jako text"
   },
   "quicktext.insertfile.label": {
-    "message": "Obsah ze souboru (Quicktext proměnné budou nahrazeny)"
+    "message": "Obsah ze souboru (zastaralé)"
   },
   "quicktext.jobtitle.label": {
     "message": "Pozice"

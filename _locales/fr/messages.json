@@ -256,7 +256,7 @@
     "message": "Insérer un fichier en texte"
   },
   "quicktext.insertfile.label": {
-    "message": "Contenu à partir d'un fichier (les variables Quicktext seront remplacées)"
+    "message": "Contenu depuis un fichier (obsolète)"
   },
   "quicktext.jobtitle.label": {
     "message": "Profession"

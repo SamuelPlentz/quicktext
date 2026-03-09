@@ -256,7 +256,7 @@
     "message": "Вставить файл как текст"
   },
   "quicktext.insertfile.label": {
-    "message": "Содержимое из файла (переменные quicktext будут заменены)"
+    "message": "Содержимое из файла (устарело)"
   },
   "quicktext.jobtitle.label": {
     "message": "Должность"

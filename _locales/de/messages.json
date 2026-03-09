@@ -256,7 +256,7 @@
     "message": "Datei als Text einfügen"
   },
   "quicktext.insertfile.label": {
-    "message": "Inhalt einer Datei (Quicktext-Variablen werden ersetzt)"
+    "message": "Inhalt aus Datei (veraltet)"
   },
   "quicktext.jobtitle.label": {
     "message": "Titel (dienstlich)"

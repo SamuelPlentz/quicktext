@@ -256,7 +256,7 @@
     "message": "Fájl beszúrása mint szöveg formátum"
   },
   "quicktext.insertfile.label": {
-    "message": "Tartalom a fájlból (gyorsszöveg változók lecseréli)"
+    "message": "Fájl tartalma (elavult)"
   },
   "quicktext.jobtitle.label": {
     "message": "Munka megnevezése"

@@ -256,7 +256,7 @@
     "message": "Insertar archivo como texto"
   },
   "quicktext.insertfile.label": {
-    "message": "Content from file (quicktext variables will be replaced)"
+    "message": "Contenido desde archivo (obsoleto)"
   },
   "quicktext.jobtitle.label": {
     "message": "Trabajo"

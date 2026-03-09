@@ -160,6 +160,10 @@ fieldset legend {
   cursor: pointer;
   user-select: none;
   border-bottom: 1px solid var(--border-list);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
 }
 .source-list li:last-child { border-bottom: none; }
 .source-list li:hover { background: var(--bg-hover); }
@@ -215,7 +219,7 @@ fieldset legend {
 .tree-template:hover { background: var(--bg-hover); }
 .tree-template.selected { background: var(--bg-selected); }
 .tree-template.drag-over { outline: 2px dashed var(--accent); }
-.tree-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tree-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px; }
 .tree-shortcut { font-size: 0.85em; color: var(--text-subtle); flex-shrink: 0; margin-left: 4px; }
 
 /* Detail area */
@@ -243,7 +247,7 @@ fieldset legend {
   border-radius: 3px;
   z-index: 100;
   min-width: 160px;
-  max-width: 300px;
+  max-width: 250px;
   box-shadow: 2px 4px 8px rgba(0,0,0,0.2);
   padding: 2px 0;
   max-height: 80vh;
@@ -273,6 +277,8 @@ fieldset legend {
   display: block;
   padding: 4px 8px 4px 22px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   user-select: none;
   position: relative;
   cursor: default;
@@ -287,6 +293,7 @@ fieldset legend {
   border: 1px solid var(--border);
   border-radius: 3px;
   min-width: 220px;
+  max-width: 250px;
   box-shadow: 2px 4px 8px rgba(0,0,0,0.2);
   padding: 2px 0;
   max-height: 80vh;
@@ -304,6 +311,8 @@ fieldset legend {
   border-radius: 0;
   cursor: default;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 13px;
 }
 .var-item:hover { background: var(--bg-hover); }

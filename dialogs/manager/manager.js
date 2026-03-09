@@ -286,6 +286,7 @@ function renderTree() {
     const nameSpan = document.createElement("span");
     nameSpan.className = "tree-name";
     nameSpan.textContent = group.name + (group.protected ? " 🔒" : "");
+    nameSpan.title = group.name;
 
     header.appendChild(toggle);
     header.appendChild(nameSpan);
@@ -311,6 +312,7 @@ function renderTree() {
         const nameEl = document.createElement("span");
         nameEl.className = "tree-name";
         nameEl.textContent = tmpl.name;
+        nameEl.title = tmpl.name;
 
         const shortcutEl = document.createElement("span");
         shortcutEl.className = "tree-shortcut";
@@ -588,13 +590,13 @@ function onTitleInput() {
     value = makeUnique(value, others);
     state.groups[gi].name = value;
     const nameEl = document.querySelector(`.tree-group[data-gi="${gi}"] .tree-name`);
-    if (nameEl) nameEl.textContent = value + (state.groups[gi].protected ? " 🔒" : "");
+    if (nameEl) { nameEl.textContent = value + (state.groups[gi].protected ? " 🔒" : ""); nameEl.title = value; }
   } else {
     const others = (state.texts[gi] || []).map((t, i) => i === ti ? null : t.name).filter(Boolean);
     value = makeUnique(value, others);
     state.texts[gi][ti].name = value;
     const nameEl = document.querySelector(`.tree-template[data-gi="${gi}"][data-ti="${ti}"] .tree-name`);
-    if (nameEl) nameEl.textContent = value;
+    if (nameEl) { nameEl.textContent = value; nameEl.title = value; }
   }
   markChanged();
 }
@@ -611,6 +613,7 @@ function renderScriptList() {
     if (i === state.selectedScriptIdx) li.classList.add("selected");
     const nameSpan = document.createElement("span");
     nameSpan.textContent = script.name;
+    nameSpan.title = script.name;
     li.appendChild(nameSpan);
     if (isIncompatibleScript(script)) {
       const warn = document.createElement("span");
@@ -668,7 +671,7 @@ function onScriptTitleInput() {
   value = makeUnique(value, others);
   state.scripts[idx].name = value;
   const li = document.querySelector(`#script-list li[data-idx="${idx}"] span`);
-  if (li) li.textContent = value;
+  if (li) { li.textContent = value; li.title = value; }
   markChanged();
 }
 
@@ -784,6 +787,7 @@ function buildVariablesMenu() {
     const btn = document.createElement("button");
     btn.className = "var-item";
     btn.textContent = label;
+    btn.title = label;
     btn.dataset.val = val;
     return btn;
   };
@@ -800,6 +804,7 @@ function buildVariablesMenu() {
     const lbl = document.createElement("span");
     lbl.className = "var-group-label";
     lbl.textContent = label;
+    lbl.title = label;
     grp.appendChild(lbl);
     const sub = document.createElement("div");
     sub.className = "var-submenu";
@@ -847,6 +852,7 @@ function buildTemplatesScriptsMenu() {
     const btn = document.createElement("button");
     btn.className = "var-item";
     btn.textContent = label;
+    btn.title = label;
     btn.dataset.val = val;
     return btn;
   };
@@ -863,6 +869,7 @@ function buildTemplatesScriptsMenu() {
     const lbl = document.createElement("span");
     lbl.className = "var-group-label";
     lbl.textContent = label;
+    lbl.title = label;
     grp.appendChild(lbl);
     const sub = document.createElement("div");
     sub.className = "var-submenu";
@@ -879,6 +886,7 @@ function buildTemplatesScriptsMenu() {
     const div = document.createElement("div");
     div.className = "var-section-label";
     div.textContent = label;
+    div.title = label;
     return div;
   };
 

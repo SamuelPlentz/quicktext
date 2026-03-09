@@ -419,5 +419,8 @@
   },
   "quicktext.mode.url.label": {
     "message": "Читать с удалённого URL"
+  },
+  "quicktext.templatesScripts.label": {
+    "message": "Шаблоны и скрипты"
   }
 }

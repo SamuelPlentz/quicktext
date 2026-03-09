@@ -419,5 +419,8 @@
   },
   "quicktext.mode.url.label": {
     "message": "Läs från fjärr-URL"
+  },
+  "quicktext.templatesScripts.label": {
+    "message": "Mallar och skript"
   }
 }

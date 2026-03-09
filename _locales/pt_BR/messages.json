@@ -419,5 +419,8 @@
   },
   "quicktext.mode.url.label": {
     "message": "Ler de URL remota"
+  },
+  "quicktext.templatesScripts.label": {
+    "message": "Modelos e scripts"
   }
 }

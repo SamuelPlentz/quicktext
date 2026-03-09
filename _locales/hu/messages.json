@@ -419,5 +419,8 @@
   },
   "quicktext.mode.url.label": {
     "message": "Olvasás távoli URL-ről"
+  },
+  "quicktext.templatesScripts.label": {
+    "message": "Sablonok és szkriptek"
   }
 }

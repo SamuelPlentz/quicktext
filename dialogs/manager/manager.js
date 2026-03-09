@@ -400,7 +400,7 @@ function setTemplateFieldsVisible(show) {
 
 function setTemplateFieldsEnabled(enabled) {
   for (const id of ["text-title", "text-body", "sel-type", "sel-shortcut",
-    "text-shortcut-adv", "text-keyword", "text-subject", "text-attachments", "btn-variables"]) {
+    "text-shortcut-adv", "text-keyword", "text-subject", "text-attachments", "btn-variables", "btn-templates-scripts"]) {
     const el = document.getElementById(id);
     if (el) el.disabled = !enabled;
   }
@@ -461,7 +461,6 @@ function addGroup() {
   markChanged();
   renderTree();
   renderTemplateDetail();
-  updateVariablesMenu();
   const el = document.getElementById("text-title");
   el.focus();
   el.select();
@@ -506,7 +505,6 @@ function removeTemplateOrGroup() {
   markChanged();
   renderTree();
   renderTemplateDetail();
-  updateVariablesMenu();
 }
 
 // ---------- Template drag-and-drop ----------
@@ -669,7 +667,6 @@ function onScriptTitleInput() {
   state.scripts[idx].name = value;
   const li = document.querySelector(`#script-list li[data-idx="${idx}"] span`);
   if (li) li.textContent = value;
-  updateVariablesMenu();
   markChanged();
 }
 
@@ -681,7 +678,6 @@ function addScript() {
   markChanged();
   renderScriptList();
   renderScriptDetail();
-  updateVariablesMenu();
   const el = document.getElementById("script-title");
   el.focus();
   el.select();
@@ -696,7 +692,6 @@ function removeScript() {
   markChanged();
   renderScriptList();
   renderScriptDetail();
-  updateVariablesMenu();
 }
 
 // ---------- Advanced tab ----------
@@ -840,51 +835,81 @@ function buildVariablesMenu() {
   for (const node of getStaticVariablesMenuStructure()) {
     menu.appendChild(nodeToElement(node));
   }
-
-  updateVariablesMenu();
 }
 
-function updateVariablesMenu() {
-  const menu = document.getElementById("variables-menu");
-  if (!menu) return;
-  for (const grp of [...menu.querySelectorAll(".var-group.dynamic")]) grp.remove();
+function buildTemplatesScriptsMenu() {
+  const menu = document.getElementById("templates-scripts-menu");
+  menu.innerHTML = "";
 
-  const addGrp = (label, pairs) => {
+  const makeItem = (label, val) => {
+    const btn = document.createElement("button");
+    btn.className = "var-item";
+    btn.textContent = label;
+    btn.dataset.val = val;
+    return btn;
+  };
+
+  const makeSeparator = () => {
+    const sep = document.createElement("div");
+    sep.className = "var-separator";
+    return sep;
+  };
+
+  const makeGrp = (label, pairs) => {
     const grp = document.createElement("div");
-    grp.className = "var-group dynamic";
-
+    grp.className = "var-group";
     const lbl = document.createElement("span");
     lbl.className = "var-group-label";
     lbl.textContent = label;
     grp.appendChild(lbl);
-
     const sub = document.createElement("div");
     sub.className = "var-submenu";
-    for (const [itemLabel, val] of pairs) {
-      const btn = document.createElement("button");
-      btn.className = "var-item";
-      btn.textContent = itemLabel;
-      btn.dataset.val = val;
-      sub.appendChild(btn);
+    for (const entry of pairs) {
+      if (entry === null) sub.appendChild(makeSeparator());
+      else if (entry instanceof Element) sub.appendChild(entry);
+      else sub.appendChild(makeItem(entry[0], entry[1]));
     }
     grp.appendChild(sub);
-    menu.appendChild(grp);
+    return grp;
   };
 
-  if (state.groups.some((_, gi) => (state.texts[gi] || []).length > 0)) {
-    const pairs = [];
-    for (let gi = 0; gi < state.groups.length; gi++) {
-      for (const tmpl of (state.texts[gi] || [])) {
-        pairs.push([`${state.groups[gi].name} / ${tmpl.name}`, `TEXT=${state.groups[gi].name}|${tmpl.name}`]);
-      }
+  const makeSectionLabel = label => {
+    const div = document.createElement("div");
+    div.className = "var-section-label";
+    div.textContent = label;
+    return div;
+  };
+
+  let hasContent = false;
+
+  // Templates
+  const templatePairs = [];
+  for (let gi = 0; gi < state.groups.length; gi++) {
+    const tmpls = (state.texts[gi] || []).map(t => [t.name, `TEXT=${state.groups[gi].name}|${t.name}`]);
+    if (tmpls.length > 0) {
+      templatePairs.push([state.groups[gi].name, tmpls]);
     }
-    addGrp(i18n("quicktext.templates.label"), pairs);
+  }
+  if (templatePairs.length > 0) {
+    menu.appendChild(makeSectionLabel(i18n("quicktext.templates.label")));
+    for (const [groupName, tmpls] of templatePairs) {
+      menu.appendChild(makeGrp(groupName, tmpls.map(([label, val]) => makeItem(label, val))));
+    }
+    hasContent = true;
   }
 
+  // Scripts
   if (state.scripts.length > 0) {
-    addGrp(i18n("quicktext.scripts.label"), state.scripts.map(s => [s.name, `SCRIPT=${s.name}`]));
+    if (hasContent) menu.appendChild(makeSeparator());
+    menu.appendChild(makeSectionLabel(i18n("quicktext.scripts.label")));
+    for (const s of state.scripts) {
+      menu.appendChild(makeItem(s.name, `SCRIPT=${s.name}`));
+    }
+    hasContent = true;
   }
+
 }
+
 
 function insertVariable(varStr) {
   const subjectEl = document.getElementById("text-subject");
@@ -926,7 +951,6 @@ async function importTemplates() {
   }
   markChanged();
   renderTree();
-  updateVariablesMenu();
 }
 
 async function importScripts() {
@@ -940,7 +964,6 @@ async function importScripts() {
   }
   markChanged();
   renderScriptList();
-  updateVariablesMenu();
 }
 
 function pickFile(accept) {
@@ -1029,11 +1052,44 @@ async function init() {
     markChanged();
   });
 
+  // Templates & Scripts menu
+  buildTemplatesScriptsMenu();
+
+  document.getElementById("btn-templates-scripts").addEventListener("click", e => {
+    const menu = document.getElementById("templates-scripts-menu");
+    document.getElementById("variables-menu").hidden = true;
+    if (menu.hidden) buildTemplatesScriptsMenu();
+    menu.hidden = !menu.hidden;
+    e.stopPropagation();
+  });
+
+  document.getElementById("templates-scripts-menu").addEventListener("mouseover", e => {
+    const grp = e.target.closest(".var-group");
+    const lbl = grp?.querySelector(":scope > .var-group-label");
+    const sub = grp?.querySelector(":scope > .var-submenu");
+    if (!lbl || !sub) return;
+    computePosition(lbl, sub, {
+      placement: "left-start",
+      middleware: [flip(), shift({ padding: 4 })],
+    }).then(({ x, y }) => {
+      sub.style.left = `${x}px`;
+      sub.style.top = `${y}px`;
+    });
+  });
+
+  document.getElementById("templates-scripts-menu").addEventListener("click", e => {
+    const btn = e.target.closest(".var-item");
+    if (!btn) return;
+    document.getElementById("templates-scripts-menu").hidden = true;
+    insertVariable(btn.dataset.val);
+  });
+
   // Variables nested menu
   buildVariablesMenu();
 
   document.getElementById("btn-variables").addEventListener("click", e => {
     const menu = document.getElementById("variables-menu");
+    document.getElementById("templates-scripts-menu").hidden = true;
     if (menu.hidden) buildVariablesMenu();
     menu.hidden = !menu.hidden;
     e.stopPropagation();
@@ -1086,6 +1142,7 @@ async function init() {
 
   document.addEventListener("click", () => {
     document.getElementById("variables-menu").hidden = true;
+    document.getElementById("templates-scripts-menu").hidden = true;
   });
 
   // Script tab

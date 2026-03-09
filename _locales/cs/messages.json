@@ -419,5 +419,8 @@
   },
   "quicktext.mode.url.label": {
     "message": "Číst ze vzdálené URL"
+  },
+  "quicktext.templatesScripts.label": {
+    "message": "Šablony a skripty"
   }
 }

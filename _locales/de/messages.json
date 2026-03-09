@@ -419,5 +419,8 @@
   },
   "quicktext.mode.url.label": {
     "message": "Von externer URL lesen"
+  },
+  "quicktext.templatesScripts.label": {
+    "message": "Vorlagen & Skripte"
   }
 }

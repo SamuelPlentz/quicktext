@@ -307,25 +307,7 @@ async function buildVariablesMenuStructure() {
     });
   }
 
-  const structure = resolve(getStaticVariablesMenuStructure());
-
-  const { groups, texts } = await storage.getTemplates();
-  const templatePairs = [];
-  for (let gi = 0; gi < groups.length; gi++) {
-    for (const tmpl of (texts[gi] || [])) {
-      templatePairs.push({ type: "item", label: `${groups[gi].name} / ${tmpl.name}`, value: `TEXT=${groups[gi].name}|${tmpl.name}` });
-    }
-  }
-  if (templatePairs.length) {
-    structure.push({ type: "group", label: i18n("quicktext.templates.label"), children: templatePairs });
-  }
-
-  const scripts = await storage.getScripts();
-  if (scripts.length) {
-    structure.push({ type: "group", label: i18n("quicktext.scripts.label"), children: scripts.map(s => ({ type: "item", label: s.name, value: `SCRIPT=${s.name}` })) });
-  }
-
-  return structure;
+  return resolve(getStaticVariablesMenuStructure());
 }
 
 async function buildOtherMenuStructure() {

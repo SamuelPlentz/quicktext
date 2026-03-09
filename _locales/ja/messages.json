@@ -419,5 +419,8 @@
   },
   "quicktext.mode.url.label": {
     "message": "リモートURLから読み込む"
+  },
+  "quicktext.templatesScripts.label": {
+    "message": "テンプレートとスクリプト"
   }
 }

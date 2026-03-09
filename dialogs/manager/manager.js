@@ -7,7 +7,7 @@
 import * as quicktext from "/modules/quicktext.mjs";
 import * as storage from "/modules/storage.mjs";
 import * as utils from "/modules/utils.mjs";
-import { localizeDocument } from "/modules/i18n.mjs";
+import { localizeDocument } from "/vendor/i18n.mjs";
 const { computePosition, flip, shift } = FloatingUIDOM;
 
 const i18n = (key, subs) => browser.i18n.getMessage(key, subs) || key;

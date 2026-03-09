@@ -1,8 +1,17 @@
 #quicktext-toolbar button {
-  border:       0px;
-  margin-left:  2px;
-  margin-right: 2px;
-  min-width:    auto;
+  appearance:       none;
+  background-color: var(--button-background-color, ButtonFace);
+  color:            var(--button-color, ButtonText);
+  border:           1px solid var(--button-border-color, ThreeDShadow);
+  border-radius:    3px;
+  margin-left:      2px;
+  margin-right:     2px;
+  min-width:        auto;
+  padding:          2px 8px;
+}
+
+#quicktext-toolbar button:hover {
+  background-color: var(--button-hover-background-color, var(--button-background-color, ButtonHighlight));
 }
 
 #quicktext-toolbar {

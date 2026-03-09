@@ -1,15 +1,15 @@
 {
+    "quicktext.options.intro": {
+        "message": "Все настройки Quicktext можно контролировать и настраивать в Менеджере Quicktext вместе с вашими шаблонами и скриптами."
+    },
     "deprecated_attachment_field": {
         "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
-    },
-    "altKey": {
-        "message": "Alt"
     },
     "attachmentFile": {
         "message": "Выберите файл для добавления во вложения"
     },
-    "controlKey": {
-        "message": "Ctrl"
+    "controlled-via-managed-storage": {
+        "message": "Управляется через управляемое хранилище"
     },
     "date": {
         "message": "Дата ($P1$)",
@@ -19,20 +19,11 @@
             }
         }
     },
-    "exportFile": {
-        "message": "Выберите файл для экспорта в (UTF-8)"
-    },
     "extensionDescription": {
         "message": "Добавляет панель инструментов с неограниченным количеством текста для быстрой вставки. Также можно использовать такие переменные, как [[TO=firstname]]. С настройками для всего."
     },
-    "fileNotUTF8": {
-        "message": "Выбранный файл не похож UTF-8 кодированный и загружен некорректно. Выберите другой файл."
-    },
     "group": {
         "message": "Группа"
-    },
-    "importFile": {
-        "message": "Выберите файл для импорта (UTF-8)"
     },
     "inputText": {
         "message": "Введите значение $P1$",
@@ -42,17 +33,11 @@
             }
         }
     },
-    "inputTitle": {
-        "message": "Значение переменной"
-    },
     "insertFile": {
         "message": "Выберите файл для вставки (UTF-8)"
     },
     "insertImage": {
         "message": "Выберите изображение для вставки"
-    },
-    "metaKey": {
-        "message": "Meta"
     },
     "newGroup": {
         "message": "Новая группа"
@@ -87,20 +72,11 @@
     "quicktext.accesskey.communityScripts": {
         "message": "щ"
     },
-    "quicktext.accesskey.export": {
-        "message": "Э"
-    },
-    "quicktext.accesskey.file": {
-        "message": "Ф"
-    },
     "quicktext.accesskey.general": {
         "message": "Г"
     },
     "quicktext.accesskey.help": {
         "message": "П"
-    },
-    "quicktext.accesskey.import": {
-        "message": "И"
     },
     "quicktext.accesskey.remove": {
         "message": "У"
@@ -114,22 +90,19 @@
     "quicktext.accesskey.scripts": {
         "message": "к"
     },
-    "quicktext.accesskey.settings": {
-        "message": "Н"
-    },
     "quicktext.accesskey.templates": {
         "message": "Ш"
     },
-    "quicktext.accesskeyScripts.export": {
+    "quicktext.accesskey.exportScripts": {
         "message": "о"
     },
-    "quicktext.accesskeyScripts.import": {
+    "quicktext.accesskey.importScripts": {
         "message": "т"
     },
-    "quicktext.accesskeyTemplate.export": {
+    "quicktext.accesskey.exportTemplates": {
         "message": "к"
     },
-    "quicktext.accesskeyTemplate.import": {
+    "quicktext.accesskey.importTemplates": {
         "message": "м"
     },
     "quicktext.buttons.selectStorage.label": {
@@ -234,9 +207,6 @@
     "quicktext.faxnumber.label": {
         "message": "Факс"
     },
-    "quicktext.file.label": {
-        "message": "Файл"
-    },
     "quicktext.filename.label": {
         "message": "Имя файла"
     },
@@ -258,8 +228,8 @@
     "quicktext.getScript.label": {
         "message": "Скрипты сообщества"
     },
-    "quicktext.group.label": {
-        "message": "Группа"
+    "quicktext.scriptDocs.label": {
+        "message": "Как создавать скрипты"
     },
     "quicktext.header.label": {
         "message": "Header (To, Cc, Bcc)"
@@ -269,9 +239,6 @@
     },
     "quicktext.scripthelp.label": {
         "message": "Несовместимый сценарий"
-    },
-    "quicktext.homenumber.label": {
-        "message": "Домашний телефон"
     },
     "quicktext.image.label": {
         "message": "Внедрённое HTML изображение"
@@ -364,7 +331,7 @@
         "message": "Настройки"
     },
     "quicktext.settings.title": {
-        "message": "Настройки Quicktext"
+        "message": "Менеджер Quicktext"
     },
     "quicktext.sharingScripts.label": {
         "message": "Обмен скриптами"
@@ -378,9 +345,6 @@
     "quicktext.shortcutTypeAdv.label": {
         "message": "Использовать расширенный режим для ярлыков"
     },
-    "quicktext.shortname.label": {
-        "message": "Quicktext"
-    },
     "quicktext.spaceKey.label": {
         "message": "Пробел"
     },
@@ -389,9 +353,6 @@
     },
     "quicktext.tabKey.label": {
         "message": "Tab"
-    },
-    "quicktext.template.label": {
-        "message": "Шаблон"
     },
     "quicktext.templates.label": {
         "message": "Шаблоны"
@@ -425,17 +386,8 @@
             }
         }
     },
-    "saveMessage": {
-        "message": "Ваши изменения не были сохранены. Вы хотите сохранить их?"
-    },
-    "saveMessageTitle": {
-        "message": "Сохранить настройки"
-    },
     "scriptError": {
         "message": "Ошибка в Quicktext скрипте:"
-    },
-    "scriptLine": {
-        "message": "Строка"
     },
     "scriptNotFound": {
         "message": "Quicktext скрипт “$P1$” не найден!",
@@ -455,5 +407,11 @@
                 "content": "$1"
             }
         }
+    },
+    "quicktext.prompt.addUrl.label": {
+        "message": "Введите URL:"
+    },
+    "quicktext.advanced.description": {
+        "message": "Хранение шаблонов и скриптов непосредственно на диске через доступ к файловой системе не является перспективным решением и в конечном итоге будет удалено из Quicktext. Возможно, это останется доступным через дополнение Quicktext Legacy Companion, однако оно не будет официально поддерживаться и будет работать только в Thunderbird ESR, но не в Thunderbird Release."
     }
 }

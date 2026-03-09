@@ -1,15 +1,15 @@
 {
+    "quicktext.options.intro": {
+        "message": "Veškerá nastavení Quicktext lze ovládat a konfigurovat ve Správci Quicktext, společně s vašimi šablonami a skripty."
+    },
     "deprecated_attachment_field": {
         "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
-    },
-    "altKey": {
-        "message": "Alt"
     },
     "attachmentFile": {
         "message": "Vyberte soubor, který se má přidat do příloh"
     },
-    "controlKey": {
-        "message": "Ctrl"
+    "controlled-via-managed-storage": {
+        "message": "Řízeno přes spravované úložiště"
     },
     "date": {
         "message": "Datum ($P1$)",
@@ -19,20 +19,11 @@
             }
         }
     },
-    "exportFile": {
-        "message": "Vyberte pro exportování (UTF-8)"
-    },
     "extensionDescription": {
         "message": "Přidá panel nástrojů do okna pro úpravy e-mailu, takže přidání standardního textu je rychlé a snadné. Je také možné použít proměnné jako [[TO=firstname]]."
     },
-    "fileNotUTF8": {
-        "message": "Vybraný soubor zřejmě není kódovaný v UTF-8 a nebude správně načten. Vyberte prosím jiný soubor."
-    },
     "group": {
         "message": "Skupina"
-    },
-    "importFile": {
-        "message": "Vybarte soubor k importování (UTF-8)"
     },
     "inputText": {
         "message": "Zadejte hodnotu $P1$",
@@ -42,17 +33,11 @@
             }
         }
     },
-    "inputTitle": {
-        "message": "Hodnota proměnné"
-    },
     "insertFile": {
         "message": "Vyberte soubor k vložení (UTF-8)"
     },
     "insertImage": {
         "message": "Vyberte soubor obrázku ke vložení"
-    },
-    "metaKey": {
-        "message": "Meta"
     },
     "newGroup": {
         "message": "Nová skupina"
@@ -87,20 +72,11 @@
     "quicktext.accesskey.communityScripts": {
         "message": "s"
     },
-    "quicktext.accesskey.export": {
-        "message": "o"
-    },
-    "quicktext.accesskey.file": {
-        "message": "b"
-    },
     "quicktext.accesskey.general": {
         "message": "g"
     },
     "quicktext.accesskey.help": {
         "message": "p"
-    },
-    "quicktext.accesskey.import": {
-        "message": "r"
     },
     "quicktext.accesskey.remove": {
         "message": "v"
@@ -114,22 +90,19 @@
     "quicktext.accesskey.scripts": {
         "message": "s"
     },
-    "quicktext.accesskey.settings": {
-        "message": "n"
-    },
     "quicktext.accesskey.templates": {
         "message": "y"
     },
-    "quicktext.accesskeyScripts.export": {
+    "quicktext.accesskey.exportScripts": {
         "message": "x"
     },
-    "quicktext.accesskeyScripts.import": {
+    "quicktext.accesskey.importScripts": {
         "message": "m"
     },
-    "quicktext.accesskeyTemplate.export": {
+    "quicktext.accesskey.exportTemplates": {
         "message": "e"
     },
-    "quicktext.accesskeyTemplate.import": {
+    "quicktext.accesskey.importTemplates": {
         "message": "i"
     },
     "quicktext.buttons.selectStorage.label": {
@@ -234,9 +207,6 @@
     "quicktext.faxnumber.label": {
         "message": "Fax"
     },
-    "quicktext.file.label": {
-        "message": "Soubor"
-    },
     "quicktext.filename.label": {
         "message": "Název souboru"
     },
@@ -258,8 +228,8 @@
     "quicktext.getScript.label": {
         "message": "Komunitní skripty"
     },
-    "quicktext.group.label": {
-        "message": "Skupina"
+    "quicktext.scriptDocs.label": {
+        "message": "Jak vytvářet skripty"
     },
     "quicktext.header.label": {
         "message": "Přidat záhlaví (komu, kopie, skrytá kopie)"
@@ -269,9 +239,6 @@
     },
     "quicktext.scripthelp.label": {
         "message": "Nekompatibilní skripts"
-    },
-    "quicktext.homenumber.label": {
-        "message": "Telefon domů"
     },
     "quicktext.image.label": {
         "message": "Vložený HTML obrázek"
@@ -364,7 +331,7 @@
         "message": "Nastavení"
     },
     "quicktext.settings.title": {
-        "message": "Nastavení Quicktext"
+        "message": "Správce Quicktext"
     },
     "quicktext.sharingScripts.label": {
         "message": "Sdílení skriptů"
@@ -378,9 +345,6 @@
     "quicktext.shortcutTypeAdv.label": {
         "message": "Používat pokročilý režim zkratek"
     },
-    "quicktext.shortname.label": {
-        "message": "Quicktext"
-    },
     "quicktext.spaceKey.label": {
         "message": "Mezera"
     },
@@ -389,9 +353,6 @@
     },
     "quicktext.tabKey.label": {
         "message": "Tab"
-    },
-    "quicktext.template.label": {
-        "message": "Šablona"
     },
     "quicktext.templates.label": {
         "message": "Šablony"
@@ -425,17 +386,8 @@
             }
         }
     },
-    "saveMessage": {
-        "message": "Vaše změny nebyly uloženy. Chcete je uložit?"
-    },
-    "saveMessageTitle": {
-        "message": "Uložit nastavení"
-    },
     "scriptError": {
         "message": "Ve vašem Quicktext skriptu se objevila chyba:"
-    },
-    "scriptLine": {
-        "message": "Řádek"
     },
     "scriptNotFound": {
         "message": "Quicktext script “$P1$” not found!",
@@ -455,5 +407,11 @@
                 "content": "$1"
             }
         }
+    },
+    "quicktext.prompt.addUrl.label": {
+        "message": "Zadejte URL:"
+    },
+    "quicktext.advanced.description": {
+        "message": "Ukládání šablon a skriptů přímo na disk prostřednictvím přístupu k souborovému systému není do budoucna zaručeno a bude z Quicktext nakonec odstraněno. Může zůstat dostupné prostřednictvím doplňku Quicktext Legacy Companion, ale ten nebude oficiálně podporován a bude fungovat pouze v Thunderbirdu ESR, nikdy v Thunderbirdu Release."
     }
 }

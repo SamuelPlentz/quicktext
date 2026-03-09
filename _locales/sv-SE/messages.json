@@ -1,15 +1,15 @@
 {
+    "quicktext.options.intro": {
+        "message": "Alla Quicktext-inställningar kan styras och konfigureras i Quicktext-hanteraren, tillsammans med dina mallar och skript."
+    },
     "deprecated_attachment_field": {
         "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
-    },
-    "altKey": {
-        "message": "Alt"
     },
     "attachmentFile": {
         "message": "Välj fil att lägga till i bifogade filer"
     },
-    "controlKey": {
-        "message": "Ctrl"
+    "controlled-via-managed-storage": {
+        "message": "Styrs via hanterat lagringsutrymme"
     },
     "date": {
         "message": "Datum ($P1$)",
@@ -19,20 +19,11 @@
             }
         }
     },
-    "exportFile": {
-        "message": "Välj fil att exportera till (UTF-8)"
-    },
     "extensionDescription": {
         "message": "Adds a toolbar with unlimited number of text to quickly insert. It is also possible to use variables like [[TO=firstname]]. With settings for everything."
     },
-    "fileNotUTF8": {
-        "message": "The selected file does not seem to be UTF-8 encoded and will not loaded correctly. Please select a different file."
-    },
     "group": {
         "message": "Grupp"
-    },
-    "importFile": {
-        "message": "Välj fil att importera (UTF-8)"
     },
     "inputText": {
         "message": "Ange värdet på $P1$",
@@ -42,17 +33,11 @@
             }
         }
     },
-    "inputTitle": {
-        "message": "Variabel värde"
-    },
     "insertFile": {
         "message": "Välj fil att infoga (UTF-8)"
     },
     "insertImage": {
         "message": "Choose image file to insert"
-    },
-    "metaKey": {
-        "message": "Meta"
     },
     "newGroup": {
         "message": "Ny grupp"
@@ -87,20 +72,11 @@
     "quicktext.accesskey.communityScripts": {
         "message": "s"
     },
-    "quicktext.accesskey.export": {
-        "message": "o"
-    },
-    "quicktext.accesskey.file": {
-        "message": "k"
-    },
     "quicktext.accesskey.general": {
         "message": "w"
     },
     "quicktext.accesskey.help": {
         "message": "p"
-    },
-    "quicktext.accesskey.import": {
-        "message": "r"
     },
     "quicktext.accesskey.remove": {
         "message": "v"
@@ -114,26 +90,32 @@
     "quicktext.accesskey.scripts": {
         "message": "s"
     },
-    "quicktext.accesskey.settings": {
-        "message": "n"
-    },
     "quicktext.accesskey.templates": {
         "message": "q"
     },
-    "quicktext.accesskeyScripts.export": {
+    "quicktext.accesskey.exportScripts": {
         "message": "x"
     },
-    "quicktext.accesskeyScripts.import": {
+    "quicktext.accesskey.importScripts": {
         "message": "m"
     },
-    "quicktext.accesskeyTemplate.export": {
+    "quicktext.accesskey.exportTemplates": {
         "message": "e"
     },
-    "quicktext.accesskeyTemplate.import": {
+    "quicktext.accesskey.importTemplates": {
         "message": "i"
     },
     "quicktext.buttons.selectStorage.label": {
         "message": "Välj lagring"
+    },
+    "quicktext.buttons.addFolder.label": {
+        "message": "+ Mapp"
+    },
+    "quicktext.buttons.addFile.label": {
+        "message": "+ Fil"
+    },
+    "quicktext.buttons.addUrl.label": {
+        "message": "+ URL"
     },
     "quicktext.addGroup.label": {
         "message": "Lägg till grupp"
@@ -225,9 +207,6 @@
     "quicktext.faxnumber.label": {
         "message": "Faxnummer"
     },
-    "quicktext.file.label": {
-        "message": "Arkiv"
-    },
     "quicktext.filename.label": {
         "message": "Filnamn"
     },
@@ -249,8 +228,8 @@
     "quicktext.getScript.label": {
         "message": "Community Scripts"
     },
-    "quicktext.group.label": {
-        "message": "Grupp"
+    "quicktext.scriptDocs.label": {
+        "message": "Hur man skapar skript"
     },
     "quicktext.header.label": {
         "message": "Header (To, Cc, Bcc)"
@@ -260,9 +239,6 @@
     },
     "quicktext.scripthelp.label": {
         "message": "Inkompatibelt skript"
-    },
-    "quicktext.homenumber.label": {
-        "message": "Hemnummer"
     },
     "quicktext.image.label": {
         "message": "Embedded HTML image"
@@ -355,7 +331,7 @@
         "message": "Inställningar"
     },
     "quicktext.settings.title": {
-        "message": "Quicktext Inställningar"
+        "message": "Quicktext-hanteraren"
     },
     "quicktext.sharingScripts.label": {
         "message": "Dela skript"
@@ -369,9 +345,6 @@
     "quicktext.shortcutTypeAdv.label": {
         "message": "Använd avancerat läge för kortkommandon"
     },
-    "quicktext.shortname.label": {
-        "message": "Quicktext"
-    },
     "quicktext.spaceKey.label": {
         "message": "Mellanslag"
     },
@@ -380,9 +353,6 @@
     },
     "quicktext.tabKey.label": {
         "message": "Tab"
-    },
-    "quicktext.template.label": {
-        "message": "Mall"
     },
     "quicktext.templates.label": {
         "message": "Mallar"
@@ -416,17 +386,8 @@
             }
         }
     },
-    "saveMessage": {
-        "message": "Du har inte sparat de ändringar du gjort. Vill du spara dem?"
-    },
-    "saveMessageTitle": {
-        "message": "Spara inställningar"
-    },
     "scriptError": {
         "message": "There was an error in your Quicktext script:"
-    },
-    "scriptLine": {
-        "message": "Line"
     },
     "scriptNotFound": {
         "message": "Quicktext script “$P1$” not found!",
@@ -446,5 +407,11 @@
                 "content": "$1"
             }
         }
+    },
+    "quicktext.prompt.addUrl.label": {
+        "message": "Ange URL:"
+    },
+    "quicktext.advanced.description": {
+        "message": "Att lagra mallar och skript direkt på disk via filsystemsåtkomst är inte framtidssäkert och kommer till slut att tas bort från Quicktext. Det kan fortsätta vara tillgängligt via Quicktext Legacy Companion-tillägget, men det kommer inte att vara officiellt stött och fungerar bara med Thunderbird ESR, aldrig med Thunderbird Release."
     }
 }

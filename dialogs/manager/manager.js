@@ -11,6 +11,10 @@ import { localizeDocument } from "/modules/i18n.mjs";
 
 const i18n = (key, subs) => browser.i18n.getMessage(key, subs) || key;
 const deepClone = obj => JSON.parse(JSON.stringify(obj));
+const applyManaged = (el, isManaged) => {
+  el.disabled = isManaged;
+  el.title = isManaged ? i18n("controlled-via-managed-storage") : "";
+};
 
 function makeUnique(name, arr) {
   const sanitized = name
@@ -139,17 +143,17 @@ function renderGeneral() {
 
   const chkPopup = document.getElementById("chk-popup");
   chkPopup.checked = state.prefs.popup;
-  chkPopup.disabled = managed("popup");
+  applyManaged(chkPopup, managed("popup"));
   chkPopup.addEventListener("change", () => { state.prefs.popup = chkPopup.checked; markChanged(); });
 
   const chkCollapse = document.getElementById("chk-collapse");
   chkCollapse.checked = state.prefs.menuCollapse;
-  chkCollapse.disabled = managed("menuCollapse");
+  applyManaged(chkCollapse, managed("menuCollapse"));
   chkCollapse.addEventListener("change", () => { state.prefs.menuCollapse = chkCollapse.checked; markChanged(); });
 
   const selModifier = document.getElementById("sel-modifier");
   selModifier.value = state.prefs.shortcutModifier;
-  selModifier.disabled = managed("shortcutModifier");
+  applyManaged(selModifier, managed("shortcutModifier"));
   selModifier.addEventListener("change", () => {
     state.prefs.shortcutModifier = selModifier.value;
     updateShortcutAdvAvailability();
@@ -163,7 +167,7 @@ function renderGeneral() {
 
   const selKeyword = document.getElementById("sel-keyword");
   selKeyword.value = state.prefs.keywordKey;
-  selKeyword.disabled = managed("keywordKey");
+  applyManaged(selKeyword, managed("keywordKey"));
   selKeyword.addEventListener("change", () => { state.prefs.keywordKey = selKeyword.value; markChanged(); });
 
   renderDefaultImportList();
@@ -186,7 +190,9 @@ function updateShortcutAdvAvailability() {
   const forceOff = ua.includes("mac") ||
     (ua.includes("win") && state.prefs.shortcutModifier === "alt");
   const chk = document.getElementById("chk-shortcut-adv");
-  chk.disabled = state.managedPrefs.has("shortcutTypeAdv") || forceOff;
+  const isManaged = state.managedPrefs.has("shortcutTypeAdv");
+  chk.disabled = isManaged || forceOff;
+  chk.title = isManaged ? i18n("controlled-via-managed-storage") : "";
 }
 
 function renderDefaultImportList() {
@@ -207,12 +213,15 @@ function renderDefaultImportList() {
     });
     list.appendChild(li);
   }
+  const managedTooltip = managed ? i18n("controlled-via-managed-storage") : "";
   document.getElementById("btn-add-url").disabled = managed;
+  document.getElementById("btn-add-url").title = managedTooltip;
   document.getElementById("btn-remove-import").disabled = true;
+  document.getElementById("btn-remove-import").title = managedTooltip;
 }
 
 function addDefaultImportUrl() {
-  const url = prompt("Enter URL:", "https://");
+  const url = prompt(i18n("quicktext.prompt.addUrl.label"), "https://");
   if (!url) return;
   state.defaultImportEntries.push({ source: "URL", data: url });
   markChanged();
@@ -394,7 +403,7 @@ function renderShortcutUI(shortcut) {
   document.getElementById("sel-shortcut").hidden = advMode;
   document.getElementById("text-shortcut-adv").hidden = !advMode;
 
-  const modKey = { alt: i18n("altKey"), control: i18n("controlKey"), meta: i18n("metaKey") }[state.prefs.shortcutModifier] || "";
+  const modKey = { alt: i18n("quicktext.altKey.label"), control: i18n("quicktext.controlKey.label"), meta: i18n("quicktext.metaKey.label") }[state.prefs.shortcutModifier] || "";
   document.getElementById("label-modifier").textContent = `${modKey}+`;
 
   if (advMode) {
@@ -715,9 +724,13 @@ function updateStorageButtons() {
   const list = document.getElementById("storage-list");
   const sel = list.querySelector("li.selected");
   const idx = sel ? parseInt(sel.dataset.idx) : -1;
+  const managedTooltip = managed ? i18n("controlled-via-managed-storage") : "";
   document.getElementById("btn-add-storage-folder").disabled = managed;
+  document.getElementById("btn-add-storage-folder").title = managedTooltip;
   document.getElementById("btn-remove-storage").disabled = managed || idx <= 0 || idx === state.activeStorageIdx;
+  document.getElementById("btn-remove-storage").title = managedTooltip;
   document.getElementById("btn-select-storage").disabled = managed || idx < 0 || idx === state.activeStorageIdx;
+  document.getElementById("btn-select-storage").title = managedTooltip;
 }
 
 async function addStorageFolder() {

@@ -11,10 +11,10 @@
 
     <!-- Tab buttons -->
     <div id="tabs">
-      <button class="tab-btn" id="tab-general" data-tab="general" data-i18n-content="quicktext.general.label"></button>
-      <button class="tab-btn active" id="tab-templates" data-tab="templates" data-i18n-content="quicktext.templates.label"></button>
-      <button class="tab-btn" id="tab-scripts" data-tab="scripts" data-i18n-content="quicktext.scripts.label"></button>
-      <button class="tab-btn" id="tab-advanced" data-tab="advanced" data-i18n-content="quicktext.advanced.label"></button>
+      <button class="tab-btn" id="tab-general" data-tab="general" data-i18n-content="quicktext.general.label" data-i18n-accesskey="quicktext.accesskey.general"></button>
+      <button class="tab-btn active" id="tab-templates" data-tab="templates" data-i18n-content="quicktext.templates.label" data-i18n-accesskey="quicktext.accesskey.templates"></button>
+      <button class="tab-btn" id="tab-scripts" data-tab="scripts" data-i18n-content="quicktext.scripts.label" data-i18n-accesskey="quicktext.accesskey.scripts"></button>
+      <button class="tab-btn" id="tab-advanced" data-tab="advanced" data-i18n-content="quicktext.advanced.label" data-i18n-accesskey="quicktext.accesskey.advanced"></button>
     </div>
 
     <!-- General Panel -->
@@ -40,12 +40,12 @@
                   <option value="Tab" data-i18n-content="quicktext.tabKey.label"></option>
                   <option value="Space" data-i18n-content="quicktext.spaceKey.label"></option>
                   <option value="Enter" data-i18n-content="quicktext.enterKey.label"></option>
-                  <option value="F2">F2</option>
-                  <option value="F4">F4</option>
-                  <option value="F5">F5</option>
-                  <option value="F8">F8</option>
-                  <option value="F11">F11</option>
-                  <option value="F12">F12</option>
+                  <option value="F2" data-i18n-content="quicktext.f2Key.label"></option>
+                  <option value="F4" data-i18n-content="quicktext.f4Key.label"></option>
+                  <option value="F5" data-i18n-content="quicktext.f5Key.label"></option>
+                  <option value="F8" data-i18n-content="quicktext.f8Key.label"></option>
+                  <option value="F11" data-i18n-content="quicktext.f11Key.label"></option>
+                  <option value="F12" data-i18n-content="quicktext.f12Key.label"></option>
                 </select>
                 <span id="lbl-keyword-setting" data-i18n-content="quicktext.keywordKeySetting.label"></span>
               </div>
@@ -56,7 +56,7 @@
             <ul id="default-import-list" class="source-list"></ul>
             <div class="btn-row">
               <button id="btn-add-url" data-i18n-content="quicktext.buttons.addUrl.label"></button>
-              <button id="btn-remove-import" disabled data-i18n-content="quicktext.remove.label"></button>
+              <button id="btn-remove-import" disabled data-i18n-content="quicktext.remove.label" data-i18n-accesskey="quicktext.accesskey.remove"></button>
             </div>
           </fieldset>
         </div>
@@ -64,20 +64,20 @@
           <fieldset>
             <legend id="lbl-sharing-templates" data-i18n-content="quicktext.sharingTemplates.label"></legend>
             <div class="btn-col">
-              <button id="btn-export-templates" data-i18n-content="quicktext.export.label"></button>
-              <button id="btn-import-templates" data-i18n-content="quicktext.import.label"></button>
+              <button id="btn-export-templates" data-i18n-content="quicktext.export.label" data-i18n-accesskey="quicktext.accesskey.exportTemplates"></button>
+              <button id="btn-import-templates" data-i18n-content="quicktext.import.label" data-i18n-accesskey="quicktext.accesskey.importTemplates"></button>
             </div>
           </fieldset>
           <fieldset>
             <legend id="lbl-sharing-scripts" data-i18n-content="quicktext.sharingScripts.label"></legend>
             <div class="btn-col">
-              <button id="btn-export-scripts" data-i18n-content="quicktext.export.label"></button>
-              <button id="btn-import-scripts" data-i18n-content="quicktext.import.label"></button>
+              <button id="btn-export-scripts" data-i18n-content="quicktext.export.label" data-i18n-accesskey="quicktext.accesskey.exportScripts"></button>
+              <button id="btn-import-scripts" data-i18n-content="quicktext.import.label" data-i18n-accesskey="quicktext.accesskey.importScripts"></button>
             </div>
           </fieldset>
           <fieldset>
             <legend id="lbl-counter"></legend>
-            <button id="btn-reset-counter" data-i18n-content="quicktext.resetcounter.label"></button>
+            <button id="btn-reset-counter" data-i18n-content="quicktext.resetcounter.label" data-i18n-accesskey="quicktext.accesskey.resetCounter"></button>
           </fieldset>
         </div>
       </div>
@@ -90,12 +90,12 @@
           <fieldset class="flex-fieldset">
             <legend id="lbl-template-title" data-i18n-content="quicktext.title.label"></legend>
             <div class="btn-row">
-              <button id="btn-add-group" data-i18n-content="quicktext.addGroup.label"></button>
-              <button id="btn-add-template" disabled data-i18n-content="quicktext.addTemplate.label"></button>
+              <button id="btn-add-group" data-i18n-content="quicktext.addGroup.label" data-i18n-accesskey="quicktext.accesskey.addGroup"></button>
+              <button id="btn-add-template" disabled data-i18n-content="quicktext.addTemplate.label" data-i18n-accesskey="quicktext.accesskey.addTemplate"></button>
             </div>
             <div id="template-tree" class="tree"></div>
             <div class="btn-row">
-              <button id="btn-remove-template" disabled data-i18n-content="quicktext.remove.label"></button>
+              <button id="btn-remove-template" disabled data-i18n-content="quicktext.remove.label" data-i18n-accesskey="quicktext.accesskey.remove"></button>
             </div>
           </fieldset>
         </div>
@@ -171,13 +171,13 @@
           <fieldset class="flex-fieldset">
             <legend id="lbl-script-title" data-i18n-content="quicktext.title.label"></legend>
             <div class="btn-row">
-              <button id="btn-add-script" data-i18n-content="quicktext.addScript.label"></button>
-              <button id="btn-community-scripts" data-i18n-content="quicktext.getScript.label"></button>
+              <button id="btn-add-script" data-i18n-content="quicktext.addScript.label" data-i18n-accesskey="quicktext.accesskey.addScript"></button>
+              <button id="btn-community-scripts" data-i18n-content="quicktext.getScript.label" data-i18n-accesskey="quicktext.accesskey.communityScripts"></button>
               <button id="btn-script-docs" data-i18n-content="quicktext.scriptDocs.label"></button>
             </div>
             <ul id="script-list" class="source-list flex-list"></ul>
             <div class="btn-row">
-              <button id="btn-remove-script" disabled data-i18n-content="quicktext.remove.label"></button>
+              <button id="btn-remove-script" disabled data-i18n-content="quicktext.remove.label" data-i18n-accesskey="quicktext.accesskey.remove"></button>
             </div>
           </fieldset>
         </div>
@@ -207,20 +207,21 @@
         <ul id="storage-list" class="source-list"></ul>
         <div class="btn-row" style="margin-top:4px">
           <button id="btn-add-storage-folder" data-i18n-content="quicktext.buttons.addFolder.label"></button>
-          <button id="btn-remove-storage" disabled data-i18n-content="quicktext.remove.label"></button>
+          <button id="btn-remove-storage" disabled data-i18n-content="quicktext.remove.label" data-i18n-accesskey="quicktext.accesskey.remove"></button>
           <div style="flex:1"></div>
           <button id="btn-select-storage" disabled data-i18n-content="quicktext.buttons.selectStorage.label"></button>
         </div>
       </fieldset>
+      <p style="margin:12px 4px 0;font-size:0.9em;color:#666" data-i18n-content="quicktext.advanced.description"></p>
     </div>
 
     <!-- Bottom bar -->
     <div id="bottom-bar">
       <div style="flex:1"></div>
       <button id="btn-script-help" hidden data-i18n-content="quicktext.scripthelp.label"></button>
-      <button id="btn-help" data-i18n-content="quicktext.help.label"></button>
-      <button id="btn-save" disabled data-i18n-content="quicktext.save.label"></button>
-      <button id="btn-close" data-i18n-content="quicktext.close.label"></button>
+      <button id="btn-help" data-i18n-content="quicktext.help.label" data-i18n-accesskey="quicktext.accesskey.help"></button>
+      <button id="btn-save" disabled data-i18n-content="quicktext.save.label" data-i18n-accesskey="quicktext.accesskey.save"></button>
+      <button id="btn-close" data-i18n-content="quicktext.close.label" data-i18n-accesskey="quicktext.accesskey.close"></button>
     </div>
 
   </div>

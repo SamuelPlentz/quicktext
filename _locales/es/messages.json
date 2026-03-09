@@ -1,15 +1,15 @@
 {
+    "quicktext.options.intro": {
+        "message": "Todos los ajustes de Quicktext pueden controlarse y configurarse en el Gestor de Quicktext, junto con sus plantillas y scripts."
+    },
     "deprecated_attachment_field": {
         "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
-    },
-    "altKey": {
-        "message": "Alt"
     },
     "attachmentFile": {
         "message": "Elegir archivo para añadir a los adjuntos"
     },
-    "controlKey": {
-        "message": "Ctrl"
+    "controlled-via-managed-storage": {
+        "message": "Controlado mediante almacenamiento gestionado"
     },
     "date": {
         "message": "Fecha ($P1$)",
@@ -19,20 +19,11 @@
             }
         }
     },
-    "exportFile": {
-        "message": "Elegir archivo para exportar a (UTF-8)"
-    },
     "extensionDescription": {
         "message": "Agrega una barra de herramientas con un número ilimitado de texto para insertar rápidamente. También es posible usar variables como [[TO=firstname]]. Con ajustes para todo."
     },
-    "fileNotUTF8": {
-        "message": "El archivo seleccionado paraece no estar codificado en UTF-8 y no se ha cargado correctamente. Por favor, selecciona nuevo archivo."
-    },
     "group": {
         "message": "Grupo"
-    },
-    "importFile": {
-        "message": "Elegir archivo a importar (UTF-8)"
     },
     "inputText": {
         "message": "Introducir el valor de $P1$",
@@ -42,17 +33,11 @@
             }
         }
     },
-    "inputTitle": {
-        "message": "Valor variable"
-    },
     "insertFile": {
         "message": "Elegir archivo a insertar (UTF-8)"
     },
     "insertImage": {
         "message": "Elegir archivo de imagen a insertar"
-    },
-    "metaKey": {
-        "message": "Meta"
     },
     "newGroup": {
         "message": "Nuevo grupo"
@@ -87,20 +72,11 @@
     "quicktext.accesskey.communityScripts": {
         "message": "s"
     },
-    "quicktext.accesskey.export": {
-        "message": "o"
-    },
-    "quicktext.accesskey.file": {
-        "message": "a"
-    },
     "quicktext.accesskey.general": {
         "message": "g"
     },
     "quicktext.accesskey.help": {
         "message": "y"
-    },
-    "quicktext.accesskey.import": {
-        "message": "r"
     },
     "quicktext.accesskey.remove": {
         "message": "v"
@@ -114,22 +90,19 @@
     "quicktext.accesskey.scripts": {
         "message": "s"
     },
-    "quicktext.accesskey.settings": {
-        "message": "n"
-    },
     "quicktext.accesskey.templates": {
         "message": "t"
     },
-    "quicktext.accesskeyScripts.export": {
+    "quicktext.accesskey.exportScripts": {
         "message": "x"
     },
-    "quicktext.accesskeyScripts.import": {
+    "quicktext.accesskey.importScripts": {
         "message": "m"
     },
-    "quicktext.accesskeyTemplate.export": {
+    "quicktext.accesskey.exportTemplates": {
         "message": "e"
     },
-    "quicktext.accesskeyTemplate.import": {
+    "quicktext.accesskey.importTemplates": {
         "message": "i"
     },
     "quicktext.buttons.selectStorage.label": {
@@ -234,9 +207,6 @@
     "quicktext.faxnumber.label": {
         "message": "Número de fax"
     },
-    "quicktext.file.label": {
-        "message": "Archivo"
-    },
     "quicktext.filename.label": {
         "message": "Nombre del fichero"
     },
@@ -258,8 +228,8 @@
     "quicktext.getScript.label": {
         "message": "Community Scripts"
     },
-    "quicktext.group.label": {
-        "message": "Grupo"
+    "quicktext.scriptDocs.label": {
+        "message": "Cómo crear scripts"
     },
     "quicktext.header.label": {
         "message": "Cabecera (A, Cc, Bcc)"
@@ -269,9 +239,6 @@
     },
     "quicktext.scripthelp.label": {
         "message": "¿Guión incompatible"
-    },
-    "quicktext.homenumber.label": {
-        "message": "Número de casa"
     },
     "quicktext.image.label": {
         "message": "Embedded HTML image"
@@ -364,7 +331,7 @@
         "message": "Opciones"
     },
     "quicktext.settings.title": {
-        "message": "Opciones de Quicktext"
+        "message": "Gestor de Quicktext"
     },
     "quicktext.sharingScripts.label": {
         "message": "Compartiendo scripts"
@@ -378,9 +345,6 @@
     "quicktext.shortcutTypeAdv.label": {
         "message": "Usar el modo avanzado para los accesos directos"
     },
-    "quicktext.shortname.label": {
-        "message": "Quicktext"
-    },
     "quicktext.spaceKey.label": {
         "message": "Espacio"
     },
@@ -389,9 +353,6 @@
     },
     "quicktext.tabKey.label": {
         "message": "Tab"
-    },
-    "quicktext.template.label": {
-        "message": "Plantilla"
     },
     "quicktext.templates.label": {
         "message": "Plantillas"
@@ -425,17 +386,8 @@
             }
         }
     },
-    "saveMessage": {
-        "message": "Tus cambios no se han guardado. ¿Quieres guardar los cambios?"
-    },
-    "saveMessageTitle": {
-        "message": "Guardar opciones"
-    },
     "scriptError": {
         "message": "Existe un error en tu script Quicktext:"
-    },
-    "scriptLine": {
-        "message": "Linea"
     },
     "scriptNotFound": {
         "message": "¡Script de Quicktext “$P1$” no encontrado!",
@@ -455,5 +407,11 @@
                 "content": "$1"
             }
         }
+    },
+    "quicktext.prompt.addUrl.label": {
+        "message": "Introducir URL:"
+    },
+    "quicktext.advanced.description": {
+        "message": "Almacenar plantillas y scripts directamente en el disco mediante acceso al sistema de archivos no es una solución de futuro y eventualmente será eliminado de Quicktext. Puede que siga estando disponible a través del complemento Quicktext Legacy Companion, pero no tendrá soporte oficial y solo funcionará en Thunderbird ESR, nunca en Thunderbird Release."
     }
 }

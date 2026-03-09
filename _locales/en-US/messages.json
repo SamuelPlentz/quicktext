@@ -2,20 +2,11 @@
     "quicktext.options.intro": {
         "message": "All Quicktext settings can be controlled and configured in the Quicktext Manager, alongside your templates and scripts."
     },
-    "quicktext.options.openManager": {
-        "message": "Quicktext Manager"
-    },
     "deprecated_attachment_field": {
         "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
     },
-    "altKey": {
-        "message": "Alt"
-    },
     "attachmentFile": {
         "message": "Choose file to add to attachments"
-    },
-    "controlKey": {
-        "message": "Ctrl"
     },
     "controlled-via-managed-storage": {
         "message": "Controlled via managed storage"
@@ -28,20 +19,11 @@
             }
         }
     },
-    "exportFile": {
-        "message": "Choose file to export to (UTF-8)"
-    },
     "extensionDescription": {
         "message": "Adds a toolbar with unlimited number of text to quickly insert. It is also possible to use variables like [[TO=firstname]]. With settings for everything."
     },
-    "fileNotUTF8": {
-        "message": "The selected file does not seem to be UTF-8 encoded and will not loaded correctly. Please select a different file."
-    },
     "group": {
         "message": "Group"
-    },
-    "importFile": {
-        "message": "Choose file to import (UTF-8)"
     },
     "inputText": {
         "message": "Input the value of $P1$",
@@ -51,17 +33,11 @@
             }
         }
     },
-    "inputTitle": {
-        "message": "Variable value"
-    },
     "insertFile": {
         "message": "Choose file to insert (UTF-8)"
     },
     "insertImage": {
         "message": "Choose image file to insert"
-    },
-    "metaKey": {
-        "message": "Meta"
     },
     "newGroup": {
         "message": "New group"
@@ -96,20 +72,11 @@
     "quicktext.accesskey.communityScripts": {
         "message": "s"
     },
-    "quicktext.accesskey.export": {
-        "message": "o"
-    },
-    "quicktext.accesskey.file": {
-        "message": "f"
-    },
     "quicktext.accesskey.general": {
         "message": "g"
     },
     "quicktext.accesskey.help": {
         "message": "p"
-    },
-    "quicktext.accesskey.import": {
-        "message": "r"
     },
     "quicktext.accesskey.remove": {
         "message": "v"
@@ -123,22 +90,19 @@
     "quicktext.accesskey.scripts": {
         "message": "s"
     },
-    "quicktext.accesskey.settings": {
-        "message": "n"
-    },
     "quicktext.accesskey.templates": {
         "message": "t"
     },
-    "quicktext.accesskeyScripts.export": {
+    "quicktext.accesskey.exportScripts": {
         "message": "x"
     },
-    "quicktext.accesskeyScripts.import": {
+    "quicktext.accesskey.importScripts": {
         "message": "m"
     },
-    "quicktext.accesskeyTemplate.export": {
+    "quicktext.accesskey.exportTemplates": {
         "message": "e"
     },
-    "quicktext.accesskeyTemplate.import": {
+    "quicktext.accesskey.importTemplates": {
         "message": "i"
     },
     "quicktext.buttons.selectStorage.label": {
@@ -243,9 +207,6 @@
     "quicktext.faxnumber.label": {
         "message": "Faxnumber"
     },
-    "quicktext.file.label": {
-        "message": "File"
-    },
     "quicktext.filename.label": {
         "message": "Filename"
     },
@@ -270,9 +231,6 @@
     "quicktext.scriptDocs.label": {
         "message": "How to create scripts"
     },
-    "quicktext.group.label": {
-        "message": "Group"
-    },
     "quicktext.header.label": {
         "message": "Add header (To, Cc, Bcc)"
     },
@@ -281,9 +239,6 @@
     },
     "quicktext.scripthelp.label": {
         "message": "Incompatible script"
-    },
-    "quicktext.homenumber.label": {
-        "message": "Homenumber"
     },
     "quicktext.image.label": {
         "message": "Embedded HTML image"
@@ -390,9 +345,6 @@
     "quicktext.shortcutTypeAdv.label": {
         "message": "Use advanced mode for shortcuts"
     },
-    "quicktext.shortname.label": {
-        "message": "Quicktext"
-    },
     "quicktext.spaceKey.label": {
         "message": "Space"
     },
@@ -401,9 +353,6 @@
     },
     "quicktext.tabKey.label": {
         "message": "Tab"
-    },
-    "quicktext.template.label": {
-        "message": "Template"
     },
     "quicktext.templates.label": {
         "message": "Templates"
@@ -437,17 +386,8 @@
             }
         }
     },
-    "saveMessage": {
-        "message": "Your changes has not been saved. Do you want to save them?"
-    },
-    "saveMessageTitle": {
-        "message": "Save settings"
-    },
     "scriptError": {
         "message": "There was an error in your Quicktext script:"
-    },
-    "scriptLine": {
-        "message": "Line"
     },
     "scriptNotFound": {
         "message": "Quicktext script “$P1$” not found!",
@@ -467,5 +407,11 @@
                 "content": "$1"
             }
         }
+    },
+    "quicktext.prompt.addUrl.label": {
+        "message": "Enter URL:"
+    },
+    "quicktext.advanced.description": {
+        "message": "Storing templates and scripts directly on disk via file system access is not future-proof and will eventually be removed from Quicktext. It may remain available through the Quicktext Legacy Companion Add-on, but that will not be officially supported and will only work on Thunderbird ESR, never on Thunderbird Release."
     }
 }

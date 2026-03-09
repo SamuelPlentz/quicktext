@@ -1,15 +1,15 @@
 {
+    "quicktext.options.intro": {
+        "message": "すべてのQuicktextの設定は、テンプレートやスクリプトとともに、Quicktextマネージャーで制御・設定できます。"
+    },
     "deprecated_attachment_field": {
         "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
-    },
-    "altKey": {
-        "message": "Alt"
     },
     "attachmentFile": {
         "message": "添付するファイルを選択してください"
     },
-    "controlKey": {
-        "message": "Ctrl"
+    "controlled-via-managed-storage": {
+        "message": "管理ストレージ経由で制御"
     },
     "date": {
         "message": "日付 ($P1$)",
@@ -19,20 +19,11 @@
             }
         }
     },
-    "exportFile": {
-        "message": "ファイルのエクスポート先を選択 (UTF-8)"
-    },
     "extensionDescription": {
         "message": "定型文を素早く挿入できるツールバーをメール編集画面に追加します。[[TO=firstname]]のような変数も使用できます。"
     },
-    "fileNotUTF8": {
-        "message": "選択されたファイルはUTF-8でないため正しく読み込まれません。別のファイルを選択してください。"
-    },
     "group": {
         "message": "グループ"
-    },
-    "importFile": {
-        "message": "インポートするファイルの選択 (UTF-8)"
     },
     "inputText": {
         "message": "$P1$ の値を入力してください",
@@ -42,17 +33,11 @@
             }
         }
     },
-    "inputTitle": {
-        "message": "タグの値"
-    },
     "insertFile": {
         "message": "挿入するファイルの選択 (UTF-8)"
     },
     "insertImage": {
         "message": "挿入する画像を選択"
-    },
-    "metaKey": {
-        "message": "Meta"
     },
     "newGroup": {
         "message": "新しいグループ"
@@ -87,20 +72,11 @@
     "quicktext.accesskey.communityScripts": {
         "message": "c"
     },
-    "quicktext.accesskey.export": {
-        "message": "e"
-    },
-    "quicktext.accesskey.file": {
-        "message": "f"
-    },
     "quicktext.accesskey.general": {
         "message": "g"
     },
     "quicktext.accesskey.help": {
         "message": "p"
-    },
-    "quicktext.accesskey.import": {
-        "message": "i"
     },
     "quicktext.accesskey.remove": {
         "message": "d"
@@ -114,22 +90,19 @@
     "quicktext.accesskey.scripts": {
         "message": "s"
     },
-    "quicktext.accesskey.settings": {
-        "message": "n"
-    },
     "quicktext.accesskey.templates": {
         "message": "t"
     },
-    "quicktext.accesskeyScripts.export": {
+    "quicktext.accesskey.exportScripts": {
         "message": "x"
     },
-    "quicktext.accesskeyScripts.import": {
+    "quicktext.accesskey.importScripts": {
         "message": "m"
     },
-    "quicktext.accesskeyTemplate.export": {
+    "quicktext.accesskey.exportTemplates": {
         "message": "e"
     },
-    "quicktext.accesskeyTemplate.import": {
+    "quicktext.accesskey.importTemplates": {
         "message": "i"
     },
     "quicktext.buttons.selectStorage.label": {
@@ -234,9 +207,6 @@
     "quicktext.faxnumber.label": {
         "message": "FAX 番号"
     },
-    "quicktext.file.label": {
-        "message": "ファイル"
-    },
     "quicktext.filename.label": {
         "message": "ファイルの名前"
     },
@@ -258,8 +228,8 @@
     "quicktext.getScript.label": {
         "message": "コミュニティスクリプト"
     },
-    "quicktext.group.label": {
-        "message": "グループ"
+    "quicktext.scriptDocs.label": {
+        "message": "スクリプトの作成方法"
     },
     "quicktext.header.label": {
         "message": "ヘッダー (To, Cc, Bcc)"
@@ -269,9 +239,6 @@
     },
     "quicktext.scripthelp.label": {
         "message": "互換性のないスクリプトですか"
-    },
-    "quicktext.homenumber.label": {
-        "message": "自宅の電話番号"
     },
     "quicktext.image.label": {
         "message": "埋め込みHTML画像"
@@ -364,7 +331,7 @@
         "message": "設定"
     },
     "quicktext.settings.title": {
-        "message": "Quicktext の設定"
+        "message": "Quicktext マネージャー"
     },
     "quicktext.sharingScripts.label": {
         "message": "共有スクリプト"
@@ -378,9 +345,6 @@
     "quicktext.shortcutTypeAdv.label": {
         "message": "アドバンスモードでショートカットを使用"
     },
-    "quicktext.shortname.label": {
-        "message": "Quicktext"
-    },
     "quicktext.spaceKey.label": {
         "message": "Space"
     },
@@ -389,9 +353,6 @@
     },
     "quicktext.tabKey.label": {
         "message": "Tab"
-    },
-    "quicktext.template.label": {
-        "message": "テンプレート"
     },
     "quicktext.templates.label": {
         "message": "テンプレート"
@@ -425,17 +386,8 @@
             }
         }
     },
-    "saveMessage": {
-        "message": "設定が変更されています。保存して終了しますか?"
-    },
-    "saveMessageTitle": {
-        "message": "設定の保存"
-    },
     "scriptError": {
         "message": "Quicktextスクリプトにエラーがあります:"
-    },
-    "scriptLine": {
-        "message": "行"
     },
     "scriptNotFound": {
         "message": "Quicktextスクリプト 「$P1$」 が見つかりません!",
@@ -455,5 +407,11 @@
                 "content": "$1"
             }
         }
+    },
+    "quicktext.prompt.addUrl.label": {
+        "message": "URLを入力:"
+    },
+    "quicktext.advanced.description": {
+        "message": "テンプレートとスクリプトをファイルシステムアクセスで直接ディスクに保存する方法は将来的に維持されず、最終的にはQuicktext から削除される予定です。Quicktext Legacy Companion アドオンを通じて引き続き利用できる可能性がありますが、公式サポートは行われず、Thunderbird ESR のみで動作します（Thunderbird Release では動作しません）。"
     }
 }

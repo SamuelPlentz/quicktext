@@ -1,15 +1,15 @@
 {
+    "quicktext.options.intro": {
+        "message": "Az összes Quicktext-beállítás a Quicktext-kezelőben vezérelhető és konfigurálható, a sablonok és szkriptek mellett."
+    },
     "deprecated_attachment_field": {
         "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
-    },
-    "altKey": {
-        "message": "Alt"
     },
     "attachmentFile": {
         "message": "Fájl kiválasztása mellékletek hozzáadása"
     },
-    "controlKey": {
-        "message": "Ctrl"
+    "controlled-via-managed-storage": {
+        "message": "Felügyelt tárhelyen keresztül vezérelve"
     },
     "date": {
         "message": "Dátum ($P1$)",
@@ -19,23 +19,11 @@
             }
         }
     },
-    "exportFile": {
-        "message": "Fájl kiválasztás exportálása (UTF-8)"
-    },
     "extensionDescription": {
         "message": "Eszköztár, parancsfájlok és sablonok korlátlan lehetoségekkel, beleértve a [[TO=firstname]] változókat, a gyors szövegbeillesztéshez"
     },
-    "extensionName": {
-        "message": "Gyorsszöveg"
-    },
-    "fileNotUTF8": {
-        "message": "Nem töltődik be a fájl megfelelően, mert úgy tűnik, hogy a kijelölt fájl nem UTF-8 kódolású. Jelöljön ki egy másik fájlt."
-    },
     "group": {
         "message": "Csoport"
-    },
-    "importFile": {
-        "message": "Fájl kiválasztás importálása (UTF-8)"
     },
     "inputText": {
         "message": "A(z) $P1$ érték bevitele",
@@ -45,17 +33,11 @@
             }
         }
     },
-    "inputTitle": {
-        "message": "Változó érték"
-    },
     "insertFile": {
         "message": "Fájl kiválasztás beszúrása (UTF-8)"
     },
     "insertImage": {
         "message": "Beillesztendő képfájl kiválasztása"
-    },
-    "metaKey": {
-        "message": "Meta"
     },
     "newGroup": {
         "message": "Új csoport"
@@ -90,20 +72,11 @@
     "quicktext.accesskey.communityScripts": {
         "message": "s"
     },
-    "quicktext.accesskey.export": {
-        "message": "t"
-    },
-    "quicktext.accesskey.file": {
-        "message": "f"
-    },
     "quicktext.accesskey.general": {
         "message": "n"
     },
     "quicktext.accesskey.help": {
         "message": "g"
-    },
-    "quicktext.accesskey.import": {
-        "message": "r"
     },
     "quicktext.accesskey.remove": {
         "message": "v"
@@ -117,22 +90,19 @@
     "quicktext.accesskey.scripts": {
         "message": "p"
     },
-    "quicktext.accesskey.settings": {
-        "message": "b"
-    },
     "quicktext.accesskey.templates": {
         "message": "o"
     },
-    "quicktext.accesskeyScripts.export": {
+    "quicktext.accesskey.exportScripts": {
         "message": "x"
     },
-    "quicktext.accesskeyScripts.import": {
+    "quicktext.accesskey.importScripts": {
         "message": "m"
     },
-    "quicktext.accesskeyTemplate.export": {
+    "quicktext.accesskey.exportTemplates": {
         "message": "e"
     },
-    "quicktext.accesskeyTemplate.import": {
+    "quicktext.accesskey.importTemplates": {
         "message": "i"
     },
     "quicktext.buttons.selectStorage.label": {
@@ -237,9 +207,6 @@
     "quicktext.faxnumber.label": {
         "message": "Fax szám"
     },
-    "quicktext.file.label": {
-        "message": "Fájl"
-    },
     "quicktext.filename.label": {
         "message": "Fájlnév"
     },
@@ -261,8 +228,8 @@
     "quicktext.getScript.label": {
         "message": "Közösségi parancsfájlok"
     },
-    "quicktext.group.label": {
-        "message": "Csoport"
+    "quicktext.scriptDocs.label": {
+        "message": "Hogyan hozzon létre szkripteket"
     },
     "quicktext.header.label": {
         "message": "Fejléc (Címzett [To], Másolat [Cc], Rejtett másolat [Bcc])"
@@ -272,9 +239,6 @@
     },
     "quicktext.scripthelp.label": {
         "message": "Nem kompatibilis szkript"
-    },
-    "quicktext.homenumber.label": {
-        "message": "Otthoni szám"
     },
     "quicktext.image.label": {
         "message": "Beágyazott HTML-kép"
@@ -367,7 +331,7 @@
         "message": "Beállítások"
     },
     "quicktext.settings.title": {
-        "message": "Gyorsszöveg beállításai"
+        "message": "Quicktext-kezelő"
     },
     "quicktext.sharingScripts.label": {
         "message": "Parancsfájlok megosztása"
@@ -381,9 +345,6 @@
     "quicktext.shortcutTypeAdv.label": {
         "message": "Használja a speciális módot a gyorsbillentyűkhöz"
     },
-    "quicktext.shortname.label": {
-        "message": "Gyorsszöveg"
-    },
     "quicktext.spaceKey.label": {
         "message": "Szóköz"
     },
@@ -392,9 +353,6 @@
     },
     "quicktext.tabKey.label": {
         "message": "Fül"
-    },
-    "quicktext.template.label": {
-        "message": "Sablon"
     },
     "quicktext.templates.label": {
         "message": "Sablonok"
@@ -428,17 +386,8 @@
             }
         }
     },
-    "saveMessage": {
-        "message": "A módosításokat nincs elmentve. Szeretné menteni azokat?"
-    },
-    "saveMessageTitle": {
-        "message": "Beállítások mentése"
-    },
     "scriptError": {
         "message": "Hiba történt a gyorsszöveg parancsfájlban:"
-    },
-    "scriptLine": {
-        "message": "Sor"
     },
     "scriptNotFound": {
         "message": "Gyorsszöveg „$P1$”-parancsfájl nem található!",
@@ -458,5 +407,11 @@
                 "content": "$1"
             }
         }
+    },
+    "quicktext.prompt.addUrl.label": {
+        "message": "URL megadása:"
+    },
+    "quicktext.advanced.description": {
+        "message": "A sablonok és szkriptek közvetlen lemezre mentése fájlrendszer-hozzáférésen keresztül nem jövőbiztos, és végül eltávolításra kerül a Quicktextből. Lehetséges, hogy elérhető marad a Quicktext Legacy Companion kiegészítőn keresztül, de az nem lesz hivatalosan támogatott, és csak Thunderbird ESR-en működik majd, Thunderbird Release-en soha."
     }
 }

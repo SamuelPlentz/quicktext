@@ -375,7 +375,9 @@ function renderTemplateDetail() {
 
   document.getElementById("detail-caption").textContent = i18n(isGroup ? "quicktext.group.label" : "quicktext.template.label");
   setTemplateFieldsVisible(!isGroup);
-  setTemplateFieldsEnabled(!prot);
+  setTemplateFieldsEnabled(!isGroup && !prot);
+  // When a group is selected, only the title field is relevant — enable it for renaming.
+  if (isGroup) document.getElementById("text-title").disabled = prot;
 
   if (isGroup) {
     document.getElementById("text-title").value = state.groups[gi].name;

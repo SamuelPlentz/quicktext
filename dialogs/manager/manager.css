@@ -97,7 +97,7 @@ html, body { height: 100%; font-family: system-ui, sans-serif; font-size: 13px; 
   padding: 6px;
 }
 
-/* Bottom bar */
+
 #bottom-bar {
   display: flex;
   align-items: center;
@@ -227,6 +227,7 @@ fieldset legend {
 .detail-table td { padding: 3px 4px; vertical-align: middle; }
 .detail-label { white-space: nowrap; width: 85px; font-weight: normal; color: var(--text-label); }
 .detail-table input[type=text], .detail-table select { width: 100%; }
+#sel-shortcut, #text-shortcut-adv { width: auto; }
 
 .var-row {
   display: flex;
@@ -236,9 +237,9 @@ fieldset legend {
 
 /* Templates & Scripts menu */
 #tmpl-menu-wrap { position: relative; display: inline-block; margin-right: 4px; }
-#btn-templates-scripts::after { content: " ▾"; }
+#btn-insert-tag::after { content: " ▾"; }
 
-#templates-scripts-menu {
+#insert-tag-menu {
   position: absolute;
   right: 0;
   top: 100%;
@@ -275,7 +276,7 @@ fieldset legend {
 
 .var-group-label {
   display: block;
-  padding: 4px 8px 4px 22px;
+  padding: 4px 22px 4px 8px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -283,7 +284,7 @@ fieldset legend {
   position: relative;
   cursor: default;
 }
-.var-group-label::after { content: "◀"; position: absolute; left: 6px; font-size: 10px; top: 50%; transform: translateY(-50%); }
+.var-group-label::after { content: "▶"; position: absolute; right: 6px; font-size: 10px; top: 50%; transform: translateY(-50%); }
 .var-group:hover > .var-group-label { background: var(--bg-hover); }
 
 .var-submenu {
@@ -298,7 +299,9 @@ fieldset legend {
   padding: 2px 0;
   max-height: 80vh;
   overflow-y: auto;
+  z-index: 200;
 }
+.var-submenu .var-submenu { z-index: 201; }
 .var-group:hover > .var-submenu { display: block; }
 
 .var-item {
@@ -347,7 +350,6 @@ fieldset legend {
   padding: 4px;
 }
 
-.shortcut-row { display: inline-flex; align-items: center; gap: 4px; margin-left: 12px; }
 #label-modifier { color: var(--text-muted); }
 
 /* Script list */

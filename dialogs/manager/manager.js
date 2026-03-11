@@ -991,7 +991,7 @@ async function init() {
 
   new storage.StorageListener(
     {
-      watchedPrefs: ["templates", "popup", "menuCollapse"],
+      watchedPrefs: ["templates", "scripts", "popup", "menuCollapse"],
       listener: async (_changes) => {
         buildInsertTagMenu();
       }

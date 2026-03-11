@@ -163,7 +163,6 @@ fieldset legend {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 200px;
 }
 .source-list li:last-child { border-bottom: none; }
 .source-list li:hover { background: var(--bg-hover); }

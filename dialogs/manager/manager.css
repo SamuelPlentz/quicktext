@@ -351,6 +351,27 @@ fieldset legend {
 
 #label-modifier { color: var(--text-muted); }
 
+#btn-save {
+  background: #2a7fd4;
+  color: #fff;
+  border-color: #1a6abf;
+}
+#btn-save:hover:not(:disabled) { background: #1a6abf; }
+
+#btn-close {
+  background: #c0392b;
+  color: #fff;
+  border-color: #a93226;
+}
+#btn-close:hover:not(:disabled) { background: #a93226; }
+
+@media (prefers-color-scheme: dark) {
+  #btn-save { background: #1a6abf; border-color: #2a7fd4; }
+  #btn-save:hover:not(:disabled) { background: #2a7fd4; }
+  #btn-close { background: #a93226; border-color: #c0392b; }
+  #btn-close:hover:not(:disabled) { background: #c0392b; }
+}
+
 /* Script list */
 .flex-list {
   flex: 1;

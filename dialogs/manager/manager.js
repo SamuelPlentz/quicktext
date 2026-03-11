@@ -992,7 +992,8 @@ async function init() {
   new storage.StorageListener(
     {
       watchedPrefs: ["templates", "scripts", "popup", "menuCollapse"],
-      listener: async (_changes) => {
+      listener: async (changes) => {
+        if ("templates" in changes) renderTree();
         buildInsertTagMenu();
       }
     }

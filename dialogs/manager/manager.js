@@ -1156,6 +1156,10 @@ async function init() {
     }
   });
 
+  // Pre-select first entries
+  if (state.groups.length > 0) state.selectedGroupIdx = 0;
+  if (state.scripts.length > 0) state.selectedScriptIdx = 0;
+
   // Initial render
   renderTree();
   renderTemplateDetail();

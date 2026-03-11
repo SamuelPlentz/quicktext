@@ -27,3 +27,11 @@ This file lists files that were not created by this project and are maintained u
 - **File** : `vendor/i18n.mjs`
 - **Upstream** : https://github.com/thunderbird/webext-support/blob/6bbbf8ac2105d04c1b59083e8bd52e0046448ec7/modules/i18n/i18n.mjs
 - **License** : MIT (derived from [webextensions-lib-l10n](https://github.com/piroor/webextensions-lib-l10n) by YUKI "Piro" Hiroshi)
+
+---
+
+## vfs-toolkit
+
+- **File** : `vendor/vfs-toolkit/*`
+- **Upstream** : https://github.com/thunderbird/webext-support/tree/34726b5193ac91b7c40c1ba1751e7cd07dd993e2/modules/vfs-toolkit
+- **License** : MLP 2.0

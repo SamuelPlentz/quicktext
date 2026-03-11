@@ -12,6 +12,7 @@ import * as compose from "../modules/compose.mjs";
 import * as menus from "../modules/menus.mjs";
 import * as manager from "../modules/manager.mjs";
 import * as escripts from "../modules/escripts.mjs";
+import * as vfs from "../vendor/vfs-toolkit/vfs-client/vfs-client.mjs";
 
 browser.runtime.onInstalled.addListener(details => {
   let manifest = browser.runtime.getManifest();
@@ -177,6 +178,9 @@ await compose.init();
 await toolbar.init();
 await manager.init();
 await escripts.init();
+await vfs.enableSupportExternalProviders({ 
+  configStorageKey: "vfs-toolkit-config-data"
+});
 
 // Update the date/time menus before showing them.
 messenger.menus.onShown.addListener(async (info) => {

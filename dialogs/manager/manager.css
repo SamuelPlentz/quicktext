@@ -207,12 +207,12 @@ fieldset legend {
 .tree-group-header.selected { background: var(--bg-selected); }
 .tree-group-header.drag-over { outline: 2px solid var(--accent); }
 .tree-toggle { font-size: 10px; flex-shrink: 0; }
-.tree-children { padding-left: 16px; }
+.tree-children { }
 .tree-template {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 6px;
+  padding: 4px 6px 4px 22px;
   cursor: pointer;
 }
 .tree-template:hover { background: var(--bg-hover); }

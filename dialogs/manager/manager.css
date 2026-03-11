@@ -356,6 +356,7 @@ fieldset legend {
   flex: 1;
   max-height: none;
   min-height: 80px;
+  margin-bottom: 4px;
 }
 
 /* Inputs */

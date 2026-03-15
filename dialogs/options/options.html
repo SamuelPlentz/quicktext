@@ -23,7 +23,6 @@
 
     .options-button {
       padding: 8px 18px;
-      margin: 1ex;
       background: #2a7fd4;
       color: #fff;
       border: none;
@@ -59,11 +58,10 @@
       }
     }
 
-    .vfs-section summary {
+    .vfs-heading {
+      font-size: 13px;
       font-weight: 600;
-      cursor: pointer;
-      user-select: none;
-      padding: 2px 0;
+      margin: 0 0 8px;
     }
 
     .vfs-section p {
@@ -77,9 +75,6 @@
       margin-top: 4px;
     }
 
-    .vfs-buttons .options-button {
-      margin: 0;
-    }
   </style>
 </head>
 
@@ -89,8 +84,8 @@
     <button class="options-button" id="open-settings" data-i18n-content="quicktext.settings.title"></button>
   </div>
 
-  <details class="vfs-section">
-    <summary>VFS Toolkit (Milestone 4 testing)</summary>
+  <div class="vfs-section">
+    <h3 class="vfs-heading">VFS Toolkit (Milestone 4 testing)</h3>
     <p>
       The following buttons open the file pickers of the <a
         href="https://github.com/thunderbird/webext-support/tree/master/modules/vfs-toolkit">VFS Toolkit</a> available
@@ -105,14 +100,16 @@
       NextCloud and other cloud services as storage backend for their files.
     </p>
     <p>
-      The only already available storage backend is the <a href="https://github.com/jobisoft/Local-Home-Folder-Access-Provider">Local Home Folder Access Provider</a>, allowing access to your local home directory via Native Messaging (not via Experiments!).
+      The only already available storage backend is the <a
+        href="https://github.com/jobisoft/Local-Home-Folder-Access-Provider">Local Home Folder Access Provider</a>,
+      allowing access to your local home directory via Native Messaging (not via Experiments!).
     </p>
     <div class="vfs-buttons">
       <button class="options-button" id="show-openFile-picker">Show OpenFile Picker</button>
       <button class="options-button" id="show-saveFile-picker">Show SaveFile Picker</button>
       <button class="options-button" id="show-directory-picker">Show Directory Picker</button>
     </div>
-  </details>
+  </div>
 </body>
 
 </html>

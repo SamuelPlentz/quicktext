@@ -32,6 +32,6 @@ This file lists files that were not created by this project and are maintained u
 
 ## vfs-toolkit
 
-- **File** : `vendor/vfs-toolkit/*`
-- **Upstream** : https://github.com/thunderbird/webext-support/tree/34726b5193ac91b7c40c1ba1751e7cd07dd993e2/modules/vfs-toolkit
-- **License** : MLP 2.0
+- **File** : `vendor/vfs-client/*`
+- **Upstream** : https://github.com/thunderbird/webext-support/tree/5173fa04301979cd6eeebcc3fe71ba5f26182c9e/modules/vfs-toolkit/vfs-client
+- **License** : MPL 2.0

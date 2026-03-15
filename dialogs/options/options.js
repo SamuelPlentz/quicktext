@@ -1,6 +1,6 @@
 import * as utils from "/modules/utils.mjs";
 import { localizeDocument } from "/vendor/i18n.mjs";
-import * as vfs from "/vendor/vfs-toolkit/vfs-client/vfs-client.mjs";
+import * as vfs from "/vendor/vfs-client/vfs-client.mjs";
 
 async function logEntries(entries) {
   console.log(entries);
@@ -33,7 +33,7 @@ const htmlContent = `
 // Create file with filename
 const savefile = new File(
   [htmlContent], // file content
-  "my-page.html", // filename
+  "test-page.html", // filename
   { type: "text/html" } // MIME type
 );
 
@@ -43,10 +43,10 @@ document.addEventListener("DOMContentLoaded", () => {
     utils.openSettingsDialog()
   );
   document.getElementById("show-openFile-picker").addEventListener("click", async () => {
-    const entries = await vfs.showOpenFilePicker({
+    const entries = await vfs.showSelectFilePicker({
       multiple: true,
       id: "Quicktext",
-      opfsStorageName: "Quicktext",
+      opfsStorageName: "Quicktext Storage",
       excludeAcceptAllOption: false,
       types: [
         {
@@ -61,8 +61,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("show-saveFile-picker").addEventListener("click", async () => {
     const result = await vfs.showSaveFilePicker({
       providerId: EXAMPLE_PROVIDER_ID,
-      opfsStorageName: "Quicktext",
-      suggestedName: "John.pdf"
+      opfsStorageName: "Quicktext Storage",
+      suggestedName: "test-page.html"
     });
     console.log({ result });
     if (result) {
@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const entry = await vfs.showDirectoryPicker({
       multiple: true,
       id: "Quicktext",
-      opfsStorageName: "Quicktext",
+      opfsStorageName: "Quicktext Storage",
       types: [
         {
           description: "Images",

@@ -1,0 +1,7 @@
+{
+  "name": "quicktext",
+  "version": "6.5.4",
+  "scripts": {
+    "build": "node build.js"
+  }
+}

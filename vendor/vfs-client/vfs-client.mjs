@@ -25,6 +25,50 @@ const _progressCallbacks = new Map();
 // Module-level storage-changed listeners (for same-page provider push notifications)
 const _storageChangedListeners = new Set();
 
+// ── Async queue ───────────────────────────────────────────────────────────────
+
+/**
+ * Serializes async read-modify-write operations on session storage, preventing
+ * race conditions when multiple concurrent callers update the provider list.
+ *
+ * Operations are executed one at a time in FIFO order. Each call to `push()`
+ * either runs immediately (if the queue is idle) or waits until all previously
+ * queued operations have completed.
+ */
+class StorageActivityQueue {
+  #queue = [];
+  #running = false;
+
+  /**
+   * Enqueues an async operation and returns a promise that resolves (or rejects)
+   * with the operation's result once it has been executed.
+   *
+   * @template T
+   * @param {() => Promise<T>} fn - The async operation to serialize.
+   * @returns {Promise<T>}
+   */
+  push(fn) {
+    return new Promise((resolve, reject) => {
+      this.#queue.push(async () => {
+        try { resolve(await fn()); }
+        catch (e) { reject(e); }
+      });
+      if (!this.#running) this.#drain();
+    });
+  }
+
+  /** @returns {Promise<void>} */
+  async #drain() {
+    this.#running = true;
+    while (this.#queue.length > 0) {
+      await this.#queue.shift()();
+    }
+    this.#running = false;
+  }
+}
+
+const _storageActivityQueue = new StorageActivityQueue();
+
 // Fire local listeners when background broadcasts a storage-changed notification.
 browser.runtime.onMessage.addListener(msg => {
   if (msg?.type === 'vfs-storage-changed' && _storageChangedListeners.size > 0) {
@@ -54,38 +98,46 @@ async function _saveProviderList(list) {
 }
 
 async function _updateProvider(providerId, name, connections = [], icon = null, hasConfig = false) {
-  const list = await _readProviderList();
-  const idx = list.findIndex(p => p.providerId === providerId);
-  if (idx >= 0) list[idx] = { providerId, name, connections, icon, hasConfig };
-  else list.push({ providerId, name, connections, icon, hasConfig });
-  await _saveProviderList(list);
-  browser.runtime.sendMessage({ type: 'vfs-provider-updated', providerId, name }).catch(() => { });
+  return _storageActivityQueue.push(async () => {
+    const list = await _readProviderList();
+    const idx = list.findIndex(p => p.providerId === providerId);
+    if (idx >= 0) list[idx] = { providerId, name, connections, icon, hasConfig };
+    else list.push({ providerId, name, connections, icon, hasConfig });
+    await _saveProviderList(list);
+    browser.runtime.sendMessage({ type: 'vfs-provider-updated', providerId, name }).catch(() => { });
+  });
 }
 
 async function _removeProvider(id) {
-  const list = await _readProviderList();
-  await _saveProviderList(list.filter(p => p.providerId !== id));
-  browser.runtime.sendMessage({ type: 'vfs-provider-removed', providerId: id }).catch(() => { });
+  return _storageActivityQueue.push(async () => {
+    const list = await _readProviderList();
+    await _saveProviderList(list.filter(p => p.providerId !== id));
+    browser.runtime.sendMessage({ type: 'vfs-provider-removed', providerId: id }).catch(() => { });
+  });
 }
 
 async function _removeConnection(providerId, storageId) {
-  const list = await _readProviderList();
-  const provider = list.find(p => p.providerId === providerId);
-  if (!provider) return;
-  provider.connections = provider.connections.filter(c => c.storageId !== storageId);
-  await _saveProviderList(list);
-  browser.runtime.sendMessage({ type: 'vfs-provider-updated', providerId, name: provider.name }).catch(() => { });
+  return _storageActivityQueue.push(async () => {
+    const list = await _readProviderList();
+    const provider = list.find(p => p.providerId === providerId);
+    if (!provider) return;
+    provider.connections = provider.connections.filter(c => c.storageId !== storageId);
+    await _saveProviderList(list);
+    browser.runtime.sendMessage({ type: 'vfs-provider-updated', providerId, name: provider.name }).catch(() => { });
+  });
 }
 
 async function _addConnection(providerId, storageId, name, capabilities) {
-  const list = await _readProviderList();
-  const provider = list.find(p => p.providerId === providerId);
-  if (!provider) return;
-  const idx = provider.connections.findIndex(c => c.storageId === storageId);
-  const conn = { storageId, name, capabilities };
-  if (idx >= 0) provider.connections[idx] = conn;
-  else provider.connections.push(conn);
-  await _saveProviderList(list);
+  return _storageActivityQueue.push(async () => {
+    const list = await _readProviderList();
+    const provider = list.find(p => p.providerId === providerId);
+    if (!provider) return;
+    const idx = provider.connections.findIndex(c => c.storageId === storageId);
+    const conn = { storageId, name, capabilities };
+    if (idx >= 0) provider.connections[idx] = conn;
+    else provider.connections.push(conn);
+    await _saveProviderList(list);
+  });
 }
 
 async function _probeExtension(id) {

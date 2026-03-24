@@ -57,29 +57,87 @@ Examples: `"/"`, `"/documents"`, `"/documents/notes.txt"`
 ### Functions
 
 
-#### `vfs.enableSupportExternalProviders(options)`
+#### `vfs.init(options?)`
 
-Enables external storage backend provider support for `vfs-toolkit`. Call **once from
-your background script**, if you want to support external storage backend providers.
+Initialises vfs-toolkit. Call **once from your background script** before using any
+other vfs-toolkit API.
 
-- Probes all currently enabled extensions for `vfs-toolkit` provider, needs the `management` permission.
-- Keeps the list in sync as extensions are installed, uninstalled, enabled, or disabled.
-- Persists results in the addons session storage and local storage, using the provided
-  configStorageKey, needs the `storage` permission.
-- Manages communications between providers and clients.
+Always sets up the storage-change relay so that `vfs.onStorageChanged` listeners work
+in all extension pages (including the picker). Pass `enableExternalProviders: true` to
+additionally enable support for external storage backend providers.
 
 **Options:**
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `configStorageKey` | string | The key which `vfs-toolkit` may use to store config data in the add-ons session storage and local storage |
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `enableExternalProviders` | `boolean` | `false` | Enable external provider support. Requires the `management` and `storage` permissions. |
+| `configStorageKey` | `string` | — | Storage key for persisting provider connection data. Required when `enableExternalProviders` is `true`. |
 
+**Example — OPFS only (background script):**
+
+```js
+import * as vfs from '/vendor/vfs-toolkit/vfs-client/vfs-client.mjs';
+vfs.init();
+```
+
+**Example — with external providers (background script):**
+
+```js
+import * as vfs from '/vendor/vfs-toolkit/vfs-client/vfs-client.mjs';
+vfs.init({ enableExternalProviders: true, configStorageKey: "vfs-toolkit-config-data" });
+```
+
+---
+
+#### `vfs.parseManifest(manifest)`
+
+Parses a partial manifest, used to register a toolbar action button that appears in every picker popup opened by the extension. Call **once from your background script**.
+
+**Note:** While the VFS Toolkit is still a vendored module, the parsed manifest only affects pickers opened by the local extension, not *all* pickers. This will change when the VFS Toolkit is merged into Thunderbird as an
+official API.
+
+Accepts an object with a `vfs_action` key, modelled on the standard WebExtension `message_display_action`. Supported fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `default_label` | `string` | Button label shown in the toolbar. Takes precedence over `default_title`. |
+| `default_title` | `string` | Fallback label / tooltip text when `default_label` is not set. |
+| `default_icon` | `string` | URL of the button icon. Use `browser.runtime.getURL(...)` to reference a bundled asset. When provided the icon is shown instead of the label text, with the label used as `alt`/`title`. |
+
+When the button is clicked in the picker, `vfs.action.onClicked` listeners are fired with the currently active [`StorageRef`](#storageref) (or `null` for OPFS).
 
 **Example (background script):**
 
 ```js
-import * as vfs from '/vendor/vfs-toolkit/vfs-client/vfs-client.mjs';
-vfs.enableSupportExternalProviders({configStorageKey: "vfs-toolkit-config-data"});
+vfs.parseManifest({
+  vfs_action: {
+    default_label: "Run Tests",
+    default_title: "Open the VFS test suite",
+    default_icon: browser.runtime.getURL("icons/run-tests.svg"),
+  }
+});
+```
+
+---
+
+#### `vfs.action.onClicked`
+
+Event fired when the action button registered via `parseManifest` is clicked in the picker toolbar. Follows the standard WebExtension event shape.
+
+| Method | Description |
+|--------|-------------|
+| `addListener(listener)` | Register a listener. `listener` receives the active [`StorageRef`](#storageref) (or `null` for OPFS). |
+| `hasListener(listener)` | Returns `true` if the listener is currently registered. |
+| `removeListener(listener)` | Unregisters the listener. |
+
+**Example:**
+
+```js
+vfs.action.onClicked.addListener((storageRef) => {
+  const url = '/test/test.html' +
+    (storageRef ? '?storageRef=' + encodeURIComponent(JSON.stringify(storageRef)) : '');
+  browser.tabs.create({ url });
+});
 ```
 
 ---
@@ -182,6 +240,8 @@ Fetch all known providers and their established connections. Each entry in the r
 |-------|------|-------------|
 | `providerId` | `string` | Extension ID of the provider |
 | `name` | `string` | Human-readable provider name |
+| `icon` | `Blob\|null` | Provider icon blob, or `null` if not available |
+| `hasConfig` | `boolean` | Whether the provider has a config page (opened via `vfs.openProviderConfig`) |
 | `connections` | `Array` | Established connections for this provider (see below) |
 
 **Connection entry** (within `connections`):
@@ -194,19 +254,28 @@ Fetch all known providers and their established connections. Each entry in the r
 
 ---
 
-#### `vfs.onStorageChanged(`[`OnStorageChange`](#onstoragechange)`)` → `() => void`
+#### `vfs.onStorageChanged`
 
-Subscribes to storage change notifications from any storage provider, including the built-in `OPFS` backend. Returns an unsubscribe function.
+Event fired when storage contents change. Follows the standard WebExtension event shape. Requires `vfs.init()` to have been called in the background script. Listeners receive an array of [`StorageChangeEntry`](#onstoragechange) objects.
+
+| Method | Description |
+|--------|-------------|
+| `addListener(listener)` | Register a listener |
+| `hasListener(listener)` | Returns `true` if the listener is currently registered |
+| `removeListener(listener)` | Unregisters the listener |
 
 ```js
-const unsubscribe = vfs.onStorageChanged(entries => {
-  for (const { path, storageRef } of entries) {
-    console.log('storage changed:', path, 'on provider:', storageRef?.providerId ?? 'OPFS');
+function onChanged(entries) {
+  for (const { kind, action, target, source } of entries) {
+    console.log(`${action} ${kind} ${target.path} on`, target.storageRef?.providerId ?? 'OPFS');
+    if (source) console.log('  from', source.path, 'on', source.storageRef?.providerId ?? 'OPFS');
   }
-});
-// To unsubscribe at a later point, just call:
-unsubscribe();
+}
+vfs.onStorageChanged.addListener(onChanged);
+// To unsubscribe:
+vfs.onStorageChanged.removeListener(onChanged);
 ```
+
 
 ---
 
@@ -282,14 +351,14 @@ await vfs.writeFile({ path: '/uploads/photo.png' }, imageBlob, { overwrite: fals
 
 ---
 
-#### `vfs.moveFile(from, toPath, options?)` → `Promise<void>`
+#### `vfs.moveFile(from, to, options?)` → `Promise<void>`
 
-Moves or renames a file.
+Moves or renames a file. Supports cross-provider moves.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `from` | [`Entry`](#entry) | Source file |
-| `toPath` | `string` | Target absolute path (same provider as `from`) |
+| `to` | [`Entry`](#entry) \| `string` | Destination file, or a plain path string (same provider as `from`) |
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
@@ -299,24 +368,44 @@ Moves or renames a file.
 **Example:**
 
 ```js
+// Plain path string (same provider as `from` — legacy form, still supported)
 await vfs.moveFile({ path: '/draft.txt' }, '/documents/final.txt');
+
+// Entry object — same provider
+await vfs.moveFile({ path: '/draft.txt' }, { path: '/documents/final.txt' });
+
+// Entry object — cross-provider move
+await vfs.moveFile(
+  { path: '/file.txt', storageRef: providerA },
+  { path: '/file.txt', storageRef: providerB },
+);
 ```
 
 ---
 
-#### `vfs.copyFile(from, toPath, options?)` → `Promise<void>`
+#### `vfs.copyFile(from, to, options?)` → `Promise<void>`
 
-Copies a file to an exact destination path.
+Copies a file. Supports cross-provider copies.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `from` | [`Entry`](#entry) | Source file |
-| `toPath` | `string` | Absolute destination path (same provider as `from`) |
+| `to` | [`Entry`](#entry) \| `string` | Destination file, or a plain path string (same provider as `from`) |
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `overwrite` | `boolean` | `false` | **Throws** if target file exists already and `overwrite` is `false` |
 | `onProgress` | [`OnProgress`](#onprogress) | - | Progress callback |
+
+**Example:**
+
+```js
+// Plain path string (legacy form, still supported)
+await vfs.copyFile({ path: '/documents/notes.txt' }, '/documents/notes-backup.txt');
+
+// Entry object
+await vfs.copyFile({ path: '/documents/notes.txt' }, { path: '/documents/notes-backup.txt' });
+```
 
 ---
 
@@ -350,7 +439,7 @@ Creates a folder and all intermediate folders. **Throws** an `E:EXIST` error if 
 
 | Option | Type | Description |
 |--------|------|-------------|
-| `onProgress` | [`OnProgress`](#onprogress) | Progress callback - fires once per path segment created |
+| `onProgress` | [`OnProgress`](#onprogress) | Progress callback — fires once per path segment created |
 
 **Example:**
 
@@ -360,14 +449,14 @@ await vfs.addFolder({ path: '/documents/archive/2024' });
 
 ---
 
-#### `vfs.moveFolder(from, toPath, options?)` → `Promise<void>`
+#### `vfs.moveFolder(from, to, options?)` → `Promise<void>`
 
-Moves or renames a folder. `toPath` is the exact new location.
+Moves or renames a folder. Supports cross-provider moves.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `from` | [`Entry`](#entry) | Source folder |
-| `toPath` | `string` | Target absolute path (same provider as `from`) |
+| `to` | [`Entry`](#entry) \| `string` | Destination folder, or a plain path string (same provider as `from`) |
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
@@ -377,26 +466,98 @@ Moves or renames a folder. `toPath` is the exact new location.
 **Example:**
 
 ```js
+// Plain path string (legacy form, still supported)
 await vfs.moveFolder({ path: '/drafts' }, '/documents/drafts');
+
+// Entry object — same provider
+await vfs.moveFolder({ path: '/drafts' }, { path: '/documents/drafts' });
+
+// Entry object — cross-provider move
+await vfs.moveFolder(
+  { path: '/archive', storageRef: providerA },
+  { path: '/archive', storageRef: providerB },
+);
 ```
 
-> **Note:** For `OPFS`, there is no native directory move. This copies the tree to the new location and then deletes the original. External providers may behave similar.
+> **Note:** For `OPFS` and cross-provider moves, there is no native directory move. The folder is copied to the new location and the original is deleted.
 
 ---
 
-#### `vfs.copyFolder(from, toPath, options?)` → `Promise<void>`
+#### `vfs.copyFolder(from, to, options?)` → `Promise<void>`
 
-Recursively copies a folder to an exact destination path.
+Recursively copies a folder. Supports cross-provider copies.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `from` | [`Entry`](#entry) | Source folder |
-| `toPath` | `string` | Absolute destination path (same provider as `from`) |
+| `to` | [`Entry`](#entry) \| `string` | Destination folder, or a plain path string (same provider as `from`) |
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `merge` | `boolean` | `false` |  **Throws** if target folder already exists and `merge` is `false` |
+| `merge` | `boolean` | `false` | **Throws** if target folder already exists and `merge` is `false` |
 | `onProgress` | [`OnProgress`](#onprogress) | - | Progress callback |
+
+**Example:**
+
+```js
+// Plain path string (legacy form, still supported)
+await vfs.copyFolder({ path: '/documents' }, '/documents-backup');
+
+// Entry object
+await vfs.copyFolder({ path: '/documents' }, { path: '/documents-backup' });
+```
+
+---
+
+#### `vfs.copyFolderWithProgress(from, to, options?)` → `Promise<void>`
+
+Recursively copies a folder by processing each entry (file or sub-folder) **one at a time**. Unlike `copyFolder`, this reports progress after every single entry, enabling an accurate 0→100% progress bar. A separate `onCollect` callback is fired after each directory listing during the initial collection phase, allowing callers to display a growing counter while the tree is scanned. Fires a **single** `onStorageChanged` event when the whole operation is complete. Supports cross-provider copies.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `from` | [`Entry`](#entry) | Source folder |
+| `to` | [`Entry`](#entry) | Destination folder (may be on a different provider) |
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `merge` | `boolean` | `false` | **Throws** if a destination file already exists and `merge` is `false` |
+| `onProgress` | `({ percent: number, currentFile: number, totalFiles: number }) => void` | - | Called after each entry; `percent` is size-weighted (falls back to entry count when sizes are unknown) |
+| `onCollect` | `(total: number) => void` | - | Called after each `list()` batch during collection; `total` grows as more directories are scanned |
+
+**Example:**
+
+```js
+await vfs.copyFolderWithProgress({ path: '/documents' }, { path: '/documents-backup' }, {
+  onCollect: total => console.log(`scanning… ${total} entries found`),
+  onProgress: ({ percent, currentFile, totalFiles }) => console.log(`${percent}% (${currentFile}/${totalFiles})`),
+});
+```
+
+---
+
+#### `vfs.moveFolderWithProgress(from, to, options?)` → `Promise<void>`
+
+Recursively moves a folder by processing each entry (file or sub-folder) **one at a time**. Unlike `moveFolder`, this reports progress after every single entry, enabling an accurate 0→100% progress bar. A separate `onCollect` callback is fired after each directory listing during the initial collection phase. Fires a **single** `onStorageChanged` event when the whole operation is complete. Supports cross-provider moves.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `from` | [`Entry`](#entry) | Source folder |
+| `to` | [`Entry`](#entry) | Destination folder (may be on a different provider) |
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `merge` | `boolean` | `false` | **Throws** if a destination file already exists and `merge` is `false` |
+| `onProgress` | `({ percent: number, currentFile: number, totalFiles: number }) => void` | - | Called after each entry; `percent` is size-weighted (falls back to entry count when sizes are unknown) |
+| `onCollect` | `(total: number) => void` | - | Called after each `list()` batch during collection; `total` grows as more directories are scanned |
+
+**Example:**
+
+```js
+await vfs.moveFolderWithProgress({ path: '/downloads/project' }, { path: '/documents/project' }, {
+  onCollect: total => console.log(`scanning… ${total} entries found`),
+  onProgress: ({ percent, currentFile, totalFiles }) => console.log(`${percent}% (${currentFile}/${totalFiles})`),
+});
+```
 
 ---
 
@@ -515,16 +676,20 @@ Callback passed via `options.onProgress` on operations that transfer or copy dat
 
 #### `OnStorageChange`
 
-Callback passed via `vfs.onStorageChanged`. Receives an array of affected entries.
+Callback passed via `vfs.onStorageChanged`. Receives an array of change entries.
 
 ```js
-(entries: Array<{ path: string, storageRef: StorageRef }>) => void
+(entries: Array<StorageChangeEntry>) => void
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `path` | `string` | Absolute path of the modified file or folder |
-| `storageRef` | [`StorageRef`](#storageref) | `null` for the built-in OPFS backend; otherwise identifies the provider and storage slot |
+Each `StorageChangeEntry` has the following fields:
+
+| Field | Type | Present | Description |
+|-------|------|---------|-------------|
+| `kind` | `'file'\|'directory'` | always | Item type |
+| `action` | `'created'\|'modified'\|'deleted'\|'moved'\|'copied'` | always | What happened |
+| `target` | `{ path, storageRef }` | always | Destination location (or the only location for non-move/copy actions) |
+| `source` | `{ path, storageRef }` | `moved`, `copied` | Original location before the operation |
 
 ---
 
@@ -536,7 +701,7 @@ The universal type to describe an entry in the virtual file system.
 |-------|------|-------------|
 | `path` | `string` | Absolute path, e.g. `"/documents/notes.txt"` |
 | `storageRef` | [`StorageRef`](#storageref) | `null` for the built-in OPFS backend; otherwise identifies the provider and storage slot |
-| `name` | `string` | File or folder name without path |
-| `kind` | `'file'\|'directory'` | Item type |
-| `size` | `number` | File size in bytes |
-| `lastModified` | `number` | Last-modified timestamp in ms since epoch |
+| `name` | `string` | File or folder name without path. Present in `list()` results; not required as input. |
+| `kind` | `'file'\|'directory'` | Item type. Present in `list()` results; not required as input. |
+| `size` | `number` | File size in bytes. Present in `list()` results for files only. |
+| `lastModified` | `number` | Last-modified timestamp in ms since epoch. Present in `list()` results for files only. |

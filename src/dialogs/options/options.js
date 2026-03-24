@@ -39,6 +39,13 @@ const savefile = new File(
 
 document.addEventListener("DOMContentLoaded", () => {
   localizeDocument();
+  document.addEventListener("click", (e) => {
+    const link = e.target.closest("a[href]");
+    if (link?.href.startsWith("https://addons.thunderbird.net/")) {
+      e.preventDefault();
+      messenger.tabs.create({ url: link.href });
+    }
+  });
   document.getElementById("open-settings").addEventListener("click", () =>
     utils.openSettingsDialog()
   );
@@ -86,12 +93,4 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     await logEntries([entry]);
   });
-
-  const unsubscribe = vfs.onStorageChanged(entries => {
-    console.log(entries);
-    for (const { path, providerId } of entries) {
-      console.log('storage changed:', path, 'on provider:', providerId);
-    }
-  });
-
 });

@@ -178,7 +178,8 @@ await compose.init();
 await toolbar.init();
 await manager.init();
 await escripts.init();
-await vfs.enableSupportExternalProviders({ 
+await vfs.init({
+  enableExternalProviders: true,
   configStorageKey: "vfs-toolkit-config-data"
 });
 

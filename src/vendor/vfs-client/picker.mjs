@@ -96,6 +96,10 @@ const START_IN = params.get('startIn') ?? null;
 const VFS_PROVIDER_NAME = params.get('opfsStorageName') ?? null;
 const MODE = params.get('mode') ?? 'open'; // 'open' | 'save' | 'dir'
 const SUGGESTED_NAME = params.get('suggestedName') ?? null;
+// Array of { id, label } — rendered as extra toolbar buttons; clicks are sent to
+// the client extension background via browser.runtime.sendMessage so the background
+// can react (e.g. open a test tab) without any provider involvement.
+const BUTTONS = params.get('buttons') ? JSON.parse(params.get('buttons')) : [];
 
 // ── Id-state persistence (localStorage, keyed by id only - id enforces the provider) ──
 
@@ -413,7 +417,13 @@ function buildRow(entry) {
   row.addEventListener('dragstart', e => {
     state.dragging = entry.name;
     e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', entryPath);
+    // If dragging a selected item, carry all selected paths; otherwise just this one
+    const names = state.selected.has(entry.name) && state.selected.size > 1
+      ? [...state.selected]
+      : [entry.name];
+    const paths = names.map(n => pathJoin(state.cwd, n));
+    e.dataTransfer.setData('application/json', JSON.stringify(paths));
+    e.dataTransfer.setData('text/plain', paths[0]);
   });
 
   row.addEventListener('dragend', () => { state.dragging = null; });
@@ -431,10 +441,16 @@ function buildRow(entry) {
     row.addEventListener('drop', async e => {
       e.preventDefault();
       row.classList.remove('drag-over');
-      const srcPath = e.dataTransfer.getData('text/plain');
       const destDir = entryPath;
-      if (srcPath && !srcPath.startsWith(destDir)) {
-        await doWithStatus(t('moving'), async () => {
+
+      let srcPaths;
+      try { srcPaths = JSON.parse(e.dataTransfer.getData('application/json')); }
+      catch { srcPaths = [e.dataTransfer.getData('text/plain')]; }
+      srcPaths = srcPaths.filter(p => p && !p.startsWith(destDir));
+      if (!srcPaths.length) return;
+
+      await doWithStatus(t('moving'), async () => {
+        for (const srcPath of srcPaths) {
           try {
             await _moveEntry(srcPath, destDir, _opts(t('moving')));
           } catch (err) {
@@ -446,8 +462,8 @@ function buildRow(entry) {
             const retryExtra = srcKind === 'directory' ? { merge: true } : { overwrite: true };
             await _moveEntry(srcPath, destDir, { ..._opts(t('moving')), ...retryExtra });
           }
-        });
-      }
+        }
+      });
     });
   }
 
@@ -464,10 +480,6 @@ function getFileIcon(name) {
     mp3: '🎵', wav: '🎵', mp4: '🎬', webm: '🎬', mov: '🎬',
   };
   return map[ext] || '📄';
-}
-
-function escHtml(str) {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function renderFooter() {
@@ -1098,15 +1110,15 @@ function startRename(name) {
     await doWithStatus(t('renaming'), async () => {
       try {
         await (isDir
-          ? vfs.moveFolder(_e(srcPath), destPath, _opts(t('renaming')))
-          : vfs.moveFile(_e(srcPath), destPath, _opts(t('renaming'))));
+          ? vfs.moveFolder(_e(srcPath), _e(destPath), _opts(t('renaming')))
+          : vfs.moveFile(_e(srcPath), _e(destPath), _opts(t('renaming'))));
       } catch (err) {
         if (!_isConflictError(err)) throw err;
         const { action } = await _promptConflict(newName, isDir ? 'directory' : 'file', false);
         if (action !== 'apply') return;
         await (isDir
-          ? vfs.moveFolder(_e(srcPath), destPath, { ..._opts(t('renaming')), merge: true })
-          : vfs.moveFile(_e(srcPath), destPath, { ..._opts(t('renaming')), overwrite: true }));
+          ? vfs.moveFolder(_e(srcPath), _e(destPath), { ..._opts(t('renaming')), merge: true })
+          : vfs.moveFile(_e(srcPath), _e(destPath), { ..._opts(t('renaming')), overwrite: true }));
       }
     });
     if (state.selected.has(name)) {
@@ -1178,26 +1190,48 @@ function _moveEntry(srcPath, destDirPath, opts = {}) {
   const destPath = pathJoin(destDirPath, basename(srcPath));
   const kind = state.entries.find(e => pathJoin(state.cwd, e.name) === srcPath)?.kind;
   return kind === 'directory'
-    ? vfs.moveFolder(_e(srcPath), destPath, opts)
-    : vfs.moveFile(_e(srcPath), destPath, opts);
+    ? vfs.moveFolder(_e(srcPath), _e(destPath), opts)
+    : vfs.moveFile(_e(srcPath), _e(destPath), opts);
 }
 
 function clipboardCut(entries) {
-  state.clipboard = { entries, op: 'cut' };
+  state.clipboard = { entries, op: 'cut', storageRef: state.storageRef };
   $('vfs-btn-paste').disabled = false;
   showStatus(entries.length === 1 ? t('cutOne', entries[0].name) : t('cutMany', entries.length));
   renderList();
 }
 
 function clipboardCopy(entries) {
-  state.clipboard = { entries, op: 'copy' };
+  state.clipboard = { entries, op: 'copy', storageRef: state.storageRef };
   $('vfs-btn-paste').disabled = false;
   showStatus(entries.length === 1 ? t('copiedOne', entries[0].name) : t('copiedMany', entries.length));
 }
 
+/**
+ * Paste a single directory entry using per-entry individual operations.
+ * Drives the picker progress display directly: spinner with growing counter
+ * during collection, then a 0→100 bar during processing.
+ */
+async function _pasteFolder(src, dest, op, merge) {
+  const fn = op === 'copy' ? vfs.copyFolderWithProgress : vfs.moveFolderWithProgress;
+  await fn(src, dest, {
+    merge,
+    onCollect: total => {
+      if (_cancelRequested) throw new DOMException('Cancelled', 'AbortError');
+      _progressFileInfo = { currentFile: 0, totalFiles: total };
+      if (_progressShownAt != null) _doShow();
+    },
+    onProgress: p => {
+      if (_cancelRequested) throw new DOMException('Cancelled', 'AbortError');
+      _progressFileInfo = { currentFile: p.currentFile, totalFiles: p.totalFiles };
+      _switchToBar(p.percent);
+    },
+  });
+}
+
 async function pasteClipboard() {
   if (!state.clipboard) return;
-  const { entries, op } = state.clipboard;
+  const { entries, op, storageRef: srcRef } = state.clipboard;
   const total = entries.length;
   const label = op === 'copy' ? t('copying') : t('moving');
   await doWithStatus(label, async () => {
@@ -1214,25 +1248,36 @@ async function pasteClipboard() {
         : {};
       const opts = { ..._opts(label, i + 1, total), ...extraOpts };
 
-      const doOp = o => op === 'copy'
-        ? (entry.kind === 'directory'
-          ? vfs.copyFolder(_e(entry.path), destPath, o)
-          : vfs.copyFile(_e(entry.path), destPath, o))
-        : (entry.kind === 'directory'
-          ? vfs.moveFolder(_e(entry.path), destPath, o)
-          : vfs.moveFile(_e(entry.path), destPath, o));
+      const src = { path: entry.path, storageRef: srcRef };
 
-      try {
-        await doOp(opts);
-      } catch (err) {
-        if (!_isConflictError(err)) throw err;
-        const { action, applyToAll } = await _promptConflict(entry.name, entry.kind, remaining > 1);
-        if (action === 'cancel') throw new DOMException('Cancelled', 'AbortError');
-        if (action === 'skip') { if (applyToAll) batchDecision = 'skip-all'; continue; }
-        // action === 'apply'
-        if (applyToAll) batchDecision = 'apply-all';
-        const retryExtra = entry.kind === 'directory' ? { merge: true } : { overwrite: true };
-        await doOp({ ..._opts(label, i + 1, total), ...retryExtra });
+      if (entry.kind === 'directory') {
+        // Folder paste: decompose into individual per-entry operations so the picker
+        // can show an accurate aggregate progress bar via onCollect / onProgress.
+        const merge = batchDecision === 'apply-all';
+        try {
+          await _pasteFolder(src, _e(destPath), op, merge);
+        } catch (err) {
+          if (!_isConflictError(err)) throw err;
+          const { action, applyToAll } = await _promptConflict(entry.name, entry.kind, remaining > 1);
+          if (action === 'cancel') throw new DOMException('Cancelled', 'AbortError');
+          if (action === 'skip') { if (applyToAll) batchDecision = 'skip-all'; continue; }
+          if (applyToAll) batchDecision = 'apply-all';
+          await _pasteFolder(src, _e(destPath), op, true);
+        }
+      } else {
+        const doOp = o => op === 'copy'
+          ? vfs.copyFile(src, _e(destPath), o)
+          : vfs.moveFile(src, _e(destPath), o);
+        try {
+          await doOp(opts);
+        } catch (err) {
+          if (!_isConflictError(err)) throw err;
+          const { action, applyToAll } = await _promptConflict(entry.name, entry.kind, remaining > 1);
+          if (action === 'cancel') throw new DOMException('Cancelled', 'AbortError');
+          if (action === 'skip') { if (applyToAll) batchDecision = 'skip-all'; continue; }
+          if (applyToAll) batchDecision = 'apply-all';
+          await doOp({ ..._opts(label, i + 1, total), overwrite: true });
+        }
       }
     }
     state.clipboard = null;
@@ -1500,6 +1545,42 @@ function initToolbar() {
 
   $('vfs-btn-paste').addEventListener('click', () => pasteClipboard());
 
+  // Custom buttons — rendered from the 'buttons' URL param, separated from built-in
+  // toolbar buttons. Each click sends { type: 'vfs-toolkit-button', buttonId } to the
+  // client extension background, which can then open a tab or take any other action.
+  if (BUTTONS.length) {
+    const container = $('vfs-custom-buttons');
+    const sep = document.createElement('div');
+    sep.className = 'toolbar-sep';
+    container.appendChild(sep);
+    for (const { id, label, icon } of BUTTONS) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.title = label;
+      btn.setAttribute('aria-label', label);
+      if (icon) {
+        // Fetch and inline the SVG so it inherits currentColor, matching built-in toolbar buttons.
+        fetch(icon).then(r => r.text()).then(svgText => {
+          const svg = new DOMParser().parseFromString(svgText.trim(), 'image/svg+xml').querySelector('svg');
+          if (svg) {
+            svg.setAttribute('width', '14');
+            svg.setAttribute('height', '14');
+            svg.setAttribute('aria-hidden', 'true');
+            btn.appendChild(svg);
+          } else {
+            btn.textContent = label;
+          }
+        }).catch(() => { btn.textContent = label; });
+      } else {
+        btn.textContent = label;
+      }
+      btn.addEventListener('click', () => {
+        browser.runtime.sendMessage({ type: 'vfs-toolkit-button', buttonId: id, storageRef: state.storageRef }).catch(() => {});
+      });
+      container.appendChild(btn);
+    }
+  }
+
   // Type dropdown (only when types were provided by the caller)
   if (TYPES?.length) {
     const select = document.createElement('select');
@@ -1685,7 +1766,7 @@ async function _buildDropdown() {
         cfgBtn.addEventListener('click', async e => {
           e.stopPropagation();
           _providerUl.hidden = true;
-          try { await vfs.openProviderConfig(conn.storageRef.providerId); } catch { /* no config page */ }
+          try { await vfs.openProviderConfig(conn.storageRef); } catch { /* no config page */ }
         });
         actWrap.appendChild(cfgBtn);
       }
@@ -1988,7 +2069,7 @@ async function init() {
   });
 
   // Listen for provider push notifications (same-page port - sendMessage excludes own frame)
-  vfs.onStorageChanged(entries => {
+  vfs.onStorageChanged.addListener(entries => {
     updateStorageInfo();
     if (_pathsAffectCwd(entries)) loadDir({ silent: true });
   });
@@ -2002,16 +2083,19 @@ async function init() {
 function _pathsAffectCwd(entries) {
   if (entries.length === 0) return true; // unknown - refresh to be safe
   const cwd = state.cwd;
-  const paths = entries
-    .filter(e => (e.storageRef?.providerId ?? null) === (state.storageRef?.providerId ?? null) && (e.storageRef?.storageId ?? null) === (state.storageRef?.storageId ?? null))
-    .map(e => e.path);
-  if (paths.length === 0) return false; // all from a different provider
-  return paths.some(p => {
-    const parent = p.replace(/\/[^/]+$/, '') || '/';
-    return parent === cwd // item directly inside cwd
-      || p === cwd // cwd itself was the modified item
-      || cwd.startsWith(p + '/'); // cwd is inside a modified subtree
+  const _matchRef = r => (r?.providerId ?? null) === (state.storageRef?.providerId ?? null) &&
+                         (r?.storageId  ?? null) === (state.storageRef?.storageId  ?? null);
+  const paths = entries.flatMap(e => {
+    const result = [];
+    if (_matchRef(e.target.storageRef)) result.push(e.target.path);
+    if (e.source && _matchRef(e.source.storageRef)) result.push(e.source.path);
+    return result;
   });
+  if (paths.length === 0) return false; // all from a different provider
+  const cwdNorm = cwd.endsWith('/') ? cwd : cwd + '/';
+  const normPaths = paths.map(p => p.endsWith('/') ? p : p + '/');
+  // item inside cwd (or equal), or cwd inside item (item is an ancestor)
+  return normPaths.some(p => p.startsWith(cwdNorm) || cwdNorm.startsWith(p));
 }
 
 init();

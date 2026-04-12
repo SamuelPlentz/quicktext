@@ -6,6 +6,7 @@
 
 import * as storage from "/modules/storage.mjs";
 import * as utils from "/modules/utils.mjs";
+import * as vfs from "/vendor/vfs-client/vfs-client.mjs";
 
 // Abstract menu structure shared across the compose action menu,
 // the manager flyout menu, and the legacy toolbar companion.
@@ -95,64 +96,225 @@ export function getDateTimeMenuTitle(field, timeStamp) {
   return browser.i18n.getMessage(`quicktext.${fieldType}.label`, utils.getDateTimeFormat(field, timeStamp));
 }
 
-export async function getTemplatesMenuStructure() {
-  const templates = await storage.getTemplates();
-  const nodes = [];
+// Object URLs for provider icon Blobs, one per provider, kept alive
+// for the background page lifetime so that menus.create can reference
+// them. The vfs-toolkit picker uses the same approach
+// (picker.mjs: `URL.createObjectURL(p.icon)`).
+const _providerIconUrlCache = new Map();
 
+function _providerIconUrl(providerId, blob) {
+  if (!blob) return null;
+  const cached = _providerIconUrlCache.get(providerId);
+  if (cached) return cached;
+  const url = URL.createObjectURL(blob);
+  _providerIconUrlCache.set(providerId, url);
+  return url;
+}
+
+// Icon fallbacks for storages that lack a VFS provider icon.
+// - Managed entries get a dedicated shield glyph so the enterprise
+//   policy is visually distinct from the user's own storages.
+// - The built-in OPFS storage reuses the Quicktext add-on icon.
+const MANAGED_STORAGE_ICON_URL = browser.runtime.getURL("/assets/icon-managed.svg");
+const INTERNAL_STORAGE_ICON_URL = browser.runtime.getURL("/assets/icon.png");
+
+// Resolve provider icons for every enabled storage, keyed by
+// storageUuid. Managed entries prefer the policy-provided `icon`
+// URL (from `managed-quicktext-storage`) and fall back to the
+// dedicated shield glyph; OPFS (no storageRef) uses the Quicktext
+// add-on icon; external storages use their provider icon; unknown
+// providers return `null`.
+async function getStorageIconUrls(bundles) {
+  let providers = [];
+  try {
+    providers = await vfs.fetchProviderConnections();
+  } catch (ex) {
+    console.log(ex);
+  }
+  const effective = await storage.getAllStorageEntries();
+  const result = {};
+  for (const bundle of bundles) {
+    const entry = effective.find(e => e.uuid === bundle.storageUuid);
+    if (!entry) {
+      result[bundle.storageUuid] = INTERNAL_STORAGE_ICON_URL;
+      continue;
+    }
+    if (entry.type === "managed") {
+      result[bundle.storageUuid] = entry.icon || MANAGED_STORAGE_ICON_URL;
+      continue;
+    }
+    if (!entry.storageRef) {
+      result[bundle.storageUuid] = INTERNAL_STORAGE_ICON_URL;
+      continue;
+    }
+    const provider = providers.find(p => p.providerId === entry.storageRef.providerId);
+    result[bundle.storageUuid] = _providerIconUrl(entry.storageRef.providerId, provider?.icon ?? null);
+  }
+  return result;
+}
+
+// Build the group → texts structure for a single bundle. Each leaf
+// carries the full `[storageUuid, groupIndex, textIndex]` address
+// that the compose/manager menu builders need for insertion.
+function _templateNodesForBundle(bundle) {
+  const { templates, storageUuid } = bundle;
+  const nodes = [];
   for (let i = 0; i < templates.groups.length; i++) {
     const children = [];
     for (let j = 0; j < templates.texts[i].length; j++) {
       children.push({
         type: "item",
-        id: `group-${i}-text-${j}`,
+        id: `storage-${storageUuid}-group-${i}-text-${j}`,
         title: templates.texts[i][j].name,
+        storageUuid,
         groupIndex: i,
         textIndex: j,
         shortcut: templates.texts[i][j].shortcut,
         keyword: templates.texts[i][j].keyword,
       });
     }
-
-    // Skip empty groups.
-    if (children.length == 0) {
-      continue;
-    }
-
+    if (children.length === 0) continue;
     nodes.push({
       type: "group",
-      id: `group-${i}`,
+      id: `storage-${storageUuid}-group-${i}`,
       title: templates.groups[i].name,
       children,
     });
   }
-
   return nodes;
 }
 
-export async function getScriptsMenuStructure() {
-  const scripts = await storage.getScripts();
-  return scripts.map((script, i) => ({
+export async function getTemplatesMenuStructure({ storageUuid, bundles } = {}) {
+  bundles = bundles ?? await storage.getActiveStorageEntries();
+  if (bundles.length === 0) return [];
+
+  // Filtered path: return only the named storage's templates in the
+  // single-storage shape (no storage wrapper). Used by the manager's
+  // Insert Tag flyout to scope tag pickers to the current template's
+  // storage, since `TEXT=group|text` tags are storage-local at
+  // runtime. A missing/unknown storageUuid yields an empty section.
+  if (storageUuid != null) {
+    const bundle = bundles.find(b => b.storageUuid === storageUuid);
+    return bundle ? _templateNodesForBundle(bundle) : [];
+  }
+
+  // Single-storage path: return exactly the shape legacy callers expect
+  // - one level of groups at the top. Consumers don't need to know about
+  // the storage hierarchy at all.
+  if (bundles.length === 1) {
+    return _templateNodesForBundle(bundles[0]);
+  }
+
+  // Multi-storage path: wrap each bundle's groups in a top-level storage
+  // node whose icon comes from the VFS provider.
+  const icons = await getStorageIconUrls(bundles);
+  const result = [];
+  for (const bundle of bundles) {
+    const children = _templateNodesForBundle(bundle);
+    if (children.length === 0) continue;
+    result.push({
+      type: "group",
+      id: `storage-${bundle.storageUuid}`,
+      title: bundle.storageName,
+      iconUrl: icons[bundle.storageUuid],
+      children,
+    });
+  }
+  return result;
+}
+
+export async function getScriptsMenuStructure({ storageUuid, bundles } = {}) {
+  bundles = bundles ?? await storage.getActiveStorageEntries();
+  if (bundles.length === 0) return [];
+
+  const makeItems = (bundle) => bundle.scripts.map((script, i) => ({
     type: "item",
-    id: `script-${i}`,
+    id: `storage-${bundle.storageUuid}-script-${i}`,
     title: script.name,
+    storageUuid: bundle.storageUuid,
+    scriptIdx: i,
+  }));
+
+  // Filtered path: only the named storage's scripts, in flat shape.
+  if (storageUuid != null) {
+    const bundle = bundles.find(b => b.storageUuid === storageUuid);
+    return bundle ? makeItems(bundle) : [];
+  }
+
+  if (bundles.length === 1) {
+    return makeItems(bundles[0]);
+  }
+
+  const icons = await getStorageIconUrls(bundles);
+  const result = [];
+  for (const bundle of bundles) {
+    const children = makeItems(bundle);
+    if (children.length === 0) continue;
+    result.push({
+      type: "group",
+      id: `storage-${bundle.storageUuid}-scripts`,
+      title: bundle.storageName,
+      iconUrl: icons[bundle.storageUuid],
+      children,
+    });
+  }
+  return result;
+}
+
+// Walk the templates and scripts menu structure and decorate every leaf
+// with a `value` that the manager-side tag flyout inserts into the text
+// being edited. The storage hierarchy (when present) is purely
+// organisational - tags are always storage-local, so the inserted
+// `TEXT=group|text` / `SCRIPT=name` syntax carries no storage prefix.
+function _decorateTemplatesWithValues(templateNodes, isMulti) {
+  if (!isMulti) {
+    // Single-storage shape is `[{group, children: [{text}]}]`.
+    return templateNodes.map(node => ({
+      ...node,
+      children: node.children.map(child => ({
+        ...child,
+        value: `TEXT=${node.title}|${child.title}`,
+      })),
+    }));
+  }
+  // Multi-storage shape is `[{storage, children: [{group, children: [{text}]}]}]`.
+  return templateNodes.map(storageNode => ({
+    ...storageNode,
+    children: storageNode.children.map(groupNode => ({
+      ...groupNode,
+      children: groupNode.children.map(child => ({
+        ...child,
+        value: `TEXT=${groupNode.title}|${child.title}`,
+      })),
+    })),
   }));
 }
 
-export async function getTagsMenuStructure() {
-  const templateNodes = await getTemplatesMenuStructure();
-  const templateChildren = templateNodes.map(node => ({
-    ...node,
-    children: node.children.map(child => ({
+function _decorateScriptsWithValues(scriptNodes, isMulti) {
+  if (!isMulti) {
+    return scriptNodes.map(node => ({ ...node, value: `SCRIPT=${node.title}` }));
+  }
+  return scriptNodes.map(storageNode => ({
+    ...storageNode,
+    children: storageNode.children.map(child => ({
       ...child,
-      value: `TEXT=${node.title}|${child.title}`,
+      value: `SCRIPT=${child.title}`,
     })),
   }));
+}
 
-  const scriptNodes = await getScriptsMenuStructure();
-  const scriptChildren = scriptNodes.map(node => ({
-    ...node,
-    value: `SCRIPT=${node.title}`,
-  }));
+export async function getTagsMenuStructure({ storageUuid, bundles } = {}) {
+  bundles = bundles ?? await storage.getActiveStorageEntries();
+  // When filtered to a single storage, the result is always in the
+  // single-storage shape regardless of how many storages exist, so
+  // `isMulti` must be false even if bundles.length > 1.
+  const isMulti = storageUuid == null && bundles.length > 1;
+
+  const templateNodes = await getTemplatesMenuStructure({ storageUuid, bundles });
+  const templateChildren = _decorateTemplatesWithValues(templateNodes, isMulti);
+
+  const scriptNodes = await getScriptsMenuStructure({ storageUuid, bundles });
+  const scriptChildren = _decorateScriptsWithValues(scriptNodes, isMulti);
 
   const nodes = [
     { type: "group", id: "variables", localeKey: "quicktext.variablesGroup.label", children: getVariablesMenuStructure() },

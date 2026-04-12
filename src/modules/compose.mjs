@@ -20,32 +20,54 @@ async function prepareComposeTab(tab) {
   });
 }
 
+// Convert a single group node (with leaf template items) to compose-menu
+// entries. Honours the per-group `menuCollapse` rule that promotes a
+// single-template group to its lone child.
+function _groupNodeToMenuData(node, contexts, menuCollapse) {
+  if (node.children.length == 1 && menuCollapse) {
+    const child = node.children[0];
+    return {
+      contexts,
+      id: node.id,
+      title: child.title,
+      onclick: (_info, tab) => quicktext.insertTemplate(tab.id, child.storageUuid, child.groupIndex, child.textIndex),
+    };
+  }
+  return {
+    contexts,
+    id: node.id,
+    title: node.title,
+    children: node.children.map(({ id, title, storageUuid, groupIndex, textIndex }) => ({
+      id,
+      title,
+      onclick: (_info, tab) => quicktext.insertTemplate(tab.id, storageUuid, groupIndex, textIndex),
+    })),
+  };
+}
+
 async function getComposeBodyMenuData() {
   let menuData = [];
   let contexts = ["compose_body", "compose_action_menu"];
   const menuCollapse = await storage.getPref("menuCollapse");
 
+  // templateNodes is either:
+  //   single-storage: [ {group, children:[{text}]}, ... ]
+  //   multi-storage:  [ {storage, iconUrl, children:[{group, children:[{text}]}]}, ... ]
   const templateNodes = await getTemplatesMenuStructure();
+  const isMulti = templateNodes.some(n => n.children?.some(c => c.children));
   for (const node of templateNodes) {
-    if (node.children.length == 1 && menuCollapse) {
-      // Node is a promoted single-template group (collapsed).
-      menuData.push({
-        contexts,
-        id: node.id,
-        title: node.children[0].title,
-        onclick: (_info, tab) => quicktext.insertTemplate(tab.id, node.children[0].groupIndex, node.children[0].textIndex)
-      });
-    } else {
+    if (isMulti) {
       menuData.push({
         contexts,
         id: node.id,
         title: node.title,
-        children: node.children.map(({ id, title, groupIndex, textIndex }) => ({
-          id,
-          title,
-          onclick: (_info, tab) => quicktext.insertTemplate(tab.id, groupIndex, textIndex),
-        }))
+        icons: node.iconUrl ? { "16": node.iconUrl } : undefined,
+        children: node.children.map(groupNode =>
+          _groupNodeToMenuData(groupNode, contexts, menuCollapse)
+        ),
       });
+    } else {
+      menuData.push(_groupNodeToMenuData(node, contexts, menuCollapse));
     }
   }
 
@@ -94,7 +116,7 @@ export async function init() {
         return quicktext.getKeywordsAndShortcuts();
       // Sent by scripts/compose.js
       case "insertTemplate":
-        return quicktext.insertTemplate(sender.tab.id, info.group, info.text);
+        return quicktext.insertTemplate(sender.tab.id, info.storageUuid, info.group, info.text);
       // Sent by modules/quicktextParser.mjs (running in compose window context)
       case "composeAPI":
         return browser.compose[info.func](sender.tab.id, ...info.params);
@@ -146,7 +168,7 @@ export async function init() {
   // compose context menus.
   new storage.StorageListener(
     {
-      watchedPrefs: ["templates", "popup", "menuCollapse"],
+      watchedPrefs: ["templates", "popup", "menuCollapse", "storageLocations"],
       listener: async (_changes) => {
         // Throw away the menu.
         for (let entry of composeMenuEntries.reverse()) {

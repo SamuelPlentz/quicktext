@@ -17,7 +17,7 @@ export async function readLegacyXmlTemplateFile() {
   return parseLegacyXmlData(xmlData);
 }
 
-export async function readXmlScriptFile() {
+export async function readLegacyXmlScriptFile() {
   let templateFolder = await storage.getPref("templateFolder");
   let { scriptFilePath } = await browser.FileSystemAccess.getQuicktextFilePaths(templateFolder);
   let xmlData = await browser.FileSystemAccess.readTextFile(scriptFilePath);
@@ -45,7 +45,6 @@ export async function parseLegacyXmlData(xmlData) {
               let tmp = {
                 name: getTagValue(elems[i], "name"),
                 script: getTagValue(elems[i], "body"),
-                protected: false
               };
 
               foundScripts.push(tmp);
@@ -60,7 +59,6 @@ export async function parseLegacyXmlData(xmlData) {
             for (let i = 0; i < elems.length; i++) {
               let tmp = {
                 name: getTagValue(elems[i], "title"),
-                protected: false
               };
 
               foundGroups.push(tmp);
@@ -156,78 +154,32 @@ function getTagValue(aElem, aTag) {
   return "";
 }
 
-// ---- MERGE
-
-export function mergeTemplates(templates, importedTemplates, forceProtected = false) {
-  if (importedTemplates.groups && importedTemplates.texts && importedTemplates.texts.length > 0 && importedTemplates.groups.length == importedTemplates.texts.length) {
-    // If a group exists already, import into the existing group.
-    templates.groups.forEach((group, existingGroupIdx) => {
-      let groupImportIdx = importedTemplates.groups.findIndex(i => i.name == group.name);
-      if (groupImportIdx != -1) {
-        console.log(`Found existing group ${group.name} in imported groups.`)
-        templates.groups[existingGroupIdx] = importedTemplates.groups[groupImportIdx];
-        templates.groups[existingGroupIdx].protected = forceProtected;
-        importedTemplates.groups.splice(groupImportIdx, 1);
-
-        // Handle texts of this group:
-        // merge imports.texts[groupImportIdx] into templates.texts[existingGroupIdx]
-        templates.texts[existingGroupIdx].forEach((text, existingTextIndex) => {
-          let textImportIdx = importedTemplates.texts[groupImportIdx].findIndex(i => i.name == text.name);
-          if (textImportIdx != -1) {
-            console.log(`Replacing text ${text.name} with imported version.`)
-            templates.texts[existingGroupIdx][existingTextIndex] = importedTemplates.texts[groupImportIdx][textImportIdx];
-            importedTemplates.texts[groupImportIdx].splice(textImportIdx, 1);
-          }
-        });
-        // Add remaining texts to this group.
-        templates.texts[existingGroupIdx].push(...importedTemplates.texts[groupImportIdx]);
-        importedTemplates.texts.splice(groupImportIdx, 1);
-      }
-    });
-
-    // Add remaining new templates.
-    templates.texts.push(...importedTemplates.texts);
-    templates.groups.push(...importedTemplates.groups.map(g => ({ ...g, protected: forceProtected })));
-  }
-}
-
-export function mergeScripts(scripts, importedScripts, forceProtected = false) {
-  if (importedScripts && importedScripts.length > 0) {
-    // Overwrite local existing versions.
-    scripts.forEach((script, existingScriptIdx) => {
-      let importScriptIdx = importedScripts.findIndex(i => i.name == script.name);
-      if (importScriptIdx != -1) {
-        console.log(`Replacing script ${script.name} with imported version.`)
-        scripts[existingScriptIdx] = importedScripts[importScriptIdx];
-        scripts[existingScriptIdx].protected = forceProtected;
-        importedScripts.splice(importScriptIdx, 1);
-      }
-    });
-    // Add the remaining new scripts.
-    scripts.push(...importedScripts.map(g => ({ ...g, protected: forceProtected })));
-  }
-}
-
 // ---- INSERT
 
 async function getQuicktextParser({ tabId }) {
-  const templates = await storage.getTemplates();
-  const scripts = await storage.getScripts();
-  return new QuicktextParser(tabId, templates, scripts);
+  const bundles = await storage.getActiveStorageEntries();
+  return new QuicktextParser(tabId, bundles);
 }
 
-export async function insertTemplate(tabId, groupIdx, textIdx) {
+export async function insertTemplate(tabId, storageUuid, groupIdx, textIdx) {
   const qParser = await getQuicktextParser({ tabId });
-  const group = qParser.templates.groups[groupIdx];
-  const text = qParser.templates.texts[groupIdx][textIdx];
+  qParser.setActiveStorage(storageUuid);
+  const bundle = qParser.activeBundle;
+  const group = bundle.templates.groups[groupIdx];
+  const text = bundle.templates.texts[groupIdx][textIdx];
   await qParser.clearNonPersistentData();
   await insertSubject({ qParser, subject: text.subject });
   await insertAttachments({ qParser, attachments: text.attachments });
   await qParser.parseAndInsert(`[[TEXT=${group.name}|${text.name}]]`);
 }
 
-export async function insertVariable({ tabId, variable }) {
-  const qParser = await getQuicktextParser({ tabId })
+export async function insertVariable({ tabId, variable, storageUuid }) {
+  const qParser = await getQuicktextParser({ tabId });
+  // Tag flyouts in the manager and compose menus always carry a storage
+  // uuid when they target scripts from a specific storage; free-standing
+  // variable insertions (DATE, INPUT, ...) don't care, so fall back to
+  // whatever bundle happens to be first.
+  if (storageUuid != null) qParser.setActiveStorage(storageUuid);
   await qParser.clearNonPersistentData();
   await qParser.parseAndInsert(`[[${variable}]]`);
 }
@@ -301,21 +253,25 @@ export async function processTag({ tabId, tag, variables }) {
 // This is defined async, so it can be used in an runtime.onMessage listener
 // without further logic to return a Promise.
 export async function getKeywordsAndShortcuts() {
-  let templates = await storage.getTemplates();
+  let bundles = await storage.getActiveStorageEntries();
   let keywords = {};
   let shortcuts = {};
 
-  for (let i = 0; i < templates.groups.length; i++) {
-    for (let j = 0; j < templates.texts[i].length; j++) {
-      let text = templates.texts[i][j];
-      let shortcut = text.shortcut;
-      if (shortcut != "" && typeof shortcuts[shortcut] == "undefined") {
-        shortcuts[shortcut] = [i, j];
-      }
+  for (const bundle of bundles) {
+    const templates = bundle.templates;
+    for (let i = 0; i < templates.groups.length; i++) {
+      for (let j = 0; j < templates.texts[i].length; j++) {
+        let text = templates.texts[i][j];
+        let shortcut = text.shortcut;
+        // Earlier storage/group wins on conflict.
+        if (shortcut != "" && typeof shortcuts[shortcut] == "undefined") {
+          shortcuts[shortcut] = [bundle.storageUuid, i, j];
+        }
 
-      let keyword = text.keyword;
-      if (keyword != "" && typeof keywords[keyword] == "undefined")
-        keywords[keyword] = [i, j];
+        let keyword = text.keyword;
+        if (keyword != "" && typeof keywords[keyword] == "undefined")
+          keywords[keyword] = [bundle.storageUuid, i, j];
+      }
     }
   }
   return { keywords, shortcuts };

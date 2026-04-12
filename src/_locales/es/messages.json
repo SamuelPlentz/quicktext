@@ -49,7 +49,7 @@
     "message": "HTML"
   },
   "quicktext.advanced.label": {
-    "message": "Avanzado"
+    "message": "Ubicaciones de almacenamiento"
   },
   "quicktext.accesskey.advanced": {
     "message": "a"
@@ -90,23 +90,17 @@
   "quicktext.accesskey.templates": {
     "message": "t"
   },
-  "quicktext.accesskey.exportScripts": {
-    "message": "x"
-  },
-  "quicktext.accesskey.importScripts": {
-    "message": "m"
-  },
   "quicktext.accesskey.exportTemplates": {
     "message": "e"
   },
   "quicktext.accesskey.importTemplates": {
     "message": "i"
   },
-  "quicktext.buttons.selectStorage.label": {
-    "message": "Seleccionar almacenamiento"
+  "quicktext.storageList.confirmDiscard.label": {
+    "message": "Any unsaved changes in the \"$1\" storage will be discarded. Continue?"
   },
-  "quicktext.buttons.addFolder.label": {
-    "message": "+ Carpeta"
+  "quicktext.buttons.addConfig.label": {
+    "message": "Añadir"
   },
   "quicktext.buttons.addFile.label": {
     "message": "+ Archivo"
@@ -169,7 +163,28 @@
     "message": "Fecha/Hora"
   },
   "quicktext.defaultImport.label": {
-    "message": "Importar plantillas y scripts al iniciar (solo lectura)"
+    "message": "Importaciones predeterminadas"
+  },
+  "quicktext.defaultImport.description": {
+    "message": "Gestionar las importaciones predeterminadas de plantillas y scripts (solo lectura). Las importaciones gestionadas de forma centralizada se marcan como bloqueadas."
+  },
+  "quicktext.accesskey.defaultImport": {
+    "message": "I"
+  },
+  "quicktext.defaultImport.rename.prompt": {
+    "message": "Nombre para esta importación predeterminada:"
+  },
+  "quicktext.defaultImport.confirmRemove.label": {
+    "message": "¿Eliminar la importación predeterminada «$1»?"
+  },
+  "quicktext.defaultImport.invalidUrl.label": {
+    "message": "Introduce una URL http(s) válida."
+  },
+  "quicktext.defaultImport.columns.name": {
+    "message": "Nombre"
+  },
+  "quicktext.defaultImport.columns.url": {
+    "message": "URL"
   },
   "quicktext.displayname.label": {
     "message": "Nombre mostrado"
@@ -298,10 +313,46 @@
     "message": "Ubicación de almacenamiento de plantillas y scripts"
   },
   "quicktext.storageLocations.description": {
-    "message": "Al cambiar la ubicación de almacenamiento de plantillas y scripts, se guardará la lista actual de ubicaciones y Quicktext se reiniciará para cargar los archivos desde la nueva ubicación. Cualquier otra configuración no guardada se perderá."
+    "message": "Gestione las ubicaciones de almacenamiento disponibles y controle qué plantillas y scripts están habilitados para usarse. Los almacenamientos de solo lectura y el almacenamiento gestionado de forma centralizada se marcan como bloqueados."
+  },
+  "quicktext.storage.managed.label": {
+    "message": "Gestionado"
+  },
+  "quicktext.storage.managed.location": {
+    "message": "Almacenamiento gestionado"
   },
   "quicktext.storage.internal.local.label": {
     "message": "Almacenamiento interno (predeterminado)"
+  },
+  "quicktext.storageList.columns.name": {
+    "message": "Nombre"
+  },
+  "quicktext.storageList.columns.connection": {
+    "message": "Ubicación de almacenamiento"
+  },
+  "quicktext.storageList.columns.path": {
+    "message": "Ruta"
+  },
+  "quicktext.storageList.duplicate.label": {
+    "message": "Esta configuración de almacenamiento ya está en la lista como «$1»."
+  },
+  "quicktext.buttons.renameStorage.label": {
+    "message": "Renombrar"
+  },
+  "quicktext.buttons.browseStorage.label": {
+    "message": "Explorar"
+  },
+  "quicktext.storageList.readOnly.label": {
+    "message": "Solo lectura"
+  },
+  "quicktext.storageList.rename.prompt": {
+    "message": "Nuevo nombre para esta entrada de almacenamiento:"
+  },
+  "quicktext.storageList.rename.badChars": {
+    "message": "El nombre no debe contener los caracteres \"|\", \"[[\" o \"]]\"."
+  },
+  "quicktext.storageList.rename.duplicate": {
+    "message": "Ya existe una entrada con el nombre «$1»."
   },
   "quicktext.remove.label": {
     "message": "Eliminar"
@@ -329,12 +380,6 @@
   },
   "quicktext.settings.title": {
     "message": "Gestor de Quicktext"
-  },
-  "quicktext.sharingScripts.label": {
-    "message": "Compartiendo scripts"
-  },
-  "quicktext.sharingTemplates.label": {
-    "message": "Compartiendo plantillas"
   },
   "quicktext.shortcut.label": {
     "message": "Acceso directo"
@@ -409,7 +454,10 @@
     "message": "Introducir URL:"
   },
   "quicktext.advanced.description": {
-    "message": "Almacenar plantillas y scripts directamente en el disco mediante acceso al sistema de archivos no es una solución de futuro y eventualmente será eliminado de Quicktext. Puede que siga estando disponible a través del complemento Quicktext Legacy Companion, pero no tendrá soporte oficial y solo funcionará en Thunderbird ESR, nunca en Thunderbird Release."
+    "message": "Quicktext puede acceder a plantillas y scripts desde backends de almacenamiento adicionales (por ejemplo servidores WebDAV o su carpeta personal local) mediante complementos de proveedor VFS. Cualquier proveedor VFS instalado se puede utilizar al añadir una nueva ubicación de almacenamiento."
+  },
+  "quicktext.buttons.searchVfsProviders.label": {
+    "message": "Buscar proveedores VFS"
   },
   "extensionDescription": {
     "message": "Agrega una barra de herramientas con un número ilimitado de texto para insertar rápidamente. También es posible usar variables como [[TO=firstname]]. Con ajustes para todo."

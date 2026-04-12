@@ -49,7 +49,7 @@
     "message": "HTML"
   },
   "quicktext.advanced.label": {
-    "message": "Avancé"
+    "message": "Emplacements de stockage"
   },
   "quicktext.accesskey.advanced": {
     "message": "a"
@@ -90,23 +90,17 @@
   "quicktext.accesskey.templates": {
     "message": "l"
   },
-  "quicktext.accesskey.exportScripts": {
-    "message": "x"
-  },
-  "quicktext.accesskey.importScripts": {
-    "message": "m"
-  },
   "quicktext.accesskey.exportTemplates": {
     "message": "x"
   },
   "quicktext.accesskey.importTemplates": {
     "message": "i"
   },
-  "quicktext.buttons.selectStorage.label": {
-    "message": "Sélectionner le stockage"
+  "quicktext.storageList.confirmDiscard.label": {
+    "message": "Any unsaved changes in the \"$1\" storage will be discarded. Continue?"
   },
-  "quicktext.buttons.addFolder.label": {
-    "message": "+ Dossier"
+  "quicktext.buttons.addConfig.label": {
+    "message": "Ajouter"
   },
   "quicktext.buttons.addFile.label": {
     "message": "+ Fichier"
@@ -169,7 +163,28 @@
     "message": "Date/Heure"
   },
   "quicktext.defaultImport.label": {
-    "message": "Importer les modèles et scripts au démarrage (lecture seule)"
+    "message": "Imports par défaut"
+  },
+  "quicktext.defaultImport.description": {
+    "message": "Gérer les imports par défaut de modèles et de scripts (lecture seule). Les imports gérés de façon centralisée sont marqués comme verrouillés."
+  },
+  "quicktext.accesskey.defaultImport": {
+    "message": "I"
+  },
+  "quicktext.defaultImport.rename.prompt": {
+    "message": "Nom pour cet import par défaut :"
+  },
+  "quicktext.defaultImport.confirmRemove.label": {
+    "message": "Supprimer l'import par défaut « $1 » ?"
+  },
+  "quicktext.defaultImport.invalidUrl.label": {
+    "message": "Veuillez saisir une URL http(s) valide."
+  },
+  "quicktext.defaultImport.columns.name": {
+    "message": "Nom"
+  },
+  "quicktext.defaultImport.columns.url": {
+    "message": "URL"
   },
   "quicktext.displayname.label": {
     "message": "Nom à afficher"
@@ -298,10 +313,46 @@
     "message": "Emplacement de stockage des modèles et scripts"
   },
   "quicktext.storageLocations.description": {
-    "message": "La modification de l’emplacement de stockage des modèles et scripts enregistrera votre liste actuelle d’emplacements, puis redémarrera Quicktext pour charger les fichiers depuis le nouvel emplacement. Tout autre paramètre non enregistré sera perdu."
+    "message": "Gérez les emplacements de stockage disponibles et contrôlez quels modèles et scripts sont activés pour l'utilisation. Les stockages en lecture seule et le stockage géré de façon centralisée sont marqués comme verrouillés."
+  },
+  "quicktext.storage.managed.label": {
+    "message": "Géré"
+  },
+  "quicktext.storage.managed.location": {
+    "message": "Stockage géré"
   },
   "quicktext.storage.internal.local.label": {
     "message": "Stockage interne (par défaut)"
+  },
+  "quicktext.storageList.columns.name": {
+    "message": "Nom"
+  },
+  "quicktext.storageList.columns.connection": {
+    "message": "Emplacement de stockage"
+  },
+  "quicktext.storageList.columns.path": {
+    "message": "Chemin"
+  },
+  "quicktext.storageList.duplicate.label": {
+    "message": "Cette configuration de stockage est déjà dans la liste sous le nom « $1 »."
+  },
+  "quicktext.buttons.renameStorage.label": {
+    "message": "Renommer"
+  },
+  "quicktext.buttons.browseStorage.label": {
+    "message": "Parcourir"
+  },
+  "quicktext.storageList.readOnly.label": {
+    "message": "Lecture seule"
+  },
+  "quicktext.storageList.rename.prompt": {
+    "message": "Nouveau nom pour cette entrée de stockage :"
+  },
+  "quicktext.storageList.rename.badChars": {
+    "message": "Le nom ne doit pas contenir les caractères \"|\", \"[[\" ou \"]]\"."
+  },
+  "quicktext.storageList.rename.duplicate": {
+    "message": "Une entrée portant le nom « $1 » existe déjà."
   },
   "quicktext.remove.label": {
     "message": "Supprimer"
@@ -329,12 +380,6 @@
   },
   "quicktext.settings.title": {
     "message": "Gestionnaire Quicktext"
-  },
-  "quicktext.sharingScripts.label": {
-    "message": "Partage de scripts"
-  },
-  "quicktext.sharingTemplates.label": {
-    "message": "Partage de modèles"
   },
   "quicktext.shortcut.label": {
     "message": "Raccourci"
@@ -409,7 +454,10 @@
     "message": "Entrer l'URL :"
   },
   "quicktext.advanced.description": {
-    "message": "Le stockage des modèles et des scripts directement sur le disque via l'accès au système de fichiers n'est pas pérenne et sera éventuellement supprimé de Quicktext. Il pourra rester disponible via le module complémentaire Quicktext Legacy Companion, mais celui-ci ne sera pas officiellement pris en charge et ne fonctionnera que sur Thunderbird ESR, jamais sur Thunderbird Release."
+    "message": "Quicktext peut accéder aux modèles et aux scripts depuis des backends de stockage supplémentaires (par exemple des serveurs WebDAV ou votre dossier personnel local) via des modules complémentaires de fournisseur VFS. Tout fournisseur VFS installé peut être utilisé lors de l'ajout d'un nouvel emplacement de stockage."
+  },
+  "quicktext.buttons.searchVfsProviders.label": {
+    "message": "Rechercher des fournisseurs VFS"
   },
   "extensionDescription": {
     "message": "Ajoute une barre d’outils à la fenêtre de composition de message afin d'insérer rapidement des modèles de texte. Il est également possible d'utiliser des variables telles que [[TO=firstname]]."

@@ -28,10 +28,15 @@ const persistentTags = ['COUNTER', 'ORGATT', 'ORGHEADER', 'VERSION'];
 //       them as persistent tags.
 
 export class QuicktextParser {
-  constructor(aTabId, templates, scripts) {
+  constructor(aTabId, bundles) {
     this.mTabId = aTabId;
-    this.mTemplates = templates;
-    this.mScripts = scripts;
+    // `bundles` is the per-storage bundle array produced by
+    // storage.getActiveStorageEntries(). Each element has {storageUuid,
+    // storageName, readOnly, templates, scripts}. Tag lookups
+    // (`TEXT=...`, `SCRIPT=...`) are scoped to the currently
+    // active storage - see mActiveStorageUuid.
+    this.mBundles = bundles || [];
+    this.mActiveStorageUuid = this.mBundles[0]?.storageUuid ?? null;
     this.mStaticDetails = null;
 
     //TODO: Evaluate if these values SHOULD be preserved (as getters/setters
@@ -45,6 +50,22 @@ export class QuicktextParser {
     // The template insertion type (text/html or text/plain).
     this.mInsertType = null;
 
+  }
+
+  // Set the storage that subsequent TEXT/SCRIPT tag expansions should
+  // resolve against. Called by quicktext.insertTemplate() before parsing
+  // the outermost template. Nested tag expansions never rebind this.
+  setActiveStorage(storageUuid) {
+    this.mActiveStorageUuid = storageUuid;
+  }
+
+  // Look up the currently active bundle. Falls back to the first bundle
+  // if the active uuid happens to be missing (shouldn't happen in
+  // practice, but keeps the parser defensive).
+  get activeBundle() {
+    return this.mBundles.find(b => b.storageUuid === this.mActiveStorageUuid)
+      ?? this.mBundles[0]
+      ?? { templates: { groups: [], texts: [] }, scripts: [] };
   }
 
   async parseAndInsert(str) {
@@ -75,10 +96,10 @@ export class QuicktextParser {
     return this.mTabId
   }
   get scripts() {
-    return this.mScripts;
+    return this.activeBundle.scripts;
   }
   get templates() {
-    return this.mTemplates;
+    return this.activeBundle.templates;
   }
 
   async getStateData() {
@@ -198,8 +219,8 @@ export class QuicktextParser {
 
     let scriptName = aVariables.shift();
 
-    // Looks through all scripts and tries to find the one we look for.
-    for (let script of this.mScripts) {
+    // Looks through scripts of the currently active storage only.
+    for (let script of this.activeBundle.scripts) {
       if (script.name == scriptName) {
         let returnValue = "";
 
@@ -603,12 +624,14 @@ export class QuicktextParser {
   async process_text(aVariables) {
     if (aVariables.length < 2)
       return "";
-    // Looks after the group and text-name and returns
-    // the text from it
-    for (let i = 0; i < this.mTemplates.groups.length; i++) {
-      if (aVariables[0] == this.mTemplates.groups[i].name) {
-        for (let j = 0; j < this.mTemplates.texts[i].length; j++) {
-          let text = this.mTemplates.texts[i][j];
+    // Looks after the group and text-name within the currently active
+    // storage only. Multi-storage lookups by name are ambiguous by design:
+    // the caller's storage context must be set via setActiveStorage().
+    const templates = this.activeBundle.templates;
+    for (let i = 0; i < templates.groups.length; i++) {
+      if (aVariables[0] == templates.groups[i].name) {
+        for (let j = 0; j < templates.texts[i].length; j++) {
+          let text = templates.texts[i][j];
           if (aVariables[1] == text.name) {
             let content = text.text;
             // Force insertion mode to TEXT if the template requests it.

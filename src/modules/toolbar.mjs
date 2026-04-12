@@ -93,7 +93,7 @@ export async function init() {
       case "insertTemplate":
         return messenger.tabs
           .query({ windowId: info.windowId, type: "messageCompose" })
-          .then(tabs => quicktext.insertTemplate(tabs[0].id, info.group, info.text));
+          .then(tabs => quicktext.insertTemplate(tabs[0].id, info.storageUuid, info.group, info.text));
       case "insertFile":
         return messenger.tabs
           .query({ windowId: info.windowId, type: "messageCompose" })
@@ -114,7 +114,7 @@ export async function init() {
   // Update toolbar if relevant settings changed.
   new storage.StorageListener(
     {
-      watchedPrefs: ["templates", "menuCollapse", "shortcutModifier"],
+      watchedPrefs: ["templates", "menuCollapse", "shortcutModifier", "storageLocations"],
       listener: async (changes) => {
         let legacyAddon;
         try {

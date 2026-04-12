@@ -36,7 +36,7 @@ export function structureToMenuData(nodes, now) {
                 if (path) quicktext.insertVariable({ tabId: tab.id, variable: node.value.replace("<path>", path) });
             };
         } else if (node.value?.includes("<url>")) {
-            // Prompt for a URL — run in the compose tab context where native dialogs are allowed.
+            // Prompt for a URL - run in the compose tab context where native dialogs are allowed.
             const promptLabel = browser.i18n.getMessage("quicktext.prompt.addUrl.label");
             entry.onclick = async (_info, tab) => {
                 const results = await browser.tabs.executeScript(tab.id, {
@@ -73,6 +73,7 @@ export async function processMenuData(menuEntries, menuData, parentId) {
         if (entry.documentUrlPatterns) createData.documentUrlPatterns = entry.documentUrlPatterns;
         if (entry.visible) createData.visible = entry.visible;
         if (entry.onclick) createData.onclick = entry.onclick;
+        if (entry.icons) createData.icons = entry.icons;
         if (parentId) createData.parentId = parentId;
 
         const created = Promise.withResolvers()

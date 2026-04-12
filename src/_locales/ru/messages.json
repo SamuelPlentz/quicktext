@@ -49,7 +49,7 @@
     "message": "HTML"
   },
   "quicktext.advanced.label": {
-    "message": "Дополнительно"
+    "message": "Места хранения"
   },
   "quicktext.accesskey.advanced": {
     "message": "a"
@@ -90,23 +90,17 @@
   "quicktext.accesskey.templates": {
     "message": "Ш"
   },
-  "quicktext.accesskey.exportScripts": {
-    "message": "о"
-  },
-  "quicktext.accesskey.importScripts": {
-    "message": "т"
-  },
   "quicktext.accesskey.exportTemplates": {
     "message": "к"
   },
   "quicktext.accesskey.importTemplates": {
     "message": "м"
   },
-  "quicktext.buttons.selectStorage.label": {
-    "message": "Выбрать хранилище"
+  "quicktext.storageList.confirmDiscard.label": {
+    "message": "Any unsaved changes in the \"$1\" storage will be discarded. Continue?"
   },
-  "quicktext.buttons.addFolder.label": {
-    "message": "+ Папка"
+  "quicktext.buttons.addConfig.label": {
+    "message": "Добавить"
   },
   "quicktext.buttons.addFile.label": {
     "message": "+ Файл"
@@ -169,7 +163,28 @@
     "message": "Дата/Время"
   },
   "quicktext.defaultImport.label": {
-    "message": "Импорт шаблонов и скриптов при запуске (только для чтения)"
+    "message": "Импорты по умолчанию"
+  },
+  "quicktext.defaultImport.description": {
+    "message": "Управление импортами шаблонов и скриптов по умолчанию (только для чтения). Централизованно управляемые импорты помечаются как заблокированные."
+  },
+  "quicktext.accesskey.defaultImport": {
+    "message": "I"
+  },
+  "quicktext.defaultImport.rename.prompt": {
+    "message": "Название для этого импорта по умолчанию:"
+  },
+  "quicktext.defaultImport.confirmRemove.label": {
+    "message": "Удалить импорт по умолчанию «$1»?"
+  },
+  "quicktext.defaultImport.invalidUrl.label": {
+    "message": "Введите корректный http(s) URL."
+  },
+  "quicktext.defaultImport.columns.name": {
+    "message": "Название"
+  },
+  "quicktext.defaultImport.columns.url": {
+    "message": "URL"
   },
   "quicktext.displayname.label": {
     "message": "Отображаемое имя"
@@ -298,10 +313,46 @@
     "message": "Место хранения шаблонов и скриптов"
   },
   "quicktext.storageLocations.description": {
-    "message": "Изменение места хранения шаблонов и скриптов сохранит текущий список мест хранения и перезапустит Quicktext для загрузки файлов из нового места. Все остальные несохранённые настройки будут потеряны."
+    "message": "Управляйте доступными хранилищами и определяйте, какие шаблоны и скрипты разрешены к использованию. Хранилища только для чтения и централизованно управляемое хранилище помечаются как заблокированные."
+  },
+  "quicktext.storage.managed.label": {
+    "message": "Управляемое"
+  },
+  "quicktext.storage.managed.location": {
+    "message": "Управляемое хранилище"
   },
   "quicktext.storage.internal.local.label": {
     "message": "Внутреннее хранилище (по умолчанию)"
+  },
+  "quicktext.storageList.columns.name": {
+    "message": "Имя"
+  },
+  "quicktext.storageList.columns.connection": {
+    "message": "Место хранения"
+  },
+  "quicktext.storageList.columns.path": {
+    "message": "Путь"
+  },
+  "quicktext.storageList.duplicate.label": {
+    "message": "Эта конфигурация хранилища уже есть в списке как «$1»."
+  },
+  "quicktext.buttons.renameStorage.label": {
+    "message": "Переименовать"
+  },
+  "quicktext.buttons.browseStorage.label": {
+    "message": "Обзор"
+  },
+  "quicktext.storageList.readOnly.label": {
+    "message": "Только для чтения"
+  },
+  "quicktext.storageList.rename.prompt": {
+    "message": "Новое имя для этой записи хранилища:"
+  },
+  "quicktext.storageList.rename.badChars": {
+    "message": "Имя не должно содержать символы \"|\", \"[[\" или \"]]\"."
+  },
+  "quicktext.storageList.rename.duplicate": {
+    "message": "Запись с именем «$1» уже существует."
   },
   "quicktext.remove.label": {
     "message": "Удалить"
@@ -329,12 +380,6 @@
   },
   "quicktext.settings.title": {
     "message": "Менеджер Quicktext"
-  },
-  "quicktext.sharingScripts.label": {
-    "message": "Обмен скриптами"
-  },
-  "quicktext.sharingTemplates.label": {
-    "message": "Обмен шаблонами"
   },
   "quicktext.shortcut.label": {
     "message": "Сочетание"
@@ -409,7 +454,10 @@
     "message": "Введите URL:"
   },
   "quicktext.advanced.description": {
-    "message": "Хранение шаблонов и скриптов непосредственно на диске через доступ к файловой системе не является перспективным решением и в конечном итоге будет удалено из Quicktext. Возможно, это останется доступным через дополнение Quicktext Legacy Companion, однако оно не будет официально поддерживаться и будет работать только в Thunderbird ESR, но не в Thunderbird Release."
+    "message": "Quicktext может получать доступ к шаблонам и скриптам из дополнительных хранилищ (например, серверов WebDAV или вашей локальной домашней папки) через дополнения VFS-провайдеров. Любой установленный VFS-провайдер можно использовать при добавлении нового места хранения."
+  },
+  "quicktext.buttons.searchVfsProviders.label": {
+    "message": "Поиск поставщиков VFS"
   },
   "extensionDescription": {
     "message": "Добавляет панель инструментов с неограниченным количеством текста для быстрой вставки. Также можно использовать такие переменные, как [[TO=firstname]]. С настройками для всего."

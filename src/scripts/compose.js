@@ -28,8 +28,13 @@ async function insertTextFragment(message) {
     await handlerCursorTags();
 }
 
-function requestInsertTemplate(text) {
-    return messenger.runtime.sendMessage({ command: "insertTemplate", group: text[0], text: text[1] });
+function requestInsertTemplate(coord) {
+    return messenger.runtime.sendMessage({
+        command: "insertTemplate",
+        storageUuid: coord[0],
+        group: coord[1],
+        text: coord[2],
+    });
 }
 
 async function getSelection(mode) {

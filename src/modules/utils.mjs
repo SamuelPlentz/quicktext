@@ -380,47 +380,6 @@ export async function openPopup(tabId, config) {
     return rv;
 }
 
-// Keep this function async, so it can be used in then-chaining.
-export async function removeProtectedTemplates(templates) {
-    if (!templates) {
-        return null;
-    }
-    const protectedTemplatesIndices = new Set(
-        templates.groups.reduce((indices, value, index) => {
-            if (value.protected) {
-                indices.push(index);
-            }
-            return indices;
-        }, [])
-    );
-    if (protectedTemplatesIndices.size > 0) {
-        templates = {
-            groups: templates.groups.filter((_, index) => !protectedTemplatesIndices.has(index)),
-            texts: templates.texts.filter((_, index) => !protectedTemplatesIndices.has(index))
-        }
-    }
-    return templates;
-}
-
-// Keep this function async, so it can be used in then-chaining.
-export async function removeProtectedScripts(scripts) {
-    if (!scripts) {
-        return null;
-    }
-    const protectedScriptsIndices = new Set(
-        scripts.reduce((indices, value, index) => {
-            if (value.protected) {
-                indices.push(index);
-            }
-            return indices;
-        }, [])
-    );
-    if (protectedScriptsIndices.size > 0) {
-        scripts = scripts.filter((_, index) => !protectedScriptsIndices.has(index));
-    }
-    return scripts;
-}
-
 export async function checkBadNameEntries(templates, scripts) {
     const badSubstrings = ["|", "[[", "]]"];
     let badEntries = 0;

@@ -1,0 +1,37 @@
+# VFS
+
+- [ ] add "save as" to folders
+- [ ] rename storage connection to storage location
+
+# Quicktext
+
+- [ ] managed storage should auto-appear in menus
+- [ ] vfs storage should update when pushed remotely
+      (common change detection)
+
+- [ ] export could include all used files
+
+- [x] manager SAVE - do not save template files which have not been modified
+- [ ] implement cache
+
+- [ ] allow user to sort list (maybe in the templates/script tab)
+
+- [ ] bring back template auto-import as storage (managed: true -> type: managed/url/storage)
+- [ ] URL import needs "no cache"
+
+- [x] list flickers when enabling a storage
+
+- [x] rename Advanced to "Storage locations"
+- [x] rename "Connection" to Storage
+- [x] remove collapsability in manager
+- [x] limit "add" buttons to current storage - need to be able to select storage header
+- [x] rename of script ugly
+
+
+
+- [x] show managed storage ?
+- [x] add support for icon + name
+
+- [x] flyout menu should use live state, not saved state
+- [x] flyout menu should only list local templates and scripts
+- [x] move control of manager context menu out of the background

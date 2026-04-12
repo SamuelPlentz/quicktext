@@ -169,6 +169,115 @@ fieldset legend {
 .source-list li.selected { background: var(--bg-selected); }
 .source-list li.active { font-weight: bold; }
 
+/* Grid-list pattern: the <ul> is a grid container and each <li>
+   uses display:contents so all rows share the same column widths.
+   Both the Storage Locations list and the Startup Import list use
+   this layout - the id-level rules below define per-list column
+   templates, while the shared structural, hover, selection, and
+   drop-indicator rules are driven off the `.grid-list` class. */
+.grid-list {
+  display: grid;
+  grid-auto-rows: min-content;
+  align-content: start;
+  height: calc(5 * 32px);
+  min-height: 0;
+  max-height: none;
+  overflow: auto;
+}
+#storage-list {
+  grid-template-columns: auto auto auto auto auto auto 1fr;
+}
+#startup-import-list {
+  /* Columns (in order): icon, lock, name, url.
+     URL is `minmax(0, 1fr)` instead of `auto` so a very long URL
+     doesn't push the list wider than its container; combined with
+     the ellipsis rule below, long URLs truncate and reveal the
+     full value via the `title` tooltip. The lock column is filled
+     only when the list is under enterprise policy control -
+     otherwise the cell is empty but still occupies the track so
+     columns line up whether or not a lock glyph is shown. */
+  grid-template-columns: auto auto auto minmax(0, 1fr);
+}
+#startup-import-list > li > .storage-path {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.grid-list > li {
+  display: contents;
+}
+.grid-list > li > * {
+  padding: 6px 0 6px 14px;
+  border-bottom: 1px solid var(--border-list);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+.grid-list > li > .storage-filler {
+  padding: 6px 0;
+}
+.grid-list > li:last-child > * {
+  border-bottom: none;
+}
+.grid-list > li:hover > * {
+  background: var(--bg-hover);
+}
+.grid-list > li.selected > * {
+  background: var(--bg-selected);
+}
+.grid-list > li.active > * {
+  font-weight: bold;
+}
+/* Drop-target indicator for drag-reorder: a thin accent-colored
+   line painted above or below the row under the pointer, showing
+   where the dragged row will land. The <li> uses `display: contents`
+   so pseudo-elements can't anchor to it - instead, an inset
+   box-shadow on every grid child paints a continuous line across
+   the whole row. The 2px inset fits inside the row's 6px top/bottom
+   padding and doesn't shift layout. */
+.grid-list > li.drop-above > * {
+  box-shadow: inset 0 2px 0 var(--accent);
+}
+.grid-list > li.drop-below > * {
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+.grid-list > li.header > * {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--bg-list);
+  border-bottom: 2px solid var(--border);
+  font-weight: bold;
+  cursor: default;
+}
+.grid-list > li.header:hover > * {
+  background: var(--bg-list);
+}
+.grid-list .storage-icon {
+  padding: 6px 0 6px 8px;
+  font-size: 14px;
+  line-height: 1;
+}
+.grid-list .storage-icon img {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+.grid-list .storage-lock {
+  padding: 6px 0 6px 6px;
+  font-size: 12px;
+  line-height: 1;
+  text-align: center;
+}
+.grid-list .storage-enabled {
+  padding: 6px 0 6px 8px;
+  text-align: center;
+}
+.grid-list .storage-enabled input[type="checkbox"] {
+  margin: 0;
+  vertical-align: middle;
+}
+
 /* Split pane (Templates + Scripts tabs) */
 .split-pane {
   display: flex;
@@ -209,7 +318,8 @@ fieldset legend {
 }
 .tree-group-header:hover { background: var(--bg-hover); }
 .tree-group-header.selected { background: var(--bg-selected); }
-.tree-group-header.drag-over { outline: 2px solid var(--accent); }
+.tree-group-header.drop-above { box-shadow: inset 0 2px 0 var(--accent); }
+.tree-group-header.drop-below { box-shadow: inset 0 -2px 0 var(--accent); }
 .tree-toggle { font-size: 10px; flex-shrink: 0; }
 .tree-children { }
 .tree-template {
@@ -221,9 +331,102 @@ fieldset legend {
 }
 .tree-template:hover { background: var(--bg-hover); }
 .tree-template.selected { background: var(--bg-selected); }
-.tree-template.drag-over { outline: 2px dashed var(--accent); }
+.tree-template.drop-above { box-shadow: inset 0 2px 0 var(--accent); }
+.tree-template.drop-below { box-shadow: inset 0 -2px 0 var(--accent); }
 .tree-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tree-shortcut { font-size: 0.85em; color: var(--text-subtle); flex-shrink: 0; margin-left: 4px; }
+
+/* Storage-level hierarchy (multi-storage mode). Each storage row
+   contains its own groups → templates tree and is visually distinct
+   from a group row. Only shown when more than one storage is enabled. */
+.tree-storage { }
+.tree-storage-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 6px;
+  font-weight: bold;
+  background: var(--bg-tabs);
+  border-top: 1px solid var(--border-list);
+  border-bottom: 1px solid var(--border-list);
+  cursor: pointer;
+}
+.tree-storage-header:hover { background: var(--bg-hover); }
+.tree-storage-header.selected { background: var(--bg-selected); }
+/* Small provider/managed/OPFS glyph rendered next to the storage
+   name in multi-storage headers on both tabs. */
+.storage-header-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+/* Lock glyph for read-only storages - sits at the right edge of
+   the header row, pushed there by `.tree-name` taking `flex: 1`. */
+.storage-header-lock {
+  flex-shrink: 0;
+  font-size: 12px;
+  line-height: 1;
+  pointer-events: none;
+}
+.tree-storage-children { }
+/* Multi-storage indent lives inside each row's own `padding-left`
+   instead of on the wrapper, so the selection background fills the
+   whole row right up to the container's left edge. */
+.tree-storage-children .tree-group-header { padding-left: 16px; }
+.tree-storage-children .tree-template     { padding-left: 32px; }
+
+/* Scripts list mirrors the Templates tree so the two tabs line up
+   pixel-for-pixel when switching. `.source-list` (used by the
+   default-import and storage lists) adds behaviour we don't want
+   here - default `<ul>` padding, per-row borders, different
+   min-height - so we override all of it under `#script-list`. */
+#script-list {
+  padding: 0;
+  background: var(--bg-tree);
+  min-height: 100px;
+}
+#script-list > li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 6px 5px 22px;
+  border-bottom: none;
+}
+#script-list > li:hover { background: var(--bg-hover); }
+#script-list > li.selected { background: var(--bg-selected); }
+#script-list > li.drop-above { box-shadow: inset 0 2px 0 var(--accent); }
+#script-list > li.drop-below { box-shadow: inset 0 -2px 0 var(--accent); }
+/* Multi-storage mode nests items one level deeper, mirroring the
+   tree-storage-children (+10px) + tree-template (+22px) stacking in
+   the Templates tab. */
+#script-list > li.script-indent {
+  padding-left: 32px;
+}
+/* Warning icon for incompatible scripts. Sits at the right edge
+   of the row - `.tree-name` takes `flex: 1`, so this flex child
+   is naturally pushed to the right. */
+#script-list > li .script-warn-icon {
+  font-size: 12px;
+  line-height: 1;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+/* Storage-header row: matches `.tree-storage-header` on the
+   Templates tab with a bordered band and a bold label. */
+#script-list .script-storage-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 6px;
+  font-weight: bold;
+  background: var(--bg-tabs);
+  border-top: 1px solid var(--border-list);
+  border-bottom: 1px solid var(--border-list);
+  cursor: pointer;
+}
+#script-list .script-storage-header:hover { background: var(--bg-hover); }
+#script-list .script-storage-header.selected { background: var(--bg-selected); }
 
 /* Detail area */
 .detail-table { width: 100%; border-collapse: collapse; margin-top: 6px; }

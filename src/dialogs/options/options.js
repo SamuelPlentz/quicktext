@@ -1,4 +1,5 @@
 import * as utils from "/modules/utils.mjs";
+import * as storage from "/modules/storage.mjs";
 import { localizeDocument } from "/vendor/i18n.mjs";
 import * as vfs from "/vendor/vfs-client/vfs-client.mjs";
 
@@ -53,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const entries = await vfs.showSelectFilePicker({
       multiple: true,
       id: "Quicktext",
-      opfsStorageName: "Quicktext Storage",
+      opfsStorageName: storage.OPFS_STORAGE_NAME,
       excludeAcceptAllOption: false,
       types: [
         {
@@ -68,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("show-saveFile-picker").addEventListener("click", async () => {
     const result = await vfs.showSaveFilePicker({
       providerId: EXAMPLE_PROVIDER_ID,
-      opfsStorageName: "Quicktext Storage",
+      opfsStorageName: storage.OPFS_STORAGE_NAME,
       suggestedName: "test-page.html"
     });
     console.log({ result });
@@ -83,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const entry = await vfs.showDirectoryPicker({
       multiple: true,
       id: "Quicktext",
-      opfsStorageName: "Quicktext Storage",
+      opfsStorageName: storage.OPFS_STORAGE_NAME,
       types: [
         {
           description: "Images",

@@ -44,7 +44,7 @@ function _defaultManagedName() {
 // `storageLocations` on startup by `_migrateStorageLocationsShape()`
 // if a policy is present and the user doesn't already have one. The
 // policy may ship a custom `name` and `icon` URL via the new
-// `managed-quicktext-storage` wrapper (see `_readManagedCombined`);
+// `managedStorage` wrapper (see `_readManagedCombined`);
 // both are optional and fall back to sensible defaults.
 function _makeManagedEntry({ name = null, icon = null } = {}) {
   return {
@@ -74,7 +74,7 @@ export async function hasManagedPolicy() {
 //
 // Two policy shapes are supported:
 //
-//   1. New (preferred) - a single `managed-quicktext-storage` key
+//   1. New (preferred) - a single `managedStorage` key
 //      whose value is an object with `name`, `icon`, `templates`,
 //      `scripts` sub-fields. Admins use this to ship a custom
 //      display name and icon alongside the content.
@@ -88,8 +88,8 @@ export async function hasManagedPolicy() {
 // when the policy doesn't provide them.
 async function _readManagedCombined() {
   try {
-    const { "managed-quicktext-storage": wrapped = null } = await browser.storage.managed.get({
-      "managed-quicktext-storage": null,
+    const { "managedStorage": wrapped = null } = await browser.storage.managed.get({
+      "managedStorage": null,
     });
     if (wrapped && typeof wrapped === "object") {
       const templates = wrapped.templates ?? null;
@@ -670,13 +670,13 @@ export class StorageListener {
     } else if (area == "managed") {
       // Admin pushed a new policy. Normalize any content-affecting
       // change - the legacy `templates`/`scripts` keys and the new
-      // `managed-quicktext-storage` wrapper - into synthetic
+      // `managedStorage` wrapper - into synthetic
       // `templates`/`scripts` change events so consumers that watch
       // the content keys (compose menu, toolbar, manager) rebuild
       // without needing to know about the wrapper format.
       // `storageLocations` is user-owned and deliberately not
       // policy-controlled, so it's not forwarded.
-      const managedContentKeys = ["templates", "scripts", "managed-quicktext-storage"];
+      const managedContentKeys = ["templates", "scripts", "managedStorage"];
       const touched = managedContentKeys.some(k => k in changes);
       if (touched) {
         for (const watched of ["templates", "scripts"]) {

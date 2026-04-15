@@ -81,6 +81,9 @@
   "quicktext.accesskey.resetCounter": {
     "message": "z"
   },
+  "quicktext.accesskey.updateCounter": {
+    "message": "g"
+  },
   "quicktext.accesskey.save": {
     "message": "s"
   },
@@ -359,6 +362,12 @@
   },
   "quicktext.resetcounter.label": {
     "message": "Azzera il contatore"
+  },
+  "quicktext.updatecounter.label": {
+    "message": "Aggiorna contatore"
+  },
+  "quicktext.updatecounter.prompt": {
+    "message": "Inserisci il nuovo valore del contatore:"
   },
   "quicktext.showContextMenu.label": {
     "message": "Mostra il menu Quicktext al click destro"

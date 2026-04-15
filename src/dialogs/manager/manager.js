@@ -290,6 +290,16 @@ function renderGeneral() {
     storage.setPref("counter", 0);
     updateCounterLegend();
   });
+
+  document.getElementById("btn-update-counter").addEventListener("click", () => {
+    const raw = prompt(i18n("quicktext.updatecounter.prompt"), String(state.prefs.counter));
+    if (raw === null) return;
+    const value = parseInt(raw.trim(), 10);
+    if (!Number.isFinite(value) || value < 0) return;
+    state.prefs.counter = value;
+    storage.setPref("counter", value);
+    updateCounterLegend();
+  });
 }
 
 function updateShortcutAdvAvailability() {
@@ -2425,7 +2435,7 @@ async function init() {
         // Managed-area content changes arrive here via the
         // StorageListener's managed branch (which forwards both
         // the legacy `templates`/`scripts` keys and the new
-        // `managed-quicktext-storage` wrapper as synthetic
+        // `managedStorage` wrapper as synthetic
         // `templates`/`scripts` events). Re-sync the "has managed
         // policy" flag and refresh the in-memory managed bundle so
         // the next render reflects the latest policy state.

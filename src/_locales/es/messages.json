@@ -81,6 +81,9 @@
   "quicktext.accesskey.resetCounter": {
     "message": "d"
   },
+  "quicktext.accesskey.updateCounter": {
+    "message": "a"
+  },
   "quicktext.accesskey.save": {
     "message": "u"
   },
@@ -359,6 +362,12 @@
   },
   "quicktext.resetcounter.label": {
     "message": "Reiniciar contador"
+  },
+  "quicktext.updatecounter.label": {
+    "message": "Actualizar contador"
+  },
+  "quicktext.updatecounter.prompt": {
+    "message": "Introduzca el nuevo valor del contador:"
   },
   "quicktext.showContextMenu.label": {
     "message": "Ver menu-Quicktext con la pulsación del botón derecho del ratón"

@@ -120,7 +120,7 @@ const INTERNAL_STORAGE_ICON_URL = browser.runtime.getURL("/assets/icon.png");
 
 // Resolve provider icons for every enabled storage, keyed by
 // storageUuid. Managed entries prefer the policy-provided `icon`
-// URL (from `managed-quicktext-storage`) and fall back to the
+// URL (from `managedStorage`) and fall back to the
 // dedicated shield glyph; OPFS (no storageRef) uses the Quicktext
 // add-on icon; external storages use their provider icon; unknown
 // providers return `null`.

@@ -81,6 +81,9 @@
   "quicktext.accesskey.resetCounter": {
     "message": "i"
   },
+  "quicktext.accesskey.updateCounter": {
+    "message": "f"
+  },
   "quicktext.accesskey.save": {
     "message": "c"
   },
@@ -359,6 +362,12 @@
   },
   "quicktext.resetcounter.label": {
     "message": "Számláló visszaállítása"
+  },
+  "quicktext.updatecounter.label": {
+    "message": "Számláló frissítése"
+  },
+  "quicktext.updatecounter.prompt": {
+    "message": "Adja meg a számláló új értékét:"
   },
   "quicktext.showContextMenu.label": {
     "message": "Jobb kattintással a gyorsszöveg menü megnyitása"

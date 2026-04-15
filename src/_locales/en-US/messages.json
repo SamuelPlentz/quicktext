@@ -81,6 +81,9 @@
   "quicktext.accesskey.resetCounter": {
     "message": "u"
   },
+  "quicktext.accesskey.updateCounter": {
+    "message": "d"
+  },
   "quicktext.accesskey.save": {
     "message": "s"
   },
@@ -359,6 +362,12 @@
   },
   "quicktext.resetcounter.label": {
     "message": "Reset counter"
+  },
+  "quicktext.updatecounter.label": {
+    "message": "Update counter"
+  },
+  "quicktext.updatecounter.prompt": {
+    "message": "Enter new counter value:"
   },
   "quicktext.showContextMenu.label": {
     "message": "Show Quicktext-menu on right-click"

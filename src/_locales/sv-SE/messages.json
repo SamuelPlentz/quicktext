@@ -81,6 +81,9 @@
   "quicktext.accesskey.resetCounter": {
     "message": "l"
   },
+  "quicktext.accesskey.updateCounter": {
+    "message": "u"
+  },
   "quicktext.accesskey.save": {
     "message": "a"
   },
@@ -359,6 +362,12 @@
   },
   "quicktext.resetcounter.label": {
     "message": "Återställ räknaren"
+  },
+  "quicktext.updatecounter.label": {
+    "message": "Uppdatera räknaren"
+  },
+  "quicktext.updatecounter.prompt": {
+    "message": "Ange det nya räknarvärdet:"
   },
   "quicktext.showContextMenu.label": {
     "message": "Visa Quicktext-menyn vid högerklick"

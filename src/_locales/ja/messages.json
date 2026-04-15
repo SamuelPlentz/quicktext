@@ -81,6 +81,9 @@
   "quicktext.accesskey.resetCounter": {
     "message": "r"
   },
+  "quicktext.accesskey.updateCounter": {
+    "message": "u"
+  },
   "quicktext.accesskey.save": {
     "message": "s"
   },
@@ -359,6 +362,12 @@
   },
   "quicktext.resetcounter.label": {
     "message": "カウンターをリセット"
+  },
+  "quicktext.updatecounter.label": {
+    "message": "カウンターを更新"
+  },
+  "quicktext.updatecounter.prompt": {
+    "message": "新しいカウンターの値を入力してください:"
   },
   "quicktext.showContextMenu.label": {
     "message": "コンテキストメニューに Quicktext を表示する"

@@ -81,6 +81,9 @@
   "quicktext.accesskey.resetCounter": {
     "message": "С"
   },
+  "quicktext.accesskey.updateCounter": {
+    "message": "О"
+  },
   "quicktext.accesskey.save": {
     "message": "р"
   },
@@ -359,6 +362,12 @@
   },
   "quicktext.resetcounter.label": {
     "message": "Сбросить счетчик"
+  },
+  "quicktext.updatecounter.label": {
+    "message": "Обновить счётчик"
+  },
+  "quicktext.updatecounter.prompt": {
+    "message": "Введите новое значение счётчика:"
   },
   "quicktext.showContextMenu.label": {
     "message": "Просмотр Quicktext-меню по правому клику"

@@ -226,7 +226,10 @@ export async function getTextFileContent(file) {
 }
 
 export async function fetchFileAsFile(url, name) {
-    const response = await fetch(url);
+    // Bypass the HTTP cache: tag-driven URL reads should always
+    // see the live resource, never a stale copy from a previous
+    // template insert.
+    const response = await fetch(url, { cache: "no-store" });
 
     if (!response.ok) {
         throw new Error(`Failed to fetch file: ${response.status} ${response.statusText}`);
@@ -252,7 +255,10 @@ export async function fetchFileAsText(url) {
 }
 
 export async function fetchFileAsDataUrl(url) {
-    const response = await fetch(url);
+    // Bypass the HTTP cache: tag-driven URL reads should always
+    // see the live resource, never a stale copy from a previous
+    // template insert.
+    const response = await fetch(url, { cache: "no-store" });
     if (!response.ok) {
         throw new Error(`Failed to fetch: ${response.status} ${response.statusText}`);
     }
@@ -296,36 +302,24 @@ export async function openPopup(tabId, config) {
             popup.resolve();
         }
     };
-	// ### START OF FIX ###
-	//
-	// The logic has been greatly simplified to stop the "focus fight"
-	// and the resulting flickering.
-
-	const onFocusChangedListener = async windowId => {
+    // When the parent window gains focus, refocus the popup to keep
+    // it modal-like.
+    const onFocusChangedListener = async windowId => {
         if (status != "active") {
             return;
         }
-        
-	// GOAL: We only want to handle one scenario:
-    // If the parent window (parentId) receives focus,
-    // we must immediately refocus the popup (popupId)
- 	// to maintain its "modal" state.
-
         if (windowId == parentId) {
-    try {
-				// Try to refocus the popup
-			await browser.windows.update(popupId, {
-				focused: true,
-				...dimension(await browser.windows.get(parentId))
-			});
-		} catch (e) {
-			// The popup might have been closed in the meantime.
-			console.warn("Could not refocus popup, it might be closing.", e.message);
-		}
+            try {
+                await browser.windows.update(popupId, {
+                    focused: true,
+                    ...dimension(await browser.windows.get(parentId))
+                });
+            } catch (e) {
+                // The popup might have been closed in the meantime.
+                console.warn("Could not refocus popup, it might be closing.", e.message);
+            }
         }
-
     };
-    // ### END OF FIX ###
     const onMessageListener = (info, sender, sendResponse) => {
         // Validate windowId for all actions, allow first config request to set popupId to resolve race condition
         if (sender.tab.windowId != popupId) {

@@ -141,15 +141,6 @@
             injectElements(context.extension, window, `
   <toolbar id="quicktext-toolbar" insertbefore="messageEditor">
     <html:div id="quicktext-templates-toolbar" />
-    <spacer flex="1" />
-    <hbox>
-      <button type="menu" id="quicktext-insert-variable" label="__MSG_quicktext.insertVariable.label__" tabindex="-1">
-        <menupopup id="quicktext-insert-variable-popup" />
-      </button>
-      <button type="menu" id="quicktext-insert-file" label="__MSG_quicktext.insertStaticFile.label__" tabindex="-1">
-        <menupopup id="quicktext-insert-file-popup" />
-      </button>
-    </hbox>
   </toolbar>`, labels
             );
 

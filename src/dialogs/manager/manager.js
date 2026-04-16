@@ -6,7 +6,6 @@
 
 const COMMUNITY_SCRIPTS_ID = "quicktext.scripts@community.jobisoft.de";
 
-import * as quicktext from "/modules/quicktext.mjs";
 import * as storage from "/modules/storage.mjs";
 import * as utils from "/modules/utils.mjs";
 import * as menus from "/modules/menus.mjs";
@@ -14,6 +13,7 @@ import * as vfs from "/vendor/vfs-client/vfs-client.mjs";
 
 import { localizeDocument } from "/vendor/i18n.mjs";
 import { getTagsMenuStructure, getDateTimeMenuTitle } from "/modules/menuStructure.mjs";
+import { showDialog, showAlert, showConfirm, showPrompt } from "./popover.js";
 const { computePosition, flip, shift } = FloatingUIDOM;
 
 const i18n = (key, subs) => browser.i18n.getMessage(key, subs) || key;
@@ -45,7 +45,7 @@ function makeUnique(name, arr) {
 // (selection state, `findBundle` lookups, tree DOM attributes).
 //
 // Bundles in `state.bundles` carry both a direct `entry` backref
-// (convenient for renders that also need name/readOnly/etc.) and
+// (convenient for renders that also need name/isReadOnly/etc.) and
 // `storageUuid` for the canonical identity match.
 //
 // Collapse state lives on the bundle itself (`groupExpanded[gi]`
@@ -83,7 +83,7 @@ function findBundle(uuid) {
 // ---------- Storage icons ----------
 //
 // Cached VFS provider connections - fetched once in `loadAll` so
-// renderTree / renderScriptList / renderStorageList can resolve an
+// renderTemplateList / renderScriptList / renderStorageList can resolve an
 // icon URL synchronously instead of paying an async round-trip per
 // paint. The list rarely changes; we refresh on storage add/remove.
 let _vfsProviders = [];
@@ -164,6 +164,97 @@ async function loadAll() {
     if (entry.enabled === false) continue;
     await _addBundle(entry);
   }
+  // Append one read-only bundle per enabled import that has fetched
+  // content. Imports are not persisted in `storageLocations` - their
+  // source of truth is `defaultImport` - so they're rebuilt from
+  // `state.prefs.defaultImport` here and again on every change to that
+  // pref (see the local-area StorageListener callback below).
+  _rebuildImportBundles();
+}
+
+function _rebuildImportBundles() {
+  state.bundles = state.bundles.filter(b => !b.isImport);
+  for (const entry of state.prefs.defaultImport) {
+    if (entry.enabled === false) continue;
+    if (!entry.data) continue;
+    const groups = entry.data.templates?.groups ?? [];
+    state.bundles.push({
+      storageUuid: entry.uuid,
+      storageName: entry.name,
+      isReadOnly: true,
+      isImport: true,
+      iconUrl: entry.icon || browser.runtime.getURL("/assets/icon-globe.svg"),
+      groups,
+      texts: entry.data.templates?.texts ?? [],
+      scripts: entry.data.scripts ?? [],
+      groupExpanded: groups.map(() => true),
+      dirty: false,
+    });
+  }
+}
+
+// Single re-render path for any in-memory mutation of
+// `state.prefs.defaultImport`. Rebuilds the import bundles and
+// updates every view that reflects them. Rescues any
+// Templates/Scripts selection that pointed at an import bundle that
+// no longer exists (user disabled/removed it, or the admin revoked
+// a managed policy entry mid-session) and re-renders the detail
+// panes when that happens.
+function _refreshImportViews() {
+  _rebuildImportBundles();
+  const rescued = _rescueOrphanedSelections();
+  renderImportList();
+  renderTemplateList();
+  renderScriptList();
+  if (rescued) {
+    renderTemplateDetail();
+    renderScriptDetail();
+  }
+}
+
+// Build the storage-header element for an import bundle. Shared by
+// `renderTemplateList` (wraps it in a `tree-storage` div) and `renderScriptList`
+// (uses it directly as a list item). Imports are always read-only, so
+// the lock glyph is unconditional.
+function _buildImportStorageHeader(bundle, { elementType, className, isSelected, onClick }) {
+  const header = document.createElement(elementType);
+  header.className = className;
+  header.dataset.uuid = bundle.storageUuid;
+  if (isSelected()) header.classList.add("selected");
+
+  const icon = document.createElement("img");
+  icon.className = "storage-header-icon";
+  icon.src = bundle.iconUrl;
+  icon.alt = "";
+  header.appendChild(icon);
+
+  const nameSpan = document.createElement("span");
+  nameSpan.className = "tree-name";
+  nameSpan.textContent = bundle.storageName;
+  nameSpan.title = bundle.storageName;
+  header.appendChild(nameSpan);
+
+  const lockEl = document.createElement("span");
+  lockEl.className = "storage-header-lock";
+  lockEl.textContent = "🔒";
+  lockEl.title = i18n("quicktext.storageList.readOnly.label");
+  header.appendChild(lockEl);
+
+  header.addEventListener("click", onClick);
+  return header;
+}
+
+// Pre-Save in-memory fetch on add/enable so the user sees fetched
+// content live in Templates/Scripts tabs before clicking Save. The
+// stale-completion guard discards the patch if the entry was removed
+// or had its URL changed mid-fetch.
+async function _fetchAndApplyImport(entry) {
+  const patch = await storage.fetchImportOnce(entry);
+  const current = state.prefs.defaultImport.find(e => e.uuid === entry.uuid);
+  if (!current || current.url !== entry.url) return;
+  current.data = patch.data;
+  current.status = patch.status;
+  _refreshImportViews();
 }
 
 async function saveAll() {
@@ -172,6 +263,7 @@ async function saveAll() {
   await storage.setPref("shortcutModifier", state.prefs.shortcutModifier);
   await storage.setPref("shortcutTypeAdv", state.prefs.shortcutTypeAdv);
   await storage.setPref("keywordKey", state.prefs.keywordKey);
+  await storage.setPref("defaultImport", state.prefs.defaultImport);
   // The storage list (including enabled flags, type, name and
   // ordering) is part of the regular Save flow. Storage-list edits
   // in the advanced tab auto-apply to the in-memory state, but
@@ -182,17 +274,13 @@ async function saveAll() {
   // content-write loop below via the read-only guard.
   await storage.setPref("storageLocations", state.storageEntries);
 
-  // Startup imports. `storage.setPref` is a no-op when the pref is
-  // enterprise-policy-controlled, so no caller-side guard needed.
-  await storage.setPref("defaultImport", state.prefs.defaultImport);
-
   // Persist per-bundle edits only for bundles the user actually
   // touched (and that are writable). Templates and scripts share a
   // single config file, so one dirty flag covers both and the whole
   // bundle is written in one read-modify-write.
   for (const entry of state.storageEntries) {
     const bundle = findBundle(entry.uuid);
-    if (!bundle || bundle.readOnly) continue;
+    if (!bundle || bundle.isReadOnly) continue;
     if (!bundle.dirty) continue;
     const templates = { groups: bundle.groups, texts: bundle.texts };
     await storage.setBundleForStorage(entry.uuid, { templates, scripts: bundle.scripts });
@@ -291,8 +379,8 @@ function renderGeneral() {
     updateCounterLegend();
   });
 
-  document.getElementById("btn-update-counter").addEventListener("click", () => {
-    const raw = prompt(i18n("quicktext.updatecounter.prompt"), String(state.prefs.counter));
+  document.getElementById("btn-update-counter").addEventListener("click", async () => {
+    const raw = await showPrompt(i18n("quicktext.updatecounter.prompt"), String(state.prefs.counter));
     if (raw === null) return;
     const value = parseInt(raw.trim(), 10);
     if (!Number.isFinite(value) || value < 0) return;
@@ -312,47 +400,47 @@ function updateShortcutAdvAvailability() {
   chk.title = isManaged ? i18n("quicktext.controlledViaManagedStorage.label") : "";
 }
 
-// ---------- Startup Import tab ----------
+// ---------- Import tab ----------
 //
-// A flat list of `{name, url}` entries the add-on will fetch at
-// startup (fetch/cache/integration is a follow-up pass - this tab
+// A flat list of `{name, url}` entries the add-on will fetch on
+// import (fetch/cache/integration is a follow-up pass - this tab
 // only lets the user edit the pointer list). Add/rename/remove/
 // drag-reorder via the same patterns as the Storage Locations tab.
 
-function _selectedStartupImportEntry() {
-  const sel = document.getElementById("startup-import-list").querySelector("li.selected");
+function _selectedImportListEntry() {
+  const sel = document.getElementById("import-list").querySelector("li.selected");
   if (!sel) return null;
   const idx = parseInt(sel.dataset.idx, 10);
   return state.prefs.defaultImport[idx] ?? null;
 }
 
-function _selectedStartupImportIdx() {
-  const sel = document.getElementById("startup-import-list").querySelector("li.selected");
+function _selectedImportListIdx() {
+  const sel = document.getElementById("import-list").querySelector("li.selected");
   if (!sel) return -1;
   return parseInt(sel.dataset.idx, 10);
 }
 
-function updateStartupImportButtons() {
-  const managed = state.managedPrefs.has("defaultImport");
-  const hasSelection = _selectedStartupImportEntry() !== null;
-  const managedTooltip = managed ? i18n("quicktext.controlledViaManagedStorage.label") : "";
-  const addBtn = document.getElementById("btn-add-startup-import");
-  const renameBtn = document.getElementById("btn-rename-startup-import");
-  const removeBtn = document.getElementById("btn-remove-startup-import");
-  addBtn.disabled = managed;
-  addBtn.title = managedTooltip;
-  renameBtn.disabled = managed || !hasSelection;
+function updateImportListButtons() {
+  const selected = _selectedImportListEntry();
+  const selectedManaged = selected?.managed === true;
+  const managedTooltip = selectedManaged
+    ? i18n("quicktext.controlledViaManagedStorage.label")
+    : "";
+  document.getElementById("btn-add-import").disabled = false;
+  const renameBtn = document.getElementById("btn-rename-import");
+  const removeBtn = document.getElementById("btn-remove-import");
+  renameBtn.disabled = !selected || selectedManaged;
   renameBtn.title = managedTooltip;
-  removeBtn.disabled = managed || !hasSelection;
+  removeBtn.disabled = !selected || selectedManaged;
   removeBtn.title = managedTooltip;
 }
 
-function renderStartupImportList() {
-  const list = document.getElementById("startup-import-list");
-  const previouslySelected = _selectedStartupImportIdx();
+function renderImportList() {
+  const list = document.getElementById("import-list");
+  const previouslySelected = _selectedImportListIdx();
   list.innerHTML = "";
   _setupListDropFallback(list, {
-    dragType: "quicktext.startup-import.label",
+    dragType: "quicktext.import.label",
     onDrop: () => {
       const src = dragSrc.idx;
       const lastIdx = state.prefs.defaultImport.length - 1;
@@ -360,21 +448,25 @@ function renderStartupImportList() {
       const [moved] = state.prefs.defaultImport.splice(src, 1);
       state.prefs.defaultImport.push(moved);
       markChanged();
-      renderStartupImportList();
+      renderImportList();
     },
   });
 
-  // Sticky header row: empty icon column, empty lock column,
-  // Name column, URL column. No filler cell - the URL column is
-  // `minmax(0, 1fr)` so it already absorbs any remaining
-  // horizontal space and lets long URLs truncate with an ellipsis.
+  // Sticky header row: empty enabled column, empty icon column, empty
+  // lock column, Name column, URL column, Status column. The lock cell
+  // is filled per-row for entries with `managed: true`; rows with
+  // `managed: false` get an empty cell that still occupies the track
+  // so columns align across mixed rows. URL is `minmax(0, 1fr)` so
+  // long URLs truncate with an ellipsis rather than widening the list.
   const header = document.createElement("li");
   header.className = "header";
   for (const [cls, key] of [
+    ["storage-enabled", null],
     ["storage-icon", null],
     ["storage-lock", null],
     ["storage-name", "quicktext.defaultImport.columns.name"],
     ["storage-path", "quicktext.defaultImport.columns.url"],
+    ["import-status", "quicktext.defaultImport.columns.status"],
   ]) {
     const cell = document.createElement("span");
     cell.className = cls;
@@ -383,32 +475,45 @@ function renderStartupImportList() {
   }
   list.appendChild(header);
 
-  // The lock column is filled for every row iff the list is
-  // under enterprise policy control - all managed entries are
-  // inherently read-only. Computed once outside the row loop.
-  const managed = state.managedPrefs.has("defaultImport");
-
+  const managedTooltip = i18n("quicktext.controlledViaManagedStorage.label");
   for (let i = 0; i < state.prefs.defaultImport.length; i++) {
     const entry = state.prefs.defaultImport[i];
     const li = document.createElement("li");
     li.dataset.idx = i;
     if (i === previouslySelected) li.classList.add("selected");
 
+    // Enabled checkbox. Managed rows are forcefully enabled and
+    // cannot be toggled off. Toggling a non-managed row is a cheap
+    // state flip plus a full list re-render. On a false → true
+    // transition, queue the URL so `saveAll` kicks off a fresh fetch.
+    const enabledEl = document.createElement("span");
+    enabledEl.className = "storage-enabled";
+    const enabledBox = document.createElement("input");
+    enabledBox.type = "checkbox";
+    enabledBox.checked = entry.enabled !== false;
+    enabledBox.disabled = entry.managed === true;
+    enabledBox.addEventListener("click", e => {
+      e.stopPropagation();
+      const wasEnabled = entry.enabled !== false;
+      entry.enabled = enabledBox.checked;
+      markChanged();
+      _refreshImportViews();
+      if (!wasEnabled && entry.enabled) _fetchAndApplyImport(entry);
+    });
+    enabledEl.appendChild(enabledBox);
+
     const iconEl = document.createElement("span");
     iconEl.className = "storage-icon";
     const img = document.createElement("img");
-    // Admin-provided icon from the managed `defaultImport` entry
-    // wins when present; otherwise a generic globe glyph matching
-    // the "🌎" marker the old default-import UI used.
     img.src = entry.icon || browser.runtime.getURL("/assets/icon-globe.svg");
     img.alt = "";
     iconEl.appendChild(img);
 
     const lockEl = document.createElement("span");
     lockEl.className = "storage-lock";
-    if (managed) {
+    if (entry.managed) {
       lockEl.textContent = "🔒";
-      lockEl.title = i18n("quicktext.storageList.readOnly.label");
+      lockEl.title = managedTooltip;
     }
 
     const nameEl = document.createElement("span");
@@ -421,58 +526,120 @@ function renderStartupImportList() {
     urlEl.textContent = entry.url;
     urlEl.title = entry.url;
 
-    li.append(iconEl, lockEl, nameEl, urlEl);
+    // Fetch-status cell: ok/fail glyph + absolute timestamp. Empty
+    // until the first fetch attempt lands. Tooltip carries the error
+    // message on failure.
+    const statusEl = document.createElement("span");
+    statusEl.className = "import-status";
+    if (entry.status) {
+      const ok = !entry.status.error;
+      const glyph = document.createElement("span");
+      glyph.className = ok ? "import-status-ok" : "import-status-fail";
+      glyph.textContent = ok ? "✓" : "✗";
+      const time = document.createElement("span");
+      time.textContent = " " + _formatAbsoluteTimestamp(entry.status.timestamp);
+      statusEl.append(glyph, time);
+      if (entry.status.error) statusEl.title = entry.status.error;
+    }
+
+    li.append(enabledEl, iconEl, lockEl, nameEl, urlEl, statusEl);
     li.addEventListener("click", () => {
       list.querySelectorAll("li").forEach(el => el.classList.remove("selected"));
       li.classList.add("selected");
-      updateStartupImportButtons();
+      updateImportListButtons();
     });
-    li.draggable = !state.managedPrefs.has("defaultImport");
-    if (li.draggable) setupStartupImportDrag(li, i);
+    // Every row is draggable - the user can freely interleave managed
+    // and user-owned entries. Reordering rewrites local `defaultImport`
+    // on Save; the `managed` flag rides along so reconcile keeps the
+    // row in its user-chosen slot on the next policy update.
+    li.draggable = true;
+    setupImportListDrag(li, i);
     list.appendChild(li);
   }
-  updateStartupImportButtons();
+  updateImportListButtons();
 }
 
-function addStartupImport() {
-  if (state.managedPrefs.has("defaultImport")) return;
-  const raw = prompt(i18n("quicktext.prompt.addUrl.label"), "https://");
-  if (raw == null) return;
-  const url = raw.trim();
-  if (!url) return;
-  let parsed;
-  try {
-    parsed = new URL(url);
-  } catch {
-    alert(i18n("quicktext.defaultImport.invalidUrl.label"));
-    return;
-  }
-  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-    alert(i18n("quicktext.defaultImport.invalidUrl.label"));
-    return;
-  }
-  const name = _deriveStartupImportName(url);
+async function addImportListEntry() {
+  const result = await showDialog({
+    title: i18n("quicktext.dialog.addImport.label"),
+    fields: [
+      { id: "name", label: i18n("quicktext.defaultImport.columns.name"), type: "text" },
+      { id: "url", label: i18n("quicktext.defaultImport.columns.url"), type: "url", value: "https://", required: true },
+    ],
+    buttons: [
+      { id: "cancel", label: i18n("quicktext.close.label") },
+      { id: "ok", label: i18n("quicktext.buttons.addConfig.label"), primary: true },
+    ],
+    onButton: async (buttonId, values, api) => {
+      if (buttonId === "cancel") return true;
+      api.setError("");
+      const url = values.url.trim();
+      if (!url) {
+        api.setError(i18n("quicktext.defaultImport.invalidUrl.label"));
+        return false;
+      }
+      let parsed;
+      try {
+        parsed = new URL(url);
+      } catch {
+        api.setError(i18n("quicktext.defaultImport.invalidUrl.label"));
+        return false;
+      }
+      if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+        api.setError(i18n("quicktext.defaultImport.invalidUrl.label"));
+        return false;
+      }
+      const duplicate = state.prefs.defaultImport.find(e => e.url === url);
+      if (duplicate) {
+        api.setError(i18n("quicktext.defaultImport.duplicate.label", [duplicate.name || duplicate.url]));
+        return false;
+      }
+      try {
+        const res = await fetch(url, { method: "HEAD", cache: "no-store" });
+        if (!res.ok) {
+          api.setError(`Connect error: ${res.status} ${res.statusText}`);
+          return false;
+        }
+      } catch (e) {
+        api.setError(`Connect error: ${e.message}`);
+        return false;
+      }
+      return true;
+    },
+  });
+  if (!result || result.button !== "ok") return;
+  const url = result.values.url.trim();
+  const rawName = result.values.name.trim();
+  const baseName = rawName || _deriveImportListEntryName(url);
   const others = state.prefs.defaultImport.map(e => e.name).filter(Boolean);
-  state.prefs.defaultImport.push({ name: makeUnique(name, others), url });
+  const newEntry = {
+    uuid: crypto.randomUUID(),
+    name: makeUnique(baseName, others),
+    url,
+    icon: null,
+    managed: false,
+    enabled: true,
+    data: null,
+    status: null,
+  };
+  state.prefs.defaultImport.push(newEntry);
   markChanged();
-  renderStartupImportList();
-  // Select the new row so the next action (rename / remove / drag)
-  // targets it without an extra click.
-  const list = document.getElementById("startup-import-list");
+  _refreshImportViews();
+  const list = document.getElementById("import-list");
   const newRow = list.querySelector(`li[data-idx="${state.prefs.defaultImport.length - 1}"]`);
   if (newRow) {
     list.querySelectorAll("li").forEach(el => el.classList.remove("selected"));
     newRow.classList.add("selected");
-    updateStartupImportButtons();
+    updateImportListButtons();
   }
+  _fetchAndApplyImport(newEntry);
 }
 
-function renameStartupImport() {
-  if (state.managedPrefs.has("defaultImport")) return;
-  const idx = _selectedStartupImportIdx();
+async function renameImportListEntry() {
+  const idx = _selectedImportListIdx();
   const entry = state.prefs.defaultImport[idx];
-  if (!entry) return;
-  const raw = prompt(i18n("quicktext.defaultImport.rename.prompt"), entry.name || "");
+  if (!entry || entry.managed) return;
+  const raw = await showPrompt(i18n("quicktext.defaultImport.rename.prompt"), entry.name || "");
   if (raw == null) return;
   const others = state.prefs.defaultImport
     .filter((_, i) => i !== idx)
@@ -482,40 +649,39 @@ function renameStartupImport() {
   if (!next || next === entry.name) return;
   entry.name = next;
   markChanged();
-  renderStartupImportList();
+  _refreshImportViews();
 }
 
-function removeStartupImport() {
-  if (state.managedPrefs.has("defaultImport")) return;
-  const idx = _selectedStartupImportIdx();
+async function removeImportListEntry() {
+  const idx = _selectedImportListIdx();
   const entry = state.prefs.defaultImport[idx];
-  if (!entry) return;
-  if (!confirm(i18n("quicktext.defaultImport.confirmRemove.label", [entry.name || entry.url]))) return;
+  if (!entry || entry.managed) return;
+  if (!await showConfirm(i18n("quicktext.defaultImport.confirmRemove.label", [entry.name || entry.url]))) return;
   state.prefs.defaultImport.splice(idx, 1);
   markChanged();
-  renderStartupImportList();
+  _refreshImportViews();
 }
 
-function setupStartupImportDrag(el, idx) {
-  const list = document.getElementById("startup-import-list");
+function setupImportListDrag(el, idx) {
+  const list = document.getElementById("import-list");
   el.addEventListener("dragstart", e => {
-    dragSrc = { type: "quicktext.startup-import.label", idx };
+    dragSrc = { type: "quicktext.import.label", idx };
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/plain", "quicktext.startup-import.label");
+    e.dataTransfer.setData("text/plain", "quicktext.import.label");
   });
   el.addEventListener("dragend", () => {
     _clearDropIndicators(list);
     dragSrc = null;
   });
   el.addEventListener("dragover", e => {
-    if (dragSrc?.type !== "quicktext.startup-import.label") return;
+    if (dragSrc?.type !== "quicktext.import.label") return;
     e.preventDefault();
     _clearDropIndicators(list);
     _setDropIndicator(el, e.clientY);
   });
   el.addEventListener("drop", e => {
     e.preventDefault();
-    if (dragSrc?.type !== "quicktext.startup-import.label") return;
+    if (dragSrc?.type !== "quicktext.import.label") return;
     const src = dragSrc.idx;
     const below = el.classList.contains("drop-below");
     _clearDropIndicators(list);
@@ -526,14 +692,14 @@ function setupStartupImportDrag(el, idx) {
     const dest = src < insertionPoint ? insertionPoint - 1 : insertionPoint;
     state.prefs.defaultImport.splice(dest, 0, moved);
     markChanged();
-    renderStartupImportList();
+    renderImportList();
   });
 }
 
 // Extract a sensible default display name from a URL: last
 // non-empty path segment, or hostname if the path is empty. Used
 // at add-time; the user can rename anytime afterward.
-function _deriveStartupImportName(url) {
+function _deriveImportListEntryName(url) {
   try {
     const u = new URL(url);
     const segments = u.pathname.split("/").filter(Boolean);
@@ -543,11 +709,20 @@ function _deriveStartupImportName(url) {
   }
 }
 
+// Absolute local-time timestamp in `YYYY-MM-DD HH:MM` for the Imports
+// tab's Status column. Short enough to fit the column, sortable, and
+// unambiguous (no "2h ago" staleness between renders).
+function _formatAbsoluteTimestamp(ms) {
+  const d = new Date(ms);
+  const pad = n => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 // ---------- Template tree ----------
 
 let dragSrc = null;
 
-function renderTree() {
+function renderTemplateList() {
   const container = document.getElementById("template-tree");
   const scrollTop = container.scrollTop;
   container.innerHTML = "";
@@ -594,7 +769,7 @@ function renderTree() {
       storageName.title = bundle.storageName;
 
       storageHeader.appendChild(storageName);
-      if (bundle.readOnly) {
+      if (bundle.isReadOnly) {
         const lockEl = document.createElement("span");
         lockEl.className = "storage-header-lock";
         lockEl.textContent = "🔒";
@@ -615,13 +790,38 @@ function renderTree() {
     }
   }
 
+  // Import bundles always render as multi-storage (their own header),
+  // since they originate outside `storageLocations` and need to be
+  // visually distinct from regular storages.
+  for (const bundle of state.bundles) {
+    if (!bundle.isImport) continue;
+    const storageEl = document.createElement("div");
+    storageEl.className = "tree-storage";
+    storageEl.dataset.uuid = bundle.storageUuid;
+
+    const storageHeader = _buildImportStorageHeader(bundle, {
+      elementType: "div",
+      className: "tree-storage-header",
+      isSelected: () => state.selectedTemplateStorageUuid === bundle.storageUuid
+        && state.selectedGroupIdx === -1,
+      onClick: () => selectStorage(bundle.storageUuid),
+    });
+    storageEl.appendChild(storageHeader);
+
+    const storageChildren = document.createElement("div");
+    storageChildren.className = "tree-storage-children";
+    _renderGroupsForBundle(bundle, storageChildren);
+    storageEl.appendChild(storageChildren);
+    container.appendChild(storageEl);
+  }
+
   container.scrollTop = scrollTop;
   updateTemplateButtons();
 }
 
 function _renderGroupsForBundle(bundle, container) {
   const uuid = bundle.storageUuid;
-  const readOnly = bundle.readOnly;
+  const isReadOnly = bundle.isReadOnly;
   for (let gi = 0; gi < bundle.groups.length; gi++) {
     const group = bundle.groups[gi];
     const expanded = bundle.groupExpanded[gi] !== false;
@@ -636,7 +836,7 @@ function _renderGroupsForBundle(bundle, container) {
     if (state.selectedTemplateStorageUuid === uuid && state.selectedGroupIdx === gi && state.selectedTextIdx === -1) {
       header.classList.add("selected");
     }
-    header.draggable = !readOnly;
+    header.draggable = !isReadOnly;
 
     const toggle = document.createElement("span");
     toggle.className = "tree-toggle";
@@ -654,9 +854,9 @@ function _renderGroupsForBundle(bundle, container) {
     // toggle icon is a visual indicator only.
     header.addEventListener("dblclick", () => {
       bundle.groupExpanded[gi] = !expanded;
-      renderTree();
+      renderTemplateList();
     });
-    if (!readOnly) setupGroupDrag(header, bundle, gi);
+    if (!isReadOnly) setupGroupDrag(header, bundle, gi);
 
     groupEl.appendChild(header);
 
@@ -673,7 +873,7 @@ function _renderGroupsForBundle(bundle, container) {
         if (state.selectedTemplateStorageUuid === uuid && state.selectedGroupIdx === gi && state.selectedTextIdx === ti) {
           tmplEl.classList.add("selected");
         }
-        tmplEl.draggable = !readOnly;
+        tmplEl.draggable = !isReadOnly;
 
         const nameEl = document.createElement("span");
         nameEl.className = "tree-name";
@@ -687,7 +887,7 @@ function _renderGroupsForBundle(bundle, container) {
         tmplEl.appendChild(nameEl);
         tmplEl.appendChild(shortcutEl);
         tmplEl.addEventListener("click", () => selectItem(uuid, gi, ti));
-        if (!readOnly) setupTemplateDrag(tmplEl, bundle, gi, ti);
+        if (!isReadOnly) setupTemplateDrag(tmplEl, bundle, gi, ti);
 
         children.appendChild(tmplEl);
       }
@@ -704,11 +904,7 @@ function selectItem(uuid, gi, ti) {
   state.selectedTemplateStorageUuid = uuid;
   state.selectedGroupIdx = gi;
   state.selectedTextIdx = ti;
-  // Move the highlight by DOM-patching the existing rows rather
-  // than rebuilding the tree - a full renderTree would replace the
-  // clicked header element and break native `dblclick` (the second
-  // click lands on a fresh node).
-  _updateTreeSelection();
+  _updateTemplateListSelection();
   updateTemplateButtons();
   renderTemplateDetail();
   // The Insert Tag flyout is scoped to the selected template's
@@ -724,7 +920,7 @@ function selectStorage(uuid) {
   selectItem(uuid, -1, -1);
 }
 
-function _updateTreeSelection() {
+function _updateTemplateListSelection() {
   const container = document.getElementById("template-tree");
   for (const el of container.querySelectorAll(".selected")) {
     el.classList.remove("selected");
@@ -754,7 +950,7 @@ function commitTemplateEdits() {
   const ti = state.selectedTextIdx;
   if (!uuid || gi === -1 || ti === -1) return;
   const bundle = findBundle(uuid);
-  if (!bundle || bundle.readOnly) return;
+  if (!bundle || bundle.isReadOnly) return;
   const tmpl = bundle.texts[gi]?.[ti];
   if (!tmpl) return;
   tmpl.text = document.getElementById("text-body").value;
@@ -778,13 +974,15 @@ function renderTemplateDetail() {
     setTemplateFieldsVisible(false);
     setTemplateFieldsEnabled(false);
     browser.menus.update("managerInsertTagMenu", { enabled: false });
-    // When a storage header is selected, show its entry name in
-    // the title field. Editable for any storage that isn't the
-    // managed (policy-backed) one - `onTitleInput` writes the
-    // new name into `entry.name` and patches the visible headers.
+    // When a storage header is selected, show its name in the title
+    // field. Editable for any writable VFS storage; `onTitleInput`
+    // writes the new name into `entry.name` and patches the visible
+    // headers. Imports aren't in `state.storageEntries`, so fall back
+    // to the in-memory bundle for their displayed name.
     const selectedEntry = uuid ? state.storageEntries.find(e => e.uuid === uuid) : null;
+    const selectedBundle = uuid ? findBundle(uuid) : null;
     const titleEl = document.getElementById("text-title");
-    titleEl.value = selectedEntry?.name ?? "";
+    titleEl.value = selectedEntry?.name ?? selectedBundle?.storageName ?? "";
     titleEl.disabled = !selectedEntry || selectedEntry.type === "managed";
     document.getElementById("text-body").value = "";
     return;
@@ -792,14 +990,14 @@ function renderTemplateDetail() {
 
   const bundle = findBundle(uuid);
   const isGroup = ti === -1;
-  const readOnly = !!bundle?.readOnly;
+  const isReadOnly = !!bundle?.isReadOnly;
 
   document.getElementById("detail-caption").textContent = i18n(isGroup ? "quicktext.group.label" : "quicktext.template.label");
   setTemplateFieldsVisible(!isGroup);
-  setTemplateFieldsEnabled(!isGroup && !readOnly);
-  browser.menus.update("managerInsertTagMenu", { enabled: !isGroup && !readOnly });
+  setTemplateFieldsEnabled(!isGroup && !isReadOnly);
+  browser.menus.update("managerInsertTagMenu", { enabled: !isGroup && !isReadOnly });
   // When a group is selected, only the title field is relevant - enable it for renaming.
-  if (isGroup) document.getElementById("text-title").disabled = readOnly;
+  if (isGroup) document.getElementById("text-title").disabled = isReadOnly;
 
   if (isGroup) {
     document.getElementById("text-title").value = bundle.groups[gi].name;
@@ -884,7 +1082,7 @@ function disableUsedShortcuts(currentShortcut) {
 
 function updateTemplateButtons() {
   const bundle = findBundle(state.selectedTemplateStorageUuid);
-  const canAddToStorage = bundle && !bundle.readOnly;
+  const canAddToStorage = bundle && !bundle.isReadOnly;
   const canEdit = canAddToStorage && state.selectedGroupIdx !== -1;
   // "Add group" requires a writable selected storage (so the
   // insert target is unambiguous); "Add/Remove template" also
@@ -897,7 +1095,7 @@ function updateTemplateButtons() {
 function addGroup() {
   commitTemplateEdits();
   const bundle = findBundle(state.selectedTemplateStorageUuid);
-  if (!bundle || bundle.readOnly) return;
+  if (!bundle || bundle.isReadOnly) return;
   const name = makeUnique(i18n("quicktext.newGroup.label"), bundle.groups.map(g => g.name));
   bundle.groups.push({ name });
   bundle.texts.push([]);
@@ -905,7 +1103,7 @@ function addGroup() {
   state.selectedGroupIdx = bundle.groups.length - 1;
   state.selectedTextIdx = -1;
   markChanged(bundle);
-  renderTree();
+  renderTemplateList();
   renderTemplateDetail();
   const el = document.getElementById("text-title");
   el.focus();
@@ -916,7 +1114,7 @@ function addTemplate() {
   commitTemplateEdits();
   // Require a group to be selected in a writable storage.
   const bundle = findBundle(state.selectedTemplateStorageUuid);
-  if (!bundle || bundle.readOnly) return;
+  if (!bundle || bundle.isReadOnly) return;
   let gi = state.selectedGroupIdx;
   if (gi === -1) { if (!bundle.groups.length) return; gi = 0; }
   const name = makeUnique(i18n("quicktext.newTemplate.label"), (bundle.texts[gi] || []).map(t => t.name));
@@ -926,21 +1124,21 @@ function addTemplate() {
   state.selectedGroupIdx = gi;
   state.selectedTextIdx = bundle.texts[gi].length - 1;
   markChanged(bundle);
-  renderTree();
+  renderTemplateList();
   renderTemplateDetail();
   const el = document.getElementById("text-title");
   el.focus();
   el.select();
 }
 
-function removeTemplateOrGroup() {
+async function removeTemplateOrGroup() {
   const uuid = state.selectedTemplateStorageUuid;
   const gi = state.selectedGroupIdx;
   const ti = state.selectedTextIdx;
   const bundle = findBundle(uuid);
-  if (!bundle || bundle.readOnly || gi === -1) return;
+  if (!bundle || bundle.isReadOnly || gi === -1) return;
   const name = ti === -1 ? bundle.groups[gi].name : bundle.texts[gi][ti].name;
-  if (!confirm(i18n("quicktext.confirmRemove.label", [name]))) return;
+  if (!await showConfirm(i18n("quicktext.confirmRemove.label", [name]))) return;
   if (ti === -1) {
     bundle.groups.splice(gi, 1);
     bundle.texts.splice(gi, 1);
@@ -954,7 +1152,7 @@ function removeTemplateOrGroup() {
       ? Math.min(ti, bundle.texts[gi].length - 1) : -1;
   }
   markChanged(bundle);
-  renderTree();
+  renderTemplateList();
   renderTemplateDetail();
 }
 
@@ -1009,7 +1207,7 @@ function setupGroupDrag(el, bundle, gi) {
     state.selectedGroupIdx = dest;
     state.selectedTextIdx = -1;
     markChanged(bundle);
-    renderTree();
+    renderTemplateList();
     renderTemplateDetail();
   });
 }
@@ -1036,7 +1234,14 @@ function _clearDropIndicators(container) {
   }
 }
 function _setDropIndicator(el, clientY) {
-  const rect = el.getBoundingClientRect();
+  // Grid-list rows use `display: contents` so the `<li>` itself has no
+  // box - `getBoundingClientRect()` returns a zero-height rect. Fall
+  // back to a child cell, which sits on the same grid row track and
+  // therefore has the right vertical extent.
+  let rect = el.getBoundingClientRect();
+  if (rect.height === 0 && el.firstElementChild) {
+    rect = el.firstElementChild.getBoundingClientRect();
+  }
   const upper = clientY < rect.top + rect.height / 2;
   el.classList.add(upper ? "drop-above" : "drop-below");
 }
@@ -1121,7 +1326,7 @@ function setupStorageDrag(el, idx) {
     state.storageEntries.splice(dest, 0, moved);
     markChanged();
     renderStorageList();
-    renderTree();
+    renderTemplateList();
     renderScriptList();
     buildInsertTagMenu();
   });
@@ -1212,7 +1417,7 @@ function setupTemplateDrag(el, bundle, gi, ti) {
     state.selectedGroupIdx = gi;
     state.selectedTextIdx = dest;
     markChanged(bundle);
-    renderTree();
+    renderTemplateList();
     renderTemplateDetail();
   });
 }
@@ -1235,7 +1440,7 @@ function onTitleInput() {
   }
 
   const bundle = findBundle(uuid);
-  if (!bundle || bundle.readOnly) return;
+  if (!bundle || bundle.isReadOnly) return;
   let value = document.getElementById("text-title").value.trim() || i18n(ti === -1 ? "quicktext.newGroup.label" : "quicktext.newTemplate.label");
 
   if (ti === -1) {
@@ -1324,7 +1529,7 @@ function renderScriptList() {
   for (const entry of state.storageEntries) {
     if (entry.enabled === false) continue;
     // Managed entries are hidden whenever the live policy is
-    // absent - see the matching skip in `renderTree` for the
+    // absent - see the matching skip in `renderTemplateList` for the
     // rationale.
     if (entry.type === "managed" && !state.hasManagedStorage) continue;
     const bundle = findBundle(entry.uuid);
@@ -1350,7 +1555,7 @@ function renderScriptList() {
       nameSpan.textContent = bundle.storageName;
       nameSpan.title = bundle.storageName;
       header.appendChild(nameSpan);
-      if (bundle.readOnly) {
+      if (bundle.isReadOnly) {
         const lockEl = document.createElement("span");
         lockEl.className = "storage-header-lock";
         lockEl.textContent = "🔒";
@@ -1385,13 +1590,53 @@ function renderScriptList() {
         li.appendChild(warn);
       }
       li.addEventListener("click", () => selectScript(entry.uuid, i));
-      if (!bundle.readOnly) {
+      if (!bundle.isReadOnly) {
         li.draggable = true;
         setupScriptDrag(li, bundle, i);
       }
       list.appendChild(li);
     }
   }
+
+  // Import bundles render after the storage entries, always with their
+  // own header (always treated as multi-storage because they come from
+  // a separate source). Scripts inside imports are read-only.
+  for (const bundle of state.bundles) {
+    if (!bundle.isImport) continue;
+    const header = _buildImportStorageHeader(bundle, {
+      elementType: "li",
+      className: "script-storage-header",
+      isSelected: () => bundle.storageUuid === state.selectedScriptStorageUuid
+        && state.selectedScriptIdx === -1,
+      onClick: () => selectScriptStorage(bundle.storageUuid),
+    });
+    list.appendChild(header);
+
+    for (let i = 0; i < bundle.scripts.length; i++) {
+      const script = bundle.scripts[i];
+      const li = document.createElement("li");
+      li.dataset.uuid = bundle.storageUuid;
+      li.dataset.idx = i;
+      li.classList.add("script-indent");
+      if (bundle.storageUuid === state.selectedScriptStorageUuid && i === state.selectedScriptIdx) {
+        li.classList.add("selected");
+      }
+      const nameSpan2 = document.createElement("span");
+      nameSpan2.className = "tree-name";
+      nameSpan2.textContent = script.name;
+      nameSpan2.title = script.name;
+      li.appendChild(nameSpan2);
+      if (isIncompatibleScript(script)) {
+        const warn = document.createElement("span");
+        warn.className = "script-warn-icon";
+        warn.textContent = "⚠️";
+        li.appendChild(warn);
+      }
+      li.addEventListener("click", () => selectScript(bundle.storageUuid, i));
+      list.appendChild(li);
+    }
+  }
+
   updateScriptButtons();
 }
 
@@ -1427,33 +1672,36 @@ function selectScriptStorage(uuid) {
 function commitScriptEdits() {
   const bundle = _selectedScriptBundle();
   const script = _selectedScript();
-  if (!bundle || bundle.readOnly || !script) return;
+  if (!bundle || bundle.isReadOnly || !script) return;
   script.script = document.getElementById("script-body").value;
 }
 
 function renderScriptDetail() {
   const bundle = _selectedScriptBundle();
   const script = _selectedScript();
-  const readOnly = !!bundle?.readOnly;
+  const isReadOnly = !!bundle?.isReadOnly;
   document.getElementById("script-caption").textContent = i18n(
     script ? "quicktext.script.label" : "quicktext.storageList.columns.connection",
   );
-  // When a storage header is selected (no script), show the
-  // storage entry's name in the title field. Editable for any
-  // storage that isn't managed - `onScriptTitleInput` handles the
-  // rename path.
+  // When a storage header is selected (no script), show its name
+  // in the title field. Editable for writable VFS storages;
+  // `onScriptTitleInput` handles the rename. Imports aren't in
+  // `state.storageEntries`, so fall back to the in-memory bundle.
   const selectedEntry = !script && state.selectedScriptStorageUuid
     ? state.storageEntries.find(e => e.uuid === state.selectedScriptStorageUuid)
     : null;
+  const selectedBundle = !script && state.selectedScriptStorageUuid
+    ? findBundle(state.selectedScriptStorageUuid)
+    : null;
   const titleEl = document.getElementById("script-title");
-  titleEl.value = script?.name ?? selectedEntry?.name ?? "";
+  titleEl.value = script?.name ?? selectedEntry?.name ?? selectedBundle?.storageName ?? "";
   if (script) {
-    titleEl.disabled = readOnly;
+    titleEl.disabled = isReadOnly;
   } else {
     titleEl.disabled = !selectedEntry || selectedEntry.type === "managed";
   }
   document.getElementById("script-body").value = script?.script ?? "";
-  document.getElementById("script-body").disabled = !script || readOnly;
+  document.getElementById("script-body").disabled = !script || isReadOnly;
   const incompatible = script ? isIncompatibleScript(script) : false;
   const warn = document.getElementById("script-warning");
   warn.hidden = !incompatible;
@@ -1464,7 +1712,7 @@ function renderScriptDetail() {
 function updateScriptButtons() {
   const bundle = _selectedScriptBundle();
   const script = _selectedScript();
-  const canAddToStorage = bundle && !bundle.readOnly;
+  const canAddToStorage = bundle && !bundle.isReadOnly;
   document.getElementById("btn-add-script").disabled = !canAddToStorage;
   document.getElementById("btn-remove-script").disabled = !script || !canAddToStorage;
 }
@@ -1483,7 +1731,7 @@ function onScriptTitleInput() {
 
   const bundle = _selectedScriptBundle();
   const script = _selectedScript();
-  if (!bundle || bundle.readOnly || !script) return;
+  if (!bundle || bundle.isReadOnly || !script) return;
   const idx = state.selectedScriptIdx;
   let value = document.getElementById("script-title").value.trim() || i18n("quicktext.newScript.label");
   const others = bundle.scripts.map((s, i) => i === idx ? null : s.name).filter(Boolean);
@@ -1501,7 +1749,7 @@ function onScriptTitleInput() {
 function addScript() {
   commitScriptEdits();
   const target = _selectedScriptBundle();
-  if (!target || target.readOnly) return;
+  if (!target || target.isReadOnly) return;
   const name = makeUnique(i18n("quicktext.newScript.label"), target.scripts.map(s => s.name));
   target.scripts.push({ name, script: "" });
   state.selectedScriptIdx = target.scripts.length - 1;
@@ -1513,11 +1761,11 @@ function addScript() {
   el.select();
 }
 
-function removeScript() {
+async function removeScript() {
   const bundle = _selectedScriptBundle();
   const script = _selectedScript();
-  if (!bundle || bundle.readOnly || !script) return;
-  if (!confirm(i18n("quicktext.confirmRemove.label", [script.name]))) return;
+  if (!bundle || bundle.isReadOnly || !script) return;
+  if (!await showConfirm(i18n("quicktext.confirmRemove.label", [script.name]))) return;
   const idx = state.selectedScriptIdx;
   bundle.scripts.splice(idx, 1);
   if (bundle.scripts.length > 0) {
@@ -1546,7 +1794,7 @@ function removeScript() {
 // edits (including yet-to-be-made ones in cached state), so even a
 // "clean" bundle deserves a confirmation.
 function _confirmDiscardBundle(name) {
-  return confirm(i18n("quicktext.storageList.confirmDiscard.label", [name]));
+  return showConfirm(i18n("quicktext.storageList.confirmDiscard.label", [name]));
 }
 
 // Pick the uuid of the entry that the selection should jump to
@@ -1564,33 +1812,44 @@ function _fallbackStorageUuid(removedPos) {
   const isEnabled = e => e?.enabled !== false;
   for (let i = removedPos - 1; i >= 0; i--) {
     const e = state.storageEntries[i];
-    if (isEnabled(e) && !e.readOnly) return e.uuid;
+    if (isEnabled(e) && !e.isReadOnly) return e.uuid;
   }
   for (let i = removedPos; i < state.storageEntries.length; i++) {
     const e = state.storageEntries[i];
-    if (isEnabled(e) && !e.readOnly) return e.uuid;
+    if (isEnabled(e) && !e.isReadOnly) return e.uuid;
   }
   // No writable enabled entry - accept a read-only one as a last resort.
   return state.storageEntries.find(e => isEnabled(e))?.uuid ?? null;
 }
 
-// When a bundle vanishes (disable or remove), shift any template /
-// script selection that pointed at it over to the fallback bundle.
-// `removedPos` is the position the entry held in state.storageEntries
-// right before it was dropped or disabled (for disables pass the
-// current position, for removes pass the pre-splice position).
-function _rescueSelectionAfterBundleDrop(removedUuid, removedPos) {
-  if (state.selectedTemplateStorageUuid === removedUuid) {
+// Detect Templates/Scripts selections that point at a uuid which no
+// longer has a bundle in `state.bundles` and shift them to a fallback
+// writable storage. Covers both deliberate drops (storage disable/
+// remove) and indirect ones (import disappeared via reconcile or
+// in-memory mutation). `removedPos` seeds the fallback search at a
+// known neighbour position when the caller has one - imports aren't
+// in `state.storageEntries` so the orphan-detection path defaults to
+// 0 (walk forward from the start of the list). Returns true when at
+// least one selection was moved, so the caller can conditionally
+// re-render the detail panes.
+function _rescueOrphanedSelections(removedPos = 0) {
+  let rescued = false;
+  if (state.selectedTemplateStorageUuid &&
+      !findBundle(state.selectedTemplateStorageUuid)) {
     state.selectedTemplateStorageUuid = _fallbackStorageUuid(removedPos);
     const fallback = findBundle(state.selectedTemplateStorageUuid);
     state.selectedGroupIdx = fallback?.groups.length ? 0 : -1;
     state.selectedTextIdx = -1;
+    rescued = true;
   }
-  if (state.selectedScriptStorageUuid === removedUuid) {
+  if (state.selectedScriptStorageUuid &&
+      !findBundle(state.selectedScriptStorageUuid)) {
     state.selectedScriptStorageUuid = _fallbackStorageUuid(removedPos);
     const fallback = findBundle(state.selectedScriptStorageUuid);
     state.selectedScriptIdx = fallback?.scripts.length ? 0 : -1;
+    rescued = true;
   }
+  return rescued;
 }
 
 // Discard the in-memory bundle for a storage (disable and remove).
@@ -1613,7 +1872,7 @@ async function _addBundle(entry) {
     storageUuid: entry.uuid,
     entry,
     storageName: loaded.storageName,
-    readOnly: loaded.readOnly,
+    isReadOnly: loaded.isReadOnly,
     groups,
     texts: loaded.templates?.texts ?? [],
     scripts: loaded.scripts ?? [],
@@ -1636,13 +1895,6 @@ function renderAdvanced() {
     messenger.tabs.create({ url: "https://addons.thunderbird.net/search/?q=VFS" }));
 }
 
-function renderStartupImport() {
-  renderStartupImportList();
-  document.getElementById("btn-add-startup-import").addEventListener("click", addStartupImport);
-  document.getElementById("btn-rename-startup-import").addEventListener("click", renameStartupImport);
-  document.getElementById("btn-remove-startup-import").addEventListener("click", removeStartupImport);
-}
-
 // Re-evaluate the `disabled` state of every enable checkbox in the
 // storage list without rebuilding the list. Used after a toggle so
 // the "at least one writable storage must remain enabled" guard
@@ -1651,7 +1903,7 @@ function renderStartupImport() {
 // locked - the checkbox stays disabled regardless of count.
 function _refreshEnabledCheckboxes() {
   const enabledWritableCount = state.storageEntries.filter(
-    e => !e.readOnly && e.enabled !== false,
+    e => !e.isReadOnly && e.enabled !== false,
   ).length;
   const list = document.getElementById("storage-list");
   for (const li of list.querySelectorAll("li[data-idx]")) {
@@ -1663,7 +1915,7 @@ function _refreshEnabledCheckboxes() {
     const isEnabled = entry.enabled !== false;
     box.checked = isEnabled;
     box.disabled = entry.type === "managed"
-      || (isEnabled && !entry.readOnly && enabledWritableCount === 1);
+      || (isEnabled && !entry.isReadOnly && enabledWritableCount === 1);
   }
 }
 
@@ -1679,7 +1931,7 @@ async function renderStorageList() {
       state.storageEntries.push(moved);
       markChanged();
       renderStorageList();
-      renderTree();
+      renderTemplateList();
       renderScriptList();
       buildInsertTagMenu();
     },
@@ -1721,13 +1973,13 @@ async function renderStorageList() {
   list.appendChild(header);
 
   const enabledWritableCount = state.storageEntries.filter(
-    e => !e.readOnly && e.enabled !== false,
+    e => !e.isReadOnly && e.enabled !== false,
   ).length;
 
   for (let i = 0; i < state.storageEntries.length; i++) {
     const entry = state.storageEntries[i];
     // Managed entries are hidden from the list whenever the live
-    // policy is absent - mirrors the skip in `renderTree` and
+    // policy is absent - mirrors the skip in `renderTemplateList` and
     // `renderScriptList` so the three tabs stay in sync.
     if (entry.type === "managed" && !state.hasManagedStorage) continue;
     const li = document.createElement("li");
@@ -1743,23 +1995,20 @@ async function renderStorageList() {
     enabledBox.type = "checkbox";
     const isEnabled = entry.enabled !== false;
     enabledBox.checked = isEnabled;
-    // Managed entries are fully locked: the user can neither
-    // disable, rename, nor remove them - they mirror the enterprise
-    // policy and auto-re-inject on startup anyway. Non-managed
-    // writable entries are gated by the "at least one enabled
-    // writable bundle must remain" rule so the user always has
-    // somewhere to add new content.
+    // Managed entries are fully locked: the user can neither disable, rename,
+    // nor remove them - they mirror the enterprise policy and auto-re-inject
+    // when re-scanning managed entries. Non-managed writable entries are gated
+    // by the "at least one enabled writable bundle must remain" rule so the
+    // user always has somewhere to add new content.
     enabledBox.disabled = entry.type === "managed"
-      || (isEnabled && !entry.readOnly && enabledWritableCount === 1);
-    enabledBox.addEventListener("click", e => {
+      || (isEnabled && !entry.isReadOnly && enabledWritableCount === 1);
+    enabledBox.addEventListener("click", async e => {
       e.stopPropagation();
       const wantEnabled = enabledBox.checked;
       if (!wantEnabled) {
-        // Confirm before dropping the in-memory bundle.
-        if (!_confirmDiscardBundle(entry.name)) {
-          enabledBox.checked = true;
-          return;
-        }
+        enabledBox.checked = true;
+        if (!await _confirmDiscardBundle(entry.name)) return;
+        enabledBox.checked = false;
       }
       entry.enabled = wantEnabled;
       (async () => {
@@ -1767,7 +2016,7 @@ async function renderStorageList() {
           await _addBundle(entry);
         } else {
           _dropBundle(entry);
-          _rescueSelectionAfterBundleDrop(entry.uuid, i);
+          _rescueOrphanedSelections(i);
         }
         markChanged();
         // In-place refresh of the sibling checkboxes so the
@@ -1775,7 +2024,7 @@ async function renderStorageList() {
         // editable checkboxes stay editable and the user can
         // disable every entry in sequence.
         _refreshEnabledCheckboxes();
-        renderTree();
+        renderTemplateList();
         renderScriptList();
         renderTemplateDetail();
         renderScriptDetail();
@@ -1798,7 +2047,7 @@ async function renderStorageList() {
 
     const lockEl = document.createElement("span");
     lockEl.className = "storage-lock";
-    if (entry.readOnly) {
+    if (entry.isReadOnly) {
       lockEl.textContent = "🔒";
       lockEl.title = i18n("quicktext.storageList.readOnly.label");
     }
@@ -1844,14 +2093,13 @@ function updateStorageButtons() {
   const selectedBundle = findBundle(selectedEntry?.uuid);
   const isManaged = selectedEntry?.type === "managed";
   document.getElementById("btn-add-storage-config").disabled = false;
-  // Managed entries are fully locked: no browse/rename/remove/
-  // disable, and no import/export either. They mirror the
-  // enterprise policy and auto-re-inject on startup, so every
-  // user-facing mutation is a no-op.
+  // Managed entries are fully locked: no browse/rename/remove/disable, and no
+  // import/export either. They mirror the enterprise policy and auto-re-inject
+  // when re-scanning managed entries, so every user-facing mutation is a no-op.
   document.getElementById("btn-browse-storage").disabled = !selectedEntry || isManaged;
   document.getElementById("btn-rename-storage").disabled = !selectedEntry || isManaged;
   // Refuse to remove the last writable entry.
-  const writableCount = state.storageEntries.filter(e => !e.readOnly).length;
+  const writableCount = state.storageEntries.filter(e => !e.isReadOnly).length;
   const canRemove = !!selectedEntry && !isManaged && writableCount > 1;
   document.getElementById("btn-remove-storage").disabled = !canRemove;
   // Export is available for any selected non-managed entry - even
@@ -1861,7 +2109,7 @@ function updateStorageButtons() {
   // managed entries fail the read-only check too, but gate
   // explicitly for clarity.
   document.getElementById("btn-import-storage").disabled =
-    !selectedBundle || selectedBundle.readOnly || isManaged;
+    !selectedBundle || selectedBundle.isReadOnly || isManaged;
 }
 
 async function addStorageConfig() {
@@ -1897,7 +2145,7 @@ async function addStorageConfig() {
     e => e.path === picked.path && sameRef(e.storageRef, picked.storageRef),
   );
   if (duplicate) {
-    alert(i18n("quicktext.storageList.duplicate.label", [duplicate.name]));
+    await showAlert(i18n("quicktext.storageList.duplicate.label", [duplicate.name]));
     return;
   }
 
@@ -1905,10 +2153,10 @@ async function addStorageConfig() {
   // the provider's connection name). On collision, suffix with " (N)". If
   // no connection name is available, fall back to "StorageNN" (two-digit,
   // one above the current max).
-  // At the same time, capture a readOnly snapshot from the provider's
+  // At the same time, capture an isReadOnly snapshot from the provider's
   // capabilities - set once when the storage is added, not refreshed later.
   let base = storage.OPFS_STORAGE_NAME;
-  let readOnly = false;
+  let isReadOnly = false;
   if (picked.storageRef) {
     try {
       const providers = await vfs.fetchProviderConnections();
@@ -1917,7 +2165,7 @@ async function addStorageConfig() {
         c => c.storageRef?.storageId === picked.storageRef.storageId,
       );
       if (connection?.name) base = connection.name;
-      readOnly = !connection?.capabilities?.file?.modify;
+      isReadOnly = !connection?.capabilities?.file?.modify;
     } catch (ex) {
       console.log(ex);
     }
@@ -1944,7 +2192,7 @@ async function addStorageConfig() {
     type: "vfs",
     storageRef: picked.storageRef,
     path: picked.path,
-    readOnly,
+    isReadOnly,
     enabled: true,
   };
   state.storageEntries.push(entry);
@@ -1954,7 +2202,7 @@ async function addStorageConfig() {
   await _addBundle(entry);
   markChanged();
   renderStorageList();
-  renderTree();
+  renderTemplateList();
   renderScriptList();
   renderTemplateDetail();
   renderScriptDetail();
@@ -1977,25 +2225,25 @@ async function browseStorage() {
   }
 }
 
-function renameStorage() {
+async function renameStorage() {
   const entry = _selectedStorageListEntry();
   if (!entry || entry.type === "managed") return;
 
   const current = entry.name || "";
-  const input = prompt(i18n("quicktext.storageList.rename.prompt"), current);
+  const input = await showPrompt(i18n("quicktext.storageList.rename.prompt"), current);
   if (input == null) return;
   const next = input.trim();
   if (!next || next === current) return;
 
   if (["|", "[[", "]]"].some(s => next.includes(s))) {
-    alert(i18n("quicktext.storageList.rename.badChars"));
+    await showAlert(i18n("quicktext.storageList.rename.badChars"));
     return;
   }
   const clash = state.storageEntries.find(
     e => e !== entry && (e.name || "").toLowerCase() === next.toLowerCase(),
   );
   if (clash) {
-    alert(i18n("quicktext.storageList.rename.duplicate", [clash.name]));
+    await showAlert(i18n("quicktext.storageList.rename.duplicate", [clash.name]));
     return;
   }
 
@@ -2006,7 +2254,7 @@ function renameStorage() {
   if (bundle) bundle.storageName = next;
   markChanged();
   renderStorageList();
-  renderTree();
+  renderTemplateList();
   renderScriptList();
 }
 
@@ -2016,10 +2264,14 @@ async function removeStorage() {
   // Refuse to remove the last writable storage - at least one
   // editable bundle must always remain. Managed entries are
   // read-only and don't count toward that quota.
-  const writableCount = state.storageEntries.filter(e => !e.readOnly).length;
+  const writableCount = state.storageEntries.filter(e => !e.isReadOnly).length;
   if (writableCount <= 1) return;
 
-  if (!_confirmDiscardBundle(entry.name)) return;
+  if (entry.enabled === false) {
+    if (!await showConfirm(i18n("quicktext.confirmRemove.label", [entry.name]))) return;
+  } else {
+    if (!await _confirmDiscardBundle(entry.name)) return;
+  }
 
   const idx = state.storageEntries.indexOf(entry);
   state.storageEntries.splice(idx, 1);
@@ -2028,8 +2280,8 @@ async function removeStorage() {
   // If removing this entry would leave every writable storage
   // disabled, flip the first writable one back on and lazy-load it
   // so the Templates/Scripts tabs have an editable surface.
-  if (!state.storageEntries.some(e => !e.readOnly && e.enabled !== false)) {
-    const firstWritable = state.storageEntries.find(e => !e.readOnly);
+  if (!state.storageEntries.some(e => !e.isReadOnly && e.enabled !== false)) {
+    const firstWritable = state.storageEntries.find(e => !e.isReadOnly);
     if (firstWritable) {
       firstWritable.enabled = true;
       if (!findBundle(firstWritable.uuid)) {
@@ -2040,11 +2292,11 @@ async function removeStorage() {
 
   // Selection fixup uses the post-splice position so the fallback
   // search walks the correct neighbours.
-  _rescueSelectionAfterBundleDrop(entry.uuid, idx);
+  _rescueOrphanedSelections(idx);
 
   markChanged();
   renderStorageList();
-  renderTree();
+  renderTemplateList();
   renderScriptList();
   renderTemplateDetail();
   renderScriptDetail();
@@ -2067,7 +2319,7 @@ function _liveActiveBundles() {
     result.push({
       storageUuid: bundle.storageUuid,
       storageName: bundle.storageName,
-      readOnly: bundle.readOnly,
+      isReadOnly: bundle.isReadOnly,
       templates: { groups: bundle.groups, texts: bundle.texts },
       scripts: bundle.scripts,
     });
@@ -2101,8 +2353,8 @@ function _buildManagerMenuData(nodes, now) {
         if (path) insertVariable(node.value.replace("<path>", path));
       };
     } else if (node.value?.includes("<url>")) {
-      entry.onclick = () => {
-        const url = prompt(i18n("quicktext.prompt.addUrl.label"), "https://");
+      entry.onclick = async () => {
+        const url = await showPrompt(i18n("quicktext.prompt.addUrl.label"), "https://");
         if (url) insertVariable(node.value.replace("<url>", url));
       };
     } else if (node.value) {
@@ -2124,6 +2376,7 @@ async function rebuildManagerContextMenu() {
   const nodes = await getTagsMenuStructure({
     storageUuid: state.selectedTemplateStorageUuid ?? undefined,
     bundles,
+    origin: "manager",
   });
   const menuCollapse = await storage.getPref("menuCollapse");
   if (menuCollapse) {
@@ -2212,6 +2465,7 @@ async function buildInsertTagMenu() {
   const structure = await getTagsMenuStructure({
     storageUuid: state.selectedTemplateStorageUuid ?? undefined,
     bundles,
+    origin: "manager",
   });
   if (menuCollapse) {
     const templatesSection = structure.find(n => n.id === "templates");
@@ -2293,7 +2547,7 @@ async function exportStorage() {
   const source = await storage.readBundleForEntry(entry);
 
   const payload = {
-    templates: { groups: source.groups, texts: source.texts },
+    templates: source.templates,
     scripts: source.scripts,
   };
   const safeName = (entry.name || "quicktext").replace(/[^\w\-]+/g, "_");
@@ -2305,12 +2559,18 @@ async function importStorage() {
   const entry = _selectedStorageListEntry();
   if (!entry || entry.type === "managed") return;
   const bundle = _selectedStorageListBundle();
-  if (!bundle || bundle.readOnly) return;
+  if (!bundle || bundle.isReadOnly) return;
 
-  const file = await pickFile([".json", ".xml"]);
+  const file = await pickFile([".json"]);
   if (!file) return;
   const content = await readFileText(file);
-  const result = await quicktext.parseConfigFileData(content);
+  let result;
+  try {
+    result = JSON.parse(content);
+  } catch (ex) {
+    console.error("Failed to parse import file as JSON", ex);
+    return;
+  }
   if (!result) return;
   // Pre-refactor files may still carry `protected: true` entries.
   // Quietly strip them so they never enter the working copy.
@@ -2359,7 +2619,7 @@ async function importStorage() {
 
   if (!changedTemplates && !changedScripts) return;
   markChanged(bundle);
-  if (changedTemplates) renderTree();
+  if (changedTemplates) renderTemplateList();
   if (changedScripts) renderScriptList();
 }
 
@@ -2419,49 +2679,66 @@ async function init() {
   updateCounterLegend();
 
   new storage.StorageListener({
+    area: "auto",
     watchedPrefs: ["counter"],
-    listener: changes => {
-      if ("counter" in changes) {
-        state.prefs.counter = changes.counter.newValue;
-        updateCounterLegend();
+    listener: events => {
+      for (const { changes } of events) {
+        if (changes.counter) {
+          state.prefs.counter = changes.counter.newValue;
+          updateCounterLegend();
+        }
       }
     },
   });
 
-  new storage.StorageListener(
-    {
-      watchedPrefs: ["templates", "scripts", "popup", "menuCollapse"],
-      listener: async (changes) => {
-        // Managed-area content changes arrive here via the
-        // StorageListener's managed branch (which forwards both
-        // the legacy `templates`/`scripts` keys and the new
-        // `managedStorage` wrapper as synthetic
-        // `templates`/`scripts` events). Re-sync the "has managed
-        // policy" flag and refresh the in-memory managed bundle so
-        // the next render reflects the latest policy state.
-        if ("templates" in changes || "scripts" in changes) {
-          state.hasManagedStorage = await storage.hasManagedPolicy();
-          const managedEntry = state.storageEntries.find(e => e.type === "managed");
-          if (managedEntry) {
-            const fresh = await storage.readBundleForEntry(managedEntry);
-            const bundle = findBundle(managedEntry.uuid);
-            if (bundle) {
-              bundle.groups = fresh.templates.groups;
-              bundle.texts = fresh.templates.texts;
-              bundle.scripts = fresh.scripts;
-              bundle.groupExpanded = bundle.groups.map(() => true);
-            }
-          }
-          renderTree();
-          renderScriptList();
-          renderStorageList();
-          renderTemplateDetail();
-          renderScriptDetail();
-        }
-        buildInsertTagMenu();
+  // Local-area post-write rebuild hook to update the insert-tag menu. This also
+  // monitors defaultImport, which can get updated by the background if the managed
+  // entries changed (unsaved user edits are discarded).
+  new storage.StorageListener({
+    area: "local",
+    watchedPrefs: ["templates", "scripts", "popup", "menuCollapse", "defaultImport"],
+    listener: async (events) => {
+      // `area: "local"` means a single chunk per emission.
+      const changes = events[0]?.changes ?? {};
+      if (changes.defaultImport) {
+        // External write (background fetcher, reconcile, etc.):
+        // blanket-replace our working copy and re-render. Any
+        // unsaved user edits to defaultImport are dropped by design.
+        state.prefs.defaultImport = await storage.getPref("defaultImport");
+        _refreshImportViews();
       }
+      buildInsertTagMenu();
     }
-  );
+  });
+
+  // Managed-area policy updates, supporting the modern `managedStorage` wrapper
+  // key or on the legacy top-level `templates` and `scripts` keys. Either triggers
+  // a re-sync of the managed-policy flag plus a refresh of the in-memory managed
+  // bundle from `browser.storage.managed`.
+  new storage.StorageListener({
+    area: "managed",
+    watchedPrefs: ["templates", "scripts", "managedStorage"],
+    listener: async () => {
+      state.hasManagedStorage = await storage.hasManagedPolicy();
+      const managedEntry = state.storageEntries.find(e => e.type === "managed");
+      if (managedEntry) {
+        const fresh = await storage.readBundleForEntry(managedEntry);
+        const bundle = findBundle(managedEntry.uuid);
+        if (bundle) {
+          bundle.groups = fresh.templates.groups;
+          bundle.texts = fresh.templates.texts;
+          bundle.scripts = fresh.scripts;
+          bundle.groupExpanded = bundle.groups.map(() => true);
+        }
+      }
+      renderTemplateList();
+      renderScriptList();
+      renderStorageList();
+      renderTemplateDetail();
+      renderScriptDetail();
+      buildInsertTagMenu();
+    }
+  });
 
   // Rebuild when external script add-ons register/unregister.
   browser.storage.onChanged.addListener((changes, areaName) => {
@@ -2553,8 +2830,25 @@ async function init() {
       }
       const path = await browser.FileSystemAccess.pickFile(title, filter);
       if (path) insertVariable(val.replace("<path>", path));
+    } else if (val.includes("<vfs-path>")) {
+      // The flyout is disabled for read-only templates, so the
+      // selected storage is always a writable VFS entry here.
+      const entry = state.storageEntries.find(
+        e => e.uuid === state.selectedTemplateStorageUuid);
+      if (!entry || entry.type !== "vfs") return;
+      const types = val.startsWith("IMAGE=")
+        ? [{ description: i18n("quicktext.insertImage.label"),
+             accept: { "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"] } }]
+        : null;
+      const [picked] = await vfs.showSelectFilePicker({
+        storageRef: entry.storageRef ?? null,
+        lockStorage: "soft",
+        opfsStorageName: storage.OPFS_STORAGE_NAME,
+        types,
+      });
+      if (picked) insertVariable(val.replace("<vfs-path>", picked.path));
     } else if (val.includes("<url>")) {
-      const url = prompt(i18n("quicktext.prompt.addUrl.label"), "https://");
+      const url = await showPrompt(i18n("quicktext.prompt.addUrl.label"), "https://");
       if (url) insertVariable(val.replace("<url>", url));
     } else {
       insertVariable(val);
@@ -2635,11 +2929,11 @@ async function init() {
   // so Add group/template/script always has a target storage
   // without requiring the user to click a header first.
   const firstWritableEntry = state.storageEntries.find(e => {
-    if (e.enabled === false || e.readOnly) return false;
+    if (e.enabled === false || e.isReadOnly) return false;
     return !!findBundle(e.uuid);
   });
   for (const entry of state.storageEntries) {
-    if (entry.enabled === false || entry.readOnly) continue;
+    if (entry.enabled === false || entry.isReadOnly) continue;
     const bundle = findBundle(entry.uuid);
     if (bundle?.groups.length) {
       state.selectedTemplateStorageUuid = entry.uuid;
@@ -2651,7 +2945,7 @@ async function init() {
     state.selectedTemplateStorageUuid = firstWritableEntry.uuid;
   }
   for (const entry of state.storageEntries) {
-    if (entry.enabled === false || entry.readOnly) continue;
+    if (entry.enabled === false || entry.isReadOnly) continue;
     const bundle = findBundle(entry.uuid);
     if (bundle?.scripts.length) {
       state.selectedScriptStorageUuid = entry.uuid;
@@ -2663,13 +2957,17 @@ async function init() {
     state.selectedScriptStorageUuid = firstWritableEntry.uuid;
   }
 
+  document.getElementById("btn-add-import").addEventListener("click", addImportListEntry);
+  document.getElementById("btn-rename-import").addEventListener("click", renameImportListEntry);
+  document.getElementById("btn-remove-import").addEventListener("click", removeImportListEntry);
+
   // Initial render
-  renderTree();
+  renderTemplateList();
   renderTemplateDetail();
   renderScriptList();
   renderScriptDetail();
   renderAdvanced();
-  renderStartupImport();
+  renderImportList();
 
   // Register the WebExtension context menu now that the initial
   // selection exists, so `getTagsMenuStructure` can scope its

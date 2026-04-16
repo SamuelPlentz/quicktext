@@ -5,10 +5,104 @@
  */
 
 import * as quicktext from "/modules/quicktext.mjs";
+import * as storage from "/modules/storage.mjs";
+import * as utils from "/modules/utils.mjs";
+import * as vfs from "/vendor/vfs-client/vfs-client.mjs";
 import { getDateTimeMenuTitle } from "/modules/menuStructure.mjs";
 
+// Dispatch a menu action. Shared by the compose body context menu
+// (structureToMenuData onclick handlers) and the legacy toolbar bridge
+// (toolbar.mjs menuAction command). `action` carries:
+//   value      — the menu item's tag value (may contain placeholders)
+//   insertMode — "text/html" or "text/plain" (for content insertion)
+//   file       — pre-picked File (companion's XUL picker for <path>)
+//   url        — pre-prompted URL (companion's window.prompt for <url>)
+// When `file` or `url` is present the corresponding placeholder is
+// already resolved; otherwise the function handles picking/prompting.
+export async function handleMenuAction(tabId, action) {
+    const { value, insertMode } = action;
+
+    if (action.file) {
+        if (value.startsWith("IMAGE="))
+            return quicktext.insertImageFile(tabId, action.file);
+        if (value.startsWith("ATTACHMENT="))
+            return quicktext.insertAttachmentFile(tabId, action.file);
+        const content = await utils.getTextFileContent(action.file);
+        if (content) return quicktext.insertFileContent(tabId, content, insertMode);
+        return;
+    }
+
+    if (action.url) {
+        if (value.startsWith("IMAGE="))
+            return quicktext.insertImageFile(tabId, await utils.fetchFileAsFile(action.url));
+        if (value.startsWith("ATTACHMENT="))
+            return quicktext.insertAttachmentFile(tabId, await utils.fetchFileAsFile(action.url));
+        const content = await utils.fetchFileAsText(action.url);
+        if (content) return quicktext.insertFileContent(tabId, content, insertMode);
+        return;
+    }
+
+    if (value?.includes("<path>")) {
+        if (value.startsWith("IMAGE=")) {
+            const file = await utils.pickFileFromDisc([4]);
+            if (file) return quicktext.insertImageFile(tabId, file);
+        } else if (value.startsWith("ATTACHMENT=")) {
+            const file = await utils.pickFileFromDisc([2]);
+            if (file) return quicktext.insertAttachmentFile(tabId, file);
+        } else {
+            const mode = insertMode ?? "text/plain";
+            const file = await utils.pickFileFromDisc([mode]);
+            if (!file) return;
+            const content = await utils.getTextFileContent(file);
+            if (content) return quicktext.insertFileContent(tabId, content, mode);
+        }
+        return;
+    }
+
+    if (value?.includes("<vfs-path>")) {
+        const types = value.startsWith("IMAGE=")
+            ? [{ description: browser.i18n.getMessage("quicktext.insertImage.label"),
+                 accept: { "image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"] } }]
+            : null;
+        const [picked] = await vfs.showSelectFilePicker({
+            opfsStorageName: storage.OPFS_STORAGE_NAME,
+            types,
+        });
+        if (!picked) return;
+        const file = await vfs.readFile({ path: picked.path, storageRef: picked.storageRef });
+        if (value.startsWith("IMAGE="))
+            return quicktext.insertImageFile(tabId, file);
+        if (value.startsWith("ATTACHMENT="))
+            return quicktext.insertAttachmentFile(tabId, file);
+        const content = await file.text();
+        if (content) return quicktext.insertFileContent(tabId, content, insertMode);
+        return;
+    }
+
+    if (value?.includes("<url>")) {
+        const promptLabel = browser.i18n.getMessage("quicktext.prompt.addUrl.label");
+        const results = await browser.tabs.executeScript(tabId, {
+            code: `window.prompt(${JSON.stringify(promptLabel)}, "https://")`,
+        });
+        const url = results?.[0];
+        if (!url) return;
+        if (value.startsWith("IMAGE="))
+            return quicktext.insertImageFile(tabId, await utils.fetchFileAsFile(url));
+        if (value.startsWith("ATTACHMENT="))
+            return quicktext.insertAttachmentFile(tabId, await utils.fetchFileAsFile(url));
+        const content = await utils.fetchFileAsText(url);
+        if (content) return quicktext.insertFileContent(tabId, content, insertMode);
+        return;
+    }
+
+    if (value) {
+        await quicktext.insertVariable({ tabId, variable: value });
+    }
+}
+
 // Converts a generic menu structure to the menu data required by processMenuData()
-// to create menu entries using the WebExtensions menus API.
+// to create menu entries using the WebExtensions menus API. Each leaf item's onclick
+// delegates to handleMenuAction.
 export function structureToMenuData(nodes, now) {
     return nodes.flatMap(node => {
         if (node.type === "separator") return [{ type: "separator" }];
@@ -17,36 +111,9 @@ export function structureToMenuData(nodes, now) {
         if (node.localeKey) entry.title = browser.i18n.getMessage(node.localeKey);
         if (node.type === "dateTime") entry.title = getDateTimeMenuTitle(node.format, now);
 
-        if (node.value?.includes("<path>")) {
-            // Open a file picker before inserting the variable.
-            let filter, titleKey;
-            if (node.value.startsWith("IMAGE=")) {
-                filter = "images";
-                titleKey = "quicktext.insertImage.label";
-            } else if (node.value.startsWith("ATTACHMENT=")) {
-                filter = "any";
-                titleKey = "quicktext.attachmentFile.label";
-            } else {
-                filter = "any";
-                titleKey = "quicktext.insertFile.label";
-            }
-            const title = browser.i18n.getMessage(titleKey);
-            entry.onclick = async (_info, tab) => {
-                const path = await browser.FileSystemAccess.pickFile(title, filter);
-                if (path) quicktext.insertVariable({ tabId: tab.id, variable: node.value.replace("<path>", path) });
-            };
-        } else if (node.value?.includes("<url>")) {
-            // Prompt for a URL - run in the compose tab context where native dialogs are allowed.
-            const promptLabel = browser.i18n.getMessage("quicktext.prompt.addUrl.label");
-            entry.onclick = async (_info, tab) => {
-                const results = await browser.tabs.executeScript(tab.id, {
-                    code: `window.prompt(${JSON.stringify(promptLabel)}, "https://")`,
-                });
-                const url = results?.[0];
-                if (url) quicktext.insertVariable({ tabId: tab.id, variable: node.value.replace("<url>", url) });
-            };
-        } else if (node.value) {
-            entry.onclick = (_info, tab) => quicktext.insertVariable({ tabId: tab.id, variable: node.value });
+        if (node.value) {
+            const action = { value: node.value, insertMode: node.insertMode };
+            entry.onclick = (_info, tab) => handleMenuAction(tab.id, action);
         }
 
         if (node.children) entry.children = structureToMenuData(node.children, now);

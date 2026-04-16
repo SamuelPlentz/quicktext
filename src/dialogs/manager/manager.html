@@ -16,7 +16,7 @@
       <button class="tab-btn" id="tab-general" data-tab="general" data-i18n-content="quicktext.general.label" data-i18n-accesskey="quicktext.accesskey.general"></button>
       <button class="tab-btn active" id="tab-templates" data-tab="templates" data-i18n-content="quicktext.templates.label" data-i18n-accesskey="quicktext.accesskey.templates"></button>
       <button class="tab-btn" id="tab-scripts" data-tab="scripts" data-i18n-content="quicktext.scripts.label" data-i18n-accesskey="quicktext.accesskey.scripts"></button>
-      <button class="tab-btn" id="tab-startup-import" data-tab="startup-import" data-i18n-content="quicktext.defaultImport.label" data-i18n-accesskey="quicktext.accesskey.defaultImport"></button>
+      <button class="tab-btn" id="tab-import" data-tab="import" data-i18n-content="quicktext.defaultImport.label" data-i18n-accesskey="quicktext.accesskey.defaultImport"></button>
       <button class="tab-btn" id="tab-advanced" data-tab="advanced" data-i18n-content="quicktext.advanced.label" data-i18n-accesskey="quicktext.accesskey.advanced"></button>
     </div>
 
@@ -208,16 +208,16 @@
       </div>
     </div>
 
-    <!-- Startup Import Panel -->
-    <div class="tab-panel" id="panel-startup-import" hidden>
+    <!-- Default Import Panel -->
+    <div class="tab-panel" id="panel-import" hidden>
       <fieldset>
-        <legend id="lbl-startup-import" data-i18n-content="quicktext.defaultImport.label"></legend>
-        <p id="lbl-startup-import-desc" style="margin:4px 0 8px;font-size:0.9em" data-i18n-content="quicktext.defaultImport.description"></p>
-        <ul id="startup-import-list" class="source-list grid-list"></ul>
+        <legend id="lbl-import" data-i18n-content="quicktext.defaultImport.legend"></legend>
+        <p id="lbl-import-desc" style="margin:4px 0 8px;font-size:0.9em" data-i18n-content="quicktext.defaultImport.description"></p>
+        <ul id="import-list" class="source-list grid-list"></ul>
         <div class="btn-row" style="margin-top:4px">
-          <button id="btn-add-startup-import" data-i18n-content="quicktext.buttons.addUrl.label"></button>
-          <button id="btn-rename-startup-import" disabled data-i18n-content="quicktext.buttons.renameStorage.label"></button>
-          <button id="btn-remove-startup-import" disabled data-i18n-content="quicktext.remove.label" data-i18n-accesskey="quicktext.accesskey.remove"></button>
+          <button id="btn-add-import" data-i18n-content="quicktext.buttons.addConfig.label"></button>
+          <button id="btn-rename-import" disabled data-i18n-content="quicktext.buttons.renameStorage.label"></button>
+          <button id="btn-remove-import" disabled data-i18n-content="quicktext.remove.label" data-i18n-accesskey="quicktext.accesskey.remove"></button>
         </div>
       </fieldset>
     </div>
@@ -232,6 +232,16 @@
       <button id="btn-close" data-i18n-content="quicktext.close.label" data-i18n-accesskey="quicktext.accesskey.close"></button>
     </div>
 
+  </div>
+
+  <div id="dialog-overlay" hidden>
+    <div id="dialog-box">
+      <div id="dialog-title"></div>
+      <div id="dialog-message"></div>
+      <div id="dialog-fields"></div>
+      <div id="dialog-error"></div>
+      <div id="dialog-buttons"></div>
+    </div>
   </div>
 </body>
 </html>

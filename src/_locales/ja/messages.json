@@ -3,10 +3,10 @@
     "message": "すべてのQuicktextの設定は、テンプレートやスクリプトとともに、Quicktextマネージャーで制御・設定できます。"
   },
   "quicktext.deprecatedAttachmentField.label": {
-    "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
+    "message": "This input field is deprecated. Use [[ATTACHMENT=VFS|<path>]] directly in the body of the template instead."
   },
   "quicktext.attachmentFile.label": {
-    "message": "添付するファイルを選択してください"
+    "message": "添付ファイルを追加"
   },
   "quicktext.controlledViaManagedStorage.label": {
     "message": "管理ストレージ経由で制御"
@@ -108,9 +108,6 @@
   "quicktext.buttons.addFile.label": {
     "message": "＋ファイル"
   },
-  "quicktext.buttons.addUrl.label": {
-    "message": "＋URL"
-  },
   "quicktext.addGroup.label": {
     "message": "グループを追加"
   },
@@ -166,10 +163,13 @@
     "message": "日付と時間"
   },
   "quicktext.defaultImport.label": {
-    "message": "既定インポート"
+    "message": "インポート"
+  },
+  "quicktext.defaultImport.legend": {
+    "message": "テンプレートとスクリプトの読み取り専用インポート"
   },
   "quicktext.defaultImport.description": {
-    "message": "テンプレートとスクリプトの既定インポートを管理します（読み取り専用）。一元管理されたインポートはロック済みとして表示されます。"
+    "message": "リモートサーバーからのテンプレートとスクリプトの読み取り専用インポートを管理します。エンタープライズポリシーによって提供されるエントリはロックで示され、名前の変更や削除はできません。"
   },
   "quicktext.accesskey.defaultImport": {
     "message": "I"
@@ -183,11 +183,17 @@
   "quicktext.defaultImport.invalidUrl.label": {
     "message": "有効な http(s) URL を入力してください。"
   },
+  "quicktext.defaultImport.duplicate.label": {
+    "message": "このインポートURLはすでにリストに「$1」として存在しています。"
+  },
   "quicktext.defaultImport.columns.name": {
     "message": "名前"
   },
   "quicktext.defaultImport.columns.url": {
     "message": "URL"
+  },
+  "quicktext.defaultImport.columns.status": {
+    "message": "ステータス"
   },
   "quicktext.displayname.label": {
     "message": "表示名"
@@ -253,7 +259,7 @@
     "message": "互換性のないスクリプトですか"
   },
   "quicktext.image.label": {
-    "message": "埋め込みHTML画像"
+    "message": "画像を挿入（埋め込み）"
   },
   "quicktext.import.label": {
     "message": "インポート"
@@ -271,7 +277,7 @@
     "message": "ファイルをテキストとして挿入"
   },
   "quicktext.insertfile.label": {
-    "message": "ファイルからのコンテンツ（非推奨）"
+    "message": "テキスト/HTMLコンテンツを挿入"
   },
   "quicktext.jobtitle.label": {
     "message": "肩書き"
@@ -417,9 +423,6 @@
   "quicktext.to.label": {
     "message": "宛先"
   },
-  "quicktext.url.label": {
-    "message": "URLからの応答"
-  },
   "quicktext.insertVariable.label": {
     "message": "変数を挿入"
   },
@@ -472,15 +475,24 @@
     "message": "定型文を素早く挿入できるツールバーをメール編集画面に追加します。[[TO=firstname]]のような変数も使用できます。"
   },
   "quicktext.mode.file.label": {
-    "message": "ローカルファイルから読み込む（非推奨）"
+    "message": "ローカルファイルから読み込む"
   },
   "quicktext.mode.url.label": {
     "message": "リモートURLから読み込む"
+  },
+  "quicktext.mode.vfs.label": {
+    "message": "ストレージから読み込む"
   },
   "quicktext.insertTag.label": {
     "message": "タグを挿入"
   },
   "quicktext.variablesGroup.label": {
     "message": "変数"
+  },
+  "quicktext.dialog.verifyUrl.label": {
+    "message": "確認"
+  },
+  "quicktext.dialog.addImport.label": {
+    "message": "インポートを追加"
   }
 }

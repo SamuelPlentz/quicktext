@@ -5,20 +5,10 @@
 
 # Quicktext
 
-- [ ] managed storage should auto-appear in menus
-- [ ] vfs storage should update when pushed remotely
-      (common change detection)
+- [-] export could include all used files (educate users about vfs zip export)
 
-- [ ] export could include all used files
-
+- [x] managed storage should auto-appear in menus
 - [x] manager SAVE - do not save template files which have not been modified
-- [ ] implement cache
-
-- [ ] allow user to sort list (maybe in the templates/script tab)
-
-- [ ] bring back template auto-import as storage (managed: true -> type: managed/url/storage)
-- [ ] URL import needs "no cache"
-
 - [x] list flickers when enabling a storage
 
 - [x] rename Advanced to "Storage locations"
@@ -27,11 +17,63 @@
 - [x] limit "add" buttons to current storage - need to be able to select storage header
 - [x] rename of script ugly
 
-
-
 - [x] show managed storage ?
 - [x] add support for icon + name
 
 - [x] flyout menu should use live state, not saved state
 - [x] flyout menu should only list local templates and scripts
 - [x] move control of manager context menu out of the background
+
+- [x] allow user to sort list (maybe in the templates/script tab)
+- [x] add enable + status column
+- [x] URL import needs "no cache"
+- [x] bring back template imports
+- [x] Remove comments which describe changes, replace them by comments which
+      describe actions - be a little less verbose
+- [x] move quicktext.json to default
+- [x] add new managed at top
+- [x] make sure there is no local scripts and templates anymore
+- [x] allow drag-n-drop to top
+- [x] rewire managed defaultImport
+- [x] add support for VFS source for attachments and images
+- [x] remove the deprecated FILE menu entries from the manager
+- [x] remove (deprecated) from the FILE menu lables
+- [x] drop manual XML import
+- [x] only managedImports should support name and url (did they already support more?)
+
+- [x] make URL parse
+- [x] disable embed in non html mode
+- [x] allow all get content entries to be parsed as HTML
+- [ ] better incompatible script detection (ignore comments)
+- [ ] make the add url prompt nicer, allow to specify name
+- [x] toolbar
+
+* insertFile
+* getInsertFileMenuStructure
+
+- [ ] have the variables menu actually show what is being inserted, at least in the composer
+- [ ] install buttons should bring the tab to front
+- [ ] picker close should bring manager to front
+
+- [ ] vfs storage should update when pushed remotely
+      (common change detection)
+- [ ] implement cache for read ???
+
+# status
+
+- user needs info that templates and scripts have been moved into a single file
+- FILE imports have been dropped
+- FILE storage locations have been dropped
+- users can add WebDAV storage or local home storage to regain what they did with
+  FILE imports or storage
+- FILE is still allowed for attachments or images - its the last version where
+  that is possible
+- users can try out new version and manually move files to VFS
+
+# next
+
+- migrate files to VFS
+- log if migration was possible
+- show migration report with pending user actions
+- explain how the entire folder (json + files) can be copied to any other storage
+  and will work from there as well (user can disable OPFS)

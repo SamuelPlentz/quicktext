@@ -3,10 +3,10 @@
     "message": "Alla Quicktext-inställningar kan styras och konfigureras i Quicktext-hanteraren, tillsammans med dina mallar och skript."
   },
   "quicktext.deprecatedAttachmentField.label": {
-    "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
+    "message": "This input field is deprecated. Use [[ATTACHMENT=VFS|<path>]] directly in the body of the template instead."
   },
   "quicktext.attachmentFile.label": {
-    "message": "Välj fil att lägga till i bifogade filer"
+    "message": "Lägg till bilaga"
   },
   "quicktext.controlledViaManagedStorage.label": {
     "message": "Styrs via hanterat lagringsutrymme"
@@ -108,9 +108,6 @@
   "quicktext.buttons.addFile.label": {
     "message": "+ Fil"
   },
-  "quicktext.buttons.addUrl.label": {
-    "message": "+ URL"
-  },
   "quicktext.addGroup.label": {
     "message": "Lägg till grupp"
   },
@@ -166,10 +163,13 @@
     "message": "Datum/Tid"
   },
   "quicktext.defaultImport.label": {
-    "message": "Standardimporter"
+    "message": "Importer"
+  },
+  "quicktext.defaultImport.legend": {
+    "message": "Skrivskyddade importer av mallar och skript"
   },
   "quicktext.defaultImport.description": {
-    "message": "Hantera standardimporter för mallar och skript (endast läsning). Centralt hanterade importer markeras som låsta."
+    "message": "Hantera skrivskyddade importer av mallar och skript från fjärrservrar. Poster som tillhandahålls av en företagspolicy är markerade med ett lås och kan inte döpas om eller tas bort."
   },
   "quicktext.accesskey.defaultImport": {
     "message": "I"
@@ -183,11 +183,17 @@
   "quicktext.defaultImport.invalidUrl.label": {
     "message": "Ange en giltig http(s)-URL."
   },
+  "quicktext.defaultImport.duplicate.label": {
+    "message": "Denna import-URL finns redan i listan som \"$1\"."
+  },
   "quicktext.defaultImport.columns.name": {
     "message": "Namn"
   },
   "quicktext.defaultImport.columns.url": {
     "message": "URL"
+  },
+  "quicktext.defaultImport.columns.status": {
+    "message": "Status"
   },
   "quicktext.displayname.label": {
     "message": "Kortnamn"
@@ -253,7 +259,7 @@
     "message": "Inkompatibelt skript"
   },
   "quicktext.image.label": {
-    "message": "Embedded HTML image"
+    "message": "Infoga bild (inbäddad)"
   },
   "quicktext.import.label": {
     "message": "Import"
@@ -271,7 +277,7 @@
     "message": "Infoga fil som text"
   },
   "quicktext.insertfile.label": {
-    "message": "Innehåll från fil (inaktuell)"
+    "message": "Infoga text-/HTML-innehåll"
   },
   "quicktext.jobtitle.label": {
     "message": "Arbetstitel"
@@ -417,9 +423,6 @@
   "quicktext.to.label": {
     "message": "Till"
   },
-  "quicktext.url.label": {
-    "message": "Response from URL"
-  },
   "quicktext.insertVariable.label": {
     "message": "Infoga variabel"
   },
@@ -472,15 +475,24 @@
     "message": "Adds a toolbar with unlimited number of text to quickly insert. It is also possible to use variables like [[TO=firstname]]. With settings for everything."
   },
   "quicktext.mode.file.label": {
-    "message": "Läs från lokal fil (inaktuell)"
+    "message": "Läs från lokal fil"
   },
   "quicktext.mode.url.label": {
     "message": "Läs från fjärr-URL"
+  },
+  "quicktext.mode.vfs.label": {
+    "message": "Läs från lagring"
   },
   "quicktext.insertTag.label": {
     "message": "Infoga tagg"
   },
   "quicktext.variablesGroup.label": {
     "message": "Variabler"
+  },
+  "quicktext.dialog.verifyUrl.label": {
+    "message": "Verifiera"
+  },
+  "quicktext.dialog.addImport.label": {
+    "message": "Lägg till import"
   }
 }

@@ -54,8 +54,28 @@ await vfs.init({
 });
 
 // Over the years, the storage concept has changed. migrate() runs all startup
-// migrations, including INTERNAL → OPFS for templates + scripts.
+// migrations.
 await storage.migrate();
+
+// Fold any policy-pushed `managedImport` entries into local `defaultImport`
+// before downstream consumers read it, then keep the two in sync for the
+// lifetime of this background page - every consumer (manager, compose
+// menu, toolbar, context menus) reads the merged local list.
+await storage.reconcileManagedImports();
+storage.installManagedImportSync();
+
+// Fetch the referenced JSON/XML for every enabled import now, and keep
+// refreshing every 6 hours. Fire-and-forget: don't block startup on the
+// network; fetched content lands via `storage.onChanged` when ready.
+storage.refreshAllImports();
+storage.installImportAutoRefresh();
+
+// Listen for any local-area `defaultImport` write and fetch entries
+// that are new-or-newly-enabled and still missing data. Covers
+// admin-pushed managed imports (via reconcile), manager Save of new
+// URLs, and any future write path - the single trigger point for
+// "this entry needs content".
+storage.installDefaultImportFetcher();
 
 // Fix invalid options:
 // - reset the value of shortcutModifier to "alt", if it has not a valid value - see issue #177

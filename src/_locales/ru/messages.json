@@ -3,10 +3,10 @@
     "message": "Все настройки Quicktext можно контролировать и настраивать в Менеджере Quicktext вместе с вашими шаблонами и скриптами."
   },
   "quicktext.deprecatedAttachmentField.label": {
-    "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
+    "message": "This input field is deprecated. Use [[ATTACHMENT=VFS|<path>]] directly in the body of the template instead."
   },
   "quicktext.attachmentFile.label": {
-    "message": "Выберите файл для добавления во вложения"
+    "message": "Добавить вложение"
   },
   "quicktext.controlledViaManagedStorage.label": {
     "message": "Управляется через управляемое хранилище"
@@ -108,9 +108,6 @@
   "quicktext.buttons.addFile.label": {
     "message": "+ Файл"
   },
-  "quicktext.buttons.addUrl.label": {
-    "message": "+ URL"
-  },
   "quicktext.addGroup.label": {
     "message": "Добавить группу"
   },
@@ -166,10 +163,13 @@
     "message": "Дата/Время"
   },
   "quicktext.defaultImport.label": {
-    "message": "Импорты по умолчанию"
+    "message": "Импорты"
+  },
+  "quicktext.defaultImport.legend": {
+    "message": "Импорты шаблонов и скриптов только для чтения"
   },
   "quicktext.defaultImport.description": {
-    "message": "Управление импортами шаблонов и скриптов по умолчанию (только для чтения). Централизованно управляемые импорты помечаются как заблокированные."
+    "message": "Управление импортом шаблонов и скриптов с удалённых серверов в режиме только для чтения. Записи, предоставленные корпоративной политикой, помечены замком и не могут быть переименованы или удалены."
   },
   "quicktext.accesskey.defaultImport": {
     "message": "I"
@@ -183,11 +183,17 @@
   "quicktext.defaultImport.invalidUrl.label": {
     "message": "Введите корректный http(s) URL."
   },
+  "quicktext.defaultImport.duplicate.label": {
+    "message": "Этот URL импорта уже есть в списке как «$1»."
+  },
   "quicktext.defaultImport.columns.name": {
     "message": "Название"
   },
   "quicktext.defaultImport.columns.url": {
     "message": "URL"
+  },
+  "quicktext.defaultImport.columns.status": {
+    "message": "Статус"
   },
   "quicktext.displayname.label": {
     "message": "Отображаемое имя"
@@ -253,7 +259,7 @@
     "message": "Несовместимый сценарий"
   },
   "quicktext.image.label": {
-    "message": "Внедрённое HTML изображение"
+    "message": "Вставить изображение (встроенное)"
   },
   "quicktext.import.label": {
     "message": "Импорт"
@@ -271,7 +277,7 @@
     "message": "Вставить файл как текст"
   },
   "quicktext.insertfile.label": {
-    "message": "Содержимое из файла (устарело)"
+    "message": "Вставить текстовое/HTML содержимое"
   },
   "quicktext.jobtitle.label": {
     "message": "Должность"
@@ -417,9 +423,6 @@
   "quicktext.to.label": {
     "message": "Кому"
   },
-  "quicktext.url.label": {
-    "message": "Ответ из URL"
-  },
   "quicktext.insertVariable.label": {
     "message": "Вставить переменную"
   },
@@ -472,15 +475,24 @@
     "message": "Добавляет панель инструментов с неограниченным количеством текста для быстрой вставки. Также можно использовать такие переменные, как [[TO=firstname]]. С настройками для всего."
   },
   "quicktext.mode.file.label": {
-    "message": "Читать из локального файла (устарело)"
+    "message": "Читать из локального файла"
   },
   "quicktext.mode.url.label": {
     "message": "Читать с удалённого URL"
+  },
+  "quicktext.mode.vfs.label": {
+    "message": "Читать из хранилища"
   },
   "quicktext.insertTag.label": {
     "message": "Вставить тег"
   },
   "quicktext.variablesGroup.label": {
     "message": "Переменные"
+  },
+  "quicktext.dialog.verifyUrl.label": {
+    "message": "Проверить"
+  },
+  "quicktext.dialog.addImport.label": {
+    "message": "Добавить импорт"
   }
 }

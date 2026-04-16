@@ -171,8 +171,8 @@ fieldset legend {
 
 /* Grid-list pattern: the <ul> is a grid container and each <li>
    uses display:contents so all rows share the same column widths.
-   Both the Storage Locations list and the Startup Import list use
-   this layout - the id-level rules below define per-list column
+   Both the Storage Locations list and the Import list use this
+   layout - the id-level rules below define per-list column
    templates, while the shared structural, hover, selection, and
    drop-indicator rules are driven off the `.grid-list` class. */
 .grid-list {
@@ -187,22 +187,28 @@ fieldset legend {
 #storage-list {
   grid-template-columns: auto auto auto auto auto auto 1fr;
 }
-#startup-import-list {
-  /* Columns (in order): icon, lock, name, url.
+#import-list {
+  /* Columns (in order): enabled, icon, lock, name, url, status.
      URL is `minmax(0, 1fr)` instead of `auto` so a very long URL
      doesn't push the list wider than its container; combined with
      the ellipsis rule below, long URLs truncate and reveal the
-     full value via the `title` tooltip. The lock column is filled
-     only when the list is under enterprise policy control -
-     otherwise the cell is empty but still occupies the track so
-     columns line up whether or not a lock glyph is shown. */
-  grid-template-columns: auto auto auto minmax(0, 1fr);
+     full value via the `title` tooltip. The lock cell is filled
+     on rows where `entry.managed` is true; otherwise the cell is
+     empty but still occupies the track so columns align across
+     mixed rows. Status fits its content (glyph + timestamp). */
+  grid-template-columns: auto auto auto auto minmax(0, 1fr) auto;
 }
-#startup-import-list > li > .storage-path {
+#import-list > li > .storage-path {
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
 }
+.grid-list .import-status {
+  padding: 6px 14px;
+  white-space: nowrap;
+}
+.import-status-ok   { color: #2a7a2a; font-weight: bold; }
+.import-status-fail { color: #c33;    font-weight: bold; }
 .grid-list > li {
   display: contents;
 }
@@ -603,3 +609,84 @@ input[type=text]:disabled, select:disabled, textarea:disabled {
 
 label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
 label input[type=checkbox] { flex-shrink: 0; }
+
+/* ---------- Popover dialog ---------- */
+
+#dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+#dialog-overlay[hidden] {
+  display: none;
+}
+#dialog-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  min-width: 300px;
+  max-width: 450px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+#dialog-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+#dialog-title:empty, #dialog-title[hidden] { display: none; }
+#dialog-message {
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+#dialog-message:empty, #dialog-message[hidden] { display: none; }
+#dialog-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+#dialog-fields:empty { display: none; }
+#dialog-fields label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  cursor: default;
+}
+#dialog-fields label > span:first-child {
+  min-width: 50px;
+  flex-shrink: 0;
+}
+#dialog-fields input {
+  flex: 1;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--bg-input, field);
+  color: inherit;
+  font-size: 13px;
+}
+#dialog-error {
+  border: 1px solid #c44;
+  border-radius: 4px;
+  background: rgba(204, 68, 68, 0.08);
+  color: #c44;
+  padding: 6px 10px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+#dialog-error:empty { display: none; }
+#dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+#dialog-buttons button.primary {
+  font-weight: 600;
+}

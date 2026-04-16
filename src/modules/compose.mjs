@@ -3,7 +3,7 @@ import * as menus from "./menus.mjs";
 import * as storage from "/modules/storage.mjs";
 import * as utils from "/modules/utils.mjs";
 
-import { getVariablesMenuStructure, getInsertFileMenuStructure, getTemplatesMenuStructure } from "/modules/menuStructure.mjs";
+import { getVariablesMenuStructure, getTemplatesMenuStructure } from "/modules/menuStructure.mjs";
 
 let composeMenuEntries = [];
 
@@ -80,15 +80,7 @@ async function getComposeBodyMenuData() {
     {
       contexts,
       id: "insertVariable",
-      children: menus.structureToMenuData(getVariablesMenuStructure(), now)
-    },
-    {
-      contexts,
-      id: "insertStaticFile",
-      children: getInsertFileMenuStructure().map(node => ({
-        id: node.id,
-        onclick: (_info, tab) => quicktext.insertContentFromFile(tab.id, node.mimeType)
-      }))
+      children: menus.structureToMenuData(getVariablesMenuStructure({ origin: "compose" }), now)
     },
     {
       contexts,
@@ -164,23 +156,40 @@ export async function init() {
   // Add Quicktext composeBody context menu.
   await menus.processMenuData(composeMenuEntries, await getComposeBodyMenuData());
 
+  // The "Embed image" entries produce HTML <img> output, which is inert in a
+  // plain-text message. Disable the group for plain-text compose tabs; the
+  // check runs on every show because the user can toggle compose mode mid-
+  // session (Format -> Plain Text / HTML).
+  browser.menus.onShown.addListener(async (info, tab) => {
+    if (!tab || tab.type !== "messageCompose") return;
+    if (!info.contexts.includes("compose_body") &&
+        !info.contexts.includes("compose_action_menu")) return;
+    try {
+      const { isPlainText } = await browser.compose.getComposeDetails(tab.id);
+      await browser.menus.update("insertVariable.image", { enabled: !isPlainText });
+      await browser.menus.refresh();
+    } catch {
+      // Menu may have been rebuilt between onShown and update; the next show
+      // will reapply. Swallow rather than spam the console.
+    }
+  });
+
   // Register a listener for changes in templates and settings, to update the
   // compose context menus.
-  new storage.StorageListener(
-    {
-      watchedPrefs: ["templates", "popup", "menuCollapse", "storageLocations"],
-      listener: async (_changes) => {
-        // Throw away the menu.
-        for (let entry of composeMenuEntries.reverse()) {
-          await messenger.menus.remove(entry);
-        }
-        composeMenuEntries = [];
+  new storage.StorageListener({
+    area: "auto",
+    watchedPrefs: ["templates", "managedStorage", "popup", "menuCollapse", "storageLocations", "defaultImport"],
+    listener: async (_events) => {
+      // Throw away the menu.
+      for (let entry of composeMenuEntries.reverse()) {
+        await messenger.menus.remove(entry);
+      }
+      composeMenuEntries = [];
 
-        const popup = await storage.getPref("popup");
-        if (popup) {
-          await menus.processMenuData(composeMenuEntries, await getComposeBodyMenuData());
-        }
+      const popup = await storage.getPref("popup");
+      if (popup) {
+        await menus.processMenuData(composeMenuEntries, await getComposeBodyMenuData());
       }
     }
-  )
+  })
 }

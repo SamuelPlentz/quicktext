@@ -23,8 +23,8 @@ function _makeDefaultConfig() {
     name: "Default",
     type: "vfs",
     storageRef: null,
-    path: "/quicktext.json",
-    readOnly: false,
+    path: "quicktext/default.json",
+    isReadOnly: false,
     enabled: true,
   };
 }
@@ -41,11 +41,10 @@ function _defaultManagedName() {
 // routes reads to `browser.storage.managed` when it sees this type,
 // and the manager dialog uses the same check to gate write-only
 // affordances (import, content edits). The entry is injected into
-// `storageLocations` on startup by `_migrateStorageLocationsShape()`
-// if a policy is present and the user doesn't already have one. The
-// policy may ship a custom `name` and `icon` URL via the new
-// `managedStorage` wrapper (see `_readManagedCombined`);
-// both are optional and fall back to sensible defaults.
+// `storageLocations` by `_migrateStorageLocationsShape()` if a policy
+// is present and the user doesn't already have one. The policy may
+// ship a custom `name` and `icon` URL via the `managedStorage` wrapper.
+// Both are optional and fall back to sensible defaults.
 function _makeManagedEntry({ name = null, icon = null } = {}) {
   return {
     uuid: crypto.randomUUID(),
@@ -54,7 +53,7 @@ function _makeManagedEntry({ name = null, icon = null } = {}) {
     icon: icon || null,
     storageRef: null,
     path: null,
-    readOnly: true,
+    isReadOnly: true,
     enabled: true,
   };
 }
@@ -65,6 +64,47 @@ function _makeManagedEntry({ name = null, icon = null } = {}) {
 // policy is active (and re-appear when the admin pushes one).
 export async function hasManagedPolicy() {
   return (await _readManagedCombined()) !== null;
+}
+
+// Direct reader for the policy-only `managedImport` key, with a
+// backward-compatibility fallback to a legacy `defaultImport` policy.
+// Read straight from `browser.storage.managed` so the values bypass
+// the `defaultPrefs`/`managedPrefs` machinery - the user's local
+// `defaultImport` must never be shadowed by a managed value.
+// Returns `[]` when neither key is present or the API is unavailable;
+// otherwise returns a normalized array in the same
+// `[{name, url, icon, managed}]` shape produced for `defaultImport`,
+// reusing `_normalizeDefaultImports` so legacy shapes pushed by older
+// policies still parse. Internal-only: UI consumers don't read policy
+// directly; instead they read the already-merged local `defaultImport`,
+// which is kept in sync by `reconcileManagedImports` below.
+async function _readManagedImports() {
+  try {
+    const { managedImport = null, defaultImport = null } =
+      await browser.storage.managed.get({
+        managedImport: null,
+        defaultImport: null,
+      });
+    // Prefer the new `managedImport` key. Fall back to a legacy
+    // `defaultImport` policy only when `managedImport` is absent,
+    // so admins who already migrated aren't double-counted and
+    // admins who haven't still get their entries surfaced.
+    const raw = managedImport ?? defaultImport;
+    if (raw == null) return [];
+    const entries = _normalizeDefaultImports(raw);
+    // The legacy `defaultImport` key's spec does not include `name`
+    // or `icon` fields, so strip them here: name is re-derived from
+    // the URL and icon falls back to the generic globe glyph.
+    if (managedImport == null) {
+      for (const e of entries) {
+        e.name = _deriveName(e.url);
+        e.icon = null;
+      }
+    }
+    return entries;
+  } catch {
+    return [];
+  }
 }
 
 // Read the managed policy's templates/scripts. Returns `null` when
@@ -119,19 +159,8 @@ async function _readManagedCombined() {
   }
 }
 
-/**
- * Mutate `combined` in place, dropping any group whose `protected`
- * flag is truthy (together with its matching `texts` slot) and any
- * script whose `protected` flag is truthy. Operates on the combined
- * `{templates: {groups, texts}, scripts}` shape used by both
- * `readConfigFile` and `quicktext.parseConfigFileData`.
- *
- * The old `protected: true` marker was retired during the
- * multi-storage refactor. This filter quietly strips any remaining
- * protected entries at ingest time so they never reach consumers -
- * the on-disk file cleans itself up naturally on the next save via
- * the read-modify-write in `setBundleForStorage`.
- */
+// Drops any group or script carrying a truthy `protected` flag. The marker and
+// formally protected (imported) entries are no longer needed.
 export function _stripProtectedInPlace(combined) {
   if (!combined) return;
 
@@ -155,13 +184,9 @@ export function _stripProtectedInPlace(combined) {
   }
 }
 
-/**
- * Read the combined `{templates, scripts}` JSON from a storage config.
- * Generic over the storage backend. Entries with `type: "managed"`
- * dispatch to `browser.storage.managed` instead of the VFS path;
- * protected entries from pre-refactor files are silently filtered
- * out on both paths via `_stripProtectedInPlace`.
- */
+// Read the combined `{templates, scripts}` JSON from a storage
+// config. Entries with `type: "managed"` dispatch to
+// `browser.storage.managed`. All other types go through the VFS.
 async function readConfigFile(config) {
   if (config?.type === "managed") {
     return (await _readManagedCombined()) ?? { templates: null, scripts: null };
@@ -196,18 +221,8 @@ async function writeConfigFile(config, combined) {
 }
 
 async function _migrateToConfigFile() {
-  // Migration to modern storage locations. 
-  //
-  // - modern format: storageLocations is a plain array where every entry carries
-  //   a persisted `uuid`. Nothing to do.
-  //
-  // - legacy format: `storageLocations` is either `null` (a fresh install that
-  //   never ran), a stringified JSON of `[{source, data}]`, or the parsed form
-  //   thereof. Templates and scripts live in `browser.storage.local.templates`
-  //   and `browser.storage.local.scripts` as stringified JSON.
-  //
-  // - XML format: old config files may sit in the user profile for really old
-  //   installs. Only migrated if the `storageLocations` key is absent.
+  // Modern `storageLocations` is a uuid-keyed array. Legacy `{source, data}`
+  // shapes and on-disk XML configs are migrated into the modern layout.
   const { storageLocations: raw } = await browser.storage.local.get({ storageLocations: null });
 
   // Already in the modern format - short-circuit.
@@ -223,21 +238,21 @@ async function _migrateToConfigFile() {
   });
   let templates = rawT ? (typeof rawT === "string" ? JSON.parse(rawT) : rawT) : null;
   let scripts = rawS ? (typeof rawS === "string" ? JSON.parse(rawS) : rawS) : null;
-  let source = templates != null || scripts != null ? "INTERNAL" : null;
+  let source = templates != null || scripts != null ? "local storage" : null;
 
   if (isFreshInstall && templates == null) {
     try {
       templates = (await quicktext.readLegacyXmlTemplateFile())?.templates ?? null;
-      if (templates != null) source = "XML";
+      if (templates != null) source = "profile folder (XML)";
     } catch { /* no XML file */ }
   }
   if (isFreshInstall && scripts == null) {
     try {
       scripts = (await quicktext.readLegacyXmlScriptFile())?.scripts ?? null;
-      if (scripts != null) source = source ?? "XML";
+      if (scripts != null) source = source ?? "profile folder (XML)";
     } catch { /* no XML file */ }
   }
-  console.log(`Quicktext migration: source=${source ?? "none"}`);
+  console.log(`Quicktext migration to VFS from: ${source ?? "none"}`);
 
   // Write the config file BEFORE persisting the modern storageLocations, so
   // the persisted storageLocations acts as the commit marker - a crash
@@ -269,7 +284,6 @@ const defaultPrefs = {
 };
 
 const managedPrefs = [
-  "defaultImport",
   "menuCollapse",
   "popup",
   "keywordKey",
@@ -355,19 +369,14 @@ export async function clearPref(aName) {
   await browser.storage.local.remove(aName);
 }
 
-// ---- Default (startup) imports ----------------------------------
-//
-// Historical shapes of the `defaultImport` pref:
-//   1. Semicolon-separated string (pre-v6.4.6)   -> parsed + URL-filtered.
-//   2. `[{source: "URL"|"FILE", data}, ...]` (v6.4.6+) -> FILE dropped,
-//      URL mapped to `{url: data, name: _deriveName(data)}`.
-//   3. `[{name, url}, ...]` (modern) -> pass-through.
+// ---- Imports ----------------------------------
 //
 // Callers read and write via the normal `getPref("defaultImport")` /
 // `setPref("defaultImport", list)` path. `migratePrefOnTheFly` runs
-// the raw value through `_normalizeDefaultImports` on every read, so
-// both the local and managed paths always hand consumers the modern
-// shape - there is no ambient legacy state.
+// the raw value through `_normalizeDefaultImports` on every read so
+// consumers always see the modern `[{name, url, icon, managed}]`
+// shape. The normalizer also parses legacy semicolon-string and
+// `{source, data}` shapes for backward compatibility.
 
 function _deriveName(url) {
   try {
@@ -391,7 +400,16 @@ function _normalizeDefaultImports(raw) {
         .split(";")
         .map(s => s.trim())
         .filter(s => /^https?:\/\//.test(s))
-        .map(url => ({ name: _deriveName(url), url, icon: null }));
+        .map(url => ({
+          uuid: crypto.randomUUID(),
+          name: _deriveName(url),
+          url,
+          icon: null,
+          managed: false,
+          enabled: true,
+          data: null,
+          status: null,
+        }));
     }
   }
   if (!Array.isArray(raw)) return [];
@@ -401,29 +419,234 @@ function _normalizeDefaultImports(raw) {
     // Modern shape. The `icon` field is optional - admins can
     // push a per-entry icon URL via the managed default-import
     // pref, alongside `name` and `url`; the manager falls back to
-    // a generic globe glyph when it's absent.
+    // a generic globe glyph when it's absent. The `managed` flag
+    // distinguishes policy-pushed rows (folded into local storage
+    // by `reconcileManagedImports`) from user-owned rows; on any
+    // path that doesn't supply it, it defaults to false.
     if (typeof entry.url === "string" && entry.url) {
+      const managed = entry.managed === true;
       result.push({
+        // Stable identity used by every consumer (bundle lookups,
+        // DOM data-uuid attributes, selection state). Minted lazily
+        // on first normalization for pre-feature entries; reconcile
+        // detects the diff and persists.
+        uuid: typeof entry.uuid === "string" && entry.uuid
+          ? entry.uuid
+          : crypto.randomUUID(),
         name: typeof entry.name === "string" && entry.name
           ? entry.name
           : _deriveName(entry.url),
         url: entry.url,
         icon: typeof entry.icon === "string" && entry.icon ? entry.icon : null,
+        managed,
+        // Managed rows are forcefully enabled; user-owned rows default
+        // to enabled when the field is absent (e.g. pre-upgrade data).
+        enabled: managed ? true : entry.enabled !== false,
+        // Fetched content and last-fetch status ride through untouched.
+        // `data` is `{templates, scripts}` when any fetch has ever
+        // succeeded; it's preserved even after a subsequent failed
+        // fetch so consumers still see the last known good content.
+        // `status` is `{timestamp, error?}` or null when never fetched.
+        data: entry.data && typeof entry.data === "object" ? entry.data : null,
+        status: entry.status && typeof entry.status === "object" ? entry.status : null,
       });
       continue;
     }
     // v6.4.6+ `{source, data}` shape.
     if (entry.source === "URL" && typeof entry.data === "string" && entry.data) {
       result.push({
+        uuid: crypto.randomUUID(),
         name: _deriveName(entry.data),
         url: entry.data,
         icon: null,
+        managed: false,
+        enabled: true,
+        data: null,
+        status: null,
       });
       continue;
     }
     // FILE entries and anything unrecognized are dropped.
   }
   return result;
+}
+
+// Merge `policy` entries into `local` in place of existing `managed: true`
+// rows with the same URL, preserving user ordering and dropping stale
+// managed rows whose URL no longer appears in the policy. Brand-new
+// policy entries are prepended to the front of the list so the user
+// notices them; user-added entries are still pushed to the end via
+// `addImportListEntry`. URL acts as the match key; same-URL collisions
+// between user and admin coexist as two separate rows.
+function _mergeManagedIntoDefault(local, policy) {
+  const byUrl = new Map();
+  for (const p of policy) {
+    if (!byUrl.has(p.url)) byUrl.set(p.url, []);
+    byUrl.get(p.url).push(p);
+  }
+  const kept = [];
+  for (const e of local) {
+    if (!e.managed) { kept.push(e); continue; }
+    const bucket = byUrl.get(e.url);
+    if (!bucket || bucket.length === 0) continue;
+    const p = bucket.shift();
+    // Managed rows stay forcefully enabled across reconciles, even
+    // if a stale `enabled: false` somehow leaked into local storage.
+    kept.push({ ...e, name: p.name, icon: p.icon ?? null, enabled: true });
+  }
+  // Prepend policy entries that weren't consumed above, in original
+  // policy order. A second walk over `policy` preserves order across
+  // duplicate URLs even though `bucket.shift()` consumed entries out
+  // of the map during the first pass.
+  const head = [];
+  const remaining = new Map();
+  for (const [url, bucket] of byUrl) remaining.set(url, bucket.length);
+  for (const p of policy) {
+    const left = remaining.get(p.url) ?? 0;
+    if (left > 0) {
+      head.push({ ...p, managed: true, enabled: true });
+      remaining.set(p.url, left - 1);
+    }
+  }
+  return head.concat(kept);
+}
+
+// Pull the live policy-side `managedImport` list, merge it with the
+// persisted local `defaultImport`, and write the result back so that
+// every downstream consumer (compose menu, manager, context menus) can
+// read one already-reconciled list. Skips the write when nothing moved.
+// Called once at background startup and whenever the managed-area
+// `managedImport` key changes (via `installManagedImportSync`).
+export async function reconcileManagedImports() {
+  const rawLocal = await _getLocalPref("defaultImport", []);
+  const local = _normalizeDefaultImports(rawLocal);
+  const policy = await _readManagedImports();
+  const merged = _mergeManagedIntoDefault(local, policy);
+  if (JSON.stringify(merged) !== JSON.stringify(local)) {
+    await browser.storage.local.set({ defaultImport: merged });
+  }
+}
+
+// Register a managed-area watcher that keeps local `defaultImport` in
+// sync with policy-side `managedImport`. The background page installs
+// this once at startup. The listener persists for the lifetime of the
+// page.
+export function installManagedImportSync() {
+  new StorageListener({
+    area: "managed",
+    // `defaultImport` is watched for backward compatibility: some
+    // admins still push the legacy key instead of `managedImport`,
+    // and we want their mid-session policy edits to reconcile too.
+    // The fallback inside `_readManagedImports` prefers `managedImport`
+    // when both are present, so the extra watch never double-counts.
+    watchedPrefs: ["managedImport", "defaultImport"],
+    listener: () => reconcileManagedImports(),
+  });
+}
+
+// One fetch attempt against an import entry's URL. Returns a
+// `{data, status}` patch to merge onto the entry. `cache: "no-store"`
+// forces a live fetch every call so users always get the latest
+// content rather than a stale HTTP-cache entry. On failure, the
+// entry's last successful `data` is preserved - only `status` updates.
+// Exported for the manager's pre-Save in-memory fetch on add/enable.
+export async function fetchImportOnce(entry) {
+  const timestamp = Date.now();
+  try {
+    const res = await fetch(entry.url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+    const text = await res.text();
+    const parsed = await quicktext.parseConfigFileData(text);
+    if (!parsed) throw new Error("Unparseable content");
+    return {
+      data: {
+        templates: parsed.templates ?? null,
+        scripts: parsed.scripts ?? null,
+      },
+      status: { timestamp },
+    };
+  } catch (ex) {
+    return {
+      data: entry.data ?? null,
+      status: { timestamp, error: String(ex?.message || ex) },
+    };
+  }
+}
+
+// Serialises all refreshes. Concurrent triggers (startup, 6h timer,
+// manager-driven) can't trample each other's read-modify-write because
+// each call chains onto the previous one's completion.
+let _refreshQueue = Promise.resolve();
+function _refreshMatching(predicate) {
+  _refreshQueue = _refreshQueue.then(async () => {
+    const list = _normalizeDefaultImports(await _getLocalPref("defaultImport", []));
+    let mutated = false;
+    for (let i = 0; i < list.length; i++) {
+      if (!predicate(list[i])) continue;
+      const update = await fetchImportOnce(list[i]);
+      list[i] = { ...list[i], ...update };
+      mutated = true;
+    }
+    if (mutated) await browser.storage.local.set({ defaultImport: list });
+  }).catch(ex => console.warn("Quicktext import refresh failed:", ex));
+  return _refreshQueue;
+}
+
+// Refresh every enabled import. Fired at background startup and
+// every 6 hours by the interval installed below.
+export function refreshAllImports() {
+  return _refreshMatching(e => e.enabled !== false);
+}
+
+// Refresh entries matching `url`. A URL may appear on both a managed
+// and a user-owned row; both fetch. Called by the manager after Save
+// for rows that were just added or just re-enabled.
+export function refreshImport(url) {
+  return _refreshMatching(e => e.url === url && e.enabled !== false);
+}
+
+// Background-only: install the 6h periodic refresh. MV2 module
+// background pages stay alive, so plain `setInterval` suffices.
+export function installImportAutoRefresh() {
+  setInterval(() => refreshAllImports(), 6 * 60 * 60 * 1000);
+}
+
+// Background-only: install a local-area listener that auto-fetches
+// any new-or-newly-enabled `defaultImport` entry whose `data` is
+// still null. Covers every write path in one place - reconcile,
+// manager Save, anything else that writes `defaultImport`.
+//
+// Loop-safe: when `refreshImport` writes `status` back, the listener
+// fires again, but the entry is already in the previous snapshot's
+// `oldValue` with the same `enabled` flag - not "new" or "newly
+// enabled" - so the fetcher skips.
+export function installDefaultImportFetcher() {
+  new StorageListener({
+    area: "local",
+    watchedPrefs: ["defaultImport"],
+    listener: events => {
+      for (const { changes } of events) {
+        const change = changes.defaultImport;
+        if (!change) continue;
+        const oldList = Array.isArray(change.oldValue) ? change.oldValue : [];
+        const newList = Array.isArray(change.newValue) ? change.newValue : [];
+        const prevByUuid = new Map();
+        for (const e of oldList) {
+          if (e && typeof e === "object") {
+            prevByUuid.set(e.uuid, e.enabled !== false);
+          }
+        }
+        for (const entry of newList) {
+          if (entry.enabled === false) continue;
+          if (entry.data) continue;
+          const wasEnabled = prevByUuid.get(entry.uuid);
+          const isNew = wasEnabled === undefined;
+          const isNewlyEnabled = wasEnabled === false;
+          if (isNew || isNewlyEnabled) refreshImport(entry.url);
+        }
+      }
+    },
+  });
 }
 
 /**
@@ -443,18 +666,44 @@ export async function getAllStorageEntries() {
   return await getPref("storageLocations");
 }
 
+// Synthesize a read-only bundle from an enabled+fetched import entry.
+// Matches the shape `readBundleForEntry` produces for storage entries,
+// plus `isImport: true` and a preresolved `iconUrl` so consumers don't
+// have to look up `storageLocations` for imports. `type: "import"` and
+// `storageRef: null` mark the bundle as having no VFS backing - the
+// parser uses these to skip VFS-tag resolution for import bundles.
+function _bundleFromImport(entry) {
+  const templates = entry.data?.templates ?? {};
+  return {
+    storageUuid: entry.uuid,
+    storageName: entry.name,
+    isReadOnly: true,
+    isImport: true,
+    type: "import",
+    storageRef: null,
+    iconUrl: entry.icon || browser.runtime.getURL("/assets/icon-globe.svg"),
+    templates: {
+      groups: Array.isArray(templates.groups) ? templates.groups : [],
+      texts:  Array.isArray(templates.texts)  ? templates.texts  : [],
+    },
+    scripts: Array.isArray(entry.data?.scripts) ? entry.data.scripts : [],
+  };
+}
+
 /**
- * Read templates and scripts from every enabled storage location in
- * the persisted order. One bundle per enabled entry; empty shells
- * are returned for storages with no data yet so the shape is always
- * consistent for consumers.
+ * Read templates and scripts from every enabled storage location in the
+ * persisted order, then append one read-only bundle per enabled import
+ * that has fetched content. Empty shells are returned for storages with
+ * no data yet so the shape is always consistent for consumers.
  *
  * @returns {Promise<Array<{
  *   storageUuid: string,
  *   storageName: string,
- *   readOnly: boolean,
+ *   isReadOnly: boolean,
  *   templates: { groups: Array, texts: Array },
  *   scripts: Array,
+ *   isImport?: boolean,
+ *   iconUrl?: string,
  * }>>}
  */
 export async function getActiveStorageEntries() {
@@ -463,6 +712,12 @@ export async function getActiveStorageEntries() {
   for (const entry of allEntries) {
     if (entry.enabled === false) continue;
     bundles.push(await readBundleForEntry(entry));
+  }
+  const defaultImport = await getPref("defaultImport");
+  for (const entry of defaultImport) {
+    if (entry.enabled === false) continue;
+    if (!entry.data) continue;
+    bundles.push(_bundleFromImport(entry));
   }
   return bundles;
 }
@@ -474,7 +729,7 @@ export async function getActiveStorageEntries() {
  * `storageLocations` prefs.
  *
  * @param {object} entry - A storageLocations entry carrying at least
- *   `{uuid, name, readOnly, storageRef, path}`.
+ *   `{uuid, name, isReadOnly, storageRef, path}`.
  */
 export async function readBundleForEntry(entry) {
   let combined = { templates: null, scripts: null };
@@ -493,7 +748,13 @@ export async function readBundleForEntry(entry) {
   return {
     storageUuid: entry.uuid,
     storageName: entry.name,
-    readOnly: !!entry.readOnly,
+    isReadOnly: !!entry.isReadOnly,
+    // `type` and `storageRef` ride through so the parser can decide
+    // whether a VFS tag inside a template from this bundle should
+    // resolve (`type === "vfs"`) and which VFS storage to read from
+    // (`storageRef`, null for OPFS).
+    type: entry.type,
+    storageRef: entry.storageRef ?? null,
     templates: {
       groups: Array.isArray(templates.groups) ? templates.groups : [],
       texts: Array.isArray(templates.texts) ? templates.texts : [],
@@ -522,7 +783,7 @@ export async function setBundleForStorage(storageUuid, { templates, scripts }) {
   const storageLocations = await getPref("storageLocations");
   const entry = storageLocations.find(e => e.uuid === storageUuid);
   if (!entry) throw new Error(`Unknown storage uuid ${storageUuid}`);
-  if (entry.readOnly) throw new Error(`Refusing to write read-only storage "${entry.name}"`);
+  if (entry.isReadOnly) throw new Error(`Refusing to write read-only storage "${entry.name}"`);
   const combined = await readConfigFile(entry);
   combined.templates = templates;
   combined.scripts = scripts;
@@ -566,8 +827,8 @@ export async function migrate() {
     await browser.storage.local.remove(`${aName}.managed.value`);
   }
 
-  // Migrate INTERNAL storage (browser.storage.local.templates + .scripts) or
-  // legacy XML files on disk into the combined /quicktext.json on OPFS, and
+  // Migrate legacy local storage (browser.storage.local.templates + .scripts)
+  // or legacy XML files on disk into the combined quicktext.json on OPFS, and
   // upgrade storageLocations to the new VFS config shape. Requires vfs.init()
   // to have run.
   await _migrateToConfigFile();
@@ -577,24 +838,11 @@ export async function migrate() {
   await _migrateStorageLocationsShape();
 }
 
-// Post-`_migrateToConfigFile` tidy-up:
-//
-//   1. Every persisted storageLocations entry gets a `type` field.
-//      Pre-refactor entries have none - default them to `"vfs"`.
-//   2. If `browser.storage.managed` currently has Quicktext data
-//      AND no entry with `type === "managed"` is already persisted,
-//      prepend a fresh managed entry so the policy shows up in the
-//      storage list like any other storage. Once injected it stays
-//      even if the policy later disappears, so user rename/reorder
-//      edits are preserved across policy churn.
-//   3. The admin-provided `name`/`icon` on an existing managed
-//      entry is refreshed from the live policy on every run. Since
-//      the user can't rename managed entries, there's no local
-//      edit to preserve; the policy is authoritative.
-//
-// `storageLocations` is user-owned (never policy-controlled), so
-// this always persists to local storage. Idempotent - safe to run
-// on every startup.
+// Backfill the `type` field on every storage entry, inject the
+// managed-policy entry when a policy is active, and refresh its
+// admin-provided `name` / `icon` from the live policy. Once injected
+// the managed entry is kept across policy churn so user reorders
+// survive.
 async function _migrateStorageLocationsShape() {
   const storageLocations = await getPref("storageLocations");
   if (!Array.isArray(storageLocations)) return;
@@ -636,65 +884,83 @@ async function _migrateStorageLocationsShape() {
   }
 }
 
+// Debounced observer over `browser.storage.onChanged`. Collapses
+// bursts within a 500ms window into a single delivery; the delivered
+// payload is an array of `{area, changes}` chunks, one per area that
+// had at least one watched-pref change. `oldValue` on each change is
+// preserved from the first event of the burst so consumers see the
+// genuine before/after across the debounce window, not the last
+// intermediate write.
 export class StorageListener {
   #watchedPrefs = [];
   #listener = null;
+  // Which storage area this listener subscribes to. `"auto"` (the
+  // default) handles all areas reported by the storage event.
+  // A specific string (`"local"`, `"managed"`, `"session"`, ...)
+  // scopes the listener to that area only.
+  #area = "auto";
+  // Per-area pending changes, created on-demand for whichever areas
+  // the storage event actually delivers. Single debounce timer
+  // shared across areas so one burst = one emission.
+  #byArea = new Map();
   #timeoutId;
-  #changedWatchedPrefs = {};
 
-  #eventEmitter() {
-    this.#listener(this.#changedWatchedPrefs);
-    this.#changedWatchedPrefs = {}
+  #emit() {
+    this.#timeoutId = null;
+    const events = [];
+    for (const [area, bucket] of this.#byArea) {
+      if (Object.keys(bucket.changes).length === 0) continue;
+      events.push({ area, changes: bucket.changes });
+    }
+    this.#byArea.clear();
+    if (events.length > 0) this.#listener(events);
+  }
+
+  #record(area, key, value) {
+    let bucket = this.#byArea.get(area);
+    if (!bucket) {
+      bucket = { changes: {} };
+      this.#byArea.set(area, bucket);
+    }
+    const existing = bucket.changes[key];
+    bucket.changes[key] = existing
+      ? { oldValue: existing.oldValue, newValue: value.newValue }
+      : value;
   }
 
   #eventCollapse = async (changes, area) => {
-    if (area == "local") {
-      for (let [key, value] of Object.entries(changes)) {
-        const watchedPref = this.#watchedPrefs.find(p => key == p);
+    if (this.#area !== "auto" && this.#area !== area) return;
 
-        // Do not monitor managed prefs.
-        let managedPref = await _getManagedPref(key);
-        if (managedPref !== undefined) {
-          continue;
-        }
+    if (area === "local") {
+      for (const [key, value] of Object.entries(changes)) {
+        if (!this.#watchedPrefs.includes(key)) continue;
+        // Skip prefs currently overridden by managed storage - the
+        // effective value hasn't changed, so consumers shouldn't wake.
+        if ((await _getManagedPref(key)) !== undefined) continue;
+        if (value.oldValue !== value.newValue) this.#record(area, key, value);
+      }
+    } else {
+      // Non-local areas (managed, session, ...) forward raw changes
+      // for every watched pref.
+      for (const [key, value] of Object.entries(changes)) {
+        if (this.#watchedPrefs.includes(key)) this.#record(area, key, value);
+      }
+    }
 
-        if (watchedPref && value.oldValue != value.newValue) {
-          this.#changedWatchedPrefs[watchedPref] = value;
-        }
-      }
-
-      if (Object.keys(this.#changedWatchedPrefs).length > 0) {
-        window.clearTimeout(this.#timeoutId);
-        this.#timeoutId = window.setTimeout(() => this.#eventEmitter(), 500);
-      }
-    } else if (area == "managed") {
-      // Admin pushed a new policy. Normalize any content-affecting
-      // change - the legacy `templates`/`scripts` keys and the new
-      // `managedStorage` wrapper - into synthetic
-      // `templates`/`scripts` change events so consumers that watch
-      // the content keys (compose menu, toolbar, manager) rebuild
-      // without needing to know about the wrapper format.
-      // `storageLocations` is user-owned and deliberately not
-      // policy-controlled, so it's not forwarded.
-      const managedContentKeys = ["templates", "scripts", "managedStorage"];
-      const touched = managedContentKeys.some(k => k in changes);
-      if (touched) {
-        for (const watched of ["templates", "scripts"]) {
-          if (this.#watchedPrefs.includes(watched)) {
-            this.#changedWatchedPrefs[watched] = changes[watched] ?? { managed: true };
-          }
-        }
-      }
-      if (Object.keys(this.#changedWatchedPrefs).length > 0) {
-        window.clearTimeout(this.#timeoutId);
-        this.#timeoutId = window.setTimeout(() => this.#eventEmitter(), 500);
-      }
+    let pending = false;
+    for (const bucket of this.#byArea.values()) {
+      if (Object.keys(bucket.changes).length > 0) { pending = true; break; }
+    }
+    if (pending) {
+      clearTimeout(this.#timeoutId);
+      this.#timeoutId = setTimeout(() => this.#emit(), 500);
     }
   }
 
   constructor(options = {}) {
     this.#watchedPrefs = options.watchedPrefs || [];
     this.#listener = options.listener;
+    this.#area = options.area ?? "auto";
     browser.storage.onChanged.addListener(this.#eventCollapse);
   }
 }

@@ -6,16 +6,39 @@
 
 import * as utils from "/modules/utils.mjs";
 import * as storage from "/modules/storage.mjs";
+import * as vfs from "/vendor/vfs-client/vfs-client.mjs";
 
 const allowedTags = [
   'ALERT', 'ATT', 'ATTACHMENT', 'CLIPBOARD', 'COUNTER', 'CSCRIPT', 'DATE', 'ESCRIPT', 'FILE', 'IMAGE', 'FROM', 'INPUT', 'ORGATT',
-  'ORGHEADER', 'SCRIPT', 'SUBJECT', 'TEXT', 'TIME', 'TO', 'URL', 'VERSION', 'SELECTION', 'HEADER'
+  'ORGHEADER', 'SCRIPT', 'SUBJECT', 'TEXT', 'TIME', 'TO', 'URL', 'VERSION', 'SELECTION', 'HEADER', 'VFSFILE'
 ];
 
 // These tags do not generate content and should be collapsed with a leading line break.
 const collapsingTags = [
   'ALERT', 'ATTACHMENT', 'HEADER'
 ]
+
+// Possible states of `mActiveStorage`. Each template-backed state corresponds
+// 1:1 to a bundle `type`:
+// - VFS_TEMPLATE: bundle type "vfs" (OPFS or external). uuid identifies the
+//   bundle; ref is the VFS storageRef (null = OPFS). VFS tag reads (IMAGE=VFS,
+//   ATTACHMENT=VFS, VFSFILE) use `ref`.
+// - IMPORT_TEMPLATE: bundle type "import" (fetched from a remote URL). uuid
+//   identifies the bundle; ref is null. VFS tag reads skip with a warning (no
+//   filesystem backing).
+// - MANAGED_TEMPLATE: bundle type "managed" (enterprise policy). uuid
+//   identifies the bundle; ref is null. VFS tag reads skip with a warning.
+// - SINGLE_VARIABLE: one-shot insertion from the compose variables menu or the
+//   Insert File menu. No template context (uuid is null). For VFSFILE,
+//   IMAGE=VFS and ATTACHMENT=VFS the ref property may carry a VFS-picker ref.
+//   TEXT/SCRIPT tags are blanked out, since there's no bundle to resolve
+//   against. Other tags evaluate normally.
+export const STORAGE_STATE = Object.freeze({
+  VFS_TEMPLATE: "vfs-template",
+  IMPORT_TEMPLATE: "import-template",
+  MANAGED_TEMPLATE: "managed-template",
+  SINGLE_VARIABLE: "single-variable",
+});
 
 // The value of these tags are persistent and only computed once per tab. All other
 // tags are computed once per template insertion and then re-use the computed value.
@@ -32,11 +55,17 @@ export class QuicktextParser {
     this.mTabId = aTabId;
     // `bundles` is the per-storage bundle array produced by
     // storage.getActiveStorageEntries(). Each element has {storageUuid,
-    // storageName, readOnly, templates, scripts}. Tag lookups
-    // (`TEXT=...`, `SCRIPT=...`) are scoped to the currently
-    // active storage - see mActiveStorageUuid.
+    // storageName, isReadOnly, templates, scripts}. TEXT and SCRIPT tag lookups
+    // are scoped to the currently active bundle - see `mActiveStorage.uuid`.
     this.mBundles = bundles || [];
-    this.mActiveStorageUuid = this.mBundles[0]?.storageUuid ?? null;
+    // The storage context this parser evaluates against. Mutated via
+    // `setActiveStorage` at the start of every top-level insertion
+    // (insertTemplate / insertVariable / insertFileContent).
+    this.mActiveStorage = {
+      state: STORAGE_STATE.SINGLE_VARIABLE,
+      ref: null,
+      uuid: null,
+    };
     this.mStaticDetails = null;
 
     //TODO: Evaluate if these values SHOULD be preserved (as getters/setters
@@ -52,20 +81,18 @@ export class QuicktextParser {
 
   }
 
-  // Set the storage that subsequent TEXT/SCRIPT tag expansions should
-  // resolve against. Called by quicktext.insertTemplate() before parsing
-  // the outermost template. Nested tag expansions never rebind this.
-  setActiveStorage(storageUuid) {
-    this.mActiveStorageUuid = storageUuid;
+  // Bind the parser to a storage context. See `STORAGE_STATE` for the allowed
+  // states. `ref` defaults to `null` (OPFS). `uuid` defaults to `null` (no
+  // bundle context). Callers provide what matters for their state and omit
+  // the rest.
+  setActiveStorage({ state, ref = null, uuid = null }) {
+    this.mActiveStorage = { state, ref, uuid };
   }
 
-  // Look up the currently active bundle. Falls back to the first bundle
-  // if the active uuid happens to be missing (shouldn't happen in
-  // practice, but keeps the parser defensive).
+  // Look up the currently active bundle. Only meaningful in template states
+  // where a uuid is bound (VFS_TEMPLATE, IMPORT_TEMPLATE, MANAGED_TEMPLATE).
   get activeBundle() {
-    return this.mBundles.find(b => b.storageUuid === this.mActiveStorageUuid)
-      ?? this.mBundles[0]
-      ?? { templates: { groups: [], texts: [] }, scripts: [] };
+    return this.mBundles.find(b => b.storageUuid === this.mActiveStorage.uuid)
   }
 
   async parseAndInsert(str) {
@@ -94,12 +121,6 @@ export class QuicktextParser {
 
   get tabId() {
     return this.mTabId
-  }
-  get scripts() {
-    return this.activeBundle.scripts;
-  }
-  get templates() {
-    return this.activeBundle.templates;
   }
 
   async getStateData() {
@@ -220,7 +241,9 @@ export class QuicktextParser {
     let scriptName = aVariables.shift();
 
     // Looks through scripts of the currently active storage only.
-    for (let script of this.activeBundle.scripts) {
+    const scripts = this.activeBundle?.scripts;
+    if (!scripts) return "";
+    for (let script of scripts) {
       if (script.name == scriptName) {
         let returnValue = "";
 
@@ -412,7 +435,9 @@ export class QuicktextParser {
     }
 
     let debug = true;
-    let method = "post";
+    // GET is the conventional default for URL fetches; the second
+    // tag arg (`|post`, `|get`, `|options`) overrides if needed.
+    let method = "get";
     let post = [];
 
     if (aVariables.length > 0) {
@@ -469,44 +494,25 @@ export class QuicktextParser {
       }
     }
 
-    let response = new Promise(resolve => {
-      let req = new XMLHttpRequest();
-      req.open(method, url, true);
-      if (method == "post") req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    // Bypass the HTTP cache: tag-driven URL reads should always
+    // see the live resource, never a stale copy from a previous
+    // template insert.
+    const init = {
+      method: method.toUpperCase(),
+      cache: "no-store",
+    };
+    if (method == "post") {
+      init.headers = { "Content-Type": "application/x-www-form-urlencoded" };
+      init.body = post.map(encodeURIComponent).join("&");
+    }
 
-      req.ontimeout = function () {
-        if (debug) {
-          resolve("Quicktext timeout");
-        } else {
-          resolve()
-        }
-      };
-
-      req.onerror = function () {
-        if (debug) {
-          resolve(`Quicktext global error: ${req.status}`);
-        } else {
-          resolve()
-        }
-      };
-
-      req.onload = function () {
-        if (req.status == 200) {
-          resolve(req.responseText);
-        } else if (debug) {
-          resolve(`Quicktext onLoad error: ${req.status}`);
-        } else {
-          resolve();
-        }
-      };
-
-      let postdata = method == "post"
-        ? post.map(encodeURIComponent).join("&")
-        : null;
-      req.send(postdata);
-    });
-
-    return response;
+    try {
+      const response = await fetch(url, init);
+      if (response.status == 200) return this.parse(await response.text());
+      return debug ? `Quicktext onLoad error: ${response.status}` : "";
+    } catch (e) {
+      return debug ? `Quicktext global error: ${e.message}` : "";
+    }
   }
   async get_url(aVariables) {
     return this.process_url(aVariables);
@@ -533,6 +539,28 @@ export class QuicktextParser {
     }
     return "";
   }
+
+  async get_vfsfile(aVariables) {
+    return this.process_vfsfile(aVariables);
+  }
+  async process_vfsfile(aVariables) {
+    if (aVariables.length === 0 || aVariables[0] === "") return "";
+    if (this.mActiveStorage.state === STORAGE_STATE.IMPORT_TEMPLATE ||
+        this.mActiveStorage.state === STORAGE_STATE.MANAGED_TEMPLATE) {
+      console.warn(`VFSFILE in non-VFS bundle; skipping: ${aVariables[0]}`);
+      return "";
+    }
+    try {
+      const file = await vfs.readFile({ path: aVariables[0], storageRef: this.mActiveStorage.ref });
+      const content = await file.text();
+      const insertMode = aVariables.length > 1 && aVariables[1].includes("force_as_text")
+        ? "text/plain"
+        : "text/html";
+      const stripHtmlComments = aVariables.length > 1 && aVariables[1].includes("strip_html_comments");
+      return this.process_file_content(content, { insertMode, stripHtmlComments });
+    } catch (e) { console.error(e); }
+    return "";
+  }
   async process_file_content(content, options) {
     let insertMode = options?.insertMode ?? "text/html";
     let stripHtmlComments = options?.stripHtmlComments == false;
@@ -554,7 +582,7 @@ export class QuicktextParser {
     let mode_lc = mode.toLowerCase();
 
     // The first parameter is optional, defaults to FILE.
-    if (!["url", "file"].includes(mode_lc)) {
+    if (!["url", "file", "vfs"].includes(mode_lc)) {
       type = source;
       source = mode;
       mode_lc = "file";
@@ -579,6 +607,20 @@ export class QuicktextParser {
             let type = utils.getTypeFromExtension(leafName);
             let binContent = utils.uint8ArrayToBase64(bytes);
             src = "data:" + type + ";filename=" + leafName + ";base64," + binContent;
+            break;
+          }
+          case "vfs": {
+            if (this.mActiveStorage.state === STORAGE_STATE.IMPORT_TEMPLATE ||
+                this.mActiveStorage.state === STORAGE_STATE.MANAGED_TEMPLATE) {
+              console.warn(`IMAGE=VFS in non-VFS bundle; skipping: ${source}`);
+              break;
+            }
+            const file = await vfs.readFile({ path: source, storageRef: this.mActiveStorage.ref });
+            const bytes = new Uint8Array(await file.arrayBuffer());
+            const leafName = utils.getLeafName(source);
+            const mimeType = utils.getTypeFromExtension(leafName);
+            src = "data:" + mimeType + ";filename=" + leafName +
+                  ";base64," + utils.uint8ArrayToBase64(bytes);
             break;
           }
         }
@@ -627,7 +669,8 @@ export class QuicktextParser {
     // Looks after the group and text-name within the currently active
     // storage only. Multi-storage lookups by name are ambiguous by design:
     // the caller's storage context must be set via setActiveStorage().
-    const templates = this.activeBundle.templates;
+    const templates = this.activeBundle?.templates;
+    if (!templates) return "";
     for (let i = 0; i < templates.groups.length; i++) {
       if (aVariables[0] == templates.groups[i].name) {
         for (let j = 0; j < templates.texts[i].length; j++) {
@@ -870,7 +913,7 @@ export class QuicktextParser {
     let mode_lc = mode.toLowerCase();
 
     // The first parameter is optional, defaults to FILE.
-    if (!["url", "file"].includes(mode_lc)) {
+    if (!["url", "file", "vfs"].includes(mode_lc)) {
       name = source;
       source = mode;
       mode_lc = "file";
@@ -888,6 +931,19 @@ export class QuicktextParser {
         let type = utils.getTypeFromExtension(leafName);
         let file = new File([bytes], leafName, { type });
         await this.addAttachment(file);
+        break;
+      }
+      case "vfs": {
+        if (this.mActiveStorage.state === STORAGE_STATE.IMPORT_TEMPLATE ||
+            this.mActiveStorage.state === STORAGE_STATE.MANAGED_TEMPLATE) {
+          console.warn(`ATTACHMENT=VFS in non-VFS bundle; skipping: ${source}`);
+          break;
+        }
+        const file = await vfs.readFile({ path: source, storageRef: this.mActiveStorage.ref });
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        const leafName = name ?? utils.getLeafName(source);
+        const type = utils.getTypeFromExtension(leafName);
+        await this.addAttachment(new File([bytes], leafName, { type }));
         break;
       }
     }
@@ -1207,9 +1263,17 @@ export class QuicktextParser {
 
     // Replace all tags with there right contents
     for (let i = 0; i < tags.length; i++) {
+      const tagName = tags[i].tagName.toLowerCase();
+      // TEXT and SCRIPT tags resolve against `activeBundle`, so they only
+      // make sense inside a template context. In SINGLE_VARIABLE state
+      // (compose-menu FILE/VFSFILE, Insert File menu) there is no bundle
+      // bound, so these evaluate to "" and disappear from the output.
+      const isUnresolvableBundleTag =
+        this.mActiveStorage.state === STORAGE_STATE.SINGLE_VARIABLE &&
+        (tagName === "text" || tagName === "script");
       let value = "";
       let variable_limit = -1;
-      switch (tags[i].tagName.toLowerCase()) {
+      switch (tagName) {
         case 'att':
         case 'clipboard':
         case 'selection':
@@ -1223,6 +1287,7 @@ export class QuicktextParser {
           break;
         case 'alert':
         case 'file':
+        case 'vfsfile':
         case 'image':
         case 'from':
         case 'input':
@@ -1242,8 +1307,11 @@ export class QuicktextParser {
       }
 
       // if the method "get_[tagname]" exists and there is enough arguments we call it
-      if (typeof this["get_" + tags[i].tagName.toLowerCase()] == "function" && variable_limit >= 0 && tags[i].variables.length >= variable_limit) {
-        value = await this["get_" + tags[i].tagName.toLowerCase()](tags[i].variables);
+      if (!isUnresolvableBundleTag &&
+          typeof this["get_" + tagName] == "function" &&
+          variable_limit >= 0 &&
+          tags[i].variables.length >= variable_limit) {
+        value = await this["get_" + tagName](tags[i].variables);
       }
       aStr = utils.replaceText(tags[i].tag, value, aStr, { collapseLineBreaks: collapsingTags.includes(tags[i].tagName) });
     }

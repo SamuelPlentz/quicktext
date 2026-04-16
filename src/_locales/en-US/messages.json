@@ -3,10 +3,10 @@
     "message": "All Quicktext settings can be controlled and configured in the Quicktext Manager, alongside your templates and scripts."
   },
   "quicktext.deprecatedAttachmentField.label": {
-    "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
+    "message": "This input field is deprecated. Use [[ATTACHMENT=VFS|<path>]] directly in the body of the template instead."
   },
   "quicktext.attachmentFile.label": {
-    "message": "Choose file to add to attachments"
+    "message": "Add attachment"
   },
   "quicktext.controlledViaManagedStorage.label": {
     "message": "Controlled via managed storage"
@@ -108,9 +108,6 @@
   "quicktext.buttons.addFile.label": {
     "message": "+ File"
   },
-  "quicktext.buttons.addUrl.label": {
-    "message": "+ URL"
-  },
   "quicktext.addGroup.label": {
     "message": "Add group"
   },
@@ -166,10 +163,13 @@
     "message": "Date/Time"
   },
   "quicktext.defaultImport.label": {
-    "message": "Default Imports"
+    "message": "Imports"
+  },
+  "quicktext.defaultImport.legend": {
+    "message": "Read-only imports of templates and scripts"
   },
   "quicktext.defaultImport.description": {
-    "message": "Manage default imports of templates and scripts (read-only). Centrally managed imports are marked as locked."
+    "message": "Manage read-only imports of templates and scripts from remote servers. Entries provided by an enterprise policy are marked with a lock and cannot be renamed or removed."
   },
   "quicktext.accesskey.defaultImport": {
     "message": "I"
@@ -183,11 +183,17 @@
   "quicktext.defaultImport.invalidUrl.label": {
     "message": "Please enter a valid http(s) URL."
   },
+  "quicktext.defaultImport.duplicate.label": {
+    "message": "This import URL is already in the list as \"$1\"."
+  },
   "quicktext.defaultImport.columns.name": {
     "message": "Name"
   },
   "quicktext.defaultImport.columns.url": {
     "message": "URL"
+  },
+  "quicktext.defaultImport.columns.status": {
+    "message": "Status"
   },
   "quicktext.displayname.label": {
     "message": "Displayname"
@@ -253,7 +259,7 @@
     "message": "Incompatible script"
   },
   "quicktext.image.label": {
-    "message": "Embedded HTML image"
+    "message": "Insert image (embedded)"
   },
   "quicktext.import.label": {
     "message": "Import"
@@ -271,7 +277,7 @@
     "message": "Insert file as text"
   },
   "quicktext.insertfile.label": {
-    "message": "Content from file (deprecated)"
+    "message": "Insert text/html content"
   },
   "quicktext.jobtitle.label": {
     "message": "Jobtitle"
@@ -417,9 +423,6 @@
   "quicktext.to.label": {
     "message": "To"
   },
-  "quicktext.url.label": {
-    "message": "Response from URL"
-  },
   "quicktext.insertVariable.label": {
     "message": "Insert Variable"
   },
@@ -472,15 +475,24 @@
     "message": "Adds a toolbar with unlimited number of text to quickly insert. It is also possible to use variables like [[TO=firstname]]. With settings for everything."
   },
   "quicktext.mode.file.label": {
-    "message": "Read from local file (deprecated)"
+    "message": "Read from local file"
   },
   "quicktext.mode.url.label": {
     "message": "Read from remote URL"
+  },
+  "quicktext.mode.vfs.label": {
+    "message": "Read from storage"
   },
   "quicktext.insertTag.label": {
     "message": "Insert Tag"
   },
   "quicktext.variablesGroup.label": {
     "message": "Variables"
+  },
+  "quicktext.dialog.verifyUrl.label": {
+    "message": "Verify"
+  },
+  "quicktext.dialog.addImport.label": {
+    "message": "Add Import"
   }
 }

@@ -167,10 +167,8 @@ function keywordListener(e) {
             selection.modify("extend", "backward", "character");
         }
 
-        // The following line will remove the keyword before we replace it. If we
-        // do not do that, we see the keyword being selected and then replaced.
-        // It does look interesting, but I keep it as it was before.
-
+        // Delete the keyword before replacing so the user doesn't see
+        // it flash selected-then-replaced.
         document.execCommand('delete');
         //selection.deleteFromDocument();
         //selection.getRangeAt(0).deleteContents();
@@ -232,14 +230,13 @@ async function setup() {
     window.addEventListener("keyup", shortcutKeyUp, true);
     window.addEventListener("keydown", keywordListener, false);
 
-    new storage.StorageListener(
-        {
-            watchedPrefs: ["templates", "keywordKey", "shortcutTypeAdv", "shortcutModifier"],
-            listener: (changes) => {
-                getLatestPrefs();
-            }
+    new storage.StorageListener({
+        area: "auto",
+        watchedPrefs: ["templates", "managedStorage", "keywordKey", "shortcutTypeAdv", "shortcutModifier"],
+        listener: (_events) => {
+            getLatestPrefs();
         }
-    )
+    })
 }
 
 messenger.runtime.onMessage.addListener((message, sender) => {

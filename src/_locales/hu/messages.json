@@ -3,10 +3,10 @@
     "message": "Az összes Quicktext-beállítás a Quicktext-kezelőben vezérelhető és konfigurálható, a sablonok és szkriptek mellett."
   },
   "quicktext.deprecatedAttachmentField.label": {
-    "message": "This input field is deprecated. Use [[ATTACHMENT=FILE|<path>]] directly in the body of the template instead."
+    "message": "This input field is deprecated. Use [[ATTACHMENT=VFS|<path>]] directly in the body of the template instead."
   },
   "quicktext.attachmentFile.label": {
-    "message": "Fájl kiválasztása mellékletek hozzáadása"
+    "message": "Melléklet hozzáadása"
   },
   "quicktext.controlledViaManagedStorage.label": {
     "message": "Felügyelt tárhelyen keresztül vezérelve"
@@ -108,9 +108,6 @@
   "quicktext.buttons.addFile.label": {
     "message": "+ Fájl"
   },
-  "quicktext.buttons.addUrl.label": {
-    "message": "+ URL"
-  },
   "quicktext.addGroup.label": {
     "message": "Csoport hozzáadása"
   },
@@ -166,10 +163,13 @@
     "message": "Dátum/idő"
   },
   "quicktext.defaultImport.label": {
-    "message": "Alapértelmezett importok"
+    "message": "Importok"
+  },
+  "quicktext.defaultImport.legend": {
+    "message": "Sablonok és szkriptek csak olvasható importjai"
   },
   "quicktext.defaultImport.description": {
-    "message": "Sablonok és szkriptek alapértelmezett importjainak kezelése (csak olvasható). A központilag kezelt importok zároltként vannak megjelölve."
+    "message": "Sablonok és szkriptek csak olvasható importjainak kezelése távoli szerverekről. A vállalati szabályzat által biztosított bejegyzéseket lakat jelöli, és nem nevezhetők át vagy távolíthatók el."
   },
   "quicktext.accesskey.defaultImport": {
     "message": "I"
@@ -183,11 +183,17 @@
   "quicktext.defaultImport.invalidUrl.label": {
     "message": "Adjon meg egy érvényes http(s) URL-t."
   },
+  "quicktext.defaultImport.duplicate.label": {
+    "message": "Ez az import URL már szerepel a listában mint \"$1\"."
+  },
   "quicktext.defaultImport.columns.name": {
     "message": "Név"
   },
   "quicktext.defaultImport.columns.url": {
     "message": "URL"
+  },
+  "quicktext.defaultImport.columns.status": {
+    "message": "Állapot"
   },
   "quicktext.displayname.label": {
     "message": "Megjelenítendő név"
@@ -253,7 +259,7 @@
     "message": "Nem kompatibilis szkript"
   },
   "quicktext.image.label": {
-    "message": "Beágyazott HTML-kép"
+    "message": "Kép beszúrása (beágyazott)"
   },
   "quicktext.import.label": {
     "message": "Importálása"
@@ -271,7 +277,7 @@
     "message": "Fájl beszúrása mint szöveg formátum"
   },
   "quicktext.insertfile.label": {
-    "message": "Fájl tartalma (elavult)"
+    "message": "Szöveges/HTML tartalom beszúrása"
   },
   "quicktext.jobtitle.label": {
     "message": "Munka megnevezése"
@@ -417,9 +423,6 @@
   "quicktext.to.label": {
     "message": "Címzett"
   },
-  "quicktext.url.label": {
-    "message": "Válasz az URL-címtől"
-  },
   "quicktext.insertVariable.label": {
     "message": "Változó beszúrása"
   },
@@ -472,15 +475,24 @@
     "message": "Eszköztár, parancsfájlok és sablonok korlátlan lehetoségekkel, beleértve a [[TO=firstname]] változókat, a gyors szövegbeillesztéshez"
   },
   "quicktext.mode.file.label": {
-    "message": "Olvasás helyi fájlból (elavult)"
+    "message": "Olvasás helyi fájlból"
   },
   "quicktext.mode.url.label": {
     "message": "Olvasás távoli URL-ről"
+  },
+  "quicktext.mode.vfs.label": {
+    "message": "Olvasás tárolóból"
   },
   "quicktext.insertTag.label": {
     "message": "Tag beszúrása"
   },
   "quicktext.variablesGroup.label": {
     "message": "Változók"
+  },
+  "quicktext.dialog.verifyUrl.label": {
+    "message": "Ellenőrzés"
+  },
+  "quicktext.dialog.addImport.label": {
+    "message": "Import hozzáadása"
   }
 }

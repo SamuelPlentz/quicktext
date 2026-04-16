@@ -32,21 +32,34 @@ function contactItems(prefix) {
   return CONTACT_FIELDS.map(field => ({ type: "item", id: field, value: `${prefix}=${field}` }));
 }
 
-export function getVariablesMenuStructure() {
-  return [
+// Recursively drop nodes whose `restricted` array doesn't include
+// the requested origin. Nodes without a `restricted` field appear
+// in every origin. An undefined `origin` filters every restricted
+// item out (safe default - surfaces forgotten call-site updates as
+// missing menu entries rather than silent leaks).
+function _filterByOrigin(nodes, origin) {
+  return nodes.flatMap(node => {
+    if (node.restricted && !node.restricted.includes(origin)) return [];
+    if (!node.children) return [node];
+    return [{ ...node, children: _filterByOrigin(node.children, origin) }];
+  });
+}
+
+// `origin` selects which menu surface the structure is being built
+// for. Items carrying a `restricted: [...]` array only appear when
+// the requested origin is in their list. Today: "compose" (composer
+// body context menu), "toolbar" (legacy toolbar), "manager"
+// (Insert Tag flyout). Composer and toolbar share insertion
+// semantics today but get distinct origin labels so future
+// divergence is a label change, not a structural refactor.
+export function getVariablesMenuStructure({ origin } = {}) {
+  const nodes = [
     { type: "group", id: "to", children: contactItems("TO") },
     { type: "group", id: "from", children: contactItems("FROM") },
     {
       type: "group", id: "attachments", children: [
         { type: "item", id: "filename", value: "ATT=name" },
         { type: "item", id: "filenameAndSize", value: "ATT=full" },
-        { type: "separator" },
-        {
-          type: "group", id: "attachmentFile", children: [
-            { type: "item", id: "mode-file", localeKey: "quicktext.mode.file.label", value: "ATTACHMENT=FILE|<path>" },
-            { type: "item", id: "mode-url", localeKey: "quicktext.mode.url.label", value: "ATTACHMENT=URL|<url>" },
-          ]
-        },
       ]
     },
     {
@@ -58,6 +71,44 @@ export function getVariablesMenuStructure() {
         { type: "dateTime", id: "time-seconds", value: "TIME=seconds", format: "time-seconds" },
       ]
     },
+    { type: "separator" },
+    {
+      type: "group", id: "insertfile", children: [
+        {
+          type: "group", id: "mode-file", restricted: ["compose", "toolbar"], localeKey: "quicktext.mode.file.label", children: [
+            { type: "item", id: "as-html", localeKey: "quicktext.insertTextFromFileAsHTML.label", value: "FILE=<path>", insertMode: "text/html" },
+            { type: "item", id: "as-text", localeKey: "quicktext.insertTextFromFileAsText.label", value: "FILE=<path>", insertMode: "text/plain" },
+          ]
+        },
+        {
+          type: "group", id: "mode-url", localeKey: "quicktext.mode.url.label", children: [
+            { type: "item", id: "as-html", localeKey: "quicktext.insertTextFromFileAsHTML.label", value: "URL=<url>", insertMode: "text/html" },
+            { type: "item", id: "as-text", localeKey: "quicktext.insertTextFromFileAsText.label", value: "URL=<url>", insertMode: "text/plain" },
+          ]
+        },
+        {
+          type: "group", id: "mode-vfs", localeKey: "quicktext.mode.vfs.label", children: [
+            { type: "item", id: "as-html", localeKey: "quicktext.insertTextFromFileAsHTML.label", value: "VFSFILE=<vfs-path>", insertMode: "text/html" },
+            { type: "item", id: "as-text", localeKey: "quicktext.insertTextFromFileAsText.label", value: "VFSFILE=<vfs-path>", insertMode: "text/plain" },
+          ]
+        },
+      ]
+    },
+    {
+      type: "group", id: "image", children: [
+        { type: "item", id: "mode-file", restricted: ["compose", "toolbar"], localeKey: "quicktext.mode.file.label", value: "IMAGE=FILE|<path>" },
+        { type: "item", id: "mode-url", localeKey: "quicktext.mode.url.label", value: "IMAGE=URL|<url>" },
+        { type: "item", id: "mode-vfs", localeKey: "quicktext.mode.vfs.label", value: "IMAGE=VFS|<vfs-path>" },
+      ]
+    },
+    {
+      type: "group", id: "attachmentFile", children: [
+        { type: "item", id: "mode-file", restricted: ["compose", "toolbar"], localeKey: "quicktext.mode.file.label", value: "ATTACHMENT=FILE|<path>" },
+        { type: "item", id: "mode-url", localeKey: "quicktext.mode.url.label", value: "ATTACHMENT=URL|<url>" },
+        { type: "item", id: "mode-vfs", localeKey: "quicktext.mode.vfs.label", value: "ATTACHMENT=VFS|<vfs-path>" },
+      ]
+    },
+    { type: "separator" },
     {
       type: "group", id: "other", children: [
         { type: "item", id: "clipboard", value: "CLIPBOARD" },
@@ -67,28 +118,14 @@ export function getVariablesMenuStructure() {
         { type: "item", id: "orgatt", value: "ORGATT=\\n" },
         { type: "item", id: "orgheader", value: "ORGHEADER=type|\\n" },
         { type: "item", id: "subject", value: "SUBJECT" },
-        { type: "item", id: "url", value: "URL=url|data" },
-        { type: "item", id: "insertfile", value: "FILE=<path>" },
-        {
-          type: "group", id: "image", children: [
-            { type: "item", id: "mode-file", localeKey: "quicktext.mode.file.label", value: "IMAGE=FILE|<path>" },
-            { type: "item", id: "mode-url", localeKey: "quicktext.mode.url.label", value: "IMAGE=URL|<url>" },
-          ]
-        },
         { type: "item", id: "version", value: "VERSION" },
-        { type: "separator" },
-        { type: "item", id: "header", value: "HEADER=type|value" },
-        { type: "item", id: "cursor", value: "CURSOR" },
       ]
     },
+    { type: "separator" },
+    { type: "item", id: "header", value: "HEADER=type|value" },
+    { type: "item", id: "cursor", value: "CURSOR" },
   ];
-}
-
-export function getInsertFileMenuStructure() {
-  return [
-    { type: "item", id: "insertTextFromFileAsText", mimeType: "text/plain" },
-    { type: "item", id: "insertTextFromFileAsHTML", mimeType: "text/html" },
-  ];
+  return _filterByOrigin(nodes, origin);
 }
 
 export function getDateTimeMenuTitle(field, timeStamp) {
@@ -134,6 +171,13 @@ async function getStorageIconUrls(bundles) {
   const effective = await storage.getAllStorageEntries();
   const result = {};
   for (const bundle of bundles) {
+    // Import bundles arrive with their icon preresolved (globe fallback
+    // or admin-provided URL); use it directly without consulting the
+    // storage-locations list, which doesn't contain imports.
+    if (bundle.iconUrl) {
+      result[bundle.storageUuid] = bundle.iconUrl;
+      continue;
+    }
     const entry = effective.find(e => e.uuid === bundle.storageUuid);
     if (!entry) {
       result[bundle.storageUuid] = INTERNAL_STORAGE_ICON_URL;
@@ -303,7 +347,7 @@ function _decorateScriptsWithValues(scriptNodes, isMulti) {
   }));
 }
 
-export async function getTagsMenuStructure({ storageUuid, bundles } = {}) {
+export async function getTagsMenuStructure({ storageUuid, bundles, origin } = {}) {
   bundles = bundles ?? await storage.getActiveStorageEntries();
   // When filtered to a single storage, the result is always in the
   // single-storage shape regardless of how many storages exist, so
@@ -317,7 +361,7 @@ export async function getTagsMenuStructure({ storageUuid, bundles } = {}) {
   const scriptChildren = _decorateScriptsWithValues(scriptNodes, isMulti);
 
   const nodes = [
-    { type: "group", id: "variables", localeKey: "quicktext.variablesGroup.label", children: getVariablesMenuStructure() },
+    { type: "group", id: "variables", localeKey: "quicktext.variablesGroup.label", children: getVariablesMenuStructure({ origin }) },
   ];
   if (templateChildren.length > 0 || scriptChildren.length > 0) {
     nodes.push({

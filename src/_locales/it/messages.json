@@ -3,10 +3,10 @@
     "message": "Tutte le impostazioni di Quicktext possono essere controllate e configurate nel Gestore Quicktext, insieme ai tuoi modelli e script."
   },
   "quicktext.deprecatedAttachmentField.label": {
-    "message": "Questo campo di input è obsoleto. Utilizzare invece [[ATTACHMENT=FILE|<percorso>]] direttamente nel corpo del modello."
+    "message": "Questo campo di input è obsoleto. Utilizzare invece [[ATTACHMENT=VFS|<percorso>]] direttamente nel corpo del modello."
   },
   "quicktext.attachmentFile.label": {
-    "message": "Scegli il file da aggiungere agli allegati"
+    "message": "Aggiungi allegato"
   },
   "quicktext.controlledViaManagedStorage.label": {
     "message": "Controllato tramite archiviazione gestita"
@@ -108,9 +108,6 @@
   "quicktext.buttons.addFile.label": {
     "message": "+ File"
   },
-  "quicktext.buttons.addUrl.label": {
-    "message": "+ URL"
-  },
   "quicktext.addGroup.label": {
     "message": "Aggiungi gruppo"
   },
@@ -166,10 +163,13 @@
     "message": "Data/Ora"
   },
   "quicktext.defaultImport.label": {
-    "message": "Import predefiniti"
+    "message": "Importazioni"
+  },
+  "quicktext.defaultImport.legend": {
+    "message": "Importazioni in sola lettura di modelli e script"
   },
   "quicktext.defaultImport.description": {
-    "message": "Gestisci gli import predefiniti di modelli e script (sola lettura). Gli import gestiti centralmente sono contrassegnati come bloccati."
+    "message": "Gestisci importazioni in sola lettura di modelli e script da server remoti. Le voci fornite da un criterio aziendale sono contrassegnate con un lucchetto e non possono essere rinominate o rimosse."
   },
   "quicktext.accesskey.defaultImport": {
     "message": "I"
@@ -183,11 +183,17 @@
   "quicktext.defaultImport.invalidUrl.label": {
     "message": "Inserisci un URL http(s) valido."
   },
+  "quicktext.defaultImport.duplicate.label": {
+    "message": "Questo URL di importazione è già nell'elenco come \"$1\"."
+  },
   "quicktext.defaultImport.columns.name": {
     "message": "Nome"
   },
   "quicktext.defaultImport.columns.url": {
     "message": "URL"
+  },
+  "quicktext.defaultImport.columns.status": {
+    "message": "Stato"
   },
   "quicktext.displayname.label": {
     "message": "Nome visualizzato"
@@ -253,7 +259,7 @@
     "message": "Scrittura incompatibile"
   },
   "quicktext.image.label": {
-    "message": "Immagine HTML incorporata"
+    "message": "Inserisci immagine (incorporata)"
   },
   "quicktext.import.label": {
     "message": "Importa"
@@ -271,7 +277,7 @@
     "message": "Inserisci file come testo"
   },
   "quicktext.insertfile.label": {
-    "message": "Contenuto da file (obsoleto)"
+    "message": "Inserisci contenuto testo/HTML"
   },
   "quicktext.jobtitle.label": {
     "message": "Titolo di lavoro"
@@ -417,9 +423,6 @@
   "quicktext.to.label": {
     "message": "A"
   },
-  "quicktext.url.label": {
-    "message": "Risposta dall'URL"
-  },
   "quicktext.insertVariable.label": {
     "message": "Inserisci variabile"
   },
@@ -472,15 +475,24 @@
     "message": "Aggiunge una barra degli strumenti con un numero illimitato di testi da inserire rapidamente. È anche possibile utilizzare variabili come [[TO=firstname]]. Con impostazioni per tutto."
   },
   "quicktext.mode.file.label": {
-    "message": "Leggi da file locale (obsoleto)"
+    "message": "Leggi da file locale"
   },
   "quicktext.mode.url.label": {
     "message": "Leggi da URL remoto"
+  },
+  "quicktext.mode.vfs.label": {
+    "message": "Leggi dallo storage"
   },
   "quicktext.insertTag.label": {
     "message": "Inserisci tag"
   },
   "quicktext.variablesGroup.label": {
     "message": "Variabili"
+  },
+  "quicktext.dialog.verifyUrl.label": {
+    "message": "Verifica"
+  },
+  "quicktext.dialog.addImport.label": {
+    "message": "Aggiungi importazione"
   }
 }

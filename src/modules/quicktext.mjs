@@ -6,7 +6,7 @@
 
 import * as storage from "/modules/storage.mjs";
 import * as utils from "/modules/utils.mjs";
-import { QuicktextParser } from "/modules/quicktextParser.mjs";
+import { QuicktextParser, STORAGE_STATE } from "/modules/quicktextParser.mjs";
 
 // Helper
 
@@ -163,8 +163,22 @@ async function getQuicktextParser({ tabId }) {
 
 export async function insertTemplate(tabId, storageUuid, groupIdx, textIdx) {
   const qParser = await getQuicktextParser({ tabId });
-  qParser.setActiveStorage(storageUuid);
-  const bundle = qParser.activeBundle;
+  const bundle = qParser.mBundles.find(b => b.storageUuid === storageUuid);
+  // Bail out if the bundle has been removed or disabled, rather than silently
+  // inserting a template from the wrong storage.
+  if (!bundle) return;
+
+  // Bundle type maps 1:1 to a template state.
+  const stateByBundleType = {
+    vfs:     STORAGE_STATE.VFS_TEMPLATE,
+    import:  STORAGE_STATE.IMPORT_TEMPLATE,
+    managed: STORAGE_STATE.MANAGED_TEMPLATE,
+  };
+  qParser.setActiveStorage({
+    state: stateByBundleType[bundle.type] ?? STORAGE_STATE.IMPORT_TEMPLATE,
+    ref: bundle.type === "vfs" ? (bundle.storageRef ?? null) : null,
+    uuid: storageUuid,
+  });
   const group = bundle.templates.groups[groupIdx];
   const text = bundle.templates.texts[groupIdx][textIdx];
   await qParser.clearNonPersistentData();
@@ -173,13 +187,12 @@ export async function insertTemplate(tabId, storageUuid, groupIdx, textIdx) {
   await qParser.parseAndInsert(`[[TEXT=${group.name}|${text.name}]]`);
 }
 
-export async function insertVariable({ tabId, variable, storageUuid }) {
+export async function insertVariable({ tabId, variable, storageRef }) {
   const qParser = await getQuicktextParser({ tabId });
-  // Tag flyouts in the manager and compose menus always carry a storage
-  // uuid when they target scripts from a specific storage; free-standing
-  // variable insertions (DATE, INPUT, ...) don't care, so fall back to
-  // whatever bundle happens to be first.
-  if (storageUuid != null) qParser.setActiveStorage(storageUuid);
+  // One-shot variable insertions never expand TEXT/SCRIPT tags. For VFS
+  // variants (IMAGE=VFS, ATTACHMENT=VFS, VFSFILE) the picker supplies a
+  // storageRef directly, so any connection the picker can reach works.
+  qParser.setActiveStorage({ state: STORAGE_STATE.SINGLE_VARIABLE, ref: storageRef });
   await qParser.clearNonPersistentData();
   await qParser.parseAndInsert(`[[${variable}]]`);
 }
@@ -209,29 +222,41 @@ async function insertAttachments({ qParser, attachments }) {
   };
 }
 
-export async function insertContentFromFile(aTabId, insertMode) {
-  let file = await utils.pickFileFromDisc([insertMode]);
-  if (file) {
-    return insertFile(aTabId, file, insertMode);
-  }
-}
 
-export async function insertFile(tabId, file, insertMode) {
-  const content = await utils.getTextFileContent(file);
-  if (!content) {
-    return;
-  }
-
+// Insert text content (from any source) into the compose body. Tags in the
+// content are expanded (except TEXT/SCRIPT in SINGLE_VARIABLE state). Used by
+// the compose-menu handlers for FILE, URL, and VFS content insertion.
+export async function insertFileContent(tabId, content, insertMode = "text/plain") {
   let qParser = await getQuicktextParser({ tabId });
-  // The content of the file gets parsed as well. Nested templates which force
-  // text insert mode affect the entire insert operation.
+  qParser.setActiveStorage({ state: STORAGE_STATE.SINGLE_VARIABLE });
   let parsedContent = await qParser.process_file_content(content, {
     insertMode,
     stripHtmlComments: false,
   });
-  await qParser.insertBody(parsedContent, {
-    extraSpace: false
+  if (parsedContent) {
+    await qParser.insertBody(parsedContent, { extraSpace: false });
+  }
+}
+
+// Embed a File as an inline <img> with a data-URL src. The image menu is
+// disabled in plain-text compose (compose.mjs onShown), so HTML mode is
+// guaranteed when this runs.
+export async function insertImageFile(tabId, file) {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const leafName = file.name;
+  const mimeType = file.type || utils.getTypeFromExtension(leafName);
+  const binContent = utils.uint8ArrayToBase64(bytes);
+  const src = "data:" + mimeType + ";filename=" + leafName + ";base64," + binContent;
+  const html = "<img src='" + src + "'>";
+  await messenger.tabs.sendMessage(tabId, {
+    insertHtml: utils.removeBadHTML(html),
+    extraSpace: false,
   });
+}
+
+// Add a File as a compose attachment.
+export async function insertAttachmentFile(tabId, file) {
+  await messenger.compose.addAttachment(tabId, { file });
 }
 
 // This function is called from outside and needs to use data of an existing

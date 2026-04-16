@@ -3,10 +3,10 @@
     "message": "Alle Quicktext-Einstellungen können im Quicktext-Manager gesteuert und konfiguriert werden, zusammen mit Ihren Vorlagen und Skripten."
   },
   "quicktext.deprecatedAttachmentField.label": {
-    "message": "Dieses Eingabefeld ist veraltet. Verwenden Sie stattdessen [[ATTACHMENT=FILE|<Pfad>]] direkt im Vorlagentext."
+    "message": "Dieses Eingabefeld ist veraltet. Verwenden Sie stattdessen [[ATTACHMENT=VFS|<Pfad>]] direkt im Vorlagentext."
   },
   "quicktext.attachmentFile.label": {
-    "message": "Datei zum Anhängen auswählen"
+    "message": "Anhang hinzufügen"
   },
   "quicktext.controlledViaManagedStorage.label": {
     "message": "Über verwalteten Speicher gesteuert"
@@ -108,9 +108,6 @@
   "quicktext.buttons.addFile.label": {
     "message": "+ Datei"
   },
-  "quicktext.buttons.addUrl.label": {
-    "message": "+ URL"
-  },
   "quicktext.addGroup.label": {
     "message": "Gruppe hinzufügen"
   },
@@ -166,10 +163,13 @@
     "message": "Datum/Zeit"
   },
   "quicktext.defaultImport.label": {
-    "message": "Standard-Importe"
+    "message": "Importe"
+  },
+  "quicktext.defaultImport.legend": {
+    "message": "Schreibgeschützte Importe von Vorlagen und Skripten"
   },
   "quicktext.defaultImport.description": {
-    "message": "Standard-Importe für Vorlagen und Skripte verwalten (schreibgeschützt). Zentral verwaltete Importe werden als gesperrt markiert."
+    "message": "Schreibgeschützte Importe von Vorlagen und Skripten von entfernten Servern verwalten. Durch eine Unternehmensrichtlinie bereitgestellte Einträge sind mit einem Schloss gekennzeichnet und können nicht umbenannt oder entfernt werden."
   },
   "quicktext.accesskey.defaultImport": {
     "message": "I"
@@ -183,11 +183,17 @@
   "quicktext.defaultImport.invalidUrl.label": {
     "message": "Bitte geben Sie eine gültige http(s)-URL ein."
   },
+  "quicktext.defaultImport.duplicate.label": {
+    "message": "Diese Import-URL ist bereits in der Liste als \"$1\"."
+  },
   "quicktext.defaultImport.columns.name": {
     "message": "Name"
   },
   "quicktext.defaultImport.columns.url": {
     "message": "URL"
+  },
+  "quicktext.defaultImport.columns.status": {
+    "message": "Status"
   },
   "quicktext.displayname.label": {
     "message": "Anzeigename"
@@ -253,7 +259,7 @@
     "message": "Inkompatibles Skript"
   },
   "quicktext.image.label": {
-    "message": "Eingebettetes HTML-Bild"
+    "message": "Bild einfügen (eingebettet)"
   },
   "quicktext.import.label": {
     "message": "Importieren"
@@ -271,7 +277,7 @@
     "message": "Datei als Text einfügen"
   },
   "quicktext.insertfile.label": {
-    "message": "Inhalt aus Datei (veraltet)"
+    "message": "Text-/HTML-Inhalt einfügen"
   },
   "quicktext.jobtitle.label": {
     "message": "Titel (dienstlich)"
@@ -417,9 +423,6 @@
   "quicktext.to.label": {
     "message": "An"
   },
-  "quicktext.url.label": {
-    "message": "Rückgabewert einer URL-Anfrage"
-  },
   "quicktext.insertVariable.label": {
     "message": "Variable einfügen"
   },
@@ -472,15 +475,24 @@
     "message": "Fügt eine Symbolleiste zum E-Mail-Bearbeitenfenster hinzu, sodass Textbausteine einfach und schnell hinzugefügt werden können. Es ist auch möglich, Variablen wie [[TO=firstname]] zu verwenden."
   },
   "quicktext.mode.file.label": {
-    "message": "Aus lokaler Datei lesen (veraltet)"
+    "message": "Aus lokaler Datei lesen"
   },
   "quicktext.mode.url.label": {
     "message": "Von externer URL lesen"
+  },
+  "quicktext.mode.vfs.label": {
+    "message": "Aus Speicher lesen"
   },
   "quicktext.insertTag.label": {
     "message": "Tag einfügen"
   },
   "quicktext.variablesGroup.label": {
     "message": "Variablen"
+  },
+  "quicktext.dialog.verifyUrl.label": {
+    "message": "Überprüfen"
+  },
+  "quicktext.dialog.addImport.label": {
+    "message": "Import hinzufügen"
   }
 }

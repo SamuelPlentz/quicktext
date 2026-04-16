@@ -3,10 +3,10 @@
     "message": "Tous les paramètres de Quicktext peuvent être contrôlés et configurés dans le Gestionnaire Quicktext, avec vos modèles et scripts."
   },
   "quicktext.deprecatedAttachmentField.label": {
-    "message": "Cette zone de saisie est obsolète. Utilisez plutôt [[ATTACHMENT=FILE|<chemin>]] directement dans le corps du modèle."
+    "message": "Cette zone de saisie est obsolète. Utilisez plutôt [[ATTACHMENT=VFS|<chemin>]] directement dans le corps du modèle."
   },
   "quicktext.attachmentFile.label": {
-    "message": "Choisir le fichier à ajouter aux pièces jointes"
+    "message": "Ajouter une pièce jointe"
   },
   "quicktext.controlledViaManagedStorage.label": {
     "message": "Contrôlé via le stockage géré"
@@ -108,9 +108,6 @@
   "quicktext.buttons.addFile.label": {
     "message": "+ Fichier"
   },
-  "quicktext.buttons.addUrl.label": {
-    "message": "+ URL"
-  },
   "quicktext.addGroup.label": {
     "message": "Ajouter un groupe"
   },
@@ -166,10 +163,13 @@
     "message": "Date/Heure"
   },
   "quicktext.defaultImport.label": {
-    "message": "Imports par défaut"
+    "message": "Imports"
+  },
+  "quicktext.defaultImport.legend": {
+    "message": "Imports en lecture seule de modèles et de scripts"
   },
   "quicktext.defaultImport.description": {
-    "message": "Gérer les imports par défaut de modèles et de scripts (lecture seule). Les imports gérés de façon centralisée sont marqués comme verrouillés."
+    "message": "Gérer les imports en lecture seule de modèles et de scripts depuis des serveurs distants. Les entrées fournies par une politique d'entreprise sont marquées d'un cadenas et ne peuvent être renommées ni supprimées."
   },
   "quicktext.accesskey.defaultImport": {
     "message": "I"
@@ -183,11 +183,17 @@
   "quicktext.defaultImport.invalidUrl.label": {
     "message": "Veuillez saisir une URL http(s) valide."
   },
+  "quicktext.defaultImport.duplicate.label": {
+    "message": "Cette URL d'import est déjà dans la liste sous le nom \"$1\"."
+  },
   "quicktext.defaultImport.columns.name": {
     "message": "Nom"
   },
   "quicktext.defaultImport.columns.url": {
     "message": "URL"
+  },
+  "quicktext.defaultImport.columns.status": {
+    "message": "État"
   },
   "quicktext.displayname.label": {
     "message": "Nom à afficher"
@@ -253,7 +259,7 @@
     "message": "Script incompatible"
   },
   "quicktext.image.label": {
-    "message": "Image HTML intégrée"
+    "message": "Insérer une image (intégrée)"
   },
   "quicktext.import.label": {
     "message": "Importer"
@@ -271,7 +277,7 @@
     "message": "Insérer un fichier en texte"
   },
   "quicktext.insertfile.label": {
-    "message": "Contenu depuis un fichier (obsolète)"
+    "message": "Insérer du contenu texte/HTML"
   },
   "quicktext.jobtitle.label": {
     "message": "Profession"
@@ -417,9 +423,6 @@
   "quicktext.to.label": {
     "message": "Pour"
   },
-  "quicktext.url.label": {
-    "message": "Réponse à partir d'une URL"
-  },
   "quicktext.insertVariable.label": {
     "message": "Insérer une variable"
   },
@@ -472,15 +475,24 @@
     "message": "Ajoute une barre d’outils à la fenêtre de composition de message afin d'insérer rapidement des modèles de texte. Il est également possible d'utiliser des variables telles que [[TO=firstname]]."
   },
   "quicktext.mode.file.label": {
-    "message": "Lire depuis un fichier local (obsolète)"
+    "message": "Lire depuis un fichier local"
   },
   "quicktext.mode.url.label": {
     "message": "Lire depuis une URL distante"
+  },
+  "quicktext.mode.vfs.label": {
+    "message": "Lire depuis le stockage"
   },
   "quicktext.insertTag.label": {
     "message": "Insérer une balise"
   },
   "quicktext.variablesGroup.label": {
     "message": "Variables"
+  },
+  "quicktext.dialog.verifyUrl.label": {
+    "message": "Vérifier"
+  },
+  "quicktext.dialog.addImport.label": {
+    "message": "Ajouter un import"
   }
 }

@@ -375,15 +375,18 @@ export async function fetchProviderConnections() {
 }
 
 /**
- * Asks the provider to open its setup page as a popup window.
- * Returns immediately, connection is established asynchronously via reportNewConnection().
+ * Asks the provider to open its setup page as a popup window. Resolves to
+ * `{providerId, storageId}` after the user completes the setup, or rejects
+ * if the user closes the setup window without completing it.
  *
  * @param {string} providerId
  * @param {string} [addonName]
+ * @returns {Promise<StorageRef>}
  */
 export async function openProviderSetup(providerId, addonName = '') {
   const addonId = browser.runtime.id;
-  return _providerSend(providerId, 'openSetup', { addonId, addonName });
+  const storageId = await _providerSend(providerId, 'openSetup', { addonId, addonName });
+  return { providerId, storageId };
 }
 
 /**
@@ -426,7 +429,7 @@ export const onStorageChanged = {
 /**
  * Fires when the set of installed VFS provider connections changes
  * (connection added, removed, or provider removed). Listeners receive
- * no arguments — call `fetchProviderConnections()` to get the current state.
+ * no arguments - call `fetchProviderConnections()` to get the current state.
  */
 export const onConnectionsChanged = {
   addListener(fn) { _connectionsChangedEvent.addListener(fn); },
@@ -901,7 +904,7 @@ export function showSelectFilePicker(options = {}) {
  * Same as `showSelectFilePicker` but without the Select/Open footer button.
  * The user can navigate the storage, inspect files in the preview pane, and
  * perform file operations via the context menu (rename, copy, move, delete,
- * create folder, upload). There's no selection result — the promise resolves
+ * create folder, upload). There's no selection result - the promise resolves
  * to `null` when the user closes the picker.
  *
  * @param {object} [options]
@@ -1042,7 +1045,7 @@ export function showDirectoryPicker(options = {}) {
  * Normalises the `to` argument of move/copy functions.
  * Accepts either a full Entry object or a plain path string (legacy form).
  * When a plain string is given, the storageRef is inherited from `from` so the
- * operation stays on the same provider — preserving backward compatibility.
+ * operation stays on the same provider - preserving backward compatibility.
  *
  * @param {Entry|string} to
  * @param {Entry} from
@@ -1242,7 +1245,7 @@ async function _folderOpIndividually(from, to, mode, options = {}) {
         if (mode === 'move') {
           // Safety net: move any files that arrived in this folder after the initial list()
           // snapshot, then delete the (now mostly-empty) source folder.
-          // Errors are silently ignored — the folder may already be gone.
+          // Errors are silently ignored - the folder may already be gone.
           await _moveFolder(
             { path: _stripSlash(entry.srcPath), storageRef: srcRef },
             { path: _stripSlash(entry.destPath), storageRef: dstRef },

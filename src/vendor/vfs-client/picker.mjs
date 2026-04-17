@@ -96,7 +96,7 @@ const START_IN = params.get('startIn') ?? null;
 const VFS_PROVIDER_NAME = params.get('opfsStorageName') ?? null;
 const MODE = params.get('mode') ?? 'open'; // 'open' | 'save' | 'dir' | 'browse'
 const SUGGESTED_NAME = params.get('suggestedName') ?? null;
-// Array of { id, label } — rendered as extra toolbar buttons; clicks are sent to
+// Array of { id, label } - rendered as extra toolbar buttons; clicks are sent to
 // the client extension background via browser.runtime.sendMessage so the background
 // can react (e.g. open a test tab) without any provider involvement.
 const BUTTONS = params.get('buttons') ? JSON.parse(params.get('buttons')) : [];
@@ -173,7 +173,7 @@ function _opts(progressLabel, currentFile, totalFiles) {
 // ── Utilities ─────────────────────────────────────────────────────────────────
 
 function formatSize(bytes) {
-  if (bytes === 0) return '—';
+  if (bytes === 0) return '-';
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
   if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
@@ -231,7 +231,6 @@ const breadcrumbEl = $('vfs-breadcrumb');
 let _providerWrap = null;
 let _providerUl = null;
 let _providerBtn = null;
-const _knownProviderIds = new Set();
 const listArea = $('vfs-list-area');
 const dropOverlay = $('vfs-drop-overlay');
 const filterInput = $('vfs-filter');
@@ -413,10 +412,11 @@ function buildRow(entry) {
     }
   });
 
-  // Double-click - navigate dirs only
+  // Double-click - dirs navigate; files confirm the selection in file-pick modes.
   row.addEventListener('dblclick', e => {
     if (e.target.classList.contains('row-rename-input')) return;
     if (isDir) navigateTo(pathJoin(state.cwd, entry.name));
+    else if (MODE !== 'dir' && MODE !== 'browse' && MODE !== 'save') confirmSelection();
   });
 
   // Context menu
@@ -509,7 +509,7 @@ function renderFooter() {
     return;
   }
   if (MODE === 'dir') {
-    // Always enabled — selects the currently open folder.
+    // Always enabled - selects the currently open folder.
     openBtn.disabled = false;
   } else if (MODE === 'save') {
     openBtn.disabled = !saveNameInput.value.trim();
@@ -955,7 +955,7 @@ function _clearStatusAfter(ms) {
 }
 
 // When no progress or transient message is active, either clear the status bar
-// or — when the picker is locked to a different/unavailable connection — show
+// or - when the picker is locked to a different/unavailable connection - show
 // the lock banner so the user always knows why actions are restricted.
 function _showIdleStatus() {
   if (state.lockedUnavailable) {
@@ -1584,7 +1584,7 @@ function initToolbar() {
 
   $('vfs-btn-paste').addEventListener('click', () => pasteClipboard());
 
-  // Custom buttons — rendered from the 'buttons' URL param, separated from built-in
+  // Custom buttons - rendered from the 'buttons' URL param, separated from built-in
   // toolbar buttons. Each click sends { type: 'vfs-toolkit-button', buttonId } to the
   // client extension background, which can then open a tab or take any other action.
   if (BUTTONS.length) {
@@ -1711,6 +1711,41 @@ async function _switchToOpfs() {
   await loadDir();
 }
 
+// Set the provider button label/icon from fresh provider data. Used when the
+// dropdown DOM that `_updateProviderDisplay` reads from is stale - e.g. a newly
+// added connection or a rename that arrived via `vfs-provider-updated`.
+async function _refreshProviderButton() {
+  if (!_providerBtn) return;
+  const ref = state.storageRef;
+  if (!ref) return;
+  const providers = await vfs.fetchProviderConnections();
+  // Bail out if the active connection changed during the await (e.g. a
+  // concurrent `vfs-remove-connection` switched us to OPFS).
+  if (state.storageRef !== ref) return;
+  const ap = providers.find(p => p.providerId === ref.providerId);
+  const ac = ap?.connections.find(c => (c.storageRef.storageId ?? null) === ref.storageId);
+  if (ap && ac) {
+    const icon = ap.icon ? URL.createObjectURL(ap.icon) : _FALLBACK_ICON;
+    _setProviderContent(_providerBtn, `${ap.name}: ${ac.name}`, icon);
+  }
+}
+
+async function _switchToConnection(storageRef) {
+  const nextId = storageRef.storageId ?? null;
+  if (state.storageRef?.providerId === storageRef.providerId && state.storageRef?.storageId === nextId) return;
+  state.storageRef = { providerId: storageRef.providerId, storageId: nextId };
+  await _refreshProviderButton();
+  _saveIdState('/');
+  state.cwd = '/';
+  state.selected = new Set();
+  state._anchor = null;
+  updatePreview(null);
+  state.capabilities = await vfs.getCapabilities(state.storageRef);
+  applyCapabilities();
+  updateStorageInfo();
+  await loadDir();
+}
+
 // Transition the picker into the "locked connection is unavailable" state.
 // Used when the locked provider/connection disappears at runtime.
 function _enterLockedUnavailable() {
@@ -1755,24 +1790,31 @@ function _updateProviderDisplay() {
   _providerUl.querySelectorAll('li').forEach(l => l.classList.toggle('active', l === activeLi));
 }
 
-function _addProviderOption(providerId) {
-  _knownProviderIds.add(providerId);
-  if (_providerWrap) _providerWrap.hidden = false;
-}
-
-function _removeProviderOption(providerId) {
-  _knownProviderIds.delete(providerId);
-  if (_providerWrap) _providerWrap.hidden = _knownProviderIds.size === 0;
-}
-
 async function _buildDropdown() {
   _providerUl.innerHTML = '';
+
+  const providers = await vfs.fetchProviderConnections();
+
+  // No provider add-ons installed → show a single discovery entry.
+  if (providers.length === 0) {
+    const li = document.createElement('li');
+    li.textContent = t('findProviderAddons');
+    li.addEventListener('click', async e => {
+      e.stopPropagation();
+      _providerUl.hidden = true;
+      const tab = await browser.tabs.create({ url: 'https://addons.thunderbird.net/search/?q=VFS' });
+      if (tab?.windowId != null) {
+        await browser.windows.update(tab.windowId, { focused: true });
+      }
+    });
+    _providerUl.appendChild(li);
+    return;
+  }
 
   // 1. OPFS entry (always first)
   _providerUl.appendChild(_makeProviderLi('', VFS_PROVIDER_NAME ?? t('providerOpfs'), _opfsIcon));
 
   // 2. Established connections
-  const providers = await vfs.fetchProviderConnections();
   const providerIconUrls = new Map(providers.map(p => [
     p.providerId,
     p.icon ? URL.createObjectURL(p.icon) : _FALLBACK_ICON,
@@ -1793,18 +1835,7 @@ async function _buildDropdown() {
       _setProviderContent(li, label, icon);
       li.addEventListener('click', async () => {
         _providerUl.hidden = true;
-        if (state.storageRef?.providerId === conn.storageRef.providerId && state.storageRef?.storageId === (conn.storageRef.storageId ?? null)) return;
-        state.storageRef = { providerId: conn.storageRef.providerId, storageId: conn.storageRef.storageId ?? null };
-        _updateProviderDisplay();
-        _saveIdState('/');
-        state.cwd = '/';
-        state.selected = new Set();
-        state._anchor = null;
-        updatePreview(null);
-        state.capabilities = await vfs.getCapabilities(state.storageRef);
-        applyCapabilities();
-        updateStorageInfo();
-        await loadDir();
+        await _switchToConnection(conn.storageRef);
       });
 
       const actWrap = document.createElement('span');
@@ -1873,28 +1904,29 @@ async function _buildDropdown() {
   // 3. Separator + "Add new connection" submenu
   _providerUl.appendChild(_makeSep());
 
-  if (providers.length > 0) {
-    const addLi = document.createElement('li');
-    addLi.className = 'vfs-provider-submenu-item';
-    addLi.textContent = 'Add new connection';
+  const addLi = document.createElement('li');
+  addLi.className = 'vfs-provider-submenu-item';
+  addLi.textContent = 'Add new connection';
 
-    const subUl = document.createElement('ul');
-    subUl.className = 'vfs-provider-submenu';
+  const subUl = document.createElement('ul');
+  subUl.className = 'vfs-provider-submenu';
 
-    for (const p of providers) {
-      const subLi = document.createElement('li');
-      _setProviderContent(subLi, p.name || p.providerId, providerIconUrls.get(p.providerId));
-      subLi.addEventListener('click', async e => {
-        e.stopPropagation();
-        _providerUl.hidden = true;
-        const addonName = browser.runtime.getManifest().name;
-        try { await vfs.openProviderSetup(p.providerId, addonName); } catch { /* no setup page */ }
-      });
-      subUl.appendChild(subLi);
-    }
-    addLi.appendChild(subUl);
-    _providerUl.appendChild(addLi);
+  for (const p of providers) {
+    const subLi = document.createElement('li');
+    _setProviderContent(subLi, p.name || p.providerId, providerIconUrls.get(p.providerId));
+    subLi.addEventListener('click', async e => {
+      e.stopPropagation();
+      _providerUl.hidden = true;
+      const addonName = browser.runtime.getManifest().name;
+      try {
+        const storageRef = await vfs.openProviderSetup(p.providerId, addonName);
+        await _switchToConnection(storageRef);
+      } catch { /* cancelled or no setup page */ }
+    });
+    subUl.appendChild(subLi);
   }
+  addLi.appendChild(subUl);
+  _providerUl.appendChild(addLi);
 
   _updateProviderDisplay();
 }
@@ -1934,18 +1966,17 @@ async function init() {
     if (_lp && _lc) state.lockedLabel = `${_lp.name}: ${_lc.name}`;
   }
 
-  // Fetch and apply capabilities — no-op capabilities when the locked connection is unavailable.
+  // Fetch and apply capabilities - no-op capabilities when the locked connection is unavailable.
   state.capabilities = state.lockedUnavailable
     ? { file: {}, folder: {} }
     : await vfs.getCapabilities(state.storageRef);
 
   initToolbar();
   applyCapabilities();
-  // Provider selector - always created, shown as static label when no providers are installed
+  // Provider selector - always shown, even when no providers are installed
   {
     _providerWrap = document.createElement('div');
     _providerWrap.id = 'vfs-provider-select';
-    _providerWrap.hidden = _providers.length === 0;
 
     _providerBtn = document.createElement('button');
     _providerBtn.className = 'vfs-provider-btn';
@@ -1954,8 +1985,6 @@ async function init() {
     _providerUl = document.createElement('ul');
     _providerUl.className = 'vfs-provider-dropdown';
     _providerUl.hidden = true;
-
-    for (const p of _providers) _knownProviderIds.add(p.providerId);
 
     _opfsIcon = _getOwnIconUrl() ?? _FALLBACK_ICON;
 
@@ -1984,7 +2013,7 @@ async function init() {
         const icon = ap.icon ? URL.createObjectURL(ap.icon) : _FALLBACK_ICON;
         _setProviderContent(_providerBtn, `${ap.name}: ${ac.name}`, icon);
       } else if (state.lockedUnavailable) {
-        // Locked connection is not present — show the unavailable label on the button.
+        // Locked connection is not present - show the unavailable label on the button.
         _setProviderContent(_providerBtn, t('connectionLockedUnavailableShort'), _FALLBACK_ICON);
       } else {
         _setProviderContent(_providerBtn, VFS_PROVIDER_NAME ?? t('providerOpfs'), _opfsIcon);
@@ -1995,8 +2024,6 @@ async function init() {
     _providerWrap.append(_providerBtn);
     // The dropdown is only attached in non-strict mode.
     if (LOCK_STORAGE !== 'strict') _providerWrap.appendChild(_providerUl);
-    // When locked, always show the provider widget even if no other providers exist.
-    if (LOCKED_REF) _providerWrap.hidden = false;
     locationBarEl.insertBefore(_providerWrap, breadcrumbEl);
   }
 
@@ -2131,7 +2158,7 @@ async function init() {
   });
 
   if (state.lockedUnavailable) {
-    // Don't attempt to list — the connection is gone. Just render empty state and banner.
+    // Don't attempt to list - the connection is gone. Just render empty state and banner.
     state.entries = [];
     render();
     _showIdleStatus();
@@ -2144,19 +2171,21 @@ async function init() {
     if (msg.type === 'vfs-provider-removed') {
       if (msg.providerId === state.storageRef?.providerId) {
         if (LOCKED_REF) {
-          // Lock is in effect — transition to unavailable state instead of dropping it.
+          // Lock is in effect - transition to unavailable state instead of dropping it.
           _enterLockedUnavailable();
         } else {
           const reloadUrl = new URL(location.href);
           reloadUrl.searchParams.delete('storageRef');
           location.href = reloadUrl.toString();
         }
-      } else {
-        _removeProviderOption(msg.providerId);
       }
     }
+    // A connection was added or renamed on the active provider - refresh the button
+    // label in case the currently selected connection was the one affected.
     if (msg.type === 'vfs-provider-updated') {
-      _addProviderOption(msg.providerId);
+      if (msg.providerId === state.storageRef?.providerId) {
+        _refreshProviderButton();
+      }
     }
     // Switch to OPFS if the active connection was removed by any picker instance.
     if (msg.type === 'vfs-remove-connection') {

@@ -14,11 +14,11 @@ const buttonsEl = document.getElementById("dialog-buttons");
 
 // showDialog({ title?, message?, fields?, buttons, onButton? })
 //
-//   title    — optional heading string
-//   message  — optional body text
-//   fields   — optional array of { id, label?, type?, value?, placeholder?, required? }
-//   buttons  — array of { id, label, primary? }
-//   onButton — optional async (buttonId, values, api) => bool
+//   title    - optional heading string
+//   message  - optional body text
+//   fields   - optional array of { id, label?, type?, value?, placeholder?, required? }
+//   buttons  - array of { id, label, primary? }
+//   onButton - optional async (buttonId, values, api) => bool
 //              return false to keep the dialog open
 //
 // Resolves with { button, values } or null on dismiss.

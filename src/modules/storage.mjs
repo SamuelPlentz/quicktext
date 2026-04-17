@@ -11,6 +11,18 @@ import * as vfs from "/vendor/vfs-client/vfs-client.mjs";
 // picker and the Storage list. Keep in sync across all picker call sites.
 export const OPFS_STORAGE_NAME = "Quicktext Storage";
 
+// Record a dropped FILE-based entry (import or storage location) so the
+// migration wizard can inform the user. Appended to local storage, deduplicated
+// by type+path. Never automatically cleared - the user dismisses via the wizard.
+async function _recordDroppedFileEntry(type, path) {
+  const { droppedFileEntries = [] } = await browser.storage.local.get({
+    droppedFileEntries: [],
+  });
+  if (droppedFileEntries.some(e => e.type === type && e.path === path)) return;
+  droppedFileEntries.push({ type, path });
+  await browser.storage.local.set({ droppedFileEntries });
+}
+
 // Default storage configuration: a single JSON file holding both `templates`
 // and `scripts` side-by-side, in the legacy file-source shape that
 // parseConfigFileData() already understands. `storageRef: null` selects the
@@ -23,7 +35,7 @@ function _makeDefaultConfig() {
     name: "Default",
     type: "vfs",
     storageRef: null,
-    path: "quicktext/default.json",
+    path: "/quicktext/default.json",
     isReadOnly: false,
     enabled: true,
   };
@@ -228,6 +240,20 @@ async function _migrateToConfigFile() {
   // Already in the modern format - short-circuit.
   if (Array.isArray(raw) && raw.length > 0 && raw.every(e => e && typeof e.uuid === "string")) {
     return;
+  }
+
+  // Record any FILE-based storage locations before they're replaced.
+  // v6.5.5 stored storageLocations as a JSON string, not a raw array.
+  let parsedRaw = raw;
+  if (typeof raw === "string") {
+    try { parsedRaw = JSON.parse(raw); } catch { parsedRaw = null; }
+  }
+  if (Array.isArray(parsedRaw)) {
+    for (const entry of parsedRaw) {
+      if (entry?.source?.toUpperCase() === "FILE" && entry?.data) {
+        await _recordDroppedFileEntry("storage", entry.data);
+      }
+    }
   }
 
   const isFreshInstall = raw == null;
@@ -466,7 +492,11 @@ function _normalizeDefaultImports(raw) {
       });
       continue;
     }
-    // FILE entries and anything unrecognized are dropped.
+    // FILE entries are no longer supported - record them so the
+    // migration wizard can inform the user.
+    if (entry.source?.toUpperCase() === "FILE" && entry.data) {
+      _recordDroppedFileEntry("import", entry.data);
+    }
   }
   return result;
 }
@@ -708,10 +738,21 @@ function _bundleFromImport(entry) {
  */
 export async function getActiveStorageEntries() {
   const allEntries = await getAllStorageEntries();
+  const hasManaged = await hasManagedPolicy();
+  const { providerAvailability } = await browser.storage.session.get({
+    providerAvailability: {},
+  });
   const bundles = [];
   for (const entry of allEntries) {
     if (entry.enabled === false) continue;
-    bundles.push(await readBundleForEntry(entry));
+    if (entry.type === "managed" && !hasManaged) continue;
+    const bundle = await readBundleForEntry(entry);
+    const status = providerAvailability[entry.uuid];
+    if (status && !status.available) {
+      bundle.unavailable = true;
+      bundle.unavailableReason = status.reason;
+    }
+    bundles.push(bundle);
   }
   const defaultImport = await getPref("defaultImport");
   for (const entry of defaultImport) {
@@ -720,6 +761,53 @@ export async function getActiveStorageEntries() {
     bundles.push(_bundleFromImport(entry));
   }
   return bundles;
+}
+
+/**
+ * Compare persisted storage locations against live VFS provider connections
+ * and write an availability map to session storage. Entries with a missing
+ * provider or connection are marked as unavailable. OPFS and managed entries
+ * are always available.
+ */
+export async function checkProviderAvailability() {
+  const entries = await getAllStorageEntries();
+  let providers;
+  try {
+    providers = await vfs.fetchProviderConnections();
+  } catch {
+    providers = [];
+  }
+
+  const availability = {};
+  for (const entry of entries) {
+    if (!entry.storageRef || entry.type === "managed") {
+      availability[entry.uuid] = { available: true };
+      continue;
+    }
+    const provider = providers.find(
+      p => p.providerId === entry.storageRef.providerId,
+    );
+    if (!provider) {
+      availability[entry.uuid] = {
+        available: false,
+        reason: "provider_missing",
+      };
+      continue;
+    }
+    const connection = provider.connections.find(
+      c => c.storageRef?.storageId === entry.storageRef.storageId,
+    );
+    if (!connection) {
+      availability[entry.uuid] = {
+        available: false,
+        reason: "connection_missing",
+      };
+      continue;
+    }
+    availability[entry.uuid] = { available: true };
+  }
+
+  await browser.storage.session.set({ providerAvailability: availability });
 }
 
 /**

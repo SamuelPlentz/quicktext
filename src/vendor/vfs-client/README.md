@@ -71,16 +71,16 @@ additionally enable support for external storage backend providers.
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `enableExternalProviders` | `boolean` | `false` | Enable external provider support. Requires the `management` and `storage` permissions. |
-| `configStorageKey` | `string` | — | Storage key for persisting provider connection data. Required when `enableExternalProviders` is `true`. |
+| `configStorageKey` | `string` | - | Storage key for persisting provider connection data. Required when `enableExternalProviders` is `true`. |
 
-**Example — OPFS only (background script):**
+**Example - OPFS only (background script):**
 
 ```js
 import * as vfs from '/vendor/vfs-toolkit/vfs-client/vfs-client.mjs';
 vfs.init();
 ```
 
-**Example — with external providers (background script):**
+**Example - with external providers (background script):**
 
 ```js
 import * as vfs from '/vendor/vfs-toolkit/vfs-client/vfs-client.mjs';
@@ -154,7 +154,7 @@ The picker always supports multi-selecting files for management (copy, move, del
 |--------|------|---------|-------------|
 | `types` | [`Array<PickerFileType>`](#pickerfiletype) | `null` | File type filter entries. Adds a type dropdown to the toolbar. |
 | `excludeAcceptAllOption` | `boolean` | `false` | Omit the "All files" option from the type dropdown and pre-select the first type. |
-| `storageRef` | [`StorageRef`](#storageref) | `null` | Open the picker pre-set to this connection. Ignored when `id` has saved state — unless `lockStorage` is set, in which case the lock wins over the saved state. |
+| `storageRef` | [`StorageRef`](#storageref) | `null` | Open the picker pre-set to this connection. Ignored when `id` has saved state - unless `lockStorage` is set, in which case the lock wins over the saved state. |
 | `lockStorage` | `'strict' \| 'soft'` | `null` | Restrict the picker to the connection given by `storageRef`. `'strict'` hides the provider selector entirely. `'soft'` keeps the selector interactive (useful for copying between connections) but disables the **Select** button while the active connection does not match. If the locked connection is unavailable, the picker still opens but stays in a disabled error state. Requires `storageRef`; otherwise ignored. |
 | `id` | `string` | `null` | Picker context ID. Remembers the last-used directory and connection (`storageRef`); both are restored on the next open, overriding `startIn` and `storageRef`. |
 | `startIn` | `string` | `null` | Absolute path to open in initially. Ignored when `id` has saved state. |
@@ -192,7 +192,7 @@ Opens a save file picker popup. The user can navigate to a folder and type (or e
 |--------|------|---------|-------------|
 | `types` | [`Array<PickerFileType>`](#pickerfiletype) | `null` | File type filter entries. Adds a type dropdown to the toolbar. |
 | `excludeAcceptAllOption` | `boolean` | `false` | Omit the "All files" option from the type dropdown and pre-select the first type. |
-| `storageRef` | [`StorageRef`](#storageref) | `null` | Open the picker pre-set to this connection. Ignored when `id` has saved state — unless `lockStorage` is set, in which case the lock wins over the saved state. |
+| `storageRef` | [`StorageRef`](#storageref) | `null` | Open the picker pre-set to this connection. Ignored when `id` has saved state - unless `lockStorage` is set, in which case the lock wins over the saved state. |
 | `lockStorage` | `'strict' \| 'soft'` | `null` | Restrict the picker to the connection given by `storageRef`. See `showSelectFilePicker` for semantics. Requires `storageRef`. |
 | `id` | `string` | `null` | Picker context ID. Remembers the last-used directory and connection (`storageRef`); both are restored on the next open, overriding `startIn` and `storageRef`. |
 | `startIn` | `string` | `null` | Absolute path to open in initially. Ignored when `id` has saved state. |
@@ -216,7 +216,7 @@ Opens a directory picker popup. The user can navigate to and select a folder. Re
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `storageRef` | [`StorageRef`](#storageref) | `null` | Open the picker pre-set to this connection. Ignored when `id` has saved state — unless `lockStorage` is set, in which case the lock wins over the saved state. |
+| `storageRef` | [`StorageRef`](#storageref) | `null` | Open the picker pre-set to this connection. Ignored when `id` has saved state - unless `lockStorage` is set, in which case the lock wins over the saved state. |
 | `lockStorage` | `'strict' \| 'soft'` | `null` | Restrict the picker to the connection given by `storageRef`. See `showSelectFilePicker` for semantics. Requires `storageRef`. |
 | `id` | `string` | `null` | Picker context ID (remembers last-used directory and connection) |
 | `startIn` | `string` | `null` | Absolute path to open in initially |
@@ -253,7 +253,7 @@ Fetch all known providers and their established connections. Each entry in the r
 |-------|------|-------------|
 | `storageRef` | [`StorageRef`](#storageref) | Identifies the provider and specific storage slot |
 | `name` | `string` | Human-readable name for this connection (set by the provider's setup page) |
-| `capabilities` | `object` | `{ file: {...}, folder: {...} }` — see [Capabilities](#capabilities) |
+| `capabilities` | `object` | `{ file: {...}, folder: {...} }` - see [Capabilities](#capabilities) |
 
 ---
 
@@ -371,13 +371,13 @@ Moves or renames a file. Supports cross-provider moves.
 **Example:**
 
 ```js
-// Plain path string (same provider as `from` — legacy form, still supported)
+// Plain path string (same provider as `from` - legacy form, still supported)
 await vfs.moveFile({ path: '/draft.txt' }, '/documents/final.txt');
 
-// Entry object — same provider
+// Entry object - same provider
 await vfs.moveFile({ path: '/draft.txt' }, { path: '/documents/final.txt' });
 
-// Entry object — cross-provider move
+// Entry object - cross-provider move
 await vfs.moveFile(
   { path: '/file.txt', storageRef: providerA },
   { path: '/file.txt', storageRef: providerB },
@@ -442,7 +442,7 @@ Creates a folder and all intermediate folders. **Throws** an `E:EXIST` error if 
 
 | Option | Type | Description |
 |--------|------|-------------|
-| `onProgress` | [`OnProgress`](#onprogress) | Progress callback — fires once per path segment created |
+| `onProgress` | [`OnProgress`](#onprogress) | Progress callback - fires once per path segment created |
 
 **Example:**
 
@@ -472,10 +472,10 @@ Moves or renames a folder. Supports cross-provider moves.
 // Plain path string (legacy form, still supported)
 await vfs.moveFolder({ path: '/drafts' }, '/documents/drafts');
 
-// Entry object — same provider
+// Entry object - same provider
 await vfs.moveFolder({ path: '/drafts' }, { path: '/documents/drafts' });
 
-// Entry object — cross-provider move
+// Entry object - cross-provider move
 await vfs.moveFolder(
   { path: '/archive', storageRef: providerA },
   { path: '/archive', storageRef: providerB },
@@ -645,8 +645,8 @@ type StorageRef = null | { providerId: string; storageId: string }
 | `storageId` | `string` | Unique ID of the storage slot within that provider (assigned when the connection was created) |
 
 A `StorageRef` is obtained from:
-- [`vfs.fetchProviderConnections()`](#vfsfetchproviderconnections--promisearrayproviderid-name-connections) — the `storageRef` field inside each provider's `connections` array
-- Picker result entries — each returned `Entry` carries the `storageRef` that was active when the user confirmed
+- [`vfs.fetchProviderConnections()`](#vfsfetchproviderconnections--promisearrayproviderid-name-connections) - the `storageRef` field inside each provider's `connections` array
+- Picker result entries - each returned `Entry` carries the `storageRef` that was active when the user confirmed
 
 ---
 

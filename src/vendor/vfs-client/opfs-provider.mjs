@@ -298,7 +298,7 @@ export async function moveFolder(oldPath, newPath, onProgress, { merge = false }
       completed);
     await remove(oldPath);
   } catch (e) {
-    // Files copied before the error are at dest but source not deleted — report as 'copied'
+    // Files copied before the error are at dest but source not deleted - report as 'copied'
     if (completed.length > 0) _notifyCompleted(completed);
     throw e;
   }

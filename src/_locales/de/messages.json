@@ -327,6 +327,12 @@
   "quicktext.storage.managed.location": {
     "message": "Verwalteter Speicher"
   },
+  "quicktext.storage.providerUnavailable.label": {
+    "message": "Anbieter nicht verfügbar"
+  },
+  "quicktext.storage.connectionUnavailable.label": {
+    "message": "Verbindung nicht verfügbar"
+  },
   "quicktext.storage.internal.local.label": {
     "message": "Interner Speicher (Standard)"
   },
@@ -491,5 +497,187 @@
   },
   "quicktext.dialog.addImport.label": {
     "message": "Import hinzufügen"
+  },
+  "migration.pageTitle": {
+    "message": "Quicktext v$VERSION$ Migration",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "migration.intro.p1": {
+    "message": "Dies ist der letzte Schritt eines langen Aktualisierungsprozesses, um Quicktext in eine moderne WebExtension umzuwandeln. Quicktext wird bald nicht mehr auf veraltete APIs und uneingeschränkten Zugriff auf Ihren Computer angewiesen sein, sondern vollständig innerhalb des modernen WebExtension-Frameworks arbeiten - ohne dass für jede neue Version von Thunderbird ein Update erforderlich ist."
+  },
+  "migration.intro.quote": {
+    "message": "Vielen Dank an alle meine Betatester für eure fortwährende Unterstützung und Geduld, die diesen Übergang möglich gemacht haben. Euer Feedback war von unschätzbarem Wert!"
+  },
+  "migration.intro.quoteAttribution": {
+    "message": "- John Bieling, Quicktext-Entwickler"
+  },
+  "migration.intro.p2": {
+    "message": "Moderne WebExtensions können nicht mehr direkt auf Ihr Dateisystem zugreifen. Daher werden Ihre $ITEMTYPE$-Definitionen jetzt in einem internen Quicktext-Speicher abgelegt, und alle Anhänge und Bilder, auf die Ihre Vorlagen verweisen, müssen ebenfalls in diesen Speicher kopiert werden.",
+    "placeholders": { "itemtype": { "content": "$1" } }
+  },
+  "migration.intro.itemType.template": {
+    "message": "Vorlagen"
+  },
+  "migration.intro.itemType.templateAndScript": {
+    "message": "Vorlagen- und Skript"
+  },
+  "migration.intro.p3": {
+    "message": "Nach der Migration können Sie zusätzliche $LINK$ installieren und Ihre gesamte Quicktext-Konfiguration verschieben, beispielsweise auf einen WebDAV-Server.",
+    "placeholders": { "link": { "content": "$1" } }
+  },
+  "migration.intro.p3.linkText": {
+    "message": "Speicher-Backends"
+  },
+  "migration.section.autoMigration": {
+    "message": "Automatische Migration"
+  },
+  "migration.section.manualMigration": {
+    "message": "Manuelle Migration erforderlich"
+  },
+  "migration.section.droppedSources": {
+    "message": "Entfernte Konfigurationsquellen"
+  },
+  "migration.auto.intro": {
+    "message": "Die folgenden Vorlagen können automatisch migriert werden. Lokale Dateien werden in den internen Quicktext-Speicher kopiert, und alle Tags in Ihren Vorlagen, die auf diese Dateien verweisen, werden angepasst."
+  },
+  "migration.btn.startMigration": {
+    "message": "Vorlagen-Migration starten"
+  },
+  "migration.btn.startMigrationCount": {
+    "message": "Migration starten ($COUNT$ Elemente)",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "migration.manual.intro": {
+    "message": "Die unten aufgeführten Elemente können nicht automatisch migriert werden und erfordern manuelle Bearbeitung."
+  },
+  "migration.incompatible.title": {
+    "message": "Inkompatible Skripte"
+  },
+  "migration.incompatible.description": {
+    "message": "Diese Skripte verwenden veraltete Quicktext-v5-APIs, die nicht mehr verfügbar sind. Sie müssen mit der $LINK$ neu geschrieben werden.",
+    "placeholders": { "link": { "content": "$1" } }
+  },
+  "migration.incompatible.linkText": {
+    "message": "modernen Skript-API"
+  },
+  "migration.filesystem.title": {
+    "message": "Veralteter Dateisystemzugriff"
+  },
+  "migration.filesystem.description": {
+    "message": "Diese Vorlagen und Skripte verweisen auf Dateien in Ihrem lokalen Dateisystem, auf das WebExtensions nicht mehr direkt zugreifen können. Die referenzierten Dateien müssen in den Quicktext-Speicher kopiert und die Vorlagen entsprechend angepasst werden. Weitere Details finden Sie im $LINK$.",
+    "placeholders": { "link": { "content": "$1" } }
+  },
+  "migration.filesystem.linkText": {
+    "message": "Leitfaden zu Speicherorten"
+  },
+  "migration.dropped.intro": {
+    "message": "Die folgenden Konfigurationsquellen basierten auf direktem Dateisystemzugriff, der in modernen WebExtensions nicht mehr verfügbar ist."
+  },
+  "migration.dropped.description": {
+    "message": "Wenn Sie zuvor einen lokalen Ordner zum Speichern Ihrer Vorlagen oder zum Teilen zwischen Computern verwendet haben, können Sie als Ersatz ein $VFSLINK$ installieren - beispielsweise den $WEBDAVLINK$, um Vorlagen auf einem WebDAV-Server zu speichern (ownCloud, Nextcloud usw.), oder den $HOMEFOLDERLINK$, um weiterhin einen Ordner auf Ihrem Computer zu verwenden.",
+    "placeholders": {
+      "vfslink": { "content": "$1" },
+      "webdavlink": { "content": "$2" },
+      "homefolderlink": { "content": "$3" }
+    }
+  },
+  "migration.dropped.linkVfs": {
+    "message": "VFS-Speicher-Backend"
+  },
+  "migration.dropped.linkWebdav": {
+    "message": "WebDAV-Anbieter"
+  },
+  "migration.dropped.linkHomefolder": {
+    "message": "lokalen Benutzerordner-Anbieter"
+  },
+  "migration.btn.dontShowAgain": {
+    "message": "Diesen Bericht nicht mehr anzeigen"
+  },
+  "migration.reason.deprecatedFilesystem": {
+    "message": "Veralteter direkter Dateisystemzugriff"
+  },
+  "migration.reason.deprecatedApi": {
+    "message": "Inkompatible Quicktext-v5-API"
+  },
+  "migration.label.fileImport": {
+    "message": "Dateibasierter Import"
+  },
+  "migration.label.fileStorage": {
+    "message": "Dateibasierter Speicher"
+  },
+  "migration.desc.fileImport": {
+    "message": "Dieser Import las bei jedem Start Vorlagen aus einer lokalen Datei. WebExtensions können nicht mehr direkt auf das lokale Dateisystem zugreifen."
+  },
+  "migration.desc.fileStorage": {
+    "message": "Vorlagen und Skripte wurden aus diesem lokalen Ordner gelesen. WebExtensions können nicht mehr direkt auf das lokale Dateisystem zugreifen."
+  },
+  "migration.source.enterprisePolicy": {
+    "message": "Unternehmensrichtlinie"
+  },
+  "migration.source.imported": {
+    "message": "importiert"
+  },
+  "migration.readonlyNote.both": {
+    "message": "Einige dieser Elemente stammen aus URL-Importen oder Unternehmensrichtlinien. Bitte kontaktieren Sie die jeweiligen Verantwortlichen, um eine Aktualisierung zu veranlassen."
+  },
+  "migration.readonlyNote.imported": {
+    "message": "Einige dieser Elemente stammen aus URL-Importen. Bitte kontaktieren Sie den Verantwortlichen der Importquelle, um eine Aktualisierung zu veranlassen."
+  },
+  "migration.readonlyNote.managed": {
+    "message": "Einige dieser Elemente werden über eine Unternehmensrichtlinie bereitgestellt. Bitte kontaktieren Sie Ihren Administrator, um eine Aktualisierung zu veranlassen."
+  },
+  "migration.progress.preparing": {
+    "message": "Migration wird vorbereitet…"
+  },
+  "migration.progress.backingUp": {
+    "message": "Sicherung von $FILENAME$…",
+    "placeholders": { "filename": { "content": "$1" } }
+  },
+  "migration.progress.copying": {
+    "message": "Kopiere $FILENAME$ ($CURRENT$/$TOTAL$)…",
+    "placeholders": {
+      "filename": { "content": "$1" },
+      "current": { "content": "$2" },
+      "total": { "content": "$3" }
+    }
+  },
+  "migration.progress.rewriting": {
+    "message": "Tags werden umgeschrieben…"
+  },
+  "migration.progress.saving": {
+    "message": "Änderungen werden gespeichert…"
+  },
+  "migration.progress.updating": {
+    "message": "Erkennungsergebnisse werden aktualisiert…"
+  },
+  "migration.success": {
+    "message": "Migration abgeschlossen. $COUNT$ Element(e) migriert.",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "migration.error.allFailed": {
+    "message": "$FAILED$ Datei(en) konnten nicht kopiert werden. Die betroffenen Vorlagen wurden nicht verändert.",
+    "placeholders": { "failed": { "content": "$1" } }
+  },
+  "migration.error.partialFailed": {
+    "message": "$MIGRATED$ Element(e) migriert, aber $FAILED$ Datei(en) konnten nicht kopiert werden. Die betroffenen Vorlagen wurden nicht verändert.",
+    "placeholders": {
+      "migrated": { "content": "$1" },
+      "failed": { "content": "$2" }
+    }
+  },
+  "migration.btn.close": {
+    "message": "Schließen"
+  },
+  "migration.btn.ok": {
+    "message": "OK"
+  },
+  "migration.btn.learnStorage": {
+    "message": "Speicherorte erklärt"
+  },
+  "migration.btn.learnJourney": {
+    "message": "Der Weg zur WebExtension"
+  },
+  "migration.alert.managerOpen": {
+    "message": "Bitte schließen Sie den Quicktext-Manager, bevor Sie die Migration starten."
   }
 }

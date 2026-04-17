@@ -87,27 +87,47 @@ var quicktextToolbar = {
         for (const storageNode of data.templates) {
           const section = document.createXULElement("vbox");
           section.setAttribute("class", "quicktext-storage-section");
+          if (storageNode.disabled) section.setAttribute("disabled", "true");
           const label = document.createXULElement("label");
           label.setAttribute("value", storageNode.title);
           label.setAttribute("class", "quicktext-storage-label");
+          if (storageNode.disabled) label.setAttribute("disabled", "true");
           section.appendChild(label);
-          const buttons = document.createXULElement("hbox");
-          buttons.setAttribute("class", "quicktext-storage-buttons");
-          this.buildTemplatesMenu(
-            buttons, storageNode.children,
-            data.shortcutModifier, data.menuCollapse
-          );
-          section.appendChild(buttons);
+          if (!storageNode.disabled) {
+            const buttons = document.createXULElement("hbox");
+            buttons.setAttribute("class", "quicktext-storage-buttons");
+            this.buildTemplatesMenu(
+              buttons, storageNode.children,
+              data.shortcutModifier, data.menuCollapse
+            );
+            section.appendChild(buttons);
+          }
           toolbar.appendChild(section);
         }
       } else {
         // Single storage (or multi-storage shape with only one entry):
-        // no labels or borders needed.
+        // no labels or borders needed. Disabled items (unavailable
+        // storage) are rendered as a disabled button.
         const nodes = isMulti ? data.templates[0].children : data.templates;
-        this.buildTemplatesMenu(
-          toolbar, nodes,
-          data.shortcutModifier, data.menuCollapse
-        );
+        for (const node of nodes) {
+          if (node.disabled) {
+            const section = document.createXULElement("vbox");
+            section.setAttribute("class", "quicktext-storage-section");
+            section.setAttribute("disabled", "true");
+            const label = document.createXULElement("label");
+            label.setAttribute("value", node.title);
+            label.setAttribute("class", "quicktext-storage-label");
+            label.setAttribute("disabled", "true");
+            label.style.fontStyle = "italic";
+            section.appendChild(label);
+            toolbar.appendChild(section);
+          } else {
+            this.buildTemplatesMenu(
+              toolbar, [node],
+              data.shortcutModifier, data.menuCollapse
+            );
+          }
+        }
       }
     }
 

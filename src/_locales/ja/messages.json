@@ -330,6 +330,12 @@
   "quicktext.storage.managed.location": {
     "message": "管理対象ストレージ"
   },
+  "quicktext.storage.providerUnavailable.label": {
+    "message": "プロバイダーが利用できません"
+  },
+  "quicktext.storage.connectionUnavailable.label": {
+    "message": "接続が利用できません"
+  },
   "quicktext.storage.internal.local.label": {
     "message": "内部ストレージ（デフォルト)"
   },
@@ -491,5 +497,187 @@
   },
   "quicktext.dialog.addImport.label": {
     "message": "インポートを追加"
+  },
+  "migration.pageTitle": {
+    "message": "Quicktext v$VERSION$ 移行",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "migration.intro.p1": {
+    "message": "これは、Quicktext を最新の WebExtension に変換するための長い更新プロセスの最終段階です。Quicktext はまもなくレガシー API やコンピューターへの無制限アクセスに依存しなくなり、最新の WebExtension フレームワーク内で完全に動作するようになります。Thunderbird の新しいバージョンごとに更新する必要がなくなります。"
+  },
+  "migration.intro.quote": {
+    "message": "この移行を実現するために、継続的なサポートと忍耐をもって協力してくださったすべてのベータテスターの皆様に感謝いたします。皆様からのフィードバックは非常に貴重でした！"
+  },
+  "migration.intro.quoteAttribution": {
+    "message": "- John Bieling、Quicktext 開発者"
+  },
+  "migration.intro.p2": {
+    "message": "最新の WebExtension はファイルシステムに直接アクセスできなくなりました。そのため、$ITEMTYPE$の定義は Quicktext の内部ストレージに保存されるようになり、テンプレートが参照するすべての添付ファイルや画像もそのストレージにコピーする必要があります。",
+    "placeholders": { "itemtype": { "content": "$1" } }
+  },
+  "migration.intro.itemType.template": {
+    "message": "テンプレート"
+  },
+  "migration.intro.itemType.templateAndScript": {
+    "message": "テンプレートとスクリプト"
+  },
+  "migration.intro.p3": {
+    "message": "移行後、追加の$LINK$をインストールして、Quicktext の設定全体を例えば WebDAV サーバーに移動できます。",
+    "placeholders": { "link": { "content": "$1" } }
+  },
+  "migration.intro.p3.linkText": {
+    "message": "ストレージバックエンド"
+  },
+  "migration.section.autoMigration": {
+    "message": "自動移行"
+  },
+  "migration.section.manualMigration": {
+    "message": "手動移行が必要"
+  },
+  "migration.section.droppedSources": {
+    "message": "削除された設定ソース"
+  },
+  "migration.auto.intro": {
+    "message": "以下のテンプレートは自動的に移行できます。ローカルファイルは Quicktext の内部ストレージにコピーされ、これらのファイルを参照するテンプレート内のすべてのタグが調整されます。"
+  },
+  "migration.btn.startMigration": {
+    "message": "テンプレートの移行を開始"
+  },
+  "migration.btn.startMigrationCount": {
+    "message": "移行を開始（$COUNT$ 項目）",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "migration.manual.intro": {
+    "message": "以下の項目は自動的に移行できないため、手動で対応する必要があります。"
+  },
+  "migration.incompatible.title": {
+    "message": "互換性のないスクリプト"
+  },
+  "migration.incompatible.description": {
+    "message": "これらのスクリプトは、利用できなくなった非推奨の Quicktext v5 API を使用しています。$LINK$を使用して書き直す必要があります。",
+    "placeholders": { "link": { "content": "$1" } }
+  },
+  "migration.incompatible.linkText": {
+    "message": "最新のスクリプト API"
+  },
+  "migration.filesystem.title": {
+    "message": "非推奨のファイルシステムアクセス"
+  },
+  "migration.filesystem.description": {
+    "message": "これらのテンプレートとスクリプトは、WebExtension からは直接アクセスできなくなったローカルファイルシステム上のファイルを参照しています。参照されているファイルを Quicktext ストレージにコピーし、テンプレートをそれに応じて調整する必要があります。詳細は$LINK$をご覧ください。",
+    "placeholders": { "link": { "content": "$1" } }
+  },
+  "migration.filesystem.linkText": {
+    "message": "保存場所ガイド"
+  },
+  "migration.dropped.intro": {
+    "message": "以下の設定ソースは、最新の WebExtension では利用できなくなった直接ファイルシステムアクセスに依存していました。"
+  },
+  "migration.dropped.description": {
+    "message": "以前、テンプレートの保存やコンピューター間での共有にローカルフォルダーを使用していた場合、代わりに$VFSLINK$をインストールできます。例えば、WebDAV サーバー（ownCloud、Nextcloud など）にテンプレートを保存する$WEBDAVLINK$や、コンピューター上のフォルダーを引き続き使用する$HOMEFOLDERLINK$などがあります。",
+    "placeholders": {
+      "vfslink": { "content": "$1" },
+      "webdavlink": { "content": "$2" },
+      "homefolderlink": { "content": "$3" }
+    }
+  },
+  "migration.dropped.linkVfs": {
+    "message": "VFS ストレージバックエンド"
+  },
+  "migration.dropped.linkWebdav": {
+    "message": "WebDAV プロバイダー"
+  },
+  "migration.dropped.linkHomefolder": {
+    "message": "ローカルホームフォルダープロバイダー"
+  },
+  "migration.btn.dontShowAgain": {
+    "message": "このレポートを再度表示しない"
+  },
+  "migration.reason.deprecatedFilesystem": {
+    "message": "非推奨の直接ファイルシステムアクセス"
+  },
+  "migration.reason.deprecatedApi": {
+    "message": "互換性のない Quicktext v5 API"
+  },
+  "migration.label.fileImport": {
+    "message": "ファイルベースのインポート"
+  },
+  "migration.label.fileStorage": {
+    "message": "ファイルベースのストレージ"
+  },
+  "migration.desc.fileImport": {
+    "message": "このインポートは起動時にローカルファイルからテンプレートを読み込んでいました。WebExtension はローカルファイルシステムに直接アクセスできなくなりました。"
+  },
+  "migration.desc.fileStorage": {
+    "message": "テンプレートとスクリプトはこのローカルフォルダーから読み込まれていました。WebExtension はローカルファイルシステムに直接アクセスできなくなりました。"
+  },
+  "migration.source.enterprisePolicy": {
+    "message": "エンタープライズポリシー"
+  },
+  "migration.source.imported": {
+    "message": "インポート済み"
+  },
+  "migration.readonlyNote.both": {
+    "message": "これらの項目の一部は URL インポートまたはエンタープライズポリシーからのものです。更新については、それぞれの管理者にお問い合わせください。"
+  },
+  "migration.readonlyNote.imported": {
+    "message": "これらの項目の一部は URL インポートからのものです。更新については、インポートソースの管理者にお問い合わせください。"
+  },
+  "migration.readonlyNote.managed": {
+    "message": "これらの項目の一部はエンタープライズポリシーを通じて提供されています。更新については、管理者にお問い合わせください。"
+  },
+  "migration.progress.preparing": {
+    "message": "移行を準備中…"
+  },
+  "migration.progress.backingUp": {
+    "message": "$FILENAME$ をバックアップ中…",
+    "placeholders": { "filename": { "content": "$1" } }
+  },
+  "migration.progress.copying": {
+    "message": "$FILENAME$ をコピー中（$CURRENT$/$TOTAL$）…",
+    "placeholders": {
+      "filename": { "content": "$1" },
+      "current": { "content": "$2" },
+      "total": { "content": "$3" }
+    }
+  },
+  "migration.progress.rewriting": {
+    "message": "タグを書き換え中…"
+  },
+  "migration.progress.saving": {
+    "message": "変更を保存中…"
+  },
+  "migration.progress.updating": {
+    "message": "検出結果を更新中…"
+  },
+  "migration.success": {
+    "message": "移行が完了しました。$COUNT$ 項目が移行されました。",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "migration.error.allFailed": {
+    "message": "$FAILED$ 個のファイルのコピーに失敗しました。影響を受けたテンプレートは変更されませんでした。",
+    "placeholders": { "failed": { "content": "$1" } }
+  },
+  "migration.error.partialFailed": {
+    "message": "$MIGRATED$ 項目が移行されましたが、$FAILED$ 個のファイルのコピーに失敗しました。影響を受けたテンプレートは変更されませんでした。",
+    "placeholders": {
+      "migrated": { "content": "$1" },
+      "failed": { "content": "$2" }
+    }
+  },
+  "migration.btn.close": {
+    "message": "閉じる"
+  },
+  "migration.btn.ok": {
+    "message": "OK"
+  },
+  "migration.btn.learnStorage": {
+    "message": "保存場所の説明"
+  },
+  "migration.btn.learnJourney": {
+    "message": "WebExtensionへの道のり"
+  },
+  "migration.alert.managerOpen": {
+    "message": "移行を開始する前に Quicktext マネージャーを閉じてください。"
   }
 }

@@ -37,11 +37,6 @@ browser.notifications.onClicked.addListener(notificationId => {
     case "qt-bad-entries":
       utils.openSettingsDialog();
       break;
-    case "qt-incompatible-scripts":
-      browser.tabs.create({
-        url: `https://github.com/jobisoft/quicktext/issues/451`,
-      });
-      break;
   }
 })
 
@@ -84,6 +79,13 @@ if (!["alt", "control", "meta"].includes(shortcutModifier)) {
   await storage.setPref("shortcutModifier", "alt");
 }
 
+// Monitor VFS provider availability and update session storage whenever
+// providers or connections change (added, removed, disabled, uninstalled).
+// The initial check fires naturally as vfs.init() probes each provider.
+vfs.onConnectionsChanged.addListener(() => {
+  storage.checkProviderAvailability();
+});
+
 let bundles = await storage.getActiveStorageEntries();
 
 // Add menu entry to tools menu.
@@ -114,5 +116,13 @@ messenger.menus.onShown.addListener(async (info) => {
 for (const bundle of bundles) {
   await utils.checkBadNameEntries(bundle.templates, bundle.scripts);
   await utils.checkDuplicatedEntries(bundle.templates, bundle.scripts);
-  await utils.checkForIncompatibleScripts(bundle.scripts);
+}
+const deprecatedResults = await utils.detectDeprecatedUsages(bundles);
+const { droppedFileEntries } = await browser.storage.local.get({ droppedFileEntries: null });
+if (deprecatedResults.templates.length > 0
+    || deprecatedResults.scripts.length > 0
+    || droppedFileEntries?.length > 0) {
+  browser.tabs.create({
+    url: browser.runtime.getURL("/dialogs/migration/migration.html"),
+  });
 }

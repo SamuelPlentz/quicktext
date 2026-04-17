@@ -14,32 +14,6 @@
         ]
       },
       {
-        "name": "pickFile",
-        "type": "function",
-        "async": true,
-        "parameters": [
-          {
-            "name": "aTitle",
-            "type": "string"
-          },
-          {
-            "name": "aFilter",
-            "type": "string"
-          }
-        ]
-      },
-      {
-        "name": "pickFolder",
-        "type": "function",
-        "async": true,
-        "parameters": [
-          {
-            "name": "aTitle",
-            "type": "string"
-          }
-        ]
-      },
-      {
         "name": "readBinaryFile",
         "type": "function",
         "async": true,
@@ -57,26 +31,6 @@
         "parameters": [
           {
             "name": "aFilePath",
-            "type": "string"
-          },
-          {
-            "name": "aBasePath",
-            "type": "string",
-            "optional": true
-          }
-        ]
-      },
-      {
-        "name": "writeTextFile",
-        "type": "function",
-        "async": true,
-        "parameters": [
-          {
-            "name": "aFilePath",
-            "type": "string"
-          },
-          {
-            "name": "aData",
             "type": "string"
           },
           {

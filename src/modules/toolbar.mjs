@@ -72,7 +72,7 @@ export async function init() {
   // Update toolbar if relevant settings changed.
   new storage.StorageListener({
     area: "auto",
-    watchedPrefs: ["templates", "managedStorage", "menuCollapse", "shortcutModifier", "storageLocations", "defaultImport"],
+    watchedPrefs: ["templates", "managedStorage", "menuCollapse", "shortcutModifier", "storageLocations", "defaultImport", "providerAvailability"],
     listener: async (_events) => {
       let legacyAddon;
       try {

@@ -69,10 +69,13 @@ const state = {
   // tabs regardless of whether it's persisted in storageLocations.
   // Refreshed at runtime whenever managed-area content changes.
   hasManagedStorage: false,
+  deprecatedUsages: null,
+  providerAvailability: {},
 };
 
 function isMultiStorage() {
-  return state.bundles.length > 1;
+  return state.bundles.length > 1
+    || state.bundles.some(b => b.unavailable);
 }
 
 function findBundle(uuid) {
@@ -147,6 +150,13 @@ async function loadAll() {
   // removes policy content.
   state.hasManagedStorage = await storage.hasManagedPolicy();
 
+  // Seed provider availability from session storage. The background
+  // script updates this whenever providers or connections change.
+  const { providerAvailability } = await browser.storage.session.get({
+    providerAvailability: {},
+  });
+  state.providerAvailability = providerAvailability;
+
   // Working copy of the persisted storage list. Each entry carries
   // a `type` field (`"vfs"` or `"managed"`) that `readBundleForEntry`
   // uses to decide whether to read from the VFS or from
@@ -162,6 +172,7 @@ async function loadAll() {
   state.bundles = [];
   for (const entry of state.storageEntries) {
     if (entry.enabled === false) continue;
+    if (entry.type === "managed" && !state.hasManagedStorage) continue;
     await _addBundle(entry);
   }
   // Append one read-only bundle per enabled import that has fetched
@@ -170,6 +181,12 @@ async function loadAll() {
   // `state.prefs.defaultImport` here and again on every change to that
   // pref (see the local-area StorageListener callback below).
   _rebuildImportBundles();
+
+  // Load cached deprecation results so script-list ⚠️ icons work
+  // immediately without re-running detection.
+  const { deprecatedUsages } = await browser.storage.local.get({ deprecatedUsages: null });
+  state.deprecatedUsages = deprecatedUsages;
+  _indexDeprecatedUsages();
 }
 
 function _rebuildImportBundles() {
@@ -329,8 +346,10 @@ function updateScriptHelpButton() {
   const script = bundle && state.selectedScriptIdx !== -1
     ? bundle.scripts[state.selectedScriptIdx]
     : null;
-  const hasIncompatible = onScriptsTab && script && isIncompatibleScript(script);
-  document.getElementById("btn-script-help").hidden = !hasIncompatible;
+  const dep = onScriptsTab && script
+    ? _getDeprecatedScript(state.selectedScriptStorageUuid, script.name)
+    : null;
+  document.getElementById("btn-script-help").hidden = !dep?.issues?.includes("deprecated-api");
 }
 
 // ---------- General tab ----------
@@ -769,7 +788,13 @@ function renderTemplateList() {
       storageName.title = bundle.storageName;
 
       storageHeader.appendChild(storageName);
-      if (bundle.isReadOnly) {
+      if (bundle.unavailable) {
+        const unavailEl = document.createElement("span");
+        unavailEl.className = "storage-header-unavailable";
+        unavailEl.textContent = "🚫";
+        unavailEl.title = i18n("quicktext.storage.providerUnavailable.label");
+        storageHeader.appendChild(unavailEl);
+      } else if (bundle.isReadOnly) {
         const lockEl = document.createElement("span");
         lockEl.className = "storage-header-lock";
         lockEl.textContent = "🔒";
@@ -780,7 +805,7 @@ function renderTemplateList() {
 
       const storageChildren = document.createElement("div");
       storageChildren.className = "tree-storage-children";
-      _renderGroupsForBundle(bundle, storageChildren);
+      if (!bundle.unavailable) _renderGroupsForBundle(bundle, storageChildren);
       storageEl.appendChild(storageChildren);
       container.appendChild(storageEl);
     } else {
@@ -886,6 +911,15 @@ function _renderGroupsForBundle(bundle, container) {
 
         tmplEl.appendChild(nameEl);
         tmplEl.appendChild(shortcutEl);
+
+        const tmplDeprecation = _getDeprecatedTemplate(uuid, group.name, tmpl.name);
+        if (tmplDeprecation) {
+          const warn = document.createElement("span");
+          warn.className = "tree-warn-icon";
+          warn.textContent = "⚠️";
+          warn.title = _deprecationTooltip(tmplDeprecation);
+          tmplEl.appendChild(warn);
+        }
         tmplEl.addEventListener("click", () => selectItem(uuid, gi, ti));
         if (!isReadOnly) setupTemplateDrag(tmplEl, bundle, gi, ti);
 
@@ -1079,7 +1113,7 @@ function disableUsedShortcuts(currentShortcut) {
 
 function updateTemplateButtons() {
   const bundle = findBundle(state.selectedTemplateStorageUuid);
-  const canAddToStorage = bundle && !bundle.isReadOnly;
+  const canAddToStorage = bundle && !bundle.isReadOnly && !bundle.unavailable;
   const canEdit = canAddToStorage && state.selectedGroupIdx !== -1;
   // "Add group" requires a writable selected storage (so the
   // insert target is unambiguous); "Add/Remove template" also
@@ -1552,7 +1586,13 @@ function renderScriptList() {
       nameSpan.textContent = bundle.storageName;
       nameSpan.title = bundle.storageName;
       header.appendChild(nameSpan);
-      if (bundle.isReadOnly) {
+      if (bundle.unavailable) {
+        const unavailEl = document.createElement("span");
+        unavailEl.className = "storage-header-unavailable";
+        unavailEl.textContent = "🚫";
+        unavailEl.title = i18n("quicktext.storage.providerUnavailable.label");
+        header.appendChild(unavailEl);
+      } else if (bundle.isReadOnly) {
         const lockEl = document.createElement("span");
         lockEl.className = "storage-header-lock";
         lockEl.textContent = "🔒";
@@ -1562,6 +1602,8 @@ function renderScriptList() {
       header.addEventListener("click", () => selectScriptStorage(entry.uuid));
       list.appendChild(header);
     }
+
+    if (bundle.unavailable) continue;
 
     for (let i = 0; i < bundle.scripts.length; i++) {
       const script = bundle.scripts[i];
@@ -1580,10 +1622,12 @@ function renderScriptList() {
       // Warning icon sits at the right edge of the row; flex on the
       // `<li>` pushes it there automatically because `.tree-name`
       // takes `flex: 1`.
-      if (isIncompatibleScript(script)) {
+      const scriptDeprecation = _getDeprecatedScript(entry.uuid, script.name);
+      if (scriptDeprecation) {
         const warn = document.createElement("span");
         warn.className = "script-warn-icon";
         warn.textContent = "⚠️";
+        warn.title = _deprecationTooltip(scriptDeprecation);
         li.appendChild(warn);
       }
       li.addEventListener("click", () => selectScript(entry.uuid, i));
@@ -1623,10 +1667,12 @@ function renderScriptList() {
       nameSpan2.textContent = script.name;
       nameSpan2.title = script.name;
       li.appendChild(nameSpan2);
-      if (isIncompatibleScript(script)) {
+      const scriptDeprecation2 = _getDeprecatedScript(bundle.storageUuid, script.name);
+      if (scriptDeprecation2) {
         const warn = document.createElement("span");
         warn.className = "script-warn-icon";
         warn.textContent = "⚠️";
+        warn.title = _deprecationTooltip(scriptDeprecation2);
         li.appendChild(warn);
       }
       li.addEventListener("click", () => selectScript(bundle.storageUuid, i));
@@ -1637,8 +1683,39 @@ function renderScriptList() {
   updateScriptButtons();
 }
 
-function isIncompatibleScript(script) {
-  return ["this.mWindow", "this.mVariables", "this.mQuicktext"].some(t => script.script?.includes(t));
+function _indexDeprecatedUsages() {
+  state._depTemplateMap = new Map();
+  for (const t of state.deprecatedUsages?.templates ?? []) {
+    state._depTemplateMap.set(`${t.storageUuid}|${t.group}|${t.template}`, t);
+  }
+  state._depScriptMap = new Map();
+  for (const s of state.deprecatedUsages?.scripts ?? []) {
+    state._depScriptMap.set(`${s.storageUuid}|${s.script}`, s);
+  }
+}
+
+function _getDeprecatedTemplate(storageUuid, groupName, tmplName) {
+  return state._depTemplateMap?.get(`${storageUuid}|${groupName}|${tmplName}`) ?? null;
+}
+
+function _getDeprecatedScript(storageUuid, scriptName) {
+  return state._depScriptMap?.get(`${storageUuid}|${scriptName}`) ?? null;
+}
+
+function _deprecationTooltip(entry) {
+  if (!entry) return null;
+  const lines = [];
+  const migLabel = m => m === "auto" ? "auto migration possible" : "manual migration needed";
+  if (entry.tags) {
+    for (const t of entry.tags) lines.push(`Deprecated FILE usage: ${t.tag} (${migLabel(t.migration)})`);
+  }
+  if (entry.details) {
+    for (const d of entry.details) {
+      if (d.type === "deprecated-api") lines.push(`Incompatible API: ${d.keyword}`);
+      else lines.push(`Deprecated FILE usage: ${d.call} (${migLabel(d.migration)})`);
+    }
+  }
+  return lines.join("\n");
 }
 
 function _selectedScriptBundle() {
@@ -1699,17 +1776,13 @@ function renderScriptDetail() {
   }
   document.getElementById("script-body").value = script?.script ?? "";
   document.getElementById("script-body").disabled = !script || isReadOnly;
-  const incompatible = script ? isIncompatibleScript(script) : false;
-  const warn = document.getElementById("script-warning");
-  warn.hidden = !incompatible;
-  if (incompatible) warn.textContent = `⚠️ ${i18n("quicktext.scripthelp.label")}`;
   updateScriptHelpButton();
 }
 
 function updateScriptButtons() {
   const bundle = _selectedScriptBundle();
   const script = _selectedScript();
-  const canAddToStorage = bundle && !bundle.isReadOnly;
+  const canAddToStorage = bundle && !bundle.isReadOnly && !bundle.unavailable;
   document.getElementById("btn-add-script").disabled = !canAddToStorage;
   document.getElementById("btn-remove-script").disabled = !script || !canAddToStorage;
 }
@@ -1865,11 +1938,14 @@ async function _addBundle(entry) {
   if (!entry) return null;
   const loaded = await storage.readBundleForEntry(entry);
   const groups = loaded.templates?.groups ?? [];
+  const avail = state.providerAvailability[entry.uuid];
   const bundle = {
     storageUuid: entry.uuid,
     entry,
     storageName: loaded.storageName,
     isReadOnly: loaded.isReadOnly,
+    unavailable: avail && !avail.available,
+    unavailableReason: avail?.reason,
     groups,
     texts: loaded.templates?.texts ?? [],
     scripts: loaded.scripts ?? [],
@@ -1900,7 +1976,7 @@ function renderAdvanced() {
 // locked - the checkbox stays disabled regardless of count.
 function _refreshEnabledCheckboxes() {
   const enabledWritableCount = state.storageEntries.filter(
-    e => !e.isReadOnly && e.enabled !== false,
+    e => e.type !== "managed" && !e.isReadOnly && e.enabled !== false,
   ).length;
   const list = document.getElementById("storage-list");
   for (const li of list.querySelectorAll("li[data-idx]")) {
@@ -1970,7 +2046,7 @@ async function renderStorageList() {
   list.appendChild(header);
 
   const enabledWritableCount = state.storageEntries.filter(
-    e => !e.isReadOnly && e.enabled !== false,
+    e => e.type !== "managed" && !e.isReadOnly && e.enabled !== false,
   ).length;
 
   for (let i = 0; i < state.storageEntries.length; i++) {
@@ -2021,6 +2097,7 @@ async function renderStorageList() {
         // editable checkboxes stay editable and the user can
         // disable every entry in sequence.
         _refreshEnabledCheckboxes();
+        updateStorageButtons();
         renderTemplateList();
         renderScriptList();
         renderTemplateDetail();
@@ -2030,10 +2107,16 @@ async function renderStorageList() {
     });
     enabledEl.appendChild(enabledBox);
 
+    const avail = state.providerAvailability[entry.uuid];
+    const isUnavailable = avail && !avail.available;
+    if (isUnavailable) li.classList.add("storage-unavailable");
+
     const iconEl = document.createElement("span");
     iconEl.className = "storage-icon";
     const resolvedIconUrl = _storageIconUrl(entry);
-    if (resolvedIconUrl) {
+    if (isUnavailable) {
+      iconEl.textContent = "🚫";
+    } else if (resolvedIconUrl) {
       const img = document.createElement("img");
       img.src = resolvedIconUrl;
       img.alt = "";
@@ -2056,7 +2139,11 @@ async function renderStorageList() {
 
     const connEl = document.createElement("span");
     connEl.className = "storage-conn";
-    if (entry.type === "managed") {
+    if (isUnavailable) {
+      connEl.textContent = avail.reason === "connection_missing"
+        ? i18n("quicktext.storage.connectionUnavailable.label")
+        : i18n("quicktext.storage.providerUnavailable.label");
+    } else if (entry.type === "managed") {
       connEl.textContent = i18n("quicktext.storage.managed.location");
     } else if (!entry.storageRef) {
       connEl.textContent = `${storage.OPFS_STORAGE_NAME} (internal)`;
@@ -2093,20 +2180,31 @@ function updateStorageButtons() {
   // Managed entries are fully locked: no browse/rename/remove/disable, and no
   // import/export either. They mirror the enterprise policy and auto-re-inject
   // when re-scanning managed entries, so every user-facing mutation is a no-op.
-  document.getElementById("btn-browse-storage").disabled = !selectedEntry || isManaged;
+  const availStatus = selectedEntry && state.providerAvailability[selectedEntry.uuid];
+  const isUnavailable = selectedBundle?.unavailable
+    || (availStatus && !availStatus.available);
+  document.getElementById("btn-browse-storage").disabled = !selectedEntry || isManaged || isUnavailable;
   document.getElementById("btn-rename-storage").disabled = !selectedEntry || isManaged;
-  // Refuse to remove the last writable entry.
-  const writableCount = state.storageEntries.filter(e => !e.isReadOnly).length;
-  const canRemove = !!selectedEntry && !isManaged && writableCount > 1;
+  // Refuse to remove the last enabled non-managed entry - there must
+  // always be at least one enabled storage (ignoring managed).
+  const isLastEnabled = selectedEntry
+    && selectedEntry.enabled !== false
+    && state.storageEntries.filter(
+      e => e.type !== "managed" && e.enabled !== false,
+    ).length <= 1;
+  // Refuse to remove the last OPFS entry (enabled or disabled) - it
+  // serves as a fallback if external providers become unavailable.
+  const isLastOpfs = selectedEntry
+    && !selectedEntry.storageRef
+    && state.storageEntries.filter(
+      e => e.type !== "managed" && !e.storageRef,
+    ).length <= 1;
+  const canRemove = !!selectedEntry && !isManaged && !isLastEnabled && !isLastOpfs;
   document.getElementById("btn-remove-storage").disabled = !canRemove;
-  // Export is available for any selected non-managed entry - even
-  // disabled storages fall back to reading their file directly.
-  document.getElementById("btn-export-storage").disabled = !selectedEntry || isManaged;
-  // Import requires a writable (loaded, non-read-only) bundle;
-  // managed entries fail the read-only check too, but gate
-  // explicitly for clarity.
+  // Export and import require a reachable provider.
+  document.getElementById("btn-export-storage").disabled = !selectedEntry || isManaged || isUnavailable;
   document.getElementById("btn-import-storage").disabled =
-    !selectedBundle || selectedBundle.isReadOnly || isManaged;
+    !selectedBundle || selectedBundle.isReadOnly || isManaged || isUnavailable;
 }
 
 async function addStorageConfig() {
@@ -2197,6 +2295,9 @@ async function addStorageConfig() {
   // scripts appear live in the Templates/Scripts tabs. A brand-new
   // storage with no file yields an empty bundle.
   await _addBundle(entry);
+  // Refresh the provider cache again - the user may have created a new
+  // connection inside the file picker, so the pre-picker cache is stale.
+  await _refreshVfsProviders();
   markChanged();
   renderStorageList();
   renderTemplateList();
@@ -2339,17 +2440,7 @@ function _buildManagerMenuData(nodes, now) {
     else if (node.localeKey) entry.title = i18n(node.localeKey);
     else if (node.type === "dateTime") entry.title = getDateTimeMenuTitle(node.format, now);
 
-    if (node.value?.includes("<path>")) {
-      let filter, titleKey;
-      if (node.value.startsWith("IMAGE=")) { filter = "images"; titleKey = "quicktext.insertImage.label"; }
-      else if (node.value.startsWith("ATTACHMENT=")) { filter = "any"; titleKey = "quicktext.attachmentFile.label"; }
-      else { filter = "any"; titleKey = "quicktext.insertFile.label"; }
-      const title = i18n(titleKey);
-      entry.onclick = async () => {
-        const path = await browser.FileSystemAccess.pickFile(title, filter);
-        if (path) insertVariable(node.value.replace("<path>", path));
-      };
-    } else if (node.value?.includes("<url>")) {
+    if (node.value?.includes("<url>")) {
       entry.onclick = async () => {
         const url = await showPrompt(i18n("quicktext.prompt.addUrl.label"), "https://");
         if (url) insertVariable(node.value.replace("<url>", url));
@@ -2646,6 +2737,14 @@ async function doSave() {
   commitTemplateEdits();
   commitScriptEdits();
   await saveAll();
+  // Re-run deprecation detection so ⚠️ markers update after the user
+  // fixes incompatible scripts or removes deprecated tags.
+  const bundles = await storage.getActiveStorageEntries();
+  state.deprecatedUsages = await utils.detectDeprecatedUsages(bundles);
+  _indexDeprecatedUsages();
+  renderTemplateList();
+  renderScriptList();
+  renderScriptDetail();
 }
 
 function onClose() {
@@ -2664,6 +2763,14 @@ window.addEventListener("beforeunload", e => {
 
 async function init() {
   localizeDocument();
+
+  const { migrationRunning } = await browser.storage.session.get({ migrationRunning: false });
+  if (migrationRunning) {
+    await showAlert("A FILE migration is currently in progress. Please close this window and try again after the migration completes.");
+    window.close();
+    return;
+  }
+
   await loadAll();
 
   // Tab buttons
@@ -2737,10 +2844,37 @@ async function init() {
     }
   });
 
-  // Rebuild when external script add-ons register/unregister.
+  // Re-render the storage list when VFS provider connections change
+  // (renamed, added, or removed) so the connection column stays current.
+  vfs.onConnectionsChanged.addListener(async () => {
+    await _refreshVfsProviders();
+    renderStorageList();
+  });
+
+  // Rebuild when external script add-ons register/unregister or
+  // provider availability changes.
   browser.storage.onChanged.addListener((changes, areaName) => {
     if (areaName === "session" && "externalScripts" in changes) {
       buildInsertTagMenu();
+    }
+    if (areaName === "session" && "providerAvailability" in changes) {
+      state.providerAvailability = changes.providerAvailability.newValue ?? {};
+      for (const bundle of state.bundles) {
+        const avail = state.providerAvailability[bundle.storageUuid];
+        const wasUnavailable = bundle.unavailable;
+        bundle.unavailable = avail && !avail.available;
+        bundle.unavailableReason = avail?.reason;
+        if (bundle.unavailable && !wasUnavailable) {
+          bundle.groups = [];
+          bundle.texts = [];
+          bundle.scripts = [];
+        }
+      }
+      renderStorageList();
+      renderTemplateList();
+      renderScriptList();
+      updateTemplateButtons();
+      updateScriptButtons();
     }
   });
 
@@ -2806,24 +2940,7 @@ async function init() {
     document.getElementById("insert-tag-menu").hidden = true;
     const val = btn.dataset.val;
 
-    if (val.includes("<path>")) {
-      let title, filter;
-      if (val.startsWith("IMAGE=")) {
-        title = i18n("quicktext.insertImage.label");
-        filter = "images";
-      } else if (val.startsWith("ATTACHMENT=")) {
-        title = i18n("quicktext.attachmentFile.label");
-        filter = "any";
-      } else if (val.startsWith("FILE=")) {
-        title = i18n("quicktext.insertFile.label");
-        filter = "any";
-      } else {
-        console.error(`pickFile: unknown variable type for value "${val}"`);
-        return;
-      }
-      const path = await browser.FileSystemAccess.pickFile(title, filter);
-      if (path) insertVariable(val.replace("<path>", path));
-    } else if (val.includes("<vfs-path>")) {
+    if (val.includes("<vfs-path>")) {
       // The flyout is disabled for read-only templates, so the
       // selected storage is always a writable VFS entry here.
       const entry = state.storageEntries.find(
@@ -2923,11 +3040,13 @@ async function init() {
   // without requiring the user to click a header first.
   const firstWritableEntry = state.storageEntries.find(e => {
     if (e.enabled === false || e.isReadOnly) return false;
-    return !!findBundle(e.uuid);
+    const b = findBundle(e.uuid);
+    return b && !b.unavailable;
   });
   for (const entry of state.storageEntries) {
     if (entry.enabled === false || entry.isReadOnly) continue;
     const bundle = findBundle(entry.uuid);
+    if (bundle?.unavailable) continue;
     if (bundle?.groups.length) {
       state.selectedTemplateStorageUuid = entry.uuid;
       state.selectedGroupIdx = 0;
@@ -2940,6 +3059,7 @@ async function init() {
   for (const entry of state.storageEntries) {
     if (entry.enabled === false || entry.isReadOnly) continue;
     const bundle = findBundle(entry.uuid);
+    if (bundle?.unavailable) continue;
     if (bundle?.scripts.length) {
       state.selectedScriptStorageUuid = entry.uuid;
       state.selectedScriptIdx = 0;

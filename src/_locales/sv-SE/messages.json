@@ -327,6 +327,12 @@
   "quicktext.storage.managed.location": {
     "message": "Hanterad lagring"
   },
+  "quicktext.storage.providerUnavailable.label": {
+    "message": "Leverantör inte tillgänglig"
+  },
+  "quicktext.storage.connectionUnavailable.label": {
+    "message": "Anslutning otillgänglig"
+  },
   "quicktext.storage.internal.local.label": {
     "message": "Internt lagringsutrymme (standard)"
   },
@@ -491,5 +497,187 @@
   },
   "quicktext.dialog.addImport.label": {
     "message": "Lägg till import"
+  },
+  "migration.pageTitle": {
+    "message": "Quicktext v$VERSION$ migrering",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "migration.intro.p1": {
+    "message": "Detta är det sista steget i en lång uppdateringsprocess för att konvertera Quicktext till en modern WebExtension. Quicktext kommer snart inte längre att förlita sig på äldre API:er och obegränsad åtkomst till din dator, utan fungerar helt inom det moderna WebExtension-ramverket - utan att kräva en uppdatering för varje ny version av Thunderbird."
+  },
+  "migration.intro.quote": {
+    "message": "Tack till alla mina betatestare för ert fortsatta stöd och tålamod som har gjort denna övergång möjlig. Er feedback har varit ovärderlig!"
+  },
+  "migration.intro.quoteAttribution": {
+    "message": "- John Bieling, Quicktext-utvecklare"
+  },
+  "migration.intro.p2": {
+    "message": "Moderna WebExtensions kan inte längre direkt komma åt ditt filsystem. Som ett resultat lagras dina $ITEMTYPE$-definitioner nu i en intern Quicktext-lagring, och alla bilagor och bilder som dina mallar refererar till behöver kopieras till den lagringen också.",
+    "placeholders": { "itemtype": { "content": "$1" } }
+  },
+  "migration.intro.itemType.template": {
+    "message": "mall"
+  },
+  "migration.intro.itemType.templateAndScript": {
+    "message": "mall- och skript"
+  },
+  "migration.intro.p3": {
+    "message": "Efter migreringen kan du installera ytterligare $LINK$ och flytta hela din Quicktext-konfiguration, till exempel till en WebDAV-server.",
+    "placeholders": { "link": { "content": "$1" } }
+  },
+  "migration.intro.p3.linkText": {
+    "message": "lagringsbackends"
+  },
+  "migration.section.autoMigration": {
+    "message": "Automatisk migrering"
+  },
+  "migration.section.manualMigration": {
+    "message": "Manuell migrering krävs"
+  },
+  "migration.section.droppedSources": {
+    "message": "Borttagna konfigurationskällor"
+  },
+  "migration.auto.intro": {
+    "message": "Följande mallar kan migreras automatiskt. Lokala filer kopieras till den interna Quicktext-lagringen, och alla taggar i dina mallar som refererar till dessa filer kommer att justeras."
+  },
+  "migration.btn.startMigration": {
+    "message": "Starta mallmigrering"
+  },
+  "migration.btn.startMigrationCount": {
+    "message": "Starta migrering ($COUNT$ objekt)",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "migration.manual.intro": {
+    "message": "Objekten nedan kan inte migreras automatiskt och kräver manuell hantering."
+  },
+  "migration.incompatible.title": {
+    "message": "Inkompatibla skript"
+  },
+  "migration.incompatible.description": {
+    "message": "Dessa skript använder föråldrade Quicktext v5-API:er som inte längre är tillgängliga. De behöver skrivas om med hjälp av $LINK$.",
+    "placeholders": { "link": { "content": "$1" } }
+  },
+  "migration.incompatible.linkText": {
+    "message": "det moderna skript-API:et"
+  },
+  "migration.filesystem.title": {
+    "message": "Föråldrad filsystemåtkomst"
+  },
+  "migration.filesystem.description": {
+    "message": "Dessa mallar och skript refererar till filer på ditt lokala filsystem, som inte längre är direkt åtkomligt för WebExtensions. De refererade filerna behöver kopieras till Quicktext-lagringen och mallarna behöver justeras därefter. Se $LINK$ för detaljer.",
+    "placeholders": { "link": { "content": "$1" } }
+  },
+  "migration.filesystem.linkText": {
+    "message": "guiden för lagringsplatser"
+  },
+  "migration.dropped.intro": {
+    "message": "Följande konfigurationskällor förlitade sig på direkt filsystemåtkomst, som inte längre är tillgänglig i moderna WebExtensions."
+  },
+  "migration.dropped.description": {
+    "message": "Om du tidigare använde en lokal mapp för att lagra dina mallar eller dela dem mellan datorer kan du installera en $VFSLINK$ som ersättning - till exempel $WEBDAVLINK$ för att lagra mallar på en WebDAV-server (ownCloud, Nextcloud, etc.), eller $HOMEFOLDERLINK$ för att fortsätta använda en mapp på din dator.",
+    "placeholders": {
+      "vfslink": { "content": "$1" },
+      "webdavlink": { "content": "$2" },
+      "homefolderlink": { "content": "$3" }
+    }
+  },
+  "migration.dropped.linkVfs": {
+    "message": "VFS-lagringsbackend"
+  },
+  "migration.dropped.linkWebdav": {
+    "message": "WebDAV-leverantör"
+  },
+  "migration.dropped.linkHomefolder": {
+    "message": "lokal hemmappsleverantör"
+  },
+  "migration.btn.dontShowAgain": {
+    "message": "Visa inte denna rapport igen"
+  },
+  "migration.reason.deprecatedFilesystem": {
+    "message": "Föråldrad direkt filsystemåtkomst"
+  },
+  "migration.reason.deprecatedApi": {
+    "message": "Inkompatibelt Quicktext v5-API"
+  },
+  "migration.label.fileImport": {
+    "message": "Filbaserad import"
+  },
+  "migration.label.fileStorage": {
+    "message": "Filbaserad lagring"
+  },
+  "migration.desc.fileImport": {
+    "message": "Denna import läste mallar från en lokal fil vid varje start. WebExtensions kan inte längre direkt komma åt det lokala filsystemet."
+  },
+  "migration.desc.fileStorage": {
+    "message": "Mallar och skript lästes från denna lokala mapp. WebExtensions kan inte längre direkt komma åt det lokala filsystemet."
+  },
+  "migration.source.enterprisePolicy": {
+    "message": "företagspolicy"
+  },
+  "migration.source.imported": {
+    "message": "importerad"
+  },
+  "migration.readonlyNote.both": {
+    "message": "Vissa av dessa objekt kommer från URL-importer eller företagspolicyer. Kontakta respektive ansvariga för att få dem uppdaterade."
+  },
+  "migration.readonlyNote.imported": {
+    "message": "Vissa av dessa objekt kommer från URL-importer. Kontakta importkällans ansvarige för att få dem uppdaterade."
+  },
+  "migration.readonlyNote.managed": {
+    "message": "Vissa av dessa objekt tillhandahålls genom en företagspolicy. Kontakta din administratör för att få dem uppdaterade."
+  },
+  "migration.progress.preparing": {
+    "message": "Förbereder migrering…"
+  },
+  "migration.progress.backingUp": {
+    "message": "Säkerhetskopierar $FILENAME$…",
+    "placeholders": { "filename": { "content": "$1" } }
+  },
+  "migration.progress.copying": {
+    "message": "Kopierar $FILENAME$ ($CURRENT$/$TOTAL$)…",
+    "placeholders": {
+      "filename": { "content": "$1" },
+      "current": { "content": "$2" },
+      "total": { "content": "$3" }
+    }
+  },
+  "migration.progress.rewriting": {
+    "message": "Skriver om taggar…"
+  },
+  "migration.progress.saving": {
+    "message": "Sparar ändringar…"
+  },
+  "migration.progress.updating": {
+    "message": "Uppdaterar detektionsresultat…"
+  },
+  "migration.success": {
+    "message": "Migrering klar. $COUNT$ objekt migrerade.",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "migration.error.allFailed": {
+    "message": "$FAILED$ fil(er) kunde inte kopieras. De berörda mallarna lämnades oförändrade.",
+    "placeholders": { "failed": { "content": "$1" } }
+  },
+  "migration.error.partialFailed": {
+    "message": "$MIGRATED$ objekt migrerade, men $FAILED$ fil(er) kunde inte kopieras. De berörda mallarna lämnades oförändrade.",
+    "placeholders": {
+      "migrated": { "content": "$1" },
+      "failed": { "content": "$2" }
+    }
+  },
+  "migration.btn.close": {
+    "message": "Stäng"
+  },
+  "migration.btn.ok": {
+    "message": "OK"
+  },
+  "migration.btn.learnStorage": {
+    "message": "Lagringsplatser förklarade"
+  },
+  "migration.btn.learnJourney": {
+    "message": "Vägen till WebExtension"
+  },
+  "migration.alert.managerOpen": {
+    "message": "Stäng Quicktext-hanteraren innan du startar migreringen."
   }
 }

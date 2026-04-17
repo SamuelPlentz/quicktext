@@ -209,18 +209,30 @@ async function insertSubject({ qParser, subject }) {
 
 
 
-// Insert text content (from any source) into the compose body. Tags in the
-// content are expanded (except TEXT/SCRIPT in SINGLE_VARIABLE state). Used by
+// When true, content inserted via the compose-menu FILE/URL/VFS entries is
+// parsed for embedded Quicktext tags (except TEXT/SCRIPT). When false, the
+// content is inserted verbatim.
+const PARSE_INSERTED_FILE_CONTENT = false;
+
+// Insert text content (from any source) into the compose body. Used by
 // the compose-menu handlers for FILE, URL, and VFS content insertion.
 export async function insertFileContent(tabId, content, insertMode = "text/plain") {
   let qParser = await getQuicktextParser({ tabId });
-  qParser.setActiveStorage({ state: STORAGE_STATE.SINGLE_VARIABLE });
-  let parsedContent = await qParser.process_file_content(content, {
-    insertMode,
-    stripHtmlComments: false,
-  });
-  if (parsedContent) {
-    await qParser.insertBody(parsedContent, { extraSpace: false });
+  if (PARSE_INSERTED_FILE_CONTENT) {
+    qParser.setActiveStorage({ state: STORAGE_STATE.SINGLE_VARIABLE });
+    let parsedContent = await qParser.process_file_content(content, {
+      insertMode,
+      stripHtmlComments: false,
+    });
+    if (parsedContent) {
+      await qParser.insertBody(parsedContent, { extraSpace: false });
+    }
+  } else {
+    let { isPlainText } = await qParser.getStaticDetails();
+    if (insertMode === "text/plain" && !isPlainText) {
+      qParser.mForceAsText = true;
+    }
+    await qParser.insertBody(content, { extraSpace: false });
   }
 }
 

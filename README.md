@@ -1,11 +1,15 @@
-**IMPORTANT: Quicktext is still a legacy extension and requires updates for each new Thunderbird version. I’m currently unable to provide updates for Thunderbird’s monthly release channel. Quicktext users need to use Thunderbird’s ESR channel, which only receives a major update once per year. I hope to complete the transition from a legacy extension to a modern WebExtension in 2026.**
+# Quicktext
 
-[Quicktext](https://addons.thunderbird.net/addon/quicktext/) is a [Thunderbird](https://www.thunderbird.net/) extension, which has been created by Emil Hesslow. However, he was no longer able to update Quicktext or provide any kind of support. Thankfully he changed the license of Quicktext to MPL 2.0, so I could continue to update the extension and make it work with the most recent version of Thunderbird.
+[Quicktext](https://addons.thunderbird.net/addon/quicktext/) is an Add-on for [Thunderbird](https://www.thunderbird.net/) that lets you create and manage reusable email templates with dynamic content — recipient names, dates, images, attachments, scripts, and more.
 
-I will try to keep Quicktext going, but support will be limited. You may use the [issue section](https://github.com/jobisoft/quicktext/issues) of this repository to report bugs. You may also discuss Quicktext related issues with other users at https://discourse.mozilla.org/c/thunderbird.
+## History
 
-**Note**: Emil maintained two versions of Quicktext, a free “Standard” version and a paid “Pro” version with additional features. Since he released both versions under MPL 2.0, the [official version of Quicktext](https://addons.thunderbird.net/addon/quicktext/) is based on the “Pro” version. However, the name of the extension remains just “Quicktext”. There is no longer a seperate Quicktext Pro version.
+Quicktext was originally created by Emil Hesslow, who maintained both a free "Standard" version and a paid "Pro" version. When Emil was no longer able to continue development, he released both versions under the MPL 2.0 license. In 2018, John Bieling took over development and has since kept Quicktext working across every major Thunderbird release. The [official version](https://addons.thunderbird.net/addon/quicktext/) is based on the "Pro" version — there is no longer a separate Quicktext Pro.
 
-More information and usage descriptions can be found in the [wiki](https://github.com/jobisoft/quicktext/wiki) of this repository.
+Quicktext has been fully migrated to the modern WebExtension framework, ensuring long-term compatibility without requiring updates for each new Thunderbird version.
 
-**The latest release and a change log can be found on [addons.thunderbird.net](https://addons.thunderbird.net/en-US/thunderbird/addon/quicktext/versions/)**.
+## Links
+
+- [Wiki](https://github.com/jobisoft/quicktext/wiki) — documentation, tags reference, scripting guide, and more
+- [Releases and changelog](https://addons.thunderbird.net/en-US/thunderbird/addon/quicktext/versions/)
+- [Report bugs or request features](https://github.com/jobisoft/quicktext/issues)

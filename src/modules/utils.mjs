@@ -82,7 +82,7 @@ export function replaceText(tag, value, text, { collapseLineBreaks }) {
     return text.replace(new RegExp(`( )?${escapedTag}`, ''), value);
 }
 
-function escapeRegExp(aStr) {
+export function escapeRegExp(aStr) {
     return aStr.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
@@ -459,18 +459,408 @@ export async function checkDuplicatedEntries(templates, scripts) {
     }
 }
 
-export async function checkForIncompatibleScripts(scripts) {
-    const targets = ["this.mWindow", "this.mVariables", "this.mQuicktext"];
-    const incompatibleScripts = scripts.filter(s =>
-        targets.some(target => s.script.includes(target))
-    );
-    if (incompatibleScripts.length > 0) {
-        browser.notifications.create("qt-incompatible-scripts", {
-            type: "basic",
-            title: "Quicktext v6 - Incompatible Scripts!",
-            message: `Some of your scripts (for example ${incompatibleScripts.map(s => `'${s.name}'`).slice(0, 2).join(" and ")}) are incompatible with Quicktext v6. Click for more details.`,
-        });
+// Unified deprecation detection. Scans all bundles for:
+// - Templates: deprecated FILE-typed tags (explicit, implicit, underscore).
+// - Scripts: deprecated v5 API keywords + deprecated FILE tag calls via
+//   this.quicktext.getTag/processTag.
+// All script scanning runs on comment-stripped code.
+// Results are stored in browser.storage.local and returned.
+export async function detectDeprecatedUsages(bundles) {
+    const results = { templates: [], scripts: [] };
 
+    // -- Helpers --
+
+    function stripComments(code) {
+        return code.replace(/\/\/[^\n]*/g, "").replace(/\/\*[\s\S]*?\*\//g, "");
     }
+
+    // Find ]] respecting nested [[ ]] pairs, same logic as the parser.
+    function findClosingBrackets(str) {
+        let bracketCount = 0;
+        for (let i = 0; i < str.length; i++) {
+            if (str[i] === "[") bracketCount++;
+            if (str[i] === "]") {
+                bracketCount--;
+                if (bracketCount === -1 && str[i + 1] === "]") return i;
+            }
+        }
+        return -1;
+    }
+
+    // Find deprecated FILE-typed tags in a string. Catches:
+    //   [[FILE=...]], [[IMAGE=FILE|...]], [[ATTACHMENT=FILE|...]],
+    //   [[IMAGE_FILE|...]], [[ATTACHMENT_FILE|...]],
+    //   [[IMAGE=/path]] / [[ATTACHMENT=/path]] (implicit FILE mode).
+    const tagOpener = /\[\[(file|image|attachment)([=_])/gi;
+    function findFileTagsIn(str) {
+        const found = [];
+        let m;
+        while ((m = tagOpener.exec(str)) !== null) {
+            const tagName = m[1].toLowerCase();
+            const sep = m[2];
+            const rest = str.slice(m.index + m[0].length);
+            const close = findClosingBrackets(rest);
+            if (close === -1) continue;
+            const fullTag = str.slice(m.index, m.index + m[0].length + close + 2);
+            const inner = rest.slice(0, close);
+            const parts = inner.split("|");
+
+            let path = null;
+            let isFileMode = false;
+
+            if (tagName === "file") {
+                // [[FILE=<path>]] or [[FILE=<path>|flags]]
+                path = parts[0].trim();
+                isFileMode = true;
+            } else if (sep === "_") {
+                // [[IMAGE_FILE|<path>]] / [[ATTACHMENT_FILE|<path>]]
+                const suffix = parts[0].split("=")[0].trim().toLowerCase();
+                if (suffix === "file") {
+                    path = parts[1]?.trim() ?? null;
+                    isFileMode = true;
+                }
+            } else {
+                // sep === "=": [[IMAGE=...|...]] / [[ATTACHMENT=...|...]]
+                const mode = parts[0].trim().toLowerCase();
+                if (mode === "file") {
+                    // Explicit: [[IMAGE=FILE|<path>]]
+                    path = parts[1]?.trim() ?? null;
+                    isFileMode = true;
+                } else if (!["url", "vfs"].includes(mode)) {
+                    // Implicit FILE: [[IMAGE=<path>]] where <path> isn't a mode keyword
+                    path = parts[0].trim();
+                    isFileMode = true;
+                }
+            }
+
+            if (!isFileMode) continue;
+            const migration = (path && !path.includes("[[")) ? "auto" : "manual";
+            found.push({ tag: fullTag, path, migration });
+        }
+        tagOpener.lastIndex = 0;
+        return found;
+    }
+
+    // -- Template scan --
+
+    for (const bundle of bundles) {
+        const groups = bundle.templates?.groups ?? [];
+        const texts = bundle.templates?.texts ?? [];
+        for (let gi = 0; gi < groups.length; gi++) {
+            for (let ti = 0; ti < (texts[gi]?.length ?? 0); ti++) {
+                const tmpl = texts[gi][ti];
+                const tags = [
+                    ...findFileTagsIn(tmpl.text || ""),
+                    ...findFileTagsIn(tmpl.subject || ""),
+                ];
+                if (tags.length === 0) continue;
+                results.templates.push({
+                    storageUuid: bundle.storageUuid,
+                    storageName: bundle.storageName,
+                    group: groups[gi].name,
+                    template: tmpl.name,
+                    tags,
+                });
+                for (const t of tags) {
+                    console.warn(
+                        `[Quicktext] Deprecated FILE tag (${t.migration}) in `
+                        + `"${bundle.storageName}" › "${groups[gi].name}" › "${tmpl.name}": ${t.tag}`
+                    );
+                }
+            }
+        }
+    }
+
+    // -- Script scan --
+
+    const deprecatedApiKeywords = ["this.mWindow", "this.mVariables", "this.mQuicktext"];
+    // Match getTag("file", ...) / processTag("file", ...) - the FILE tag itself.
+    // Captures: [1]=function name, [2]=quote style around "file",
+    // then optionally a second string arg (the path).
+    const fileTagCallRe = /(getTag|processTag)\s*\(\s*(["'])file\2\s*(?:,\s*(["'])([^"']*)\3)?/gi;
+    // Match getTag("image"/"attachment", "file", ...) - explicit FILE mode.
+    const fileModCallRe = /(getTag|processTag)\s*\(\s*(["'])(image|attachment)\2\s*,\s*(["'])file\4\s*(?:,\s*(["'])([^"']*)\5)?/gi;
+
+    function extractCallPath(pathGroup) {
+        const path = pathGroup ?? null;
+        const migration = (path && !path.includes("[[")) ? "auto" : "manual";
+        return { path, migration };
+    }
+
+    for (const bundle of bundles) {
+        for (const script of (bundle.scripts ?? [])) {
+            const code = stripComments(script.script || "");
+            const issues = [];
+            const details = [];
+
+            for (const kw of deprecatedApiKeywords) {
+                if (code.includes(kw)) {
+                    if (!issues.includes("deprecated-api")) issues.push("deprecated-api");
+                    details.push({ type: "deprecated-api", keyword: kw, migration: "manual" });
+                }
+            }
+
+            let rm;
+            while ((rm = fileTagCallRe.exec(code)) !== null) {
+                if (!issues.includes("deprecated-tag")) issues.push("deprecated-tag");
+                const { path, migration } = extractCallPath(rm[4]);
+                details.push({ type: "deprecated-tag", call: rm[0], path, migration });
+            }
+            fileTagCallRe.lastIndex = 0;
+            while ((rm = fileModCallRe.exec(code)) !== null) {
+                if (!issues.includes("deprecated-tag")) issues.push("deprecated-tag");
+                const { path, migration } = extractCallPath(rm[6]);
+                details.push({ type: "deprecated-tag", call: rm[0], path, migration });
+            }
+            fileModCallRe.lastIndex = 0;
+
+            const fileTags = findFileTagsIn(code);
+            for (const ft of fileTags) {
+                if (!issues.includes("deprecated-tag")) issues.push("deprecated-tag");
+                details.push({ type: "deprecated-tag", call: ft.tag, path: ft.path, migration: ft.migration });
+            }
+
+            if (issues.length === 0) continue;
+            results.scripts.push({
+                storageUuid: bundle.storageUuid,
+                storageName: bundle.storageName,
+                script: script.name,
+                issues,
+                details,
+            });
+            for (const d of details) {
+                const label = d.type === "deprecated-api" ? d.keyword : d.call;
+                console.warn(
+                    `[Quicktext] Deprecated usage (${d.migration}) in script `
+                    + `"${bundle.storageName}" › "${script.name}": ${label}`
+                );
+            }
+        }
+    }
+
+    await browser.storage.local.set({ deprecatedUsages: results });
+
+    return results;
+}
+
+// Execute auto-migration for a single storage entry. Copies local files into
+// VFS folders alongside the config JSON, rewrites tags in template bodies/
+// subjects and script bodies. Returns the count of migrated items.
+//
+// `entry`  - a storageLocations entry (needs `path`, `storageRef`).
+// `bundle` - the in-memory bundle for this storage (templates + scripts).
+// `findings` - { templates: [...], scripts: [...] } filtered to this storage
+//              and only auto-migratable items.
+// `vfs`    - the vfs-client module (passed in to avoid circular imports).
+export async function runAutoMigration(entry, bundle, findings, vfs, onProgress) {
+    const configDir = entry.path.replace(/\/[^/]*$/, "") || "";
+    const storageRef = entry.storageRef ?? null;
+
+    // Collect all source paths and their target folders.
+    const copyPlan = new Map();
+
+    function planCopy(sourcePath, folder) {
+        if (copyPlan.has(sourcePath)) return copyPlan.get(sourcePath);
+        const leaf = getLeafName(sourcePath);
+        const target = `${configDir}/${folder}/${leaf}`;
+        copyPlan.set(sourcePath, { folder, leaf, target, sourcePath });
+        return copyPlan.get(sourcePath);
+    }
+
+    // First pass: plan all copies and detect leaf-name collisions per folder.
+    for (const tmplFinding of (findings.templates ?? [])) {
+        for (const t of tmplFinding.tags) {
+            if (t.migration !== "auto" || !t.path) continue;
+            planCopy(t.path, getFolderForTag(t.tag));
+        }
+    }
+    for (const scriptFinding of (findings.scripts ?? [])) {
+        for (const d of scriptFinding.details) {
+            if (d.migration !== "auto" || !d.path) continue;
+            planCopy(d.path, getFolderForTag(d.call));
+        }
+    }
+
+    // Resolve leaf-name collisions using path-hierarchy disambiguation.
+    const byFolder = new Map();
+    for (const plan of copyPlan.values()) {
+        if (!byFolder.has(plan.folder)) byFolder.set(plan.folder, []);
+        byFolder.get(plan.folder).push(plan);
+    }
+    for (const [folder, plans] of byFolder) {
+        const leafGroups = new Map();
+        for (const p of plans) {
+            if (!leafGroups.has(p.leaf)) leafGroups.set(p.leaf, []);
+            leafGroups.get(p.leaf).push(p);
+        }
+        for (const [, group] of leafGroups) {
+            if (group.length <= 1) continue;
+            const paths = group.map(p => p.sourcePath.split("/").filter(Boolean));
+            const prefixLen = _commonPrefixLength(paths);
+            for (const p of group) {
+                const segments = p.sourcePath.split("/").filter(Boolean);
+                const diffParts = segments.slice(prefixLen, -1);
+                const disambiguated = diffParts.length > 0
+                    ? diffParts.join("_") + "_" + p.leaf
+                    : p.leaf;
+                p.target = `${configDir}/${folder}/${disambiguated}`;
+            }
+        }
+    }
+
+    // Ensure target paths don't collide with files already in VFS
+    // (from a previous migration attempt or user uploads).
+    for (const plan of copyPlan.values()) {
+        plan.target = await _findUniquePath(plan.target, storageRef, vfs);
+    }
+
+    // Copy files to VFS. Only successfully copied files are added to
+    // `copied`; tags referencing failed copies are left unchanged.
+    const copied = new Set();
+    const failed = new Set();
+    const toCopy = [...copyPlan.values()].filter(p => !copied.has(p.target));
+    const totalFiles = toCopy.length;
+    let fileIdx = 0;
+    for (const plan of toCopy) {
+        if (copied.has(plan.target)) continue;
+        fileIdx++;
+        if (onProgress) onProgress({ phase: "copy", file: getLeafName(plan.sourcePath), current: fileIdx, total: totalFiles });
+        try {
+            const bytes = await browser.FileSystemAccess.readBinaryFile(plan.sourcePath);
+            if (!bytes || bytes.length === 0) {
+                throw new Error("File is empty or unreadable");
+            }
+            const type = getTypeFromExtension(plan.sourcePath);
+            const blob = new Blob([bytes], { type });
+            await vfs.writeFile(
+                { path: plan.target, storageRef },
+                blob,
+                { overwrite: false }
+            );
+            const verifyFile = await vfs.readFile({ path: plan.target, storageRef });
+            const verifyBytes = new Uint8Array(await verifyFile.arrayBuffer());
+            if (verifyBytes.length !== bytes.length) {
+                throw new Error(`Verification failed: wrote ${bytes.length} bytes, read back ${verifyBytes.length}`);
+            }
+            copied.add(plan.target);
+        } catch (ex) {
+            console.error(`[Migration] Failed to copy ${plan.sourcePath} → ${plan.target}:`, ex);
+            failed.add(plan.sourcePath);
+        }
+    }
+
+    if (onProgress) onProgress({ phase: "rewrite" });
+
+    // Rewrite tags in template bodies and subjects.
+    let migratedCount = 0;
+    const templates = bundle.templates;
+    for (const tmplFinding of (findings.templates ?? [])) {
+        const gi = templates.groups.findIndex(g => g.name === tmplFinding.group);
+        if (gi === -1) continue;
+        const ti = templates.texts[gi]?.findIndex(t => t.name === tmplFinding.template);
+        if (ti == null || ti === -1) continue;
+        const tmpl = templates.texts[gi][ti];
+        for (const t of tmplFinding.tags) {
+            if (t.migration !== "auto" || !t.path) continue;
+            if (failed.has(t.path)) continue;
+            const plan = copyPlan.get(t.path);
+            if (!plan) continue;
+            const vfsRelPath = plan.target.slice(configDir.length + 1);
+            const newTag = rewriteTagPreview(t.tag, vfsRelPath);
+            tmpl.text = (tmpl.text || "").replaceAll(t.tag, newTag);
+            tmpl.subject = (tmpl.subject || "").replaceAll(t.tag, newTag);
+            migratedCount++;
+        }
+    }
+
+    // Rewrite tags in script bodies.
+    for (const scriptFinding of (findings.scripts ?? [])) {
+        const si = bundle.scripts.findIndex(s => s.name === scriptFinding.script);
+        if (si === -1) continue;
+        const script = bundle.scripts[si];
+        for (const d of scriptFinding.details) {
+            if (d.migration !== "auto" || !d.path) continue;
+            if (failed.has(d.path)) continue;
+            const plan = copyPlan.get(d.path);
+            if (!plan) continue;
+            const vfsRelPath = plan.target.slice(configDir.length + 1);
+            const newCall = rewriteScriptCallPreview(d.call, d.path, vfsRelPath);
+            script.script = script.script.replace(d.call, newCall);
+            migratedCount++;
+        }
+    }
+
+    return { migrated: migratedCount, failed: failed.size };
+}
+
+async function _findUniquePath(targetPath, storageRef, vfs) {
+    const dir = targetPath.replace(/\/[^/]*$/, "") || "/";
+    let entries;
+    try {
+        entries = await vfs.list({ path: dir, storageRef });
+    } catch {
+        return targetPath;
+    }
+    const existingNames = new Set(entries.map(e => e.name));
+    const dot = targetPath.lastIndexOf(".");
+    const base = dot !== -1 ? targetPath.slice(0, dot) : targetPath;
+    const ext = dot !== -1 ? targetPath.slice(dot) : "";
+    let candidate = targetPath;
+    let n = 2;
+    while (existingNames.has(getLeafName(candidate))) {
+        candidate = `${base}_${n}${ext}`;
+        n++;
+    }
+    return candidate;
+}
+
+function _commonPrefixLength(arrays) {
+    if (arrays.length === 0) return 0;
+    let len = 0;
+    while (arrays.every(a => len < a.length && a[len] === arrays[0][len])) len++;
+    return len;
+}
+
+export function rewriteTagPreview(tag, vfsPath) {
+    const lc = tag.toLowerCase();
+    if (lc.startsWith("[[file=")) {
+        return `[[VFSFILE=${vfsPath}${tag.includes("|") ? tag.slice(tag.indexOf("|")) : "]]"}`;
+    }
+    if (lc.match(/^\[\[(image|attachment)=file\|/)) {
+        return tag.replace(/=file\|/i, `=VFS|`).replace(
+            /\|[^|\]]+/,
+            `|${vfsPath}`
+        );
+    }
+    if (lc.match(/^\[\[(image|attachment)_file\|/)) {
+        return tag.replace(/_(file)\|/i, `=VFS|`).replace(
+            /\|[^|\]]+/,
+            `|${vfsPath}`
+        );
+    }
+    // Implicit FILE mode: [[IMAGE=/path]] → [[IMAGE=VFS|/vfsPath]]
+    if (lc.match(/^\[\[(image|attachment)=/)) {
+        const tagName = tag.match(/^\[\[(\w+)=/)[1];
+        const rest = tag.slice(tag.indexOf("=") + 1, -2);
+        const parts = rest.split("|");
+        parts[0] = `VFS|${vfsPath}`;
+        return `[[${tagName}=${parts.join("|")}]]`;
+    }
+    return tag;
+}
+
+// Determine the VFS destination folder for a FILE-typed tag or script call.
+export function getFolderForTag(tagOrCall) {
+    const lc = (tagOrCall || "").toLowerCase();
+    if (lc.match(/^\[\[file=/) || lc.match(/(["'])file\1/)) return "files";
+    if (lc.match(/^\[\[image/) || lc.match(/(["'])image\1/)) return "images";
+    return "attachments";
+}
+
+// Preview the rewritten form of a deprecated script getTag/processTag call.
+export function rewriteScriptCallPreview(call, path, vfsPath) {
+    return call
+        .replace(/["']file["']/i, `"vfsfile"`)
+        .replace(new RegExp(escapeRegExp(path)), vfsPath);
 }
 

@@ -283,6 +283,10 @@ fieldset legend {
   margin: 0;
   vertical-align: middle;
 }
+.grid-list li.storage-unavailable {
+  color: #999;
+  font-style: italic;
+}
 
 /* Split pane (Templates + Scripts tabs) */
 .split-pane {
@@ -412,11 +416,12 @@ fieldset legend {
 /* Warning icon for incompatible scripts. Sits at the right edge
    of the row - `.tree-name` takes `flex: 1`, so this flex child
    is naturally pushed to the right. */
-#script-list > li .script-warn-icon {
+#script-list > li .script-warn-icon,
+.tree-warn-icon {
   font-size: 12px;
   line-height: 1;
   flex-shrink: 0;
-  pointer-events: none;
+  cursor: default;
 }
 /* Storage-header row: matches `.tree-storage-header` on the
    Templates tab with a bordered band and a bold label. */

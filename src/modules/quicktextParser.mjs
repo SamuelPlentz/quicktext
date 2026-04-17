@@ -563,7 +563,7 @@ export class QuicktextParser {
   }
   async process_file_content(content, options) {
     let insertMode = options?.insertMode ?? "text/html";
-    let stripHtmlComments = options?.stripHtmlComments == false;
+    let stripHtmlComments = options?.stripHtmlComments ?? false;
 
     let { isPlainText } = await this.getStaticDetails();
     if (insertMode == "text/plain" && isPlainText == false) {

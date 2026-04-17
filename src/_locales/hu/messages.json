@@ -327,6 +327,12 @@
   "quicktext.storage.managed.location": {
     "message": "Felügyelt tárhely"
   },
+  "quicktext.storage.providerUnavailable.label": {
+    "message": "Szolgáltató nem elérhető"
+  },
+  "quicktext.storage.connectionUnavailable.label": {
+    "message": "Kapcsolat nem elérhető"
+  },
   "quicktext.storage.internal.local.label": {
     "message": "Belső tároló (alapértelmezett)"
   },
@@ -491,5 +497,187 @@
   },
   "quicktext.dialog.addImport.label": {
     "message": "Import hozzáadása"
+  },
+  "migration.pageTitle": {
+    "message": "Quicktext v$VERSION$ migráció",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "migration.intro.p1": {
+    "message": "Ez a Quicktext modern WebExtensionné alakításának hosszú frissítési folyamatának utolsó lépése. A Quicktext hamarosan nem fog többé régi API-kra és korlátlan hozzáférésre támaszkodni a számítógépéhez, hanem teljes mértékben a modern WebExtension keretrendszeren belül fog működni - többé nem igényel frissítést a Thunderbird minden új verziójához."
+  },
+  "migration.intro.quote": {
+    "message": "Köszönöm minden béta tesztelőmnek a folyamatos támogatást és türelmet, amellyel lehetővé tették ezt az átállást. A visszajelzéseitek felbecsülhetetlen értékűek voltak!"
+  },
+  "migration.intro.quoteAttribution": {
+    "message": "- John Bieling, Quicktext-fejlesztő"
+  },
+  "migration.intro.p2": {
+    "message": "A modern WebExtensionök többé nem férhetnek hozzá közvetlenül a fájlrendszeréhez. Ennek következtében a(z) $ITEMTYPE$ definícióit mostantól a Quicktext belső tárhelyén tároljuk, és a sablonjai által hivatkozott összes mellékletet és képet is ebbe a tárhelybe kell másolni.",
+    "placeholders": { "itemtype": { "content": "$1" } }
+  },
+  "migration.intro.itemType.template": {
+    "message": "sablon"
+  },
+  "migration.intro.itemType.templateAndScript": {
+    "message": "sablon és szkript"
+  },
+  "migration.intro.p3": {
+    "message": "A migráció után további $LINK$ telepíthet, és áthelyezheti a teljes Quicktext-konfigurációját, például egy WebDAV szerverre.",
+    "placeholders": { "link": { "content": "$1" } }
+  },
+  "migration.intro.p3.linkText": {
+    "message": "tárolási háttérrendszereket"
+  },
+  "migration.section.autoMigration": {
+    "message": "Automatikus migráció"
+  },
+  "migration.section.manualMigration": {
+    "message": "Kézi migráció szükséges"
+  },
+  "migration.section.droppedSources": {
+    "message": "Eltávolított konfigurációs források"
+  },
+  "migration.auto.intro": {
+    "message": "Az alábbi sablonok automatikusan migrálhatók. A helyi fájlok a Quicktext belső tárhelyébe másolódnak, és a sablonjaiban lévő, ezekre a fájlokra hivatkozó címkék módosulnak."
+  },
+  "migration.btn.startMigration": {
+    "message": "Sablonmigráció indítása"
+  },
+  "migration.btn.startMigrationCount": {
+    "message": "Migráció indítása ($COUNT$ elem)",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "migration.manual.intro": {
+    "message": "Az alább felsorolt elemek nem migrálhatók automatikusan, és kézi beavatkozást igényelnek."
+  },
+  "migration.incompatible.title": {
+    "message": "Nem kompatibilis szkriptek"
+  },
+  "migration.incompatible.description": {
+    "message": "Ezek a szkriptek elavult Quicktext v5 API-kat használnak, amelyek már nem érhetők el. Át kell írni őket a(z) $LINK$ használatával.",
+    "placeholders": { "link": { "content": "$1" } }
+  },
+  "migration.incompatible.linkText": {
+    "message": "modern szkript API"
+  },
+  "migration.filesystem.title": {
+    "message": "Elavult fájlrendszer-hozzáférés"
+  },
+  "migration.filesystem.description": {
+    "message": "Ezek a sablonok és szkriptek a helyi fájlrendszeren lévő fájlokra hivatkoznak, amelyek a WebExtensionök számára többé nem érhetők el közvetlenül. A hivatkozott fájlokat a Quicktext tárhelybe kell másolni, és a sablonokat ennek megfelelően kell módosítani. Részletekért lásd a(z) $LINK$.",
+    "placeholders": { "link": { "content": "$1" } }
+  },
+  "migration.filesystem.linkText": {
+    "message": "tárolóhelyek útmutatója"
+  },
+  "migration.dropped.intro": {
+    "message": "Az alábbi konfigurációs források közvetlen fájlrendszer-hozzáférésre támaszkodtak, amely a modern WebExtensionökben már nem érhető el."
+  },
+  "migration.dropped.description": {
+    "message": "Ha korábban helyi mappát használt sablonjai tárolására vagy számítógépek közötti megosztására, telepíthet egy $VFSLINK$ helyettesítőként - például a(z) $WEBDAVLINK$ a sablonok WebDAV szerveren (ownCloud, Nextcloud stb.) történő tárolásához, vagy a(z) $HOMEFOLDERLINK$ a számítógépén lévő mappa további használatához.",
+    "placeholders": {
+      "vfslink": { "content": "$1" },
+      "webdavlink": { "content": "$2" },
+      "homefolderlink": { "content": "$3" }
+    }
+  },
+  "migration.dropped.linkVfs": {
+    "message": "VFS tárolási háttérrendszer"
+  },
+  "migration.dropped.linkWebdav": {
+    "message": "WebDAV szolgáltató"
+  },
+  "migration.dropped.linkHomefolder": {
+    "message": "helyi saját mappa szolgáltató"
+  },
+  "migration.btn.dontShowAgain": {
+    "message": "Ne jelenítse meg többé ezt a jelentést"
+  },
+  "migration.reason.deprecatedFilesystem": {
+    "message": "Elavult közvetlen fájlrendszer-hozzáférés"
+  },
+  "migration.reason.deprecatedApi": {
+    "message": "Nem kompatibilis Quicktext v5 API"
+  },
+  "migration.label.fileImport": {
+    "message": "Fájlalapú import"
+  },
+  "migration.label.fileStorage": {
+    "message": "Fájlalapú tárhely"
+  },
+  "migration.desc.fileImport": {
+    "message": "Ez az import minden indításkor egy helyi fájlból olvasta be a sablonokat. A WebExtensionök többé nem férhetnek hozzá közvetlenül a helyi fájlrendszerhez."
+  },
+  "migration.desc.fileStorage": {
+    "message": "A sablonokat és szkripteket ebből a helyi mappából olvastuk. A WebExtensionök többé nem férhetnek hozzá közvetlenül a helyi fájlrendszerhez."
+  },
+  "migration.source.enterprisePolicy": {
+    "message": "vállalati szabályzat"
+  },
+  "migration.source.imported": {
+    "message": "importált"
+  },
+  "migration.readonlyNote.both": {
+    "message": "Ezen elemek egy része URL-importokból vagy vállalati szabályzatokból származik. Kérjük, lépjen kapcsolatba az illetékes karbantartókkal a frissítésük érdekében."
+  },
+  "migration.readonlyNote.imported": {
+    "message": "Ezen elemek egy része URL-importokból származik. Kérjük, lépjen kapcsolatba az import forrásának karbantartójával a frissítésük érdekében."
+  },
+  "migration.readonlyNote.managed": {
+    "message": "Ezen elemek egy részét vállalati szabályzat biztosítja. Kérjük, lépjen kapcsolatba a rendszergazdájával a frissítésük érdekében."
+  },
+  "migration.progress.preparing": {
+    "message": "Migráció előkészítése…"
+  },
+  "migration.progress.backingUp": {
+    "message": "$FILENAME$ biztonsági mentése…",
+    "placeholders": { "filename": { "content": "$1" } }
+  },
+  "migration.progress.copying": {
+    "message": "$FILENAME$ másolása ($CURRENT$/$TOTAL$)…",
+    "placeholders": {
+      "filename": { "content": "$1" },
+      "current": { "content": "$2" },
+      "total": { "content": "$3" }
+    }
+  },
+  "migration.progress.rewriting": {
+    "message": "Címkék újraírása…"
+  },
+  "migration.progress.saving": {
+    "message": "Változtatások mentése…"
+  },
+  "migration.progress.updating": {
+    "message": "Észlelési eredmények frissítése…"
+  },
+  "migration.success": {
+    "message": "A migráció befejeződött. $COUNT$ elem migrálva.",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "migration.error.allFailed": {
+    "message": "$FAILED$ fájl másolása sikertelen. Az érintett sablonok változatlanul maradtak.",
+    "placeholders": { "failed": { "content": "$1" } }
+  },
+  "migration.error.partialFailed": {
+    "message": "$MIGRATED$ elem migrálva, de $FAILED$ fájl másolása sikertelen. Az érintett sablonok változatlanul maradtak.",
+    "placeholders": {
+      "migrated": { "content": "$1" },
+      "failed": { "content": "$2" }
+    }
+  },
+  "migration.btn.close": {
+    "message": "Bezárás"
+  },
+  "migration.btn.ok": {
+    "message": "OK"
+  },
+  "migration.btn.learnStorage": {
+    "message": "Tárolási helyek ismertetése"
+  },
+  "migration.btn.learnJourney": {
+    "message": "Az út a WebExtension felé"
+  },
+  "migration.alert.managerOpen": {
+    "message": "Kérjük, zárja be a Quicktext-kezelőt a migráció megkezdése előtt."
   }
 }

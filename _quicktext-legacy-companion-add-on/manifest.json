@@ -9,7 +9,7 @@
     }
   },
   "name": "Quicktext Legacy Companion Add-on",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "background": {
     "type": "module",
     "scripts": [

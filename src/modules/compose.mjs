@@ -57,14 +57,31 @@ async function getComposeBodyMenuData() {
   const isMulti = templateNodes.some(n => n.children?.some(c => c.children));
   for (const node of templateNodes) {
     if (isMulti) {
+      if (node.disabled) {
+        menuData.push({
+          contexts,
+          id: node.id,
+          title: node.title,
+          icons: node.iconUrl ? { "16": node.iconUrl } : undefined,
+          enabled: false,
+        });
+      } else {
+        menuData.push({
+          contexts,
+          id: node.id,
+          title: node.title,
+          icons: node.iconUrl ? { "16": node.iconUrl } : undefined,
+          children: node.children.map(groupNode =>
+            _groupNodeToMenuData(groupNode, contexts, menuCollapse)
+          ),
+        });
+      }
+    } else if (node.disabled) {
       menuData.push({
         contexts,
         id: node.id,
         title: node.title,
-        icons: node.iconUrl ? { "16": node.iconUrl } : undefined,
-        children: node.children.map(groupNode =>
-          _groupNodeToMenuData(groupNode, contexts, menuCollapse)
-        ),
+        enabled: false,
       });
     } else {
       menuData.push(_groupNodeToMenuData(node, contexts, menuCollapse));
@@ -178,7 +195,7 @@ export async function init() {
   // compose context menus.
   new storage.StorageListener({
     area: "auto",
-    watchedPrefs: ["templates", "managedStorage", "popup", "menuCollapse", "storageLocations", "defaultImport"],
+    watchedPrefs: ["templates", "managedStorage", "popup", "menuCollapse", "storageLocations", "defaultImport", "providerAvailability"],
     listener: async (_events) => {
       // Throw away the menu.
       for (let entry of composeMenuEntries.reverse()) {

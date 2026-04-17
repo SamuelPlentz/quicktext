@@ -13,10 +13,10 @@ import { getDateTimeMenuTitle } from "/modules/menuStructure.mjs";
 // Dispatch a menu action. Shared by the compose body context menu
 // (structureToMenuData onclick handlers) and the legacy toolbar bridge
 // (toolbar.mjs menuAction command). `action` carries:
-//   value      — the menu item's tag value (may contain placeholders)
-//   insertMode — "text/html" or "text/plain" (for content insertion)
-//   file       — pre-picked File (companion's XUL picker for <path>)
-//   url        — pre-prompted URL (companion's window.prompt for <url>)
+//   value      - the menu item's tag value (may contain placeholders)
+//   insertMode - "text/html" or "text/plain" (for content insertion)
+//   file       - pre-picked File (companion's XUL picker for <path>)
+//   url        - pre-prompted URL (companion's window.prompt for <url>)
 // When `file` or `url` is present the corresponding placeholder is
 // already resolved; otherwise the function handles picking/prompting.
 export async function handleMenuAction(tabId, action) {
@@ -139,6 +139,7 @@ export async function processMenuData(menuEntries, menuData, parentId) {
         if (entry.contexts) createData.contexts = entry.contexts;
         if (entry.documentUrlPatterns) createData.documentUrlPatterns = entry.documentUrlPatterns;
         if (entry.visible) createData.visible = entry.visible;
+        if (entry.enabled === false) createData.enabled = false;
         if (entry.onclick) createData.onclick = entry.onclick;
         if (entry.icons) createData.icons = entry.icons;
         if (parentId) createData.parentId = parentId;

@@ -75,21 +75,17 @@ export function getVariablesMenuStructure({ origin } = {}) {
     {
       type: "group", id: "insertfile", children: [
         {
-          type: "group", id: "mode-file", restricted: ["compose", "toolbar"], localeKey: "quicktext.mode.file.label", children: [
-            { type: "item", id: "as-html", localeKey: "quicktext.insertTextFromFileAsHTML.label", value: "FILE=<path>", insertMode: "text/html" },
-            { type: "item", id: "as-text", localeKey: "quicktext.insertTextFromFileAsText.label", value: "FILE=<path>", insertMode: "text/plain" },
+          type: "group", id: "as-html", localeKey: "quicktext.insertTextFromFileAsHTML.label", children: [
+            { type: "item", id: "mode-file", restricted: ["compose", "toolbar"], localeKey: "quicktext.mode.file.label", value: "FILE=<path>", insertMode: "text/html" },
+            { type: "item", id: "mode-url", localeKey: "quicktext.mode.url.label", value: "URL=<url>", insertMode: "text/html" },
+            { type: "item", id: "mode-vfs", localeKey: "quicktext.mode.vfs.label", value: "VFSFILE=<vfs-path>", insertMode: "text/html" },
           ]
         },
         {
-          type: "group", id: "mode-url", localeKey: "quicktext.mode.url.label", children: [
-            { type: "item", id: "as-html", localeKey: "quicktext.insertTextFromFileAsHTML.label", value: "URL=<url>", insertMode: "text/html" },
-            { type: "item", id: "as-text", localeKey: "quicktext.insertTextFromFileAsText.label", value: "URL=<url>", insertMode: "text/plain" },
-          ]
-        },
-        {
-          type: "group", id: "mode-vfs", localeKey: "quicktext.mode.vfs.label", children: [
-            { type: "item", id: "as-html", localeKey: "quicktext.insertTextFromFileAsHTML.label", value: "VFSFILE=<vfs-path>", insertMode: "text/html" },
-            { type: "item", id: "as-text", localeKey: "quicktext.insertTextFromFileAsText.label", value: "VFSFILE=<vfs-path>", insertMode: "text/plain" },
+          type: "group", id: "as-text", localeKey: "quicktext.insertTextFromFileAsText.label", children: [
+            { type: "item", id: "mode-file", restricted: ["compose", "toolbar"], localeKey: "quicktext.mode.file.label", value: "FILE=<path>", insertMode: "text/plain" },
+            { type: "item", id: "mode-url", localeKey: "quicktext.mode.url.label", value: "URL=<url>", insertMode: "text/plain" },
+            { type: "item", id: "mode-vfs", localeKey: "quicktext.mode.vfs.label", value: "VFSFILE=<vfs-path>", insertMode: "text/plain" },
           ]
         },
       ]
@@ -113,7 +109,7 @@ export function getVariablesMenuStructure({ origin } = {}) {
       type: "group", id: "other", children: [
         { type: "item", id: "clipboard", value: "CLIPBOARD" },
         { type: "item", id: "counter", value: "COUNTER" },
-        { type: "item", id: "input", value: "INPUT=name|type|options" },
+        { type: "item", id: "input", value: "INPUT=name|type|options", restricted: ["manager"] },
         { type: "item", id: "selection", value: "SELECTION" },
         { type: "item", id: "orgatt", value: "ORGATT=\\n" },
         { type: "item", id: "orgheader", value: "ORGHEADER=type|\\n" },
@@ -121,9 +117,9 @@ export function getVariablesMenuStructure({ origin } = {}) {
         { type: "item", id: "version", value: "VERSION" },
       ]
     },
-    { type: "separator" },
-    { type: "item", id: "header", value: "HEADER=type|value" },
-    { type: "item", id: "cursor", value: "CURSOR" },
+    { type: "separator", restricted: ["manager"] },
+    { type: "item", id: "header", value: "HEADER=type|value", restricted: ["manager"] },
+    { type: "item", id: "cursor", value: "CURSOR", restricted: ["manager"] },
   ];
   return _filterByOrigin(nodes, origin);
 }
@@ -246,14 +242,34 @@ export async function getTemplatesMenuStructure({ storageUuid, bundles } = {}) {
   // - one level of groups at the top. Consumers don't need to know about
   // the storage hierarchy at all.
   if (bundles.length === 1) {
+    if (bundles[0].unavailable) {
+      return [{
+        type: "item",
+        id: `storage-${bundles[0].storageUuid}-unavailable`,
+        title: `${bundles[0].storageName} 🚫`,
+        disabled: true,
+      }];
+    }
     return _templateNodesForBundle(bundles[0]);
   }
 
   // Multi-storage path: wrap each bundle's groups in a top-level storage
-  // node whose icon comes from the VFS provider.
+  // node whose icon comes from the VFS provider. Unavailable bundles get
+  // a single disabled placeholder node instead of their children.
   const icons = await getStorageIconUrls(bundles);
   const result = [];
   for (const bundle of bundles) {
+    if (bundle.unavailable) {
+      result.push({
+        type: "group",
+        id: `storage-${bundle.storageUuid}`,
+        title: `${bundle.storageName} 🚫`,
+        iconUrl: icons[bundle.storageUuid],
+        disabled: true,
+        children: [],
+      });
+      continue;
+    }
     const children = _templateNodesForBundle(bundle);
     if (children.length === 0) continue;
     result.push({
@@ -286,12 +302,31 @@ export async function getScriptsMenuStructure({ storageUuid, bundles } = {}) {
   }
 
   if (bundles.length === 1) {
+    if (bundles[0].unavailable) {
+      return [{
+        type: "item",
+        id: `storage-${bundles[0].storageUuid}-scripts-unavailable`,
+        title: `${bundles[0].storageName} 🚫`,
+        disabled: true,
+      }];
+    }
     return makeItems(bundles[0]);
   }
 
   const icons = await getStorageIconUrls(bundles);
   const result = [];
   for (const bundle of bundles) {
+    if (bundle.unavailable) {
+      result.push({
+        type: "group",
+        id: `storage-${bundle.storageUuid}-scripts`,
+        title: `${bundle.storageName} 🚫`,
+        iconUrl: icons[bundle.storageUuid],
+        disabled: true,
+        children: [],
+      });
+      continue;
+    }
     const children = makeItems(bundle);
     if (children.length === 0) continue;
     result.push({

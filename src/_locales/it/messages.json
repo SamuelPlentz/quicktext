@@ -330,6 +330,12 @@
   "quicktext.storage.managed.location": {
     "message": "Archiviazione gestita"
   },
+  "quicktext.storage.providerUnavailable.label": {
+    "message": "Provider non disponibile"
+  },
+  "quicktext.storage.connectionUnavailable.label": {
+    "message": "Connessione non disponibile"
+  },
   "quicktext.storage.internal.local.label": {
     "message": "Archiviazione interna (predefinita)"
   },
@@ -491,5 +497,187 @@
   },
   "quicktext.dialog.addImport.label": {
     "message": "Aggiungi importazione"
+  },
+  "migration.pageTitle": {
+    "message": "Migrazione Quicktext v$VERSION$",
+    "placeholders": { "version": { "content": "$1" } }
+  },
+  "migration.intro.p1": {
+    "message": "Questo è l'ultimo passaggio di un lungo processo di aggiornamento per convertire Quicktext in una WebExtension moderna. Quicktext non si baserà più su API legacy e accesso illimitato al computer, ma funzionerà interamente nel moderno framework WebExtension - senza richiedere un aggiornamento per ogni nuova versione di Thunderbird."
+  },
+  "migration.intro.quote": {
+    "message": "Grazie a tutti i miei beta tester per il vostro costante supporto e la pazienza nel rendere possibile questa transizione. Il vostro feedback è stato inestimabile!"
+  },
+  "migration.intro.quoteAttribution": {
+    "message": "- John Bieling, sviluppatore di Quicktext"
+  },
+  "migration.intro.p2": {
+    "message": "Le WebExtension moderne non possono più accedere direttamente al file system. Di conseguenza, le definizioni dei $ITEMTYPE$ sono ora archiviate in uno storage interno di Quicktext, e tutti gli allegati e le immagini a cui fanno riferimento i modelli devono essere copiati in tale storage.",
+    "placeholders": { "itemtype": { "content": "$1" } }
+  },
+  "migration.intro.itemType.template": {
+    "message": "modello"
+  },
+  "migration.intro.itemType.templateAndScript": {
+    "message": "modello e script"
+  },
+  "migration.intro.p3": {
+    "message": "Dopo la migrazione, è possibile installare ulteriori $LINK$ e spostare l'intera configurazione di Quicktext, ad esempio su un server WebDAV.",
+    "placeholders": { "link": { "content": "$1" } }
+  },
+  "migration.intro.p3.linkText": {
+    "message": "backend di archiviazione"
+  },
+  "migration.section.autoMigration": {
+    "message": "Migrazione automatica"
+  },
+  "migration.section.manualMigration": {
+    "message": "Migrazione manuale necessaria"
+  },
+  "migration.section.droppedSources": {
+    "message": "Fonti di configurazione rimosse"
+  },
+  "migration.auto.intro": {
+    "message": "I seguenti modelli possono essere migrati automaticamente. I file locali verranno copiati nello storage interno di Quicktext e tutti i tag nei modelli che fanno riferimento a questi file verranno adattati."
+  },
+  "migration.btn.startMigration": {
+    "message": "Avvia la migrazione dei modelli"
+  },
+  "migration.btn.startMigrationCount": {
+    "message": "Avvia la migrazione ($COUNT$ elementi)",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "migration.manual.intro": {
+    "message": "Gli elementi elencati di seguito non possono essere migrati automaticamente e richiedono un intervento manuale."
+  },
+  "migration.incompatible.title": {
+    "message": "Script incompatibili"
+  },
+  "migration.incompatible.description": {
+    "message": "Questi script utilizzano API Quicktext v5 obsolete che non sono più disponibili. Devono essere riscritti utilizzando l'$LINK$.",
+    "placeholders": { "link": { "content": "$1" } }
+  },
+  "migration.incompatible.linkText": {
+    "message": "API di script moderna"
+  },
+  "migration.filesystem.title": {
+    "message": "Accesso al file system obsoleto"
+  },
+  "migration.filesystem.description": {
+    "message": "Questi modelli e script fanno riferimento a file sul file system locale, che non è più direttamente accessibile alle WebExtension. I file referenziati devono essere copiati nello storage di Quicktext e i modelli devono essere adattati di conseguenza. Consultare la $LINK$ per i dettagli.",
+    "placeholders": { "link": { "content": "$1" } }
+  },
+  "migration.filesystem.linkText": {
+    "message": "guida alle posizioni di archiviazione"
+  },
+  "migration.dropped.intro": {
+    "message": "Le seguenti fonti di configurazione si basavano sull'accesso diretto al file system, che non è più disponibile nelle WebExtension moderne."
+  },
+  "migration.dropped.description": {
+    "message": "Se in precedenza si utilizzava una cartella locale per archiviare i modelli o condividerli tra computer, è possibile installare un $VFSLINK$ in sostituzione - ad esempio il $WEBDAVLINK$ per archiviare i modelli su un server WebDAV (ownCloud, Nextcloud, ecc.), oppure il $HOMEFOLDERLINK$ per continuare a utilizzare una cartella sul computer.",
+    "placeholders": {
+      "vfslink": { "content": "$1" },
+      "webdavlink": { "content": "$2" },
+      "homefolderlink": { "content": "$3" }
+    }
+  },
+  "migration.dropped.linkVfs": {
+    "message": "backend di archiviazione VFS"
+  },
+  "migration.dropped.linkWebdav": {
+    "message": "provider WebDAV"
+  },
+  "migration.dropped.linkHomefolder": {
+    "message": "provider cartella home locale"
+  },
+  "migration.btn.dontShowAgain": {
+    "message": "Non mostrare più questo rapporto"
+  },
+  "migration.reason.deprecatedFilesystem": {
+    "message": "Accesso diretto al file system obsoleto"
+  },
+  "migration.reason.deprecatedApi": {
+    "message": "API Quicktext v5 incompatibile"
+  },
+  "migration.label.fileImport": {
+    "message": "Importazione basata su file"
+  },
+  "migration.label.fileStorage": {
+    "message": "Archiviazione basata su file"
+  },
+  "migration.desc.fileImport": {
+    "message": "Questa importazione leggeva i modelli da un file locale a ogni avvio. Le WebExtension non possono più accedere direttamente al file system locale."
+  },
+  "migration.desc.fileStorage": {
+    "message": "I modelli e gli script venivano letti da questa cartella locale. Le WebExtension non possono più accedere direttamente al file system locale."
+  },
+  "migration.source.enterprisePolicy": {
+    "message": "criterio aziendale"
+  },
+  "migration.source.imported": {
+    "message": "importato"
+  },
+  "migration.readonlyNote.both": {
+    "message": "Alcuni di questi elementi provengono da importazioni URL o criteri aziendali. Contattare i rispettivi responsabili per farli aggiornare."
+  },
+  "migration.readonlyNote.imported": {
+    "message": "Alcuni di questi elementi provengono da importazioni URL. Contattare il responsabile della fonte di importazione per farli aggiornare."
+  },
+  "migration.readonlyNote.managed": {
+    "message": "Alcuni di questi elementi sono forniti tramite un criterio aziendale. Contattare l'amministratore per farli aggiornare."
+  },
+  "migration.progress.preparing": {
+    "message": "Preparazione della migrazione…"
+  },
+  "migration.progress.backingUp": {
+    "message": "Backup di $FILENAME$…",
+    "placeholders": { "filename": { "content": "$1" } }
+  },
+  "migration.progress.copying": {
+    "message": "Copia di $FILENAME$ ($CURRENT$/$TOTAL$)…",
+    "placeholders": {
+      "filename": { "content": "$1" },
+      "current": { "content": "$2" },
+      "total": { "content": "$3" }
+    }
+  },
+  "migration.progress.rewriting": {
+    "message": "Riscrittura dei tag…"
+  },
+  "migration.progress.saving": {
+    "message": "Salvataggio delle modifiche…"
+  },
+  "migration.progress.updating": {
+    "message": "Aggiornamento dei risultati di rilevamento…"
+  },
+  "migration.success": {
+    "message": "Migrazione completata. $COUNT$ elemento/i migrato/i.",
+    "placeholders": { "count": { "content": "$1" } }
+  },
+  "migration.error.allFailed": {
+    "message": "La copia di $FAILED$ file è fallita. I modelli interessati non sono stati modificati.",
+    "placeholders": { "failed": { "content": "$1" } }
+  },
+  "migration.error.partialFailed": {
+    "message": "$MIGRATED$ elemento/i migrato/i, ma la copia di $FAILED$ file è fallita. I modelli interessati non sono stati modificati.",
+    "placeholders": {
+      "migrated": { "content": "$1" },
+      "failed": { "content": "$2" }
+    }
+  },
+  "migration.btn.close": {
+    "message": "Chiudi"
+  },
+  "migration.btn.ok": {
+    "message": "OK"
+  },
+  "migration.btn.learnStorage": {
+    "message": "Posizioni di archiviazione"
+  },
+  "migration.btn.learnJourney": {
+    "message": "Il percorso verso WebExtension"
+  },
+  "migration.alert.managerOpen": {
+    "message": "Chiudere il Gestore Quicktext prima di avviare la migrazione."
   }
 }

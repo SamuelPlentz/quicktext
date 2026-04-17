@@ -2,9 +2,6 @@
   "quicktext.options.intro": {
     "message": "すべてのQuicktextの設定は、テンプレートやスクリプトとともに、Quicktextマネージャーで制御・設定できます。"
   },
-  "quicktext.deprecatedAttachmentField.label": {
-    "message": "This input field is deprecated. Use [[ATTACHMENT=VFS|<path>]] directly in the body of the template instead."
-  },
   "quicktext.attachmentFile.label": {
     "message": "添付ファイルを追加"
   },

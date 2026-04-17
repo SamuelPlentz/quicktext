@@ -2,9 +2,6 @@
   "quicktext.options.intro": {
     "message": "Veškerá nastavení Quicktext lze ovládat a konfigurovat ve Správci Quicktext, společně s vašimi šablonami a skripty."
   },
-  "quicktext.deprecatedAttachmentField.label": {
-    "message": "This input field is deprecated. Use [[ATTACHMENT=VFS|<path>]] directly in the body of the template instead."
-  },
   "quicktext.attachmentFile.label": {
     "message": "Přidat přílohu"
   },

@@ -115,5 +115,4 @@ for (const bundle of bundles) {
   await utils.checkBadNameEntries(bundle.templates, bundle.scripts);
   await utils.checkDuplicatedEntries(bundle.templates, bundle.scripts);
   await utils.checkForIncompatibleScripts(bundle.scripts);
-  await utils.checkForDeprecatedAttachmentUsage(bundle.templates);
 }

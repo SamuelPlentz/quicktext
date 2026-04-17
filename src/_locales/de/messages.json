@@ -2,9 +2,6 @@
   "quicktext.options.intro": {
     "message": "Alle Quicktext-Einstellungen können im Quicktext-Manager gesteuert und konfiguriert werden, zusammen mit Ihren Vorlagen und Skripten."
   },
-  "quicktext.deprecatedAttachmentField.label": {
-    "message": "Dieses Eingabefeld ist veraltet. Verwenden Sie stattdessen [[ATTACHMENT=VFS|<Pfad>]] direkt im Vorlagentext."
-  },
   "quicktext.attachmentFile.label": {
     "message": "Anhang hinzufügen"
   },

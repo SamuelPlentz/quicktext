@@ -2,9 +2,6 @@
   "quicktext.options.intro": {
     "message": "Tous les paramètres de Quicktext peuvent être contrôlés et configurés dans le Gestionnaire Quicktext, avec vos modèles et scripts."
   },
-  "quicktext.deprecatedAttachmentField.label": {
-    "message": "Cette zone de saisie est obsolète. Utilisez plutôt [[ATTACHMENT=VFS|<chemin>]] directement dans le corps du modèle."
-  },
   "quicktext.attachmentFile.label": {
     "message": "Ajouter une pièce jointe"
   },

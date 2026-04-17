@@ -474,21 +474,3 @@ export async function checkForIncompatibleScripts(scripts) {
     }
 }
 
-export async function checkForDeprecatedAttachmentUsage(templates) {
-    const groupNames = Array.isArray(templates?.groups)
-        ? templates.groups.map(e => e.name.trim())
-        : []
-
-    if (templates?.texts) {
-        for (let i = 0; i < templates.texts.length; i++) {
-            const badEntries = templates.texts[i].filter(e => e.attachments).map(
-                e => e.name.trim()
-            );
-            if (badEntries.length) {
-                await createNotification(
-                    `Some of your templates in group "${groupNames[i]}" use the deprecated attachments field instead of the ATTACHMENT tag: ${badEntries.join(", ")}`
-                );
-            }
-        }
-    }
-}

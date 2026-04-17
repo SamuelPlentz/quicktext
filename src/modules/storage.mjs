@@ -731,12 +731,38 @@ export async function getActiveStorageEntries() {
  * @param {object} entry - A storageLocations entry carrying at least
  *   `{uuid, name, isReadOnly, storageRef, path}`.
  */
+// Migrate legacy `attachments` fields (semicolon-separated paths) into
+// `[[ATTACHMENT=FILE|<path>]]` tags prepended to the template body. Returns
+// true if any template was migrated so the caller can persist the change.
+function _migrateAttachmentsToTags(combined) {
+  if (!combined?.templates?.texts) return false;
+  let migrated = false;
+  for (const group of combined.templates.texts) {
+    if (!Array.isArray(group)) continue;
+    for (const tmpl of group) {
+      if (!tmpl.attachments) continue;
+      const paths = tmpl.attachments.split(";").map(s => s.trim()).filter(Boolean);
+      if (paths.length === 0) continue;
+      const tags = paths.map(p => `[[ATTACHMENT=FILE|${p}]]`).join("");
+      tmpl.text = tags + (tmpl.text || "");
+      tmpl.attachments = "";
+      migrated = true;
+    }
+  }
+  return migrated;
+}
+
 export async function readBundleForEntry(entry) {
   let combined = { templates: null, scripts: null };
   try {
     combined = await readConfigFile(entry);
   } catch (ex) {
     console.log(ex);
+  }
+  // One-shot migration: convert legacy attachment fields into inline tags.
+  // Only for writable VFS-backed storages (managed/import are read-only).
+  if (entry.type === "vfs" && !entry.isReadOnly && _migrateAttachmentsToTags(combined)) {
+    try { await writeConfigFile(entry, combined); } catch { /* best-effort */ }
   }
   // Normalize templates into a `{groups:[], texts:[]}` shape even when
   // the on-disk file carries a truthy-but-malformed `templates` object

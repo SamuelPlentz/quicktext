@@ -183,7 +183,6 @@ export async function insertTemplate(tabId, storageUuid, groupIdx, textIdx) {
   const text = bundle.templates.texts[groupIdx][textIdx];
   await qParser.clearNonPersistentData();
   await insertSubject({ qParser, subject: text.subject });
-  await insertAttachments({ qParser, attachments: text.attachments });
   await qParser.parseAndInsert(`[[TEXT=${group.name}|${text.name}]]`);
 }
 
@@ -208,19 +207,6 @@ async function insertSubject({ qParser, subject }) {
   }
 }
 
-async function insertAttachments({ qParser, attachments }) {
-  let parsedAttachments = await qParser.parse(attachments);
-  for (let attachment of parsedAttachments.split(";")) {
-    if (!attachment) {
-      continue;
-    }
-    let bytes = await browser.FileSystemAccess.readBinaryFile(attachment);
-    let leafName = utils.getLeafName(attachment);
-    let type = utils.getTypeFromExtension(leafName);
-    let file = new File([bytes], leafName, { type });
-    await qParser.addAttachment(file);
-  };
-}
 
 
 // Insert text content (from any source) into the compose body. Tags in the

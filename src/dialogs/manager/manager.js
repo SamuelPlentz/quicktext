@@ -957,7 +957,6 @@ function commitTemplateEdits() {
   tmpl.type = document.getElementById("sel-type").value;
   tmpl.keyword = document.getElementById("text-keyword").value.replace(/\s/g, "");
   tmpl.subject = document.getElementById("text-subject").value;
-  tmpl.attachments = document.getElementById("text-attachments").value;
   const advMode = state.prefs.shortcutTypeAdv && !isShortcutAdvForced();
   tmpl.shortcut = advMode
     ? document.getElementById("text-shortcut-adv").value.replace(/\D/g, "")
@@ -1008,8 +1007,6 @@ function renderTemplateDetail() {
     document.getElementById("text-body").value = tmpl.text || "";
     document.getElementById("text-keyword").value = tmpl.keyword || "";
     document.getElementById("text-subject").value = tmpl.subject || "";
-    document.getElementById("text-attachments").value = tmpl.attachments || "";
-    document.getElementById("deprecated-attachment").hidden = !tmpl.attachments;
     document.getElementById("sel-type").value = tmpl.type || "text/plain";
     renderShortcutUI(tmpl.shortcut || "");
   }
@@ -1023,7 +1020,7 @@ function setTemplateFieldsVisible(show) {
 
 function setTemplateFieldsEnabled(enabled) {
   for (const id of ["text-title", "text-body", "sel-type", "sel-shortcut",
-    "text-shortcut-adv", "text-keyword", "text-subject", "text-attachments", "btn-insert-tag"]) {
+    "text-shortcut-adv", "text-keyword", "text-subject", "btn-insert-tag"]) {
     const el = document.getElementById(id);
     if (el) el.disabled = !enabled;
   }
@@ -1119,7 +1116,7 @@ function addTemplate() {
   if (gi === -1) { if (!bundle.groups.length) return; gi = 0; }
   const name = makeUnique(i18n("quicktext.newTemplate.label"), (bundle.texts[gi] || []).map(t => t.name));
   if (!bundle.texts[gi]) bundle.texts[gi] = [];
-  bundle.texts[gi].push({ name, text: "", shortcut: "", type: "text/plain", keyword: "", subject: "", attachments: "" });
+  bundle.texts[gi].push({ name, text: "", shortcut: "", type: "text/plain", keyword: "", subject: "" });
   bundle.groupExpanded[gi] = true;
   state.selectedGroupIdx = gi;
   state.selectedTextIdx = bundle.texts[gi].length - 1;
@@ -2774,10 +2771,6 @@ async function init() {
     markSelectedBundleChanged();
   });
   document.getElementById("text-subject").addEventListener("input", markSelectedBundleChanged);
-  document.getElementById("text-attachments").addEventListener("input", e => {
-    document.getElementById("deprecated-attachment").hidden = !e.target.value;
-    markSelectedBundleChanged();
-  });
 
   document.getElementById("btn-insert-tag").addEventListener("click", async e => {
     const menu = document.getElementById("insert-tag-menu");

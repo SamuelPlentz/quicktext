@@ -2,9 +2,6 @@
   "quicktext.options.intro": {
     "message": "Все настройки Quicktext можно контролировать и настраивать в Менеджере Quicktext вместе с вашими шаблонами и скриптами."
   },
-  "quicktext.deprecatedAttachmentField.label": {
-    "message": "This input field is deprecated. Use [[ATTACHMENT=VFS|<path>]] directly in the body of the template instead."
-  },
   "quicktext.attachmentFile.label": {
     "message": "Добавить вложение"
   },

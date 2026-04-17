@@ -2,9 +2,6 @@
   "quicktext.options.intro": {
     "message": "Alla Quicktext-inställningar kan styras och konfigureras i Quicktext-hanteraren, tillsammans med dina mallar och skript."
   },
-  "quicktext.deprecatedAttachmentField.label": {
-    "message": "This input field is deprecated. Use [[ATTACHMENT=VFS|<path>]] directly in the body of the template instead."
-  },
   "quicktext.attachmentFile.label": {
     "message": "Lägg till bilaga"
   },

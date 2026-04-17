@@ -2,9 +2,6 @@
   "quicktext.options.intro": {
     "message": "Az összes Quicktext-beállítás a Quicktext-kezelőben vezérelhető és konfigurálható, a sablonok és szkriptek mellett."
   },
-  "quicktext.deprecatedAttachmentField.label": {
-    "message": "This input field is deprecated. Use [[ATTACHMENT=VFS|<path>]] directly in the body of the template instead."
-  },
   "quicktext.attachmentFile.label": {
     "message": "Melléklet hozzáadása"
   },

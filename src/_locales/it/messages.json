@@ -2,9 +2,6 @@
   "quicktext.options.intro": {
     "message": "Tutte le impostazioni di Quicktext possono essere controllate e configurate nel Gestore Quicktext, insieme ai tuoi modelli e script."
   },
-  "quicktext.deprecatedAttachmentField.label": {
-    "message": "Questo campo di input è obsoleto. Utilizzare invece [[ATTACHMENT=VFS|<percorso>]] direttamente nel corpo del modello."
-  },
   "quicktext.attachmentFile.label": {
     "message": "Aggiungi allegato"
   },

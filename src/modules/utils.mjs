@@ -653,16 +653,17 @@ export async function detectDeprecatedUsages(bundles) {
 //              and only auto-migratable items.
 // `vfs`    - the vfs-client module (passed in to avoid circular imports).
 export async function runAutoMigration(entry, bundle, findings, vfs, onProgress) {
-    const configDir = entry.path.replace(/\/[^/]*$/, "") || "";
+    const configDir = getConfigDir(entry.path);
     const storageRef = entry.storageRef ?? null;
 
     // Collect all source paths and their target folders.
     const copyPlan = new Map();
 
-    function planCopy(sourcePath, folder) {
+    function planCopy(sourcePath, tagOrCall) {
         if (copyPlan.has(sourcePath)) return copyPlan.get(sourcePath);
+        const folder = getFolderForTag(tagOrCall);
         const leaf = getLeafName(sourcePath);
-        const target = `${configDir}/${folder}/${leaf}`;
+        const target = getVfsTargetPath(configDir, tagOrCall, sourcePath);
         copyPlan.set(sourcePath, { folder, leaf, target, sourcePath });
         return copyPlan.get(sourcePath);
     }
@@ -671,13 +672,13 @@ export async function runAutoMigration(entry, bundle, findings, vfs, onProgress)
     for (const tmplFinding of (findings.templates ?? [])) {
         for (const t of tmplFinding.tags) {
             if (t.migration !== "auto" || !t.path) continue;
-            planCopy(t.path, getFolderForTag(t.tag));
+            planCopy(t.path, t.tag);
         }
     }
     for (const scriptFinding of (findings.scripts ?? [])) {
         for (const d of scriptFinding.details) {
             if (d.migration !== "auto" || !d.path) continue;
-            planCopy(d.path, getFolderForTag(d.call));
+            planCopy(d.path, d.call);
         }
     }
 
@@ -765,7 +766,7 @@ export async function runAutoMigration(entry, bundle, findings, vfs, onProgress)
             if (failed.has(t.path)) continue;
             const plan = copyPlan.get(t.path);
             if (!plan) continue;
-            const vfsRelPath = plan.target.slice(configDir.length + 1);
+            const vfsRelPath = plan.target;
             const newTag = rewriteTagPreview(t.tag, vfsRelPath);
             tmpl.text = (tmpl.text || "").replaceAll(t.tag, newTag);
             tmpl.subject = (tmpl.subject || "").replaceAll(t.tag, newTag);
@@ -783,7 +784,7 @@ export async function runAutoMigration(entry, bundle, findings, vfs, onProgress)
             if (failed.has(d.path)) continue;
             const plan = copyPlan.get(d.path);
             if (!plan) continue;
-            const vfsRelPath = plan.target.slice(configDir.length + 1);
+            const vfsRelPath = plan.target;
             const newCall = rewriteScriptCallPreview(d.call, d.path, vfsRelPath);
             script.script = script.script.replace(d.call, newCall);
             migratedCount++;
@@ -847,6 +848,18 @@ export function rewriteTagPreview(tag, vfsPath) {
         return `[[${tagName}=${parts.join("|")}]]`;
     }
     return tag;
+}
+
+// Extract the parent directory from a config file path.
+export function getConfigDir(configPath) {
+    return (configPath || "").replace(/\/[^/]*$/, "") || "";
+}
+
+// Compute the full VFS target path for a migrated file.
+export function getVfsTargetPath(configDir, tagOrCall, sourcePath) {
+    const folder = getFolderForTag(tagOrCall);
+    const leaf = sourcePath ? getLeafName(sourcePath) : "?";
+    return `${configDir}/${folder}/${leaf}`;
 }
 
 // Determine the VFS destination folder for a FILE-typed tag or script call.

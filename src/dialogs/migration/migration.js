@@ -59,8 +59,6 @@ function renderItem(container, location, lines) {
   container.appendChild(div);
 }
 
-const targetFolder = utils.getFolderForTag;
-
 function _sourceLabel(entry) {
   if (entry?.type === "managed") return i18n("migration.source.enterprisePolicy");
   if (entry?.type === "import") return i18n("migration.source.imported");
@@ -103,17 +101,16 @@ function classifyFindings(results, entries, bundles) {
   return { auto, incompatibleScripts, deprecatedFs };
 }
 
-function previewVfsPath(tag) {
-  const folder = targetFolder(tag.tag);
-  const leaf = tag.path ? utils.getLeafName(tag.path) : "?";
-  return `${folder}/${leaf}`;
+function previewVfsPath(tag, configDir) {
+  return utils.getVfsTargetPath(configDir, tag.tag, tag.path);
 }
 
-function renderAutoItems(container, templates, scripts) {
+function renderAutoItems(container, templates, scripts, configDirMap) {
   container.innerHTML = "";
   for (const t of templates) {
+    const configDir = configDirMap.get(t.storageUuid) ?? "";
     const lines = t.tags.flatMap(tag => {
-      const vfsPath = previewVfsPath(tag);
+      const vfsPath = previewVfsPath(tag, configDir);
       return [
         { className: "item-tag", text: tag.tag },
         { className: "item-target", text: `→ ${utils.rewriteTagPreview(tag.tag, vfsPath)}` },
@@ -124,6 +121,7 @@ function renderAutoItems(container, templates, scripts) {
       [{ className: "item-reason", text: i18n("migration.reason.deprecatedFilesystem") }, ...lines]);
   }
   for (const s of scripts) {
+    const configDir = configDirMap.get(s.storageUuid) ?? "";
     const lines = [];
     for (const d of s.details) {
       if (d.type === "deprecated-api") {
@@ -131,8 +129,7 @@ function renderAutoItems(container, templates, scripts) {
       } else {
         lines.push({ className: "item-tag", text: d.call });
         if (d.path) {
-          const folder = targetFolder(d.call);
-          const vfsPath = `${folder}/${utils.getLeafName(d.path)}`;
+          const vfsPath = utils.getVfsTargetPath(configDir, d.call, d.path);
           lines.push({ className: "item-target", text: `→ ${utils.rewriteScriptCallPreview(d.call, d.path, vfsPath)}` });
         }
       }
@@ -253,6 +250,12 @@ async function render() {
   const bundles = await storage.getActiveStorageEntries();
   const { auto, incompatibleScripts, deprecatedFs } = classifyFindings(results, entries, bundles);
 
+  // Map storageUuid → config directory (parent of the config file path).
+  const configDirMap = new Map();
+  for (const e of entries) {
+    configDirMap.set(e.uuid, utils.getConfigDir(e.path));
+  }
+
   const autoCount = auto.templates.length + auto.scripts.length;
   const incompatibleCount = incompatibleScripts.length;
   const fsCount = deprecatedFs.templates.length + deprecatedFs.scripts.length;
@@ -268,7 +271,7 @@ async function render() {
   showSection("auto-section", autoCount > 0);
   showSection("auto-actions", autoCount > 0);
   if (autoCount > 0) {
-    renderAutoItems(document.getElementById("auto-list"), auto.templates, auto.scripts);
+    renderAutoItems(document.getElementById("auto-list"), auto.templates, auto.scripts, configDirMap);
     const btn = document.getElementById("btn-migrate");
     btn.textContent = i18n("migration.btn.startMigrationCount", [autoCount]);
     btn.disabled = false;
@@ -307,10 +310,11 @@ async function render() {
     list.innerHTML = "";
     for (const t of deprecatedFs.templates) {
       const typeLabel = t.source ? `${t.source} template` : "template";
+      const configDir = configDirMap.get(t.storageUuid) ?? "";
       const lines = t.tags.flatMap(tag => {
         const result = [{ className: "item-tag", text: tag.tag }];
-        const folder = targetFolder(tag.tag);
-        result.push({ className: "item-target", text: `→ ${utils.rewriteTagPreview(tag.tag, folder + "/?")}` });
+        const vfsPath = utils.getVfsTargetPath(configDir, tag.tag, tag.path);
+        result.push({ className: "item-target", text: `→ ${utils.rewriteTagPreview(tag.tag, vfsPath)}` });
         return result;
       });
       renderItem(list, `${t.storageName} › ${t.group} › ${t.template} (${typeLabel})`,

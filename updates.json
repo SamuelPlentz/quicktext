@@ -1,6 +1,6 @@
 {
   "addons": {
-    "{8845E3B3-E8FB-40E2-95E9-EC40294818C4}": {
+    "off-{8845E3B3-E8FB-40E2-95E9-EC40294818C4}": {
       "updates": [
         {
           "version": "6.6.2",
@@ -14,7 +14,7 @@
         }
       ]
     },
-    "quicktext-legacy@jobisoft.de": {
+    "off-quicktext-legacy@jobisoft.de": {
       "updates": [
         {
           "version": "1.0.4",

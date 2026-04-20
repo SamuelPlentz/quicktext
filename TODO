@@ -2,11 +2,7 @@
 
 - [ ] add "save as" to folders as zip - needs backend support
 
-# QT v6 - migrate
-
-- [ ] test migration
-
-# QT v7 - removing Experiment
+# QT v7
 
 - [ ] deprecate optional type and make it required
 - [ ] remove support for FILE usage
@@ -19,3 +15,4 @@
 - [ ] picker close should bring manager to front
 - [ ] vfs storage should update when pushed remotely (common change detection)
 - [ ] implement cache for read (?)
+- [ ] WYSIWYG editor for html mode

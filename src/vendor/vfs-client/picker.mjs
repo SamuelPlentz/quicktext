@@ -96,7 +96,7 @@ const START_IN = params.get('startIn') ?? null;
 const VFS_PROVIDER_NAME = params.get('opfsStorageName') ?? null;
 const MODE = params.get('mode') ?? 'open'; // 'open' | 'save' | 'dir' | 'browse'
 const SUGGESTED_NAME = params.get('suggestedName') ?? null;
-// Array of { id, label } - rendered as extra toolbar buttons; clicks are sent to
+// Array of { id, label } — rendered as extra toolbar buttons; clicks are sent to
 // the client extension background via browser.runtime.sendMessage so the background
 // can react (e.g. open a test tab) without any provider involvement.
 const BUTTONS = params.get('buttons') ? JSON.parse(params.get('buttons')) : [];
@@ -173,7 +173,7 @@ function _opts(progressLabel, currentFile, totalFiles) {
 // ── Utilities ─────────────────────────────────────────────────────────────────
 
 function formatSize(bytes) {
-  if (bytes === 0) return '-';
+  if (bytes === 0) return '—';
   if (bytes < 1024) return bytes + ' B';
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
   if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
@@ -213,7 +213,7 @@ const state = {
   lockedUnavailable: false, // true when LOCKED_REF is not present in the providers list
   lockedLabel: null, // resolved "<provider>: <connection>" for LOCKED_REF, set in init()
   filter: '',
-  typeIndex: EXCLUDE_ACCEPT_ALL ? 0 : null,
+  typeIndex: TYPES?.length ? 0 : null,
   clipboard: null, // { entries: Entry[], op: 'cut' | 'copy' }
   dragging: null,
   capabilities: null,
@@ -412,10 +412,13 @@ function buildRow(entry) {
     }
   });
 
-  // Double-click - dirs navigate; files confirm the selection in file-pick modes.
+  // Double-click — dirs navigate; files confirm the selection in file-pick modes.
   row.addEventListener('dblclick', e => {
     if (e.target.classList.contains('row-rename-input')) return;
-    if (isDir) navigateTo(pathJoin(state.cwd, entry.name));
+    // Use the render-time `entryPath` instead of recomputing from live
+    // `state.cwd`: rapid clicks on a still-visible row while a previous
+    // navigation is in flight would otherwise compound the path.
+    if (isDir) navigateTo(entryPath);
     else if (MODE !== 'dir' && MODE !== 'browse' && MODE !== 'save') confirmSelection();
   });
 
@@ -509,7 +512,7 @@ function renderFooter() {
     return;
   }
   if (MODE === 'dir') {
-    // Always enabled - selects the currently open folder.
+    // Always enabled — selects the currently open folder.
     openBtn.disabled = false;
   } else if (MODE === 'save') {
     openBtn.disabled = !saveNameInput.value.trim();
@@ -549,10 +552,21 @@ async function navigateTo(path) {
 }
 
 async function loadDir({ silent = false } = {}) {
+  // Snapshot cwd at call time. The user may navigate away while vfs.list is
+  // in flight (e.g. a delta-triggered silent refresh overlapping with a
+  // user-initiated navigation). If that happens, discard our result — the
+  // newer call's result should win, and writing ours would show stale
+  // contents under the wrong cwd label.
+  const cwdSnapshot = state.cwd;
+  const isStale = () => state.cwd !== cwdSnapshot;
+
   try {
-    state.entries = await vfs.list(_e(state.cwd), silent ? {} : _opts(t('loading')));
+    const entries = await vfs.list(_e(cwdSnapshot), silent ? {} : _opts(t('loading')));
+    if (isStale()) return;
+    state.entries = entries;
     if (!silent) _clear();
   } catch (err) {
+    if (isStale()) return;
     if (!silent) {
       if (_progressTimer) { clearTimeout(_progressTimer); _progressTimer = null; }
       _progressLabel = null; _progressShownAt = null;
@@ -571,6 +585,7 @@ async function loadDir({ silent = false } = {}) {
       }
     }
   }
+  if (isStale()) return;
   render();
   if (!silent) updateStorageInfo();
 }
@@ -955,7 +970,7 @@ function _clearStatusAfter(ms) {
 }
 
 // When no progress or transient message is active, either clear the status bar
-// or - when the picker is locked to a different/unavailable connection - show
+// or — when the picker is locked to a different/unavailable connection — show
 // the lock banner so the user always knows why actions are restricted.
 function _showIdleStatus() {
   if (state.lockedUnavailable) {
@@ -1584,7 +1599,7 @@ function initToolbar() {
 
   $('vfs-btn-paste').addEventListener('click', () => pasteClipboard());
 
-  // Custom buttons - rendered from the 'buttons' URL param, separated from built-in
+  // Custom buttons — rendered from the 'buttons' URL param, separated from built-in
   // toolbar buttons. Each click sends { type: 'vfs-toolkit-button', buttonId } to the
   // client extension background, which can then open a tab or take any other action.
   if (BUTTONS.length) {
@@ -1712,7 +1727,7 @@ async function _switchToOpfs() {
 }
 
 // Set the provider button label/icon from fresh provider data. Used when the
-// dropdown DOM that `_updateProviderDisplay` reads from is stale - e.g. a newly
+// dropdown DOM that `_updateProviderDisplay` reads from is stale — e.g. a newly
 // added connection or a rename that arrived via `vfs-provider-updated`.
 async function _refreshProviderButton() {
   if (!_providerBtn) return;
@@ -1966,7 +1981,7 @@ async function init() {
     if (_lp && _lc) state.lockedLabel = `${_lp.name}: ${_lc.name}`;
   }
 
-  // Fetch and apply capabilities - no-op capabilities when the locked connection is unavailable.
+  // Fetch and apply capabilities — no-op capabilities when the locked connection is unavailable.
   state.capabilities = state.lockedUnavailable
     ? { file: {}, folder: {} }
     : await vfs.getCapabilities(state.storageRef);
@@ -2013,7 +2028,7 @@ async function init() {
         const icon = ap.icon ? URL.createObjectURL(ap.icon) : _FALLBACK_ICON;
         _setProviderContent(_providerBtn, `${ap.name}: ${ac.name}`, icon);
       } else if (state.lockedUnavailable) {
-        // Locked connection is not present - show the unavailable label on the button.
+        // Locked connection is not present — show the unavailable label on the button.
         _setProviderContent(_providerBtn, t('connectionLockedUnavailableShort'), _FALLBACK_ICON);
       } else {
         _setProviderContent(_providerBtn, VFS_PROVIDER_NAME ?? t('providerOpfs'), _opfsIcon);
@@ -2115,7 +2130,9 @@ async function init() {
     const kCanModify = singleEntry ? (singleIsDir ? kc.folder?.modify : kc.file?.modify) : false;
 
     if (e.key === 'Enter' && singleEntry) {
-      if (singleIsDir) navigateTo(pathJoin(state.cwd, singleEntry.name));
+      // Use the entry's provider-supplied absolute path (immutable since list)
+      // rather than recomputing from live `state.cwd`, which may have advanced.
+      if (singleIsDir) navigateTo(singleEntry.path || pathJoin(state.cwd, singleEntry.name));
       else confirmSelection();
     }
     if (e.key === 'Backspace' || e.key === 'ArrowLeft') {
@@ -2158,7 +2175,7 @@ async function init() {
   });
 
   if (state.lockedUnavailable) {
-    // Don't attempt to list - the connection is gone. Just render empty state and banner.
+    // Don't attempt to list — the connection is gone. Just render empty state and banner.
     state.entries = [];
     render();
     _showIdleStatus();
@@ -2171,7 +2188,7 @@ async function init() {
     if (msg.type === 'vfs-provider-removed') {
       if (msg.providerId === state.storageRef?.providerId) {
         if (LOCKED_REF) {
-          // Lock is in effect - transition to unavailable state instead of dropping it.
+          // Lock is in effect — transition to unavailable state instead of dropping it.
           _enterLockedUnavailable();
         } else {
           const reloadUrl = new URL(location.href);
@@ -2180,7 +2197,7 @@ async function init() {
         }
       }
     }
-    // A connection was added or renamed on the active provider - refresh the button
+    // A connection was added or renamed on the active provider — refresh the button
     // label in case the currently selected connection was the one affected.
     if (msg.type === 'vfs-provider-updated') {
       if (msg.providerId === state.storageRef?.providerId) {

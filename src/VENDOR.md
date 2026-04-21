@@ -33,5 +33,5 @@ This file lists files that were not created by this project and are maintained u
 ## vfs-client
 
 - **Folder** : `vendor/vfs-client/`
-- **Upstream** : https://github.com/thunderbird/webext-support/tree/0eb1a48639a5f74084852165009d5869ff8512fd/modules/vfs-toolkit/vfs-client
+- **Upstream** : https://github.com/thunderbird/webext-support/tree/91be858d04c940e0884226897898e6ea66b0b34b/modules/vfs-toolkit/vfs-client
 - **License** : MPL 2.0

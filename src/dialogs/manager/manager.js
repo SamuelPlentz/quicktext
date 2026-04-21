@@ -2218,7 +2218,6 @@ async function addStorageConfig() {
       multiple: false,
       id: "Quicktext",
       opfsStorageName: storage.OPFS_STORAGE_NAME,
-      excludeAcceptAllOption: true,
       types: [
         {
           description: "Quicktext config",

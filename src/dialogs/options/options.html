@@ -21,6 +21,13 @@
       line-height: 1.5;
     }
 
+    div#compatibility {
+      display: none;
+    }
+    div#body {
+      display: none;
+    }
+
     .options-button {
       padding: 8px 18px;
       background: #2a7fd4;
@@ -49,11 +56,17 @@
 </head>
 
 <body>
-  <p id="intro" data-i18n-content="quicktext.options.intro"></p>
-  <div style="text-align:center">
-    <button class="options-button" id="open-settings" data-i18n-content="quicktext.settings.title"></button>
+  <div id="compatibility">
+    <p>
+    Quicktext is only supported on Thunderbird and cannot be used with other apps or browsers, for example Firefox.
+    </p>
   </div>
-
+  <div id="body">
+    <p id="intro" data-i18n-content="quicktext.options.intro"></p>
+    <div style="text-align:center">
+      <button class="options-button" id="open-settings" data-i18n-content="quicktext.settings.title"></button>
+    </div>
+  </div>
 </body>
 
 </html>

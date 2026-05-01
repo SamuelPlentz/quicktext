@@ -12,6 +12,14 @@ import * as menus from "../modules/menus.mjs";
 import * as escripts from "../modules/escripts.mjs";
 import * as vfs from "../vendor/vfs-client/vfs-client.mjs";
 
+// Install the external-script handshake listener as early as possible, before
+// any await. Script provider add-ons (e.g. Community Scripts) send their
+// `register_script_addon` message at startup as a fire-and-forget runtime
+// message - if Quicktext's listener isn't installed yet when the message
+// arrives, the handshake is silently dropped and the script add-on's entry
+// never appears in the Insert Tag flyout until it is disabled+re-enabled.
+escripts.init();
+
 // Since we are no longer an Experiment, we could be installed in Firefox, exit
 // early in that case.
 const browserInfo = await browser.runtime.getBrowserInfo();
@@ -116,7 +124,6 @@ browser.browserAction.onClicked.addListener(tab => { utils.openSettingsDialog() 
 
 await compose.init();
 await toolbar.init();
-await escripts.init();
 
 // Update the date/time menus before showing them.
 messenger.menus.onShown.addListener(async (info) => {

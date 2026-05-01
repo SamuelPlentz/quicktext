@@ -27,7 +27,7 @@ async function unregisterIfKnown(id) {
 }
 
 export async function init() {
-  browser.runtime.onMessageExternal.addListener(({ register_script_addon, available_scripts }, { id }) => {
+  browser.runtime.onMessageExternal.addListener(async ({ register_script_addon, available_scripts }, { id }) => {
     if (register_script_addon && available_scripts) {
       // If available_scripts is an array, it is the old list-of-names format.
       // Convert it to the new format with extended information.
@@ -36,10 +36,11 @@ export async function init() {
         : available_scripts;
 
       if (Object.keys(scripts).length > 0) {
-        return register(id, register_script_addon, scripts);
+        await register(id, register_script_addon, scripts);
+        return { ok: true };
       }
     }
-    return false;
+    return { ok: false };
   });
 
   browser.management.onDisabled.addListener(addon => unregisterIfKnown(addon.id));

@@ -422,20 +422,27 @@ function _normalizeDefaultImports(raw) {
     try {
       raw = JSON.parse(raw);
     } catch {
-      return raw
-        .split(";")
-        .map(s => s.trim())
-        .filter(s => /^https?:\/\//.test(s))
-        .map(url => ({
-          uuid: crypto.randomUUID(),
-          name: _deriveName(url),
-          url,
-          icon: null,
-          managed: false,
-          enabled: true,
-          data: null,
-          status: null,
-        }));
+      const parts = raw.split(";").map(s => s.trim()).filter(Boolean);
+      const result = [];
+      for (const part of parts) {
+        if (/^https?:\/\//.test(part)) {
+          result.push({
+            uuid: crypto.randomUUID(),
+            name: _deriveName(part),
+            url: part,
+            icon: null,
+            managed: false,
+            enabled: true,
+            data: null,
+            status: null,
+          });
+        } else {
+          // Legacy local file path - record it so the migration
+          // wizard can inform the user.
+          _recordDroppedFileEntry("import", part);
+        }
+      }
+      return result;
     }
   }
   if (!Array.isArray(raw)) return [];

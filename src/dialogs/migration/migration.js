@@ -204,7 +204,6 @@ function _makeLink(href, text) {
   const a = document.createElement("a");
   a.href = href;
   a.textContent = text;
-  a.addEventListener("click", e => { e.preventDefault(); browser.windows.openDefaultBrowser(href); });
   return a;
 }
 

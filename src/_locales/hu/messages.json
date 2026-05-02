@@ -27,9 +27,6 @@
       }
     }
   },
-  "quicktext.insertFile.label": {
-    "message": "Fájl kiválasztás beszúrása (UTF-8)"
-  },
   "quicktext.insertImage.label": {
     "message": "Beillesztendő képfájl kiválasztása"
   },
@@ -102,9 +99,6 @@
   "quicktext.buttons.addConfig.label": {
     "message": "Hozzáadás"
   },
-  "quicktext.buttons.addFile.label": {
-    "message": "+ Fájl"
-  },
   "quicktext.addGroup.label": {
     "message": "Csoport hozzáadása"
   },
@@ -119,9 +113,6 @@
   },
   "quicktext.attachments.label": {
     "message": "Mellékletek"
-  },
-  "quicktext.browse.label": {
-    "message": "Tallózás…"
   },
   "quicktext.cellularnumber.label": {
     "message": "Mobiltelefonszám"
@@ -312,9 +303,6 @@
   "quicktext.other.label": {
     "message": "Más"
   },
-  "quicktext.insertStaticFile.label": {
-    "message": "Fájl beszúrása"
-  },
   "quicktext.storageLocations.label": {
     "message": "Tárolási hely a sablonokhoz és szkriptekhez"
   },
@@ -332,9 +320,6 @@
   },
   "quicktext.storage.connectionUnavailable.label": {
     "message": "Kapcsolat nem elérhető"
-  },
-  "quicktext.storage.internal.local.label": {
-    "message": "Belső tároló (alapértelmezett)"
   },
   "quicktext.storageList.columns.name": {
     "message": "Név"
@@ -426,9 +411,6 @@
   "quicktext.to.label": {
     "message": "Címzett"
   },
-  "quicktext.insertVariable.label": {
-    "message": "Változó beszúrása"
-  },
   "quicktext.version.label": {
     "message": "Thunderbird verzió"
   },
@@ -491,9 +473,6 @@
   },
   "quicktext.variablesGroup.label": {
     "message": "Változók"
-  },
-  "quicktext.dialog.verifyUrl.label": {
-    "message": "Ellenőrzés"
   },
   "quicktext.dialog.addImport.label": {
     "message": "Import hozzáadása"

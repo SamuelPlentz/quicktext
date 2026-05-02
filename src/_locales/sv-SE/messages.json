@@ -27,9 +27,6 @@
       }
     }
   },
-  "quicktext.insertFile.label": {
-    "message": "Välj fil att infoga (UTF-8)"
-  },
   "quicktext.insertImage.label": {
     "message": "Choose image file to insert"
   },
@@ -102,9 +99,6 @@
   "quicktext.buttons.addConfig.label": {
     "message": "Lägg till"
   },
-  "quicktext.buttons.addFile.label": {
-    "message": "+ Fil"
-  },
   "quicktext.addGroup.label": {
     "message": "Lägg till grupp"
   },
@@ -119,9 +113,6 @@
   },
   "quicktext.attachments.label": {
     "message": "Bifogade filer"
-  },
-  "quicktext.browse.label": {
-    "message": "Bläddra"
   },
   "quicktext.cellularnumber.label": {
     "message": "Mobilnummer"
@@ -312,9 +303,6 @@
   "quicktext.other.label": {
     "message": "Övrigt"
   },
-  "quicktext.insertStaticFile.label": {
-    "message": "Infoga fil"
-  },
   "quicktext.storageLocations.label": {
     "message": "Lagringsplats för mallar och skript"
   },
@@ -332,9 +320,6 @@
   },
   "quicktext.storage.connectionUnavailable.label": {
     "message": "Anslutning otillgänglig"
-  },
-  "quicktext.storage.internal.local.label": {
-    "message": "Internt lagringsutrymme (standard)"
   },
   "quicktext.storageList.columns.name": {
     "message": "Namn"
@@ -426,9 +411,6 @@
   "quicktext.to.label": {
     "message": "Till"
   },
-  "quicktext.insertVariable.label": {
-    "message": "Infoga variabel"
-  },
   "quicktext.version.label": {
     "message": "Thunderbird version"
   },
@@ -491,9 +473,6 @@
   },
   "quicktext.variablesGroup.label": {
     "message": "Variabler"
-  },
-  "quicktext.dialog.verifyUrl.label": {
-    "message": "Verifiera"
   },
   "quicktext.dialog.addImport.label": {
     "message": "Lägg till import"

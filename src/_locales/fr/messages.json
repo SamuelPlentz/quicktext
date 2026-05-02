@@ -27,9 +27,6 @@
       }
     }
   },
-  "quicktext.insertFile.label": {
-    "message": "Choisir le fichier à insérer (UTF-8)"
-  },
   "quicktext.insertImage.label": {
     "message": "Choisir le fichier d'image à insérer"
   },
@@ -102,9 +99,6 @@
   "quicktext.buttons.addConfig.label": {
     "message": "Ajouter"
   },
-  "quicktext.buttons.addFile.label": {
-    "message": "+ Fichier"
-  },
   "quicktext.addGroup.label": {
     "message": "Ajouter un groupe"
   },
@@ -119,9 +113,6 @@
   },
   "quicktext.attachments.label": {
     "message": "Pièces jointes"
-  },
-  "quicktext.browse.label": {
-    "message": "Parcourir"
   },
   "quicktext.cellularnumber.label": {
     "message": "Portable"
@@ -312,9 +303,6 @@
   "quicktext.other.label": {
     "message": "Autres"
   },
-  "quicktext.insertStaticFile.label": {
-    "message": "Insérer un fichier"
-  },
   "quicktext.storageLocations.label": {
     "message": "Emplacement de stockage des modèles et scripts"
   },
@@ -332,9 +320,6 @@
   },
   "quicktext.storage.connectionUnavailable.label": {
     "message": "Connexion indisponible"
-  },
-  "quicktext.storage.internal.local.label": {
-    "message": "Stockage interne (par défaut)"
   },
   "quicktext.storageList.columns.name": {
     "message": "Nom"
@@ -426,9 +411,6 @@
   "quicktext.to.label": {
     "message": "Pour"
   },
-  "quicktext.insertVariable.label": {
-    "message": "Insérer une variable"
-  },
   "quicktext.version.label": {
     "message": "Version de Thunderbird"
   },
@@ -491,9 +473,6 @@
   },
   "quicktext.variablesGroup.label": {
     "message": "Variables"
-  },
-  "quicktext.dialog.verifyUrl.label": {
-    "message": "Vérifier"
   },
   "quicktext.dialog.addImport.label": {
     "message": "Ajouter un import"

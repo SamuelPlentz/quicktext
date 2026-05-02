@@ -27,9 +27,6 @@
       }
     }
   },
-  "quicktext.insertFile.label": {
-    "message": "Vyberte soubor k vložení (UTF-8)"
-  },
   "quicktext.insertImage.label": {
     "message": "Vyberte soubor obrázku ke vložení"
   },
@@ -102,9 +99,6 @@
   "quicktext.buttons.addConfig.label": {
     "message": "Přidat"
   },
-  "quicktext.buttons.addFile.label": {
-    "message": "+ Soubor"
-  },
   "quicktext.addGroup.label": {
     "message": "Přidat skupinu"
   },
@@ -119,9 +113,6 @@
   },
   "quicktext.attachments.label": {
     "message": "Přílohy"
-  },
-  "quicktext.browse.label": {
-    "message": "Procházet"
   },
   "quicktext.cellularnumber.label": {
     "message": "Mobilní telefon"
@@ -312,9 +303,6 @@
   "quicktext.other.label": {
     "message": "Ostatní"
   },
-  "quicktext.insertStaticFile.label": {
-    "message": "Vložit soubor"
-  },
   "quicktext.storageLocations.label": {
     "message": "Umístění úložiště pro šablony a skripty"
   },
@@ -332,9 +320,6 @@
   },
   "quicktext.storage.connectionUnavailable.label": {
     "message": "Připojení nedostupné"
-  },
-  "quicktext.storage.internal.local.label": {
-    "message": "Interní úložiště (výchozí)"
   },
   "quicktext.storageList.columns.name": {
     "message": "Název"
@@ -426,9 +411,6 @@
   "quicktext.to.label": {
     "message": "Komu"
   },
-  "quicktext.insertVariable.label": {
-    "message": "Vložit proměnnou"
-  },
   "quicktext.version.label": {
     "message": "Verze Thunderbirdu"
   },
@@ -491,9 +473,6 @@
   },
   "quicktext.variablesGroup.label": {
     "message": "Proměnné"
-  },
-  "quicktext.dialog.verifyUrl.label": {
-    "message": "Ověřit"
   },
   "quicktext.dialog.addImport.label": {
     "message": "Přidat import"

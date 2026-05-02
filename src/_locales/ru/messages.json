@@ -27,9 +27,6 @@
       }
     }
   },
-  "quicktext.insertFile.label": {
-    "message": "Выберите файл для вставки (UTF-8)"
-  },
   "quicktext.insertImage.label": {
     "message": "Выберите изображение для вставки"
   },
@@ -102,9 +99,6 @@
   "quicktext.buttons.addConfig.label": {
     "message": "Добавить"
   },
-  "quicktext.buttons.addFile.label": {
-    "message": "+ Файл"
-  },
   "quicktext.addGroup.label": {
     "message": "Добавить группу"
   },
@@ -119,9 +113,6 @@
   },
   "quicktext.attachments.label": {
     "message": "Вложения"
-  },
-  "quicktext.browse.label": {
-    "message": "Просмотр"
   },
   "quicktext.cellularnumber.label": {
     "message": "Мобильный телефон"
@@ -312,9 +303,6 @@
   "quicktext.other.label": {
     "message": "Прочее"
   },
-  "quicktext.insertStaticFile.label": {
-    "message": "Вставить файл"
-  },
   "quicktext.storageLocations.label": {
     "message": "Место хранения шаблонов и скриптов"
   },
@@ -332,9 +320,6 @@
   },
   "quicktext.storage.connectionUnavailable.label": {
     "message": "Подключение недоступно"
-  },
-  "quicktext.storage.internal.local.label": {
-    "message": "Внутреннее хранилище (по умолчанию)"
   },
   "quicktext.storageList.columns.name": {
     "message": "Имя"
@@ -426,9 +411,6 @@
   "quicktext.to.label": {
     "message": "Кому"
   },
-  "quicktext.insertVariable.label": {
-    "message": "Вставить переменную"
-  },
   "quicktext.version.label": {
     "message": "Версия Thunderbird"
   },
@@ -491,9 +473,6 @@
   },
   "quicktext.variablesGroup.label": {
     "message": "Переменные"
-  },
-  "quicktext.dialog.verifyUrl.label": {
-    "message": "Проверить"
   },
   "quicktext.dialog.addImport.label": {
     "message": "Добавить импорт"

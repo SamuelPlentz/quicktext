@@ -27,9 +27,6 @@
       }
     }
   },
-  "quicktext.insertFile.label": {
-    "message": "挿入するファイルの選択 (UTF-8)"
-  },
   "quicktext.insertImage.label": {
     "message": "挿入する画像を選択"
   },
@@ -102,9 +99,6 @@
   "quicktext.buttons.addConfig.label": {
     "message": "追加"
   },
-  "quicktext.buttons.addFile.label": {
-    "message": "＋ファイル"
-  },
   "quicktext.addGroup.label": {
     "message": "グループを追加"
   },
@@ -119,9 +113,6 @@
   },
   "quicktext.attachments.label": {
     "message": "添付ファイル"
-  },
-  "quicktext.browse.label": {
-    "message": "参照"
   },
   "quicktext.cellularnumber.label": {
     "message": "携帯電話の番号"
@@ -312,9 +303,6 @@
   "quicktext.other.label": {
     "message": "その他"
   },
-  "quicktext.insertStaticFile.label": {
-    "message": "ファイルを挿入"
-  },
   "quicktext.storageLocations.label": {
     "message": "テンプレートとスクリプトの保存場所"
   },
@@ -335,9 +323,6 @@
   },
   "quicktext.storage.connectionUnavailable.label": {
     "message": "接続が利用できません"
-  },
-  "quicktext.storage.internal.local.label": {
-    "message": "内部ストレージ（デフォルト)"
   },
   "quicktext.storageList.columns.name": {
     "message": "名前"
@@ -426,9 +411,6 @@
   "quicktext.to.label": {
     "message": "宛先"
   },
-  "quicktext.insertVariable.label": {
-    "message": "変数を挿入"
-  },
   "quicktext.version.label": {
     "message": "Thunderbird のバージョン"
   },
@@ -491,9 +473,6 @@
   },
   "quicktext.variablesGroup.label": {
     "message": "変数"
-  },
-  "quicktext.dialog.verifyUrl.label": {
-    "message": "確認"
   },
   "quicktext.dialog.addImport.label": {
     "message": "インポートを追加"

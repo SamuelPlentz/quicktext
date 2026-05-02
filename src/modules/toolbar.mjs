@@ -46,7 +46,8 @@ async function injectToolbar(window = null) {
 export async function init() {
   // Listener for the quicktext-legacy add-on (proxied toolbar commands).
   messenger.runtime.onMessageExternal.addListener((info, sender) => {
-    if (sender.id !== COMPANION_ADDON_ID) return;
+    if (sender.id !== COMPANION_ADDON_ID) return false;
+
     switch (info.command) {
       case "getToolbarData":
         return buildToolbarData();
@@ -57,6 +58,8 @@ export async function init() {
           .query({ windowId: info.windowId, type: "messageCompose" })
           .then(tabs => quicktext.insertTemplate(tabs[0].id, info.storageUuid, info.group, info.text));
     }
+    
+    return false;
   });
 
   // Inject toolbar into all already open compose windows.

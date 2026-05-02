@@ -27,20 +27,18 @@ async function unregisterIfKnown(id) {
 }
 
 export async function init() {
-  browser.runtime.onMessageExternal.addListener(async ({ register_script_addon, available_scripts }, { id }) => {
-    if (register_script_addon && available_scripts) {
-      // If available_scripts is an array, it is the old list-of-names format.
-      // Convert it to the new format with extended information.
-      const scripts = Array.isArray(available_scripts)
-        ? Object.fromEntries(available_scripts.map(name => [name, { usage: name, description: "" }]))
-        : available_scripts;
-
-      if (Object.keys(scripts).length > 0) {
-        await register(id, register_script_addon, scripts);
-        return { ok: true };
-      }
-    }
-    return { ok: false };
+  browser.runtime.onMessageExternal.addListener(({ register_script_addon, available_scripts }, { id }) => {
+    // Only claim handshake messages. Returning undefined for everything else
+    // lets other onMessageExternal listeners (e.g. the legacy companion's
+    // toolbar commands in toolbar.mjs) respond instead.
+    if (!register_script_addon || !available_scripts) return false;
+    // If available_scripts is an array, it is the old list-of-names format.
+    // Convert it to the new format with extended information.
+    const scripts = Array.isArray(available_scripts)
+      ? Object.fromEntries(available_scripts.map(name => [name, { usage: name, description: "" }]))
+      : available_scripts;
+    if (Object.keys(scripts).length === 0) return;
+    return register(id, register_script_addon, scripts).then(() => ({ ok: true }));
   });
 
   browser.management.onDisabled.addListener(addon => unregisterIfKnown(addon.id));

@@ -411,6 +411,9 @@
   "quicktext.to.label": {
     "message": "Кому"
   },
+  "quicktext.insertVariable.label": {
+    "message": "Вставить переменную"
+  },
   "quicktext.version.label": {
     "message": "Версия Thunderbird"
   },

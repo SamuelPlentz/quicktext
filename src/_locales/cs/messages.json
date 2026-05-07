@@ -411,6 +411,9 @@
   "quicktext.to.label": {
     "message": "Komu"
   },
+  "quicktext.insertVariable.label": {
+    "message": "Vložit proměnnou"
+  },
   "quicktext.version.label": {
     "message": "Verze Thunderbirdu"
   },

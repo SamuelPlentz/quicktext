@@ -411,6 +411,9 @@
   "quicktext.to.label": {
     "message": "宛先"
   },
+  "quicktext.insertVariable.label": {
+    "message": "変数を挿入"
+  },
   "quicktext.version.label": {
     "message": "Thunderbird のバージョン"
   },

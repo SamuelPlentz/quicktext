@@ -411,6 +411,9 @@
   "quicktext.to.label": {
     "message": "Címzett"
   },
+  "quicktext.insertVariable.label": {
+    "message": "Változó beszúrása"
+  },
   "quicktext.version.label": {
     "message": "Thunderbird verzió"
   },

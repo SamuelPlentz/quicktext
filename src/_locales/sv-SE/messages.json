@@ -411,6 +411,9 @@
   "quicktext.to.label": {
     "message": "Till"
   },
+  "quicktext.insertVariable.label": {
+    "message": "Infoga variabel"
+  },
   "quicktext.version.label": {
     "message": "Thunderbird version"
   },

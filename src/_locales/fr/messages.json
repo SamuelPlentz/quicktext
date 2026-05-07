@@ -411,6 +411,9 @@
   "quicktext.to.label": {
     "message": "Pour"
   },
+  "quicktext.insertVariable.label": {
+    "message": "Insérer une variable"
+  },
   "quicktext.version.label": {
     "message": "Version de Thunderbird"
   },

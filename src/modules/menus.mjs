@@ -133,7 +133,11 @@ export async function processMenuData(menuEntries, menuData, parentId) {
         if (entry.type == "separator") {
             createData.type = entry.type;
         } else {
-            createData.title = entry.title ? entry.title : browser.i18n.getMessage(`quicktext.${entry.id}.label`);
+            // The menus API treats `&` as an access-key marker (the next char
+            // is underlined and the `&` is stripped). Double it so user-
+            // supplied names like "Hello & Bye" render literally.
+            const rawTitle = entry.title ? entry.title : browser.i18n.getMessage(`quicktext.${entry.id}.label`);
+            createData.title = rawTitle.replace(/&/g, "&&");
         }
 
         if (entry.contexts) createData.contexts = entry.contexts;

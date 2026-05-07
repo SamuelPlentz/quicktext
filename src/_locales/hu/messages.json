@@ -363,6 +363,9 @@
   "quicktext.updatecounter.prompt": {
     "message": "Adja meg a számláló új értékét:"
   },
+  "quicktext.showToolbarLabel.label": {
+    "message": "Show Quicktext label in toolbar button"
+  },
   "quicktext.showContextMenu.label": {
     "message": "Jobb kattintással a gyorsszöveg menü megnyitása"
   },

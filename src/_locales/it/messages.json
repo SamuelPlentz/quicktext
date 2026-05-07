@@ -363,6 +363,9 @@
   "quicktext.updatecounter.prompt": {
     "message": "Inserisci il nuovo valore del contatore:"
   },
+  "quicktext.showToolbarLabel.label": {
+    "message": "Show Quicktext label in toolbar button"
+  },
   "quicktext.showContextMenu.label": {
     "message": "Mostra il menu Quicktext al click destro"
   },

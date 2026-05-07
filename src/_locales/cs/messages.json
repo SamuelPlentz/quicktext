@@ -363,6 +363,9 @@
   "quicktext.updatecounter.prompt": {
     "message": "Zadejte novou hodnotu počítadla:"
   },
+  "quicktext.showToolbarLabel.label": {
+    "message": "Show Quicktext label in toolbar button"
+  },
   "quicktext.showContextMenu.label": {
     "message": "Zobrazovat Quicktext v nabídce pod pravým tlačítkem myši"
   },

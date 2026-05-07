@@ -363,6 +363,9 @@
   "quicktext.updatecounter.prompt": {
     "message": "Ange det nya räknarvärdet:"
   },
+  "quicktext.showToolbarLabel.label": {
+    "message": "Show Quicktext label in toolbar button"
+  },
   "quicktext.showContextMenu.label": {
     "message": "Visa Quicktext-menyn vid högerklick"
   },

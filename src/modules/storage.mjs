@@ -301,6 +301,7 @@ const defaultPrefs = {
   "defaultImport": [],
   "menuCollapse": true,
   "toolbar": true,
+  "toolbarLabel": false,
   "popup": true,
   "keywordKey": "Tab",
   "shortcutModifier": "alt",
@@ -312,6 +313,7 @@ const defaultPrefs = {
 const managedPrefs = [
   "menuCollapse",
   "popup",
+  "toolbarLabel",
   "keywordKey",
   "shortcutModifier",
   "shortcutTypeAdv",

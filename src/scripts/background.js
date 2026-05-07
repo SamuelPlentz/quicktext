@@ -110,6 +110,24 @@ browser.browserAction.onClicked.addListener(tab => { utils.openSettingsDialog() 
 await compose.init();
 await toolbar.init();
 
+// Restore the toolbar-button label override. Manifest default_label is
+// "" for both browser_action and compose_action, so the user-set "show
+// label" pref is opt-in and must be applied here on every startup.
+function _applyToolbarLabel(enabled) {
+  const label = enabled ? "Quicktext" : "";
+  browser.browserAction.setLabel({ label });
+  browser.composeAction.setLabel({ label });
+}
+_applyToolbarLabel(await storage.getPref("toolbarLabel"));
+
+new storage.StorageListener({
+  area: "auto",
+  watchedPrefs: ["toolbarLabel"],
+  listener: async () => {
+    _applyToolbarLabel(await storage.getPref("toolbarLabel"));
+  },
+});
+
 // Update the date/time menus before showing them.
 messenger.menus.onShown.addListener(async (info) => {
   if (info.menuIds.includes("insertVariable")) {

@@ -8,8 +8,8 @@
       "strict_max_version": "151.*"
     }
   },
-  "name": "Quicktext",
-  "version": "6.7.1",
+  "name": "Quicktext (Beta)",
+  "version": "6.7.2",
   "author": "John Bieling",
   "homepage_url": "https://github.com/jobisoft/quicktext",
   "default_locale": "en-US",

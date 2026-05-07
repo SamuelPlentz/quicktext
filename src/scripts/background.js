@@ -20,21 +20,6 @@ import * as vfs from "../vendor/vfs-client/vfs-client.mjs";
 // never appears in the Insert Tag flyout until it is disabled+re-enabled.
 escripts.init();
 
-// Since we are no longer an Experiment, we could be installed in Firefox, exit
-// early in that case.
-const browserInfo = await browser.runtime.getBrowserInfo();
-if (browserInfo.name !== "Thunderbird") {
-  browser.browserAction.onClicked.addListener(() => {
-    browser.runtime.openOptionsPage();
-  });
-  browser.composeAction.onClicked.addListener(() => { 
-    browser.runtime.openOptionsPage();
-  });
-  throw new Error(
-    `Quicktext is only supported on Thunderbird and cannot be used with other apps or browsers, for example Firefox.`,
-  );
-}
-
 browser.runtime.onInstalled.addListener(details => {
   let manifest = browser.runtime.getManifest();
   if (!manifest.browser_specific_settings.gecko.update_url) {

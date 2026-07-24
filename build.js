@@ -12,6 +12,21 @@ function gitBlobSha(buf) {
   return crypto.createHash("sha1").update(Buffer.concat([header, buf])).digest("hex");
 }
 
+// Deep-merge `overlay` onto a clone of `base`: nested plain objects merge
+// recursively, everything else (scalars, arrays) is replaced by the overlay.
+// `base` is never mutated, and its key order is preserved (overlay-only keys
+// are appended), which keeps a merged manifest's diff clean.
+function isPlainObject(v) {
+  return v !== null && typeof v === "object" && !Array.isArray(v);
+}
+function deepMerge(base, overlay) {
+  const out = Array.isArray(base) ? [...base] : { ...base };
+  for (const [k, v] of Object.entries(overlay)) {
+    out[k] = isPlainObject(out[k]) && isPlainObject(v) ? deepMerge(out[k], v) : v;
+  }
+  return out;
+}
+
 // Recursively list files under `root` as POSIX-style relative paths (empty if
 // `root` is absent). Used to spot local files no longer present upstream.
 function listFilesRec(root, base = root, out = []) {
@@ -42,8 +57,11 @@ function crc32(buf) {
  * @param {string|string[]} sources - Paths to zip
  * @param {string} destFile - Output zip file
  * @param {string[]} [exclude=[]] - Optional array of folder/file paths to exclude (relative paths)
+ * @param {Object<string,Buffer>} [overrides={}] - Map of POSIX rel-path to Buffer whose bytes
+ *   replace the on-disk file when zipping (e.g. a per-variant manifest.json), leaving the working
+ *   tree untouched.
  */
-function zip(sources, destFile, exclude = []) {
+function zip(sources, destFile, exclude = [], overrides = {}) {
   const files = [];
 
   // Ensure parent directory exists
@@ -77,7 +95,7 @@ function zip(sources, destFile, exclude = []) {
   let offset = 0;
 
   for (const { full, rel } of files) {
-    const data = fs.readFileSync(full);
+    const data = overrides[rel] ?? fs.readFileSync(full);
     const compressed = zlib.deflateRawSync(data);
     const useDeflate = compressed.length < data.length;
     const fileData = useDeflate ? compressed : data;
@@ -237,9 +255,25 @@ async function main() {
   console.log(`  Updated VENDOR.md with commit ${sha}`);
 
   const xpiVersion = version.replace(/\./g, "_");
-  const xpiName = `quicktext_${xpiVersion}.xpi`;
-  console.log(`Creating extension file (dist/${xpiName}) ...`);
-  zip("src", `dist/${xpiName}`);
+
+  // ATN build: the on-disk manifest as-is (no update_url, plain name).
+  const atnName = `quicktext_${xpiVersion}_atn.xpi`;
+  console.log(`Creating ATN extension file (dist/${atnName}) ...`);
+  zip("src", `dist/${atnName}`);
+
+  // GitHub build (the beta release): same tree, but manifest.json deep-merged
+  // with the overlay (adds gecko.update_url for self-hosted auto-update,
+  // overrides the name to "Quicktext Beta").
+  const overlayPath = "manifest_github.json";
+  if (!fs.existsSync(overlayPath)) {
+    throw new Error(`Missing ${overlayPath}, required for the beta XPI.`);
+  }
+  const overlay = JSON.parse(fs.readFileSync(overlayPath, "utf8"));
+  const betaManifest = deepMerge(manifest, overlay);
+  const betaManifestBuf = Buffer.from(JSON.stringify(betaManifest, null, 2) + "\n", "utf8");
+  const betaName = `quicktext_${xpiVersion}_beta.xpi`;
+  console.log(`Creating beta (GitHub) extension file (dist/${betaName}) ...`);
+  zip("src", `dist/${betaName}`, [], { "manifest.json": betaManifestBuf });
 
   console.log("Build finished. Output is in the 'dist' folder.");
   https.globalAgent.destroy();

@@ -494,6 +494,18 @@ export class QuicktextParser {
       }
     }
 
+    // The URL tag can transmit message, clipboard and attachment data to a
+    // server chosen by the template author, so it stays blocked until the
+    // user opts in on the options page (which discloses what is sent).
+    if (!await storage.getPref("allowRemoteRequests")) {
+      if (this.mTabId) {
+        await messenger.tabs.sendMessage(this.mTabId, {
+          alertLabel: browser.i18n.getMessage("quicktext.remoteBlocked.label", [url]),
+        });
+      }
+      return debug ? "Quicktext onLoad error: remote requests are not enabled" : "";
+    }
+
     // Bypass the HTTP cache: tag-driven URL reads should always
     // see the live resource, never a stale copy from a previous
     // template insert.

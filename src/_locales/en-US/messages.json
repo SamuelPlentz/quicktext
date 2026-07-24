@@ -1,6 +1,23 @@
 {
   "quicktext.options.intro": {
-    "message": "All Quicktext settings can be controlled and configured in the Quicktext Manager, alongside your templates and scripts."
+    "message": "Except for the privacy setting below, all Quicktext settings can be controlled and configured in the Quicktext Manager, alongside your templates and scripts."
+  },
+  "quicktext.remoteRequests.legend": {
+    "message": "Remote requests"
+  },
+  "quicktext.remoteRequests.label": {
+    "message": "Allow templates to contact remote servers and send data to them (URL tag)"
+  },
+  "quicktext.remoteRequests.description": {
+    "message": "This setting is turned off by default. While it is off, Quicktext blocks every request made by the URL tag and no data leaves your computer. When you turn it on, a template using the URL tag will contact the web address specified in that template and may send the following data to it, depending on what the template requests: the recipients of the message (To, Cc, Bcc), your sender identity, the subject, the current text selection, the current clipboard content, the names and sizes of the attachments, and the headers and attachment names of the message you are replying to or forwarding. The web address is chosen by the author of the template, not by Quicktext. No data is sent to Quicktext or its authors."
+  },
+  "quicktext.remoteBlocked.label": {
+    "message": "Quicktext blocked a request to “$P1$”.\n\nThis template uses the URL tag, which can send data from your message to a remote server. To allow this, enable remote requests in the Quicktext options (Add-ons Manager → Quicktext → Options), where you can also see what is sent.",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
   },
   "quicktext.attachmentFile.label": {
     "message": "Add attachment"

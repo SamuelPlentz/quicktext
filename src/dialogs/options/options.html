@@ -21,6 +21,29 @@
       line-height: 1.5;
     }
 
+    fieldset {
+      border: 1px solid rgba(128, 128, 128, 0.4);
+      border-radius: 4px;
+      padding: 12px 14px;
+      margin: 0 0 16px;
+    }
+
+    legend {
+      padding: 0 4px;
+      font-weight: 600;
+    }
+
+    fieldset label {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    fieldset p {
+      margin: 10px 0 0;
+      opacity: 0.85;
+    }
+
     .options-button {
       padding: 8px 18px;
       background: #2a7fd4;
@@ -50,6 +73,16 @@
 
 <body>
   <p id="intro" data-i18n-content="quicktext.options.intro"></p>
+
+  <fieldset>
+    <legend id="lbl-remote-requests" data-i18n-content="quicktext.remoteRequests.legend"></legend>
+    <label>
+      <input type="checkbox" id="chk-remote-requests">
+      <span id="lbl-chk-remote-requests" data-i18n-content="quicktext.remoteRequests.label"></span>
+    </label>
+    <p id="remote-requests-disclosure" data-i18n-content="quicktext.remoteRequests.description"></p>
+  </fieldset>
+
   <div style="text-align:center">
     <button class="options-button" id="open-settings" data-i18n-content="quicktext.settings.title"></button>
   </div>

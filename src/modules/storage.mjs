@@ -308,6 +308,9 @@ const defaultPrefs = {
   "shortcutTypeAdv": false,
   "collapseState": "",
   "storageLocations": [],
+  // The URL tag can transmit message, clipboard and attachment data to a
+  // template-defined server. Off until the user opts in on the options page.
+  "allowRemoteRequests": false,
 };
 
 const managedPrefs = [
@@ -317,6 +320,7 @@ const managedPrefs = [
   "keywordKey",
   "shortcutModifier",
   "shortcutTypeAdv",
+  "allowRemoteRequests",
 ];
 
 // Raw reader: returns whatever `browser.storage.managed` has for

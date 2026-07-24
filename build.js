@@ -2,6 +2,27 @@ const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
 const https = require("https");
+const crypto = require("crypto");
+
+// Git's blob object hash for a file's bytes: sha1("blob <len>\0" + content).
+// The GitHub tree API reports this per file, so comparing it against the local
+// copy tells us whether the bytes are identical without re-downloading.
+function gitBlobSha(buf) {
+  const header = Buffer.from(`blob ${buf.length}\0`, "utf8");
+  return crypto.createHash("sha1").update(Buffer.concat([header, buf])).digest("hex");
+}
+
+// Recursively list files under `root` as POSIX-style relative paths (empty if
+// `root` is absent). Used to spot local files no longer present upstream.
+function listFilesRec(root, base = root, out = []) {
+  if (!fs.existsSync(base)) return out;
+  for (const name of fs.readdirSync(base)) {
+    const full = path.join(base, name);
+    if (fs.statSync(full).isDirectory()) listFilesRec(root, full, out);
+    else out.push(path.relative(root, full).split(path.sep).join("/"));
+  }
+  return out;
+}
 
 // CRC-32 lookup table
 const crcTable = new Uint32Array(256);
@@ -170,17 +191,39 @@ async function main() {
   const prefix = repoPath + "/";
   const clientFiles = tree.tree.filter(f => f.type === "blob" && f.path.startsWith(prefix));
 
-  console.log(`  Found ${clientFiles.length} files, fetching ...`);
-  rm("src/vendor/vfs-client");
+  console.log(`  Found ${clientFiles.length} files.`);
+  const destRoot = "src/vendor/vfs-client";
+  const wanted = new Set(clientFiles.map(f => f.path.slice(prefix.length)));
+
+  // Drop local files that are no longer part of the upstream tree (upstream
+  // deletions), without disturbing the files that are still current.
+  for (const rel of listFilesRec(destRoot)) {
+    if (!wanted.has(rel)) {
+      console.log(`  Removing stale ${rel} ...`);
+      fs.rmSync(path.join(destRoot, rel));
+    }
+  }
+
+  // Fetch only files whose bytes differ from the local copy: git's blob hash of
+  // the local file (file.sha from the tree API) is our identity check, so an
+  // unchanged file is left untouched (no network, no rewrite).
+  let fetched = 0;
+  let unchanged = 0;
   for (const file of clientFiles) {
     const relativePath = file.path.slice(prefix.length);
+    const dest = path.join(destRoot, relativePath);
+    if (fs.existsSync(dest) && gitBlobSha(fs.readFileSync(dest)) === file.sha) {
+      unchanged++;
+      continue;
+    }
     const rawUrl = `https://github.com/thunderbird/webext-support/raw/${sha}/${file.path}`;
     console.log(`  Fetching ${relativePath} ...`);
     const buf = await get(rawUrl);
-    const dest = path.join("src/vendor/vfs-client", relativePath);
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.writeFileSync(dest, buf);
+    fetched++;
   }
+  console.log(`  ${fetched} fetched, ${unchanged} unchanged (kept local copy).`);
 
   // Update VENDOR.md — replace the vfs-clientkit upstream URL with the new commit hash
   const vendorMdPath = "src/VENDOR.md";

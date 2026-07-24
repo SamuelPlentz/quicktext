@@ -7,8 +7,8 @@ This file lists files that were not created by this project and are maintained u
 ## @floating-ui/core
 
 - **File** : `vendor/floating-ui/floating-ui.core.umd.min.js`
-- **Version** : 1.7.6
-- **Upstream** : https://unpkg.com/@floating-ui/core@1.7.6/dist/floating-ui.core.umd.min.js
+- **Version** : 1.7.5
+- **Upstream** : https://unpkg.com/@floating-ui/core@1.7.5/dist/floating-ui.core.umd.min.js
 - **License** : MIT
 
 ---

@@ -4,7 +4,7 @@
     "gecko": {
       "id": "{8845E3B3-E8FB-40E2-95E9-EC40294818C4}",
       "update_url": "https://raw.githubusercontent.com/jobisoft/quicktext/refs/heads/Main/updates.json",
-      "strict_min_version": "128.0",
+      "strict_min_version": "137.0",
       "strict_max_version": "153.*"
     }
   },

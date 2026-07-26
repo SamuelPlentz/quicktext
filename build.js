@@ -264,7 +264,7 @@ async function main() {
   // GitHub build (the beta release): same tree, but manifest.json deep-merged
   // with the overlay (adds gecko.update_url for self-hosted auto-update,
   // overrides the name to "Quicktext Beta").
-  const overlayPath = "manifest_github.json";
+  const overlayPath = "manifest_beta.json";
   if (!fs.existsSync(overlayPath)) {
     throw new Error(`Missing ${overlayPath}, required for the beta XPI.`);
   }

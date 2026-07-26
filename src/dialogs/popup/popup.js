@@ -1,20 +1,6 @@
-class QuicktextPopover {
-    userInput = Promise.withResolvers();
-
-    get popover() {
-        return document.getElementById("quicktext-popover");
-    }
-    show() {
-        this.popover.showPopover();
-    }
-    result() {
-        return this.userInput.promise;
-    }
-}
-
-// Build DOM nodes instead of injecting an HTML string: `label`/`values` are untrusted
-// (they come from the template and the message the user is composing), so they are set as
-// text/values that are never parsed as markup - no insertAdjacentHTML, no injection.
+// Build DOM nodes instead of injecting an HTML string: `label`/`values` are
+// untrusted (they come from the template and the message being composed), so
+// they are set as text/values that are never parsed as markup.
 function createEl(tag, props = {}, children = []) {
     const el = document.createElement(tag);
     for (const [k, v] of Object.entries(props)) {
@@ -25,119 +11,112 @@ function createEl(tag, props = {}, children = []) {
     return el;
 }
 
-// The shared popover shell: a <dialog> with a title, the given control, and OK/Cancel buttons,
-// appended to <body>. Returns the dialog (its children carry the same ids the show() methods read).
-function buildPopoverDialog(label, control) {
-    const title = createEl("div", { id: "quicktext-popover-title", text: label });
-    const ok = createEl("button", { id: "quicktext-popover-ok", class: "quicktext-popover-btn", text: "OK" });
-    const cancel = createEl("button", { id: "quicktext-popover-cancel", class: "quicktext-popover-btn", text: "Cancel" });
-    const buttons = createEl("div", { id: "quicktext-popover-buttons" }, [ok, cancel]);
-    const dialog = createEl("dialog", { id: "quicktext-popover", popover: "manual" }, [title, control, buttons]);
-    document.body.append(dialog);
-    return dialog;
+// Build the dialog into <body>: a title, the given control, and OK/Cancel
+// buttons. Returns the two buttons so the caller can wire them.
+function buildDialog(label, control) {
+    const title = createEl("div", { id: "quicktext-popup-title", text: label });
+    const ok = createEl("button", { id: "quicktext-popup-ok", class: "quicktext-popup-btn", text: "OK" });
+    const cancel = createEl("button", { id: "quicktext-popup-cancel", class: "quicktext-popup-btn", text: "Cancel" });
+    const buttons = createEl("div", { id: "quicktext-popup-buttons" }, [ok, cancel]);
+    document.body.append(createEl("div", { id: "quicktext-popup" }, [title, control, buttons]));
+    return { ok, cancel };
 }
 
-async function openQuicktextPopover(type, label, values) {
-    let popover;
+// Show the INPUT dialog and return a promise for the user's value. Cancel or
+// Escape resolve with `undefined`; quicktextParser's process_input maps that to
+// "" (or null with { nullOnAbort: true }).
+function openInputDialog(type, label, values) {
+    const { promise, resolve } = Promise.withResolvers();
+
     if (type == "prompt") {
-        popover = new class extends QuicktextPopover {
-            show() {
-                const input = createEl("input", { type: "text", id: "quicktext-popover-prompt" });
-                input.value = values ?? "";
-                const wrapper = createEl("div", { id: "quicktext-popover-prompt-wrapper" }, [input]);
-                buildPopoverDialog(label, wrapper);
-                document.getElementById("quicktext-popover-cancel").addEventListener(
-                    "click",
-                    () => this.userInput.resolve()
-                );
-                document.getElementById("quicktext-popover-ok").addEventListener(
-                    "click",
-                    () => this.userInput.resolve(this.value)
-                );
-
-                document.addEventListener("keydown", e => this.keydownEventHandler(e))
-                this.prompt.focus();
-                super.show();
-            }
-            get prompt() {
-                return document.getElementById("quicktext-popover-prompt");
-            }
-            get value() {
-                return this.prompt.value;
-            }
-            set value(v) {
-                this.prompt.value = v;
-            }
-            keydownEventHandler(e) {
-                switch (e.code) {
-                    case "Escape":
-                        this.userInput.resolve();
-                        break;
-                    case "Enter":
-                    case "NumpadEnter":
-                        this.userInput.resolve(this.value);
-                        break;
-                }
-            }
-        }
+        const input = createEl("input", { type: "text", id: "quicktext-popup-prompt" });
+        input.value = values ?? "";
+        const { ok, cancel } = buildDialog(label, createEl("div", { id: "quicktext-popup-prompt-wrapper" }, [input]));
+        ok.addEventListener("click", () => resolve(input.value));
+        cancel.addEventListener("click", () => resolve());
+        document.addEventListener("keydown", e => {
+            if (e.code == "Escape") resolve();
+            else if (e.code == "Enter" || e.code == "NumpadEnter") resolve(input.value);
+        });
+        input.focus();
     } else if (type == "select") {
-        popover = new class extends QuicktextPopover {
-            show() {
-                const select = createEl("select", { size: "5", id: "quicktext-popover-select" });
-                values.forEach((v, i) => {
-                    const opt = createEl("option", { value: v, text: v });
-                    if (i == 0) opt.selected = true;
-                    select.append(opt);
-                });
-                buildPopoverDialog(label, select);
-                document.getElementById("quicktext-popover-cancel").addEventListener(
-                    "click",
-                    () => this.userInput.resolve()
-                );
-                document.getElementById("quicktext-popover-ok").addEventListener(
-                    "click",
-                    () => this.userInput.resolve(this.select.value)
-                );
-
-                document.addEventListener("keydown", e => this.keydownEventHandler(e))
-                this.select.addEventListener("dblclick", e => this.dblclickEventHandler(e))
-
-                this.select.focus();
-                super.show();
-            }
-            get select() {
-                return document.getElementById("quicktext-popover-select");
-            }
-            keydownEventHandler(e) {
-                switch (e.code) {
-                    case "Escape":
-                        this.userInput.resolve();
-                        break;
-                    case "Enter":
-                    case "NumpadEnter":
-                        this.userInput.resolve(this.select.value);
-                        break;
-                }
-            }
-            dblclickEventHandler(e) {
-                this.userInput.resolve(this.select.value);
-            }
-        }
+        const select = createEl("select", { size: "5", id: "quicktext-popup-select" });
+        values.forEach((v, i) => {
+            const opt = createEl("option", { value: v, text: v });
+            if (i == 0) opt.selected = true;
+            select.append(opt);
+        });
+        const { ok, cancel } = buildDialog(label, select);
+        ok.addEventListener("click", () => resolve(select.value));
+        cancel.addEventListener("click", () => resolve());
+        select.addEventListener("dblclick", () => resolve(select.value));
+        document.addEventListener("keydown", e => {
+            if (e.code == "Escape") resolve();
+            else if (e.code == "Enter" || e.code == "NumpadEnter") resolve(select.value);
+        });
+        select.focus();
     } else {
-        console.error(`Unsupported popover type: ${type}`);
-        return "";
+        console.error(`Unsupported input dialog type: ${type}`);
+        return Promise.resolve("");
     }
-    popover.show();
-    return popover.result();
+
+    return promise;
+}
+
+// The window frame (title bar / decorations) is applied asynchronously by the
+// OS: `inner === outer` means it is not on yet; the browser fires a `resize`
+// when it lands and the inner viewport drops below the outer size. Resolve at
+// once if the frame is already on, otherwise on that resize, with a fallback
+// timeout for a frameless window or a WM that never fires resize.
+function waitForFrameSettled() {
+    return new Promise(resolve => {
+        if (window.innerHeight < window.outerHeight) { resolve(); return; }
+        const finish = () => { clearTimeout(t); window.removeEventListener("resize", onResize); resolve(); };
+        // Only settle on the resize that actually applied the frame (inner drops
+        // below outer); ignore any spurious earlier resize. The timeout is the
+        // frameless / no-resize-event fallback, so skipping events is risk-free.
+        const onResize = () => { if (window.innerHeight < window.outerHeight) finish(); };
+        window.addEventListener("resize", onResize);
+        const t = setTimeout(finish, 1000);
+    });
+}
+
+// Size the window so its inner area exactly fits the rendered dialog - shrinking
+// or growing as needed. `window.resizeTo` is blocked here (the window was not
+// created by window.open), but the popup is a privileged extension page, so it
+// calls the windows API on itself directly - no messaging to the background.
+// `windows.update` height sets the OUTER size, so the frame overhead (known once
+// the frame has settled) is added to make the inner area equal the content. A
+// long option list scrolls internally (the select's CSS max-height), so the
+// window height needs no arbitrary cap.
+async function fitWindowToContent() {
+    await waitForFrameSettled();
+    const frameH = window.outerHeight - window.innerHeight;
+    // frameH 0 after settling means either a truly frameless window (content will
+    // fit) or a WM that hides its decorations from the API (content may not).
+    // Allow scrolling so the buttons stay reachable in the latter; no-op in the
+    // former. A normal decorated window (frameH > 0) fits exactly, so no scrollbar.
+    if (frameH === 0) document.body.style.overflow = "auto";
+    const content = Math.ceil(document.getElementById("quicktext-popup").getBoundingClientRect().height);
+    if (window.innerHeight === content) return;
+    const win = await browser.windows.getCurrent();
+    await browser.windows.update(win.id, { height: content + frameH });
 }
 
 let config = await browser.runtime.sendMessage({ action: "config" });
-if (config.selectLabel) {
-    let rv = await openQuicktextPopover("select", config.selectLabel, config.selectValues);
-    await browser.runtime.sendMessage({ action: "close", rv });
 
+let rvPromise;
+if (config.selectLabel) {
+    rvPromise = openInputDialog("select", config.selectLabel, config.selectValues);
 } else if (config.promptLabel) {
-    let rv = await openQuicktextPopover("prompt", config.promptLabel, config.promptValue);
+    rvPromise = openInputDialog("prompt", config.promptLabel, config.promptValue);
+}
+
+if (rvPromise) {
+    // Fire-and-forget: sizing must not block the dialog, and it may reject
+    // harmlessly if the window is closed before it finishes.
+    fitWindowToContent().catch(() => {});
+    let rv = await rvPromise;
     await browser.runtime.sendMessage({ action: "close", rv });
 }
 window.close();

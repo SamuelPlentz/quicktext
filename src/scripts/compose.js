@@ -11,7 +11,7 @@ const alternatives = {
 let keywords, keywordKey, shortcutTypeAdv, shortcutModifier, shortcuts;
 let advShortcutModifierIsDown = false;
 let advShortcutString = "";
-let popoverShown = false;
+let inputPopupOpen = false;
 
 // -----------------------------------------------------------------------------
 
@@ -252,11 +252,11 @@ messenger.runtime.onMessage.addListener((message, sender) => {
     if (message.getSelection) {
         return getSelection(message.getSelection)
     }
-    if (message.isPopoverShown) {
-        return Promise.resolve(popoverShown);
+    if (message.isInputPopupOpen) {
+        return Promise.resolve(inputPopupOpen);
     }
-    if (message.setPopoverShown) {
-        popoverShown = message.popoverShownValue;
+    if (message.setInputPopupOpen) {
+        inputPopupOpen = message.open;
         return Promise.resolve();
     }
     return false;

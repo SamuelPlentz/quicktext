@@ -160,13 +160,14 @@ export async function init() {
     browser.storage.session.remove(`QuicktextStateData_${tabId}`);
   });
 
-  // Prevent sending, if a popover is shown.
+  // Prevent sending while an INPUT popup is still open (the template is not
+  // fully rendered yet).
   browser.compose.onBeforeSend.addListener(async (tab, details) => {
-    let isPopoverShown = await messenger.tabs.sendMessage(tab.id, {
-      isPopoverShown: true,
+    let inputPopupOpen = await messenger.tabs.sendMessage(tab.id, {
+      isInputPopupOpen: true,
     });
     return {
-      cancel: isPopoverShown
+      cancel: inputPopupOpen
     }
   })
 

@@ -1,42 +1,48 @@
-:popover-open {
-    width: 300px;
-    height: 200px;
-    border-radius: 10px;
-    border-width: 3px;
-    padding: 0;
+html, body {
+    margin: 0;
 }
 
-::backdrop {
-    backdrop-filter: brightness(30%);
+/* Content-height dialog. The window is resized to fit this content after load
+   (popup.js), so there is no fixed height fighting the platform frame overhead -
+   the inner viewport ends up matching the content. */
+#quicktext-popup {
+    box-sizing: border-box;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font: message-box;
 }
 
-#quicktext-popover {
-    padding: 20px;
-    border: 1px solid red;
+/* Labels are template variable names; break a long unbreakable one instead of
+   forcing the window wider. */
+#quicktext-popup-title {
+    overflow-wrap: break-word;
 }
-#quicktext-popover-buttons {
+
+#quicktext-popup-buttons {
     display: flex;
     justify-content: flex-end;
-    width: 100%;
 }
 
-.quicktext-popover-btn {
-    margin-top: 10px;
+.quicktext-popup-btn {
     margin-left: 10px;
 }
 
-#quicktext-popover-select {
-    height: auto;
+/* size=5 already bounds the height; cap it and scroll for very long lists so a
+   large option set never grows the window past its clamp. */
+#quicktext-popup-select {
     width: 100%;
+    max-height: 200px;
 }
 
-#quicktext-popover-prompt {
+#quicktext-popup-prompt-wrapper {
+    border: 1px solid grey;
+}
+
+#quicktext-popup-prompt {
     width: calc(100% - 6px);
     padding: 3px;
     margin: 0;
     border: 0;
-}
-
-#quicktext-popover-prompt-wrapper {
-    border: 1px solid grey;
 }

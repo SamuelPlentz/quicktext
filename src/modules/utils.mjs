@@ -279,22 +279,26 @@ export async function openPopup(tabId, config) {
     let popupId;
     let parentId = await browser.tabs.get(tabId).then(tab => tab.windowId);
 
-    const dimension = ({ top, left, width, height }) => {
-        // On Linux, skip centering for wayland compatability
-        // Windows/macOS always center
-        if (navigator.userAgent.includes('Linux')) {
+    // Provisional size for the popup window. popup.js measures the rendered
+    // content after the window frame settles and resizes the window so the inner
+    // area fits exactly (shrinking or growing), so this only needs to be small
+    // enough not to flash oversized before that adjustment.
+    const size = { width: 400, height: 150 };
+
+    // Best-effort centering over the parent compose window. Some Wayland
+    // setups ignore the requested position, which is fine - the small size is
+    // the actual fix.
+    const centeredOverParent = async () => {
+        try {
+            const { left, top, width, height } = await browser.windows.get(parentId);
+            return {
+                left: Math.round(left + (width - size.width) / 2),
+                top: Math.round(top + (height - size.height) / 2),
+            };
+        } catch {
             return {};
         }
-
-        const excessWidth = 100;
-        const excessHeight = 100;
-        return {
-            top: top + Math.round(0.5 * excessHeight),
-            left: left + Math.round(0.5 * excessWidth),
-            width: width - excessWidth,
-            height: height - excessHeight,
-        }
-    }
+    };
 
     const onRemovedListener = windowId => {
         if (windowId == popupId) {
@@ -310,10 +314,11 @@ export async function openPopup(tabId, config) {
         }
         if (windowId == parentId) {
             try {
-                await browser.windows.update(popupId, {
-                    focused: true,
-                    ...dimension(await browser.windows.get(parentId))
-                });
+                // Return focus to the popup. This keeps it in front and, by
+                // taking focus back from the compose window, prevents typing into
+                // the message while the input dialog is open (sending is
+                // separately blocked via onBeforeSend). Do not resize.
+                await browser.windows.update(popupId, { focused: true });
             } catch (e) {
                 // The popup might have been closed in the meantime.
                 console.warn("Could not refocus popup, it might be closing.", e.message);
@@ -338,8 +343,6 @@ export async function openPopup(tabId, config) {
                 popup.resolve(info.rv);
                 status = "closed";
                 return Promise.resolve();
-            case "isPopoverShown":
-                return Promise.resolve(true);
         }
         return false;
     }
@@ -352,12 +355,13 @@ export async function openPopup(tabId, config) {
         url: "/dialogs/popup/popup.html",
         type: "popup",
         allowScriptsToClose: true,
-        ...dimension(await browser.windows.get(parentId))
+        ...size,
+        ...await centeredOverParent(),
     }).then(window => window.id);
 
     await messenger.tabs.sendMessage(tabId, {
-        setPopoverShown: true,
-        popoverShownValue: true,
+        setInputPopupOpen: true,
+        open: true,
     });
 
     let rv = await popup.promise;
@@ -367,8 +371,8 @@ export async function openPopup(tabId, config) {
     browser.windows.onFocusChanged.removeListener(onFocusChangedListener);
 
     await messenger.tabs.sendMessage(tabId, {
-        setPopoverShown: true,
-        popoverShownValue: false,
+        setInputPopupOpen: true,
+        open: false,
     });
 
     return rv;

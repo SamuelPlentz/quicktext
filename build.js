@@ -186,14 +186,19 @@ async function fetchJSON(url) {
 }
 
 async function main() {
+  // `npm run dev` (node build.js --dev) runs the same preparation steps but
+  // emits an unpacked add-on in dev/ instead of packaged XPIs in dist/.
+  const dev = process.argv.includes("--dev");
+
   const { version } = JSON.parse(fs.readFileSync("package.json", "utf8"));
   const manifest = JSON.parse(fs.readFileSync("src/manifest.json", "utf8"));
   manifest.version = version;
   fs.writeFileSync("src/manifest.json", JSON.stringify(manifest, null, 2) + "\n");
   console.log(`Set manifest version to ${version}`);
 
-  console.log("Cleaning output directory ...");
-  rm("dist");
+  const outDir = dev ? "dev" : "dist";
+  console.log(`Cleaning output directory (${outDir}) ...`);
+  rm(outDir);
 
   console.log("Fetching latest vfs-client from GitHub ...");
   const repoPath = "modules/vfs-toolkit/vfs-client";
@@ -253,6 +258,15 @@ async function main() {
   );
   fs.writeFileSync(vendorMdPath, vendorMd);
   console.log(`  Updated VENDOR.md with commit ${sha}`);
+
+  if (dev) {
+    // Emit the live code unpacked, ready to load as a temporary add-on.
+    console.log("Copying src to dev/ (unpacked) ...");
+    fs.cpSync("src", "dev", { recursive: true });
+    console.log("Dev build finished. Load the unpacked add-on from the 'dev' folder.");
+    https.globalAgent.destroy();
+    return;
+  }
 
   const xpiVersion = version.replace(/\./g, "_");
 

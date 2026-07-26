@@ -1,6 +1,23 @@
 {
   "quicktext.options.intro": {
-    "message": "Alla Quicktext-inställningar kan styras och konfigureras i Quicktext-hanteraren, tillsammans med dina mallar och skript."
+    "message": "Med undantag för integritetsinställningen nedan kan alla Quicktext-inställningar styras och konfigureras i Quicktext-hanteraren, tillsammans med dina mallar och skript."
+  },
+  "quicktext.remoteRequests.legend": {
+    "message": "Fjärrbegäranden"
+  },
+  "quicktext.remoteRequests.label": {
+    "message": "Tillåt att mallar kontaktar fjärrservrar och skickar data till dem (URL-tagg)"
+  },
+  "quicktext.remoteRequests.description": {
+    "message": "Den här inställningen är avstängd som standard. Så länge den är avstängd blockerar Quicktext alla begäranden som görs av URL-taggen, och inga data lämnar din dator. När du aktiverar den kontaktar en mall som använder URL-taggen den webbadress som anges i den mallen och kan skicka följande data till den, beroende på vad mallen begär: meddelandets mottagare (Till, Kopia, Hemlig kopia), din avsändaridentitet, ämnet, den aktuella textmarkeringen, det aktuella innehållet i urklipp, namnen och storlekarna på bilagorna samt rubrikerna och bilagenamnen för meddelandet som du svarar på eller vidarebefordrar. Webbadressen väljs av mallens författare, inte av Quicktext. Inga data skickas till Quicktext eller dess författare."
+  },
+  "quicktext.remoteBlocked.label": {
+    "message": "Quicktext blockerade en begäran till ”$P1$”.\n\nDen här mallen använder URL-taggen, som kan skicka data från ditt meddelande till en fjärrserver. För att tillåta detta, aktivera fjärrbegäranden i Quicktext-alternativen (Tilläggshanteraren → Quicktext → Alternativ), där du också kan se vad som skickas.",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
   },
   "quicktext.attachmentFile.label": {
     "message": "Lägg till bilaga"
@@ -485,7 +502,11 @@
   },
   "migration.pageTitle": {
     "message": "Quicktext v$VERSION$ migrering",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.p1": {
     "message": "Detta är det sista steget i en lång uppdateringsprocess för att konvertera Quicktext till en modern WebExtension. Quicktext kommer snart inte längre att förlita sig på äldre API:er och obegränsad åtkomst till din dator, utan fungerar helt inom det moderna WebExtension-ramverket - utan att kräva en uppdatering för varje ny version av Thunderbird."
@@ -498,7 +519,11 @@
   },
   "migration.intro.p2": {
     "message": "Moderna WebExtensions kan inte längre direkt komma åt ditt filsystem. Som ett resultat lagras dina $ITEMTYPE$-definitioner nu i en intern Quicktext-lagring, och alla bilagor och bilder som dina mallar refererar till behöver kopieras till den lagringen också.",
-    "placeholders": { "itemtype": { "content": "$1" } }
+    "placeholders": {
+      "itemtype": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.itemType.template": {
     "message": "mall"
@@ -508,7 +533,11 @@
   },
   "migration.intro.p3": {
     "message": "Efter migreringen kan du installera ytterligare $LINK$ och flytta hela din Quicktext-konfiguration, till exempel till en WebDAV-server.",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.p3.linkText": {
     "message": "lagringsbackends"
@@ -530,7 +559,11 @@
   },
   "migration.btn.startMigrationCount": {
     "message": "Starta migrering ($COUNT$ objekt)",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "migration.manual.intro": {
     "message": "Objekten nedan kan inte migreras automatiskt och kräver manuell hantering."
@@ -540,7 +573,11 @@
   },
   "migration.incompatible.description": {
     "message": "Dessa skript använder föråldrade Quicktext v5-API:er som inte längre är tillgängliga. De behöver skrivas om med hjälp av $LINK$.",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.incompatible.linkText": {
     "message": "det moderna skript-API:et"
@@ -550,7 +587,11 @@
   },
   "migration.filesystem.description": {
     "message": "Dessa mallar och skript refererar till filer på ditt lokala filsystem, som inte längre är direkt åtkomligt för WebExtensions. De refererade filerna behöver kopieras till Quicktext-lagringen och mallarna behöver justeras därefter. Se $LINK$ för detaljer.",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.filesystem.linkText": {
     "message": "guiden för lagringsplatser"
@@ -561,9 +602,15 @@
   "migration.dropped.description": {
     "message": "Om du tidigare använde en lokal mapp för att lagra dina mallar eller dela dem mellan datorer kan du installera en $VFSLINK$ som ersättning - till exempel $WEBDAVLINK$ för att lagra mallar på en WebDAV-server (ownCloud, Nextcloud, etc.), eller $HOMEFOLDERLINK$ för att fortsätta använda en mapp på din dator.",
     "placeholders": {
-      "vfslink": { "content": "$1" },
-      "webdavlink": { "content": "$2" },
-      "homefolderlink": { "content": "$3" }
+      "vfslink": {
+        "content": "$1"
+      },
+      "webdavlink": {
+        "content": "$2"
+      },
+      "homefolderlink": {
+        "content": "$3"
+      }
     }
   },
   "migration.dropped.linkVfs": {
@@ -616,14 +663,24 @@
   },
   "migration.progress.backingUp": {
     "message": "Säkerhetskopierar $FILENAME$…",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "migration.progress.copying": {
     "message": "Kopierar $FILENAME$ ($CURRENT$/$TOTAL$)…",
     "placeholders": {
-      "filename": { "content": "$1" },
-      "current": { "content": "$2" },
-      "total": { "content": "$3" }
+      "filename": {
+        "content": "$1"
+      },
+      "current": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
     }
   },
   "migration.progress.rewriting": {
@@ -637,17 +694,29 @@
   },
   "migration.success": {
     "message": "Migrering klar. $COUNT$ objekt migrerade.",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "migration.error.allFailed": {
     "message": "$FAILED$ fil(er) kunde inte kopieras. De berörda mallarna lämnades oförändrade.",
-    "placeholders": { "failed": { "content": "$1" } }
+    "placeholders": {
+      "failed": {
+        "content": "$1"
+      }
+    }
   },
   "migration.error.partialFailed": {
     "message": "$MIGRATED$ objekt migrerade, men $FAILED$ fil(er) kunde inte kopieras. De berörda mallarna lämnades oförändrade.",
     "placeholders": {
-      "migrated": { "content": "$1" },
-      "failed": { "content": "$2" }
+      "migrated": {
+        "content": "$1"
+      },
+      "failed": {
+        "content": "$2"
+      }
     }
   },
   "migration.btn.close": {

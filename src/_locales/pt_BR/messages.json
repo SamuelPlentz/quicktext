@@ -1,6 +1,23 @@
 {
   "quicktext.options.intro": {
-    "message": "Todas as configurações do Quicktext podem ser controladas e configuradas no Gerenciador do Quicktext, junto com seus modelos e scripts."
+    "message": "Exceto pela configuração de privacidade abaixo, todas as configurações do Quicktext podem ser controladas e configuradas no Gerenciador do Quicktext, junto com seus modelos e scripts."
+  },
+  "quicktext.remoteRequests.legend": {
+    "message": "Solicitações remotas"
+  },
+  "quicktext.remoteRequests.label": {
+    "message": "Permitir que modelos contatem servidores remotos e enviem dados a eles (tag URL)"
+  },
+  "quicktext.remoteRequests.description": {
+    "message": "Esta opção fica desativada por padrão. Enquanto estiver desativada, o Quicktext bloqueia todas as solicitações feitas pela tag URL e nenhum dado sai do seu computador. Ao ativá-la, um modelo que usa a tag URL entrará em contato com o endereço web especificado nesse modelo e poderá enviar a ele os seguintes dados, dependendo do que o modelo solicitar: os destinatários da mensagem (Para, Cc, Cco), sua identidade de remetente, o assunto, a seleção de texto atual, o conteúdo atual da área de transferência, os nomes e tamanhos dos anexos e os cabeçalhos e nomes dos anexos da mensagem que você está respondendo ou encaminhando. O endereço web é escolhido pelo autor do modelo, não pelo Quicktext. Nenhum dado é enviado ao Quicktext ou a seus autores."
+  },
+  "quicktext.remoteBlocked.label": {
+    "message": "O Quicktext bloqueou uma solicitação para “$P1$”.\n\nEste modelo usa a tag URL, que pode enviar dados da sua mensagem para um servidor remoto. Para permitir isso, ative as solicitações remotas nas opções do Quicktext (Gerenciador de complementos → Quicktext → Opções), onde você também pode ver o que é enviado.",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
   },
   "quicktext.attachmentFile.label": {
     "message": "Adicionar anexo"
@@ -485,7 +502,11 @@
   },
   "migration.pageTitle": {
     "message": "Migração do Quicktext v$VERSION$",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.p1": {
     "message": "Esta é a etapa final de um longo processo de atualização para converter o Quicktext em uma WebExtension moderna. O Quicktext em breve não dependerá mais de APIs legadas e acesso irrestrito ao seu computador, mas funcionará completamente dentro da estrutura moderna de WebExtensions - sem necessidade de atualização para cada nova versão do Thunderbird."
@@ -498,7 +519,11 @@
   },
   "migration.intro.p2": {
     "message": "WebExtensions modernas não podem mais acessar diretamente o sistema de arquivos. Como resultado, suas definições de $ITEMTYPE$ agora são armazenadas dentro de um armazenamento interno do Quicktext, e todos os anexos e imagens que seus modelos referenciam precisam ser copiados para esse armazenamento também.",
-    "placeholders": { "itemtype": { "content": "$1" } }
+    "placeholders": {
+      "itemtype": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.itemType.template": {
     "message": "modelo"
@@ -508,7 +533,11 @@
   },
   "migration.intro.p3": {
     "message": "Após a migração, você pode instalar $LINK$ adicionais e mover toda a sua configuração do Quicktext, por exemplo, para um servidor WebDAV.",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.p3.linkText": {
     "message": "backends de armazenamento"
@@ -530,7 +559,11 @@
   },
   "migration.btn.startMigrationCount": {
     "message": "Iniciar migração ($COUNT$ itens)",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "migration.manual.intro": {
     "message": "Os itens listados abaixo não podem ser migrados automaticamente e requerem atenção manual."
@@ -540,7 +573,11 @@
   },
   "migration.incompatible.description": {
     "message": "Esses scripts usam APIs obsoletas do Quicktext v5 que não estão mais disponíveis. Eles precisam ser reescritos usando a $LINK$.",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.incompatible.linkText": {
     "message": "API de script moderna"
@@ -550,7 +587,11 @@
   },
   "migration.filesystem.description": {
     "message": "Esses modelos e scripts referenciam arquivos no seu sistema de arquivos local, que não é mais acessível diretamente por WebExtensions. Os arquivos referenciados precisam ser copiados para o armazenamento do Quicktext e os modelos precisam ser ajustados adequadamente. Consulte o $LINK$ para detalhes.",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.filesystem.linkText": {
     "message": "guia de locais de armazenamento"
@@ -561,9 +602,15 @@
   "migration.dropped.description": {
     "message": "Se você usava anteriormente uma pasta local para armazenar seus modelos ou compartilhá-los entre computadores, pode instalar um $VFSLINK$ como substituto - por exemplo, o $WEBDAVLINK$ para armazenar modelos em um servidor WebDAV (ownCloud, Nextcloud, etc.), ou o $HOMEFOLDERLINK$ para continuar usando uma pasta no seu computador.",
     "placeholders": {
-      "vfslink": { "content": "$1" },
-      "webdavlink": { "content": "$2" },
-      "homefolderlink": { "content": "$3" }
+      "vfslink": {
+        "content": "$1"
+      },
+      "webdavlink": {
+        "content": "$2"
+      },
+      "homefolderlink": {
+        "content": "$3"
+      }
     }
   },
   "migration.dropped.linkVfs": {
@@ -616,14 +663,24 @@
   },
   "migration.progress.backingUp": {
     "message": "Fazendo backup de $FILENAME$…",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "migration.progress.copying": {
     "message": "Copiando $FILENAME$ ($CURRENT$/$TOTAL$)…",
     "placeholders": {
-      "filename": { "content": "$1" },
-      "current": { "content": "$2" },
-      "total": { "content": "$3" }
+      "filename": {
+        "content": "$1"
+      },
+      "current": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
     }
   },
   "migration.progress.rewriting": {
@@ -637,17 +694,29 @@
   },
   "migration.success": {
     "message": "Migração concluída. $COUNT$ item(ns) migrado(s).",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "migration.error.allFailed": {
     "message": "$FAILED$ arquivo(s) falhou(aram) ao copiar. Os modelos afetados não foram alterados.",
-    "placeholders": { "failed": { "content": "$1" } }
+    "placeholders": {
+      "failed": {
+        "content": "$1"
+      }
+    }
   },
   "migration.error.partialFailed": {
     "message": "$MIGRATED$ item(ns) migrado(s), mas $FAILED$ arquivo(s) falhou(aram) ao copiar. Os modelos afetados não foram alterados.",
     "placeholders": {
-      "migrated": { "content": "$1" },
-      "failed": { "content": "$2" }
+      "migrated": {
+        "content": "$1"
+      },
+      "failed": {
+        "content": "$2"
+      }
     }
   },
   "migration.btn.close": {

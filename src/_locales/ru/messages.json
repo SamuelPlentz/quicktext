@@ -1,6 +1,23 @@
 {
   "quicktext.options.intro": {
-    "message": "Все настройки Quicktext можно контролировать и настраивать в Менеджере Quicktext вместе с вашими шаблонами и скриптами."
+    "message": "За исключением параметра конфиденциальности ниже, все настройки Quicktext можно контролировать и настраивать в Менеджере Quicktext вместе с вашими шаблонами и скриптами."
+  },
+  "quicktext.remoteRequests.legend": {
+    "message": "Удалённые запросы"
+  },
+  "quicktext.remoteRequests.label": {
+    "message": "Разрешить шаблонам обращаться к удалённым серверам и отправлять им данные (тег URL)"
+  },
+  "quicktext.remoteRequests.description": {
+    "message": "Этот параметр по умолчанию отключён. Пока он отключён, Quicktext блокирует все запросы, создаваемые тегом URL, и никакие данные не покидают ваш компьютер. Когда вы его включаете, шаблон, использующий тег URL, обращается к веб-адресу, указанному в этом шаблоне, и может отправить ему следующие данные в зависимости от того, что запрашивает шаблон: получателей сообщения (Кому, Копия, Скрытая копия), вашу личность отправителя, тему, текущее выделение текста, текущее содержимое буфера обмена, имена и размеры вложений, а также заголовки и имена вложений сообщения, на которое вы отвечаете или которое пересылаете. Веб-адрес выбирает автор шаблона, а не Quicktext. Никакие данные не отправляются в Quicktext или его авторам."
+  },
+  "quicktext.remoteBlocked.label": {
+    "message": "Quicktext заблокировал запрос к «$P1$».\n\nЭтот шаблон использует тег URL, который может отправить данные из вашего сообщения на удалённый сервер. Чтобы разрешить это, включите удалённые запросы в настройках Quicktext (Менеджер дополнений → Quicktext → Настройки), где вы также можете увидеть, что отправляется.",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
   },
   "quicktext.attachmentFile.label": {
     "message": "Добавить вложение"
@@ -485,7 +502,11 @@
   },
   "migration.pageTitle": {
     "message": "Миграция Quicktext v$VERSION$",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.p1": {
     "message": "Это последний этап длительного процесса обновления для преобразования Quicktext в современное WebExtension. Quicktext вскоре перестанет зависеть от устаревших API и неограниченного доступа к вашему компьютеру, а будет полностью работать в рамках современной платформы WebExtension - без необходимости обновления для каждой новой версии Thunderbird."
@@ -498,7 +519,11 @@
   },
   "migration.intro.p2": {
     "message": "Современные WebExtension больше не могут напрямую обращаться к файловой системе. В результате определения ваших $ITEMTYPE$ теперь хранятся во внутреннем хранилище Quicktext, и все вложения и изображения, на которые ссылаются ваши шаблоны, также должны быть скопированы в это хранилище.",
-    "placeholders": { "itemtype": { "content": "$1" } }
+    "placeholders": {
+      "itemtype": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.itemType.template": {
     "message": "шаблонов"
@@ -508,7 +533,11 @@
   },
   "migration.intro.p3": {
     "message": "После миграции вы можете установить дополнительные $LINK$ и перенести всю конфигурацию Quicktext, например, на сервер WebDAV.",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.p3.linkText": {
     "message": "бэкенды хранилищ"
@@ -530,7 +559,11 @@
   },
   "migration.btn.startMigrationCount": {
     "message": "Начать миграцию ($COUNT$ элементов)",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "migration.manual.intro": {
     "message": "Перечисленные ниже элементы не могут быть мигрированы автоматически и требуют ручного вмешательства."
@@ -540,7 +573,11 @@
   },
   "migration.incompatible.description": {
     "message": "Эти скрипты используют устаревшие API Quicktext v5, которые больше недоступны. Их необходимо переписать с использованием $LINK$.",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.incompatible.linkText": {
     "message": "современного API скриптов"
@@ -550,7 +587,11 @@
   },
   "migration.filesystem.description": {
     "message": "Эти шаблоны и скрипты ссылаются на файлы в вашей локальной файловой системе, которая больше недоступна напрямую для WebExtension. Файлы, на которые имеются ссылки, необходимо скопировать в хранилище Quicktext, а шаблоны соответственно скорректировать. Подробности см. в $LINK$.",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.filesystem.linkText": {
     "message": "руководстве по местам хранения"
@@ -561,9 +602,15 @@
   "migration.dropped.description": {
     "message": "Если вы ранее использовали локальную папку для хранения шаблонов или для их совместного использования на нескольких компьютерах, вы можете установить $VFSLINK$ в качестве замены - например, $WEBDAVLINK$ для хранения шаблонов на сервере WebDAV (ownCloud, Nextcloud и т.д.) или $HOMEFOLDERLINK$ для продолжения использования папки на вашем компьютере.",
     "placeholders": {
-      "vfslink": { "content": "$1" },
-      "webdavlink": { "content": "$2" },
-      "homefolderlink": { "content": "$3" }
+      "vfslink": {
+        "content": "$1"
+      },
+      "webdavlink": {
+        "content": "$2"
+      },
+      "homefolderlink": {
+        "content": "$3"
+      }
     }
   },
   "migration.dropped.linkVfs": {
@@ -616,14 +663,24 @@
   },
   "migration.progress.backingUp": {
     "message": "Резервное копирование $FILENAME$…",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "migration.progress.copying": {
     "message": "Копирование $FILENAME$ ($CURRENT$/$TOTAL$)…",
     "placeholders": {
-      "filename": { "content": "$1" },
-      "current": { "content": "$2" },
-      "total": { "content": "$3" }
+      "filename": {
+        "content": "$1"
+      },
+      "current": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
     }
   },
   "migration.progress.rewriting": {
@@ -637,17 +694,29 @@
   },
   "migration.success": {
     "message": "Миграция завершена. Мигрировано элементов: $COUNT$.",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "migration.error.allFailed": {
     "message": "Не удалось скопировать файлов: $FAILED$. Затронутые шаблоны не были изменены.",
-    "placeholders": { "failed": { "content": "$1" } }
+    "placeholders": {
+      "failed": {
+        "content": "$1"
+      }
+    }
   },
   "migration.error.partialFailed": {
     "message": "Мигрировано элементов: $MIGRATED$, но не удалось скопировать файлов: $FAILED$. Затронутые шаблоны не были изменены.",
     "placeholders": {
-      "migrated": { "content": "$1" },
-      "failed": { "content": "$2" }
+      "migrated": {
+        "content": "$1"
+      },
+      "failed": {
+        "content": "$2"
+      }
     }
   },
   "migration.btn.close": {

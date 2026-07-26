@@ -1,6 +1,23 @@
 {
   "quicktext.options.intro": {
-    "message": "すべてのQuicktextの設定は、テンプレートやスクリプトとともに、Quicktextマネージャーで制御・設定できます。"
+    "message": "下記のプライバシー設定を除き、すべての Quicktext の設定は、テンプレートやスクリプトとともに、Quicktext マネージャーで制御・設定できます。"
+  },
+  "quicktext.remoteRequests.legend": {
+    "message": "リモートリクエスト"
+  },
+  "quicktext.remoteRequests.label": {
+    "message": "テンプレートがリモートサーバーに接続してデータを送信することを許可する（URL タグ）"
+  },
+  "quicktext.remoteRequests.description": {
+    "message": "この設定は既定でオフになっています。オフの間、Quicktext は URL タグによるすべてのリクエストをブロックし、データがコンピューターから送信されることはありません。オンにすると、URL タグを使用するテンプレートはそのテンプレートで指定された Web アドレスに接続し、テンプレートが要求する内容に応じて次のデータを送信する場合があります: メッセージの宛先（宛先、Cc、Bcc）、差出人の識別情報、件名、現在のテキスト選択、現在のクリップボードの内容、添付ファイルの名前とサイズ、および返信または転送するメッセージのヘッダーと添付ファイル名。Web アドレスはテンプレートの作成者が選択するものであり、Quicktext によるものではありません。Quicktext やその作成者にデータが送信されることはありません。"
+  },
+  "quicktext.remoteBlocked.label": {
+    "message": "Quicktext は「$P1$」へのリクエストをブロックしました。\n\nこのテンプレートは URL タグを使用しており、メッセージのデータをリモートサーバーに送信する可能性があります。これを許可するには、Quicktext のオプション（アドオンマネージャー → Quicktext → オプション）でリモートリクエストを有効にしてください。そこで何が送信されるかを確認することもできます。",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
   },
   "quicktext.attachmentFile.label": {
     "message": "添付ファイルを追加"
@@ -485,7 +502,11 @@
   },
   "migration.pageTitle": {
     "message": "Quicktext v$VERSION$ 移行",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.p1": {
     "message": "これは、Quicktext を最新の WebExtension に変換するための長い更新プロセスの最終段階です。Quicktext はまもなくレガシー API やコンピューターへの無制限アクセスに依存しなくなり、最新の WebExtension フレームワーク内で完全に動作するようになります。Thunderbird の新しいバージョンごとに更新する必要がなくなります。"
@@ -498,7 +519,11 @@
   },
   "migration.intro.p2": {
     "message": "最新の WebExtension はファイルシステムに直接アクセスできなくなりました。そのため、$ITEMTYPE$の定義は Quicktext の内部ストレージに保存されるようになり、テンプレートが参照するすべての添付ファイルや画像もそのストレージにコピーする必要があります。",
-    "placeholders": { "itemtype": { "content": "$1" } }
+    "placeholders": {
+      "itemtype": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.itemType.template": {
     "message": "テンプレート"
@@ -508,7 +533,11 @@
   },
   "migration.intro.p3": {
     "message": "移行後、追加の$LINK$をインストールして、Quicktext の設定全体を例えば WebDAV サーバーに移動できます。",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.p3.linkText": {
     "message": "ストレージバックエンド"
@@ -530,7 +559,11 @@
   },
   "migration.btn.startMigrationCount": {
     "message": "移行を開始（$COUNT$ 項目）",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "migration.manual.intro": {
     "message": "以下の項目は自動的に移行できないため、手動で対応する必要があります。"
@@ -540,7 +573,11 @@
   },
   "migration.incompatible.description": {
     "message": "これらのスクリプトは、利用できなくなった非推奨の Quicktext v5 API を使用しています。$LINK$を使用して書き直す必要があります。",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.incompatible.linkText": {
     "message": "最新のスクリプト API"
@@ -550,7 +587,11 @@
   },
   "migration.filesystem.description": {
     "message": "これらのテンプレートとスクリプトは、WebExtension からは直接アクセスできなくなったローカルファイルシステム上のファイルを参照しています。参照されているファイルを Quicktext ストレージにコピーし、テンプレートをそれに応じて調整する必要があります。詳細は$LINK$をご覧ください。",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.filesystem.linkText": {
     "message": "保存場所ガイド"
@@ -561,9 +602,15 @@
   "migration.dropped.description": {
     "message": "以前、テンプレートの保存やコンピューター間での共有にローカルフォルダーを使用していた場合、代わりに$VFSLINK$をインストールできます。例えば、WebDAV サーバー（ownCloud、Nextcloud など）にテンプレートを保存する$WEBDAVLINK$や、コンピューター上のフォルダーを引き続き使用する$HOMEFOLDERLINK$などがあります。",
     "placeholders": {
-      "vfslink": { "content": "$1" },
-      "webdavlink": { "content": "$2" },
-      "homefolderlink": { "content": "$3" }
+      "vfslink": {
+        "content": "$1"
+      },
+      "webdavlink": {
+        "content": "$2"
+      },
+      "homefolderlink": {
+        "content": "$3"
+      }
     }
   },
   "migration.dropped.linkVfs": {
@@ -616,14 +663,24 @@
   },
   "migration.progress.backingUp": {
     "message": "$FILENAME$ をバックアップ中…",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "migration.progress.copying": {
     "message": "$FILENAME$ をコピー中（$CURRENT$/$TOTAL$）…",
     "placeholders": {
-      "filename": { "content": "$1" },
-      "current": { "content": "$2" },
-      "total": { "content": "$3" }
+      "filename": {
+        "content": "$1"
+      },
+      "current": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
     }
   },
   "migration.progress.rewriting": {
@@ -637,17 +694,29 @@
   },
   "migration.success": {
     "message": "移行が完了しました。$COUNT$ 項目が移行されました。",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "migration.error.allFailed": {
     "message": "$FAILED$ 個のファイルのコピーに失敗しました。影響を受けたテンプレートは変更されませんでした。",
-    "placeholders": { "failed": { "content": "$1" } }
+    "placeholders": {
+      "failed": {
+        "content": "$1"
+      }
+    }
   },
   "migration.error.partialFailed": {
     "message": "$MIGRATED$ 項目が移行されましたが、$FAILED$ 個のファイルのコピーに失敗しました。影響を受けたテンプレートは変更されませんでした。",
     "placeholders": {
-      "migrated": { "content": "$1" },
-      "failed": { "content": "$2" }
+      "migrated": {
+        "content": "$1"
+      },
+      "failed": {
+        "content": "$2"
+      }
     }
   },
   "migration.btn.close": {

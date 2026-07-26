@@ -1,6 +1,23 @@
 {
   "quicktext.options.intro": {
-    "message": "Az összes Quicktext-beállítás a Quicktext-kezelőben vezérelhető és konfigurálható, a sablonok és szkriptek mellett."
+    "message": "Az alábbi adatvédelmi beállítás kivételével az összes Quicktext-beállítás a Quicktext-kezelőben vezérelhető és konfigurálható, a sablonok és szkriptek mellett."
+  },
+  "quicktext.remoteRequests.legend": {
+    "message": "Távoli kérések"
+  },
+  "quicktext.remoteRequests.label": {
+    "message": "Sablonok engedélyezése távoli kiszolgálók elérésére és adatok küldésére (URL címke)"
+  },
+  "quicktext.remoteRequests.description": {
+    "message": "Ez a beállítás alapértelmezés szerint ki van kapcsolva. Amíg ki van kapcsolva, a Quicktext minden, az URL címke által kezdeményezett kérést blokkol, és semmilyen adat nem hagyja el a számítógépét. Ha bekapcsolja, az URL címkét használó sablon felveszi a kapcsolatot a sablonban megadott webcímmel, és attól függően, hogy a sablon mit kér, a következő adatokat küldheti el neki: az üzenet címzettjei (Címzett, Másolat, Titkos másolat), az Ön feladói azonosítója, a tárgy, az aktuális szövegkijelölés, a vágólap aktuális tartalma, a mellékletek nevei és méretei, valamint annak az üzenetnek a fejlécei és mellékletnevei, amelyre válaszol vagy amelyet továbbít. A webcímet a sablon szerzője határozza meg, nem a Quicktext. Semmilyen adat nem kerül elküldésre a Quicktextnek vagy a szerzőinek."
+  },
+  "quicktext.remoteBlocked.label": {
+    "message": "A Quicktext blokkolt egy kérést a következőhöz: „$P1$“.\n\nEz a sablon az URL címkét használja, amely adatokat küldhet az üzenetéből egy távoli kiszolgálóra. Ennek engedélyezéséhez kapcsolja be a távoli kéréseket a Quicktext beállításaiban (Kiegészítők kezelője → Quicktext → Beállítások), ahol azt is láthatja, hogy mi kerül elküldésre.",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
   },
   "quicktext.attachmentFile.label": {
     "message": "Melléklet hozzáadása"
@@ -485,7 +502,11 @@
   },
   "migration.pageTitle": {
     "message": "Quicktext v$VERSION$ migráció",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.p1": {
     "message": "Ez a Quicktext modern WebExtensionné alakításának hosszú frissítési folyamatának utolsó lépése. A Quicktext hamarosan nem fog többé régi API-kra és korlátlan hozzáférésre támaszkodni a számítógépéhez, hanem teljes mértékben a modern WebExtension keretrendszeren belül fog működni - többé nem igényel frissítést a Thunderbird minden új verziójához."
@@ -498,7 +519,11 @@
   },
   "migration.intro.p2": {
     "message": "A modern WebExtensionök többé nem férhetnek hozzá közvetlenül a fájlrendszeréhez. Ennek következtében a(z) $ITEMTYPE$ definícióit mostantól a Quicktext belső tárhelyén tároljuk, és a sablonjai által hivatkozott összes mellékletet és képet is ebbe a tárhelybe kell másolni.",
-    "placeholders": { "itemtype": { "content": "$1" } }
+    "placeholders": {
+      "itemtype": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.itemType.template": {
     "message": "sablon"
@@ -508,7 +533,11 @@
   },
   "migration.intro.p3": {
     "message": "A migráció után további $LINK$ telepíthet, és áthelyezheti a teljes Quicktext-konfigurációját, például egy WebDAV szerverre.",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.p3.linkText": {
     "message": "tárolási háttérrendszereket"
@@ -530,7 +559,11 @@
   },
   "migration.btn.startMigrationCount": {
     "message": "Migráció indítása ($COUNT$ elem)",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "migration.manual.intro": {
     "message": "Az alább felsorolt elemek nem migrálhatók automatikusan, és kézi beavatkozást igényelnek."
@@ -540,7 +573,11 @@
   },
   "migration.incompatible.description": {
     "message": "Ezek a szkriptek elavult Quicktext v5 API-kat használnak, amelyek már nem érhetők el. Át kell írni őket a(z) $LINK$ használatával.",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.incompatible.linkText": {
     "message": "modern szkript API"
@@ -550,7 +587,11 @@
   },
   "migration.filesystem.description": {
     "message": "Ezek a sablonok és szkriptek a helyi fájlrendszeren lévő fájlokra hivatkoznak, amelyek a WebExtensionök számára többé nem érhetők el közvetlenül. A hivatkozott fájlokat a Quicktext tárhelybe kell másolni, és a sablonokat ennek megfelelően kell módosítani. Részletekért lásd a(z) $LINK$.",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.filesystem.linkText": {
     "message": "tárolóhelyek útmutatója"
@@ -561,9 +602,15 @@
   "migration.dropped.description": {
     "message": "Ha korábban helyi mappát használt sablonjai tárolására vagy számítógépek közötti megosztására, telepíthet egy $VFSLINK$ helyettesítőként - például a(z) $WEBDAVLINK$ a sablonok WebDAV szerveren (ownCloud, Nextcloud stb.) történő tárolásához, vagy a(z) $HOMEFOLDERLINK$ a számítógépén lévő mappa további használatához.",
     "placeholders": {
-      "vfslink": { "content": "$1" },
-      "webdavlink": { "content": "$2" },
-      "homefolderlink": { "content": "$3" }
+      "vfslink": {
+        "content": "$1"
+      },
+      "webdavlink": {
+        "content": "$2"
+      },
+      "homefolderlink": {
+        "content": "$3"
+      }
     }
   },
   "migration.dropped.linkVfs": {
@@ -616,14 +663,24 @@
   },
   "migration.progress.backingUp": {
     "message": "$FILENAME$ biztonsági mentése…",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "migration.progress.copying": {
     "message": "$FILENAME$ másolása ($CURRENT$/$TOTAL$)…",
     "placeholders": {
-      "filename": { "content": "$1" },
-      "current": { "content": "$2" },
-      "total": { "content": "$3" }
+      "filename": {
+        "content": "$1"
+      },
+      "current": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
     }
   },
   "migration.progress.rewriting": {
@@ -637,17 +694,29 @@
   },
   "migration.success": {
     "message": "A migráció befejeződött. $COUNT$ elem migrálva.",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "migration.error.allFailed": {
     "message": "$FAILED$ fájl másolása sikertelen. Az érintett sablonok változatlanul maradtak.",
-    "placeholders": { "failed": { "content": "$1" } }
+    "placeholders": {
+      "failed": {
+        "content": "$1"
+      }
+    }
   },
   "migration.error.partialFailed": {
     "message": "$MIGRATED$ elem migrálva, de $FAILED$ fájl másolása sikertelen. Az érintett sablonok változatlanul maradtak.",
     "placeholders": {
-      "migrated": { "content": "$1" },
-      "failed": { "content": "$2" }
+      "migrated": {
+        "content": "$1"
+      },
+      "failed": {
+        "content": "$2"
+      }
     }
   },
   "migration.btn.close": {

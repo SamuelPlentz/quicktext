@@ -1,6 +1,23 @@
 {
   "quicktext.options.intro": {
-    "message": "Alle Quicktext-Einstellungen können im Quicktext-Manager gesteuert und konfiguriert werden, zusammen mit Ihren Vorlagen und Skripten."
+    "message": "Mit Ausnahme der Datenschutzeinstellung unten können alle Quicktext-Einstellungen im Quicktext-Manager gesteuert und konfiguriert werden, zusammen mit Ihren Vorlagen und Skripten."
+  },
+  "quicktext.remoteRequests.legend": {
+    "message": "Externe Anfragen"
+  },
+  "quicktext.remoteRequests.label": {
+    "message": "Vorlagen erlauben, externe Server zu kontaktieren und Daten an sie zu senden (URL-Tag)"
+  },
+  "quicktext.remoteRequests.description": {
+    "message": "Diese Einstellung ist standardmäßig deaktiviert. Solange sie deaktiviert ist, blockiert Quicktext jede vom URL-Tag ausgelöste Anfrage, und es verlassen keine Daten Ihren Computer. Wenn Sie sie aktivieren, kontaktiert eine Vorlage mit dem URL-Tag die in dieser Vorlage angegebene Webadresse und kann je nach Anforderung der Vorlage die folgenden Daten an sie senden: die Empfänger der Nachricht (An, Kopie, Blindkopie), Ihre Absenderidentität, den Betreff, die aktuelle Textauswahl, den aktuellen Inhalt der Zwischenablage, die Namen und Größen der Anhänge sowie die Kopfzeilen und Anhangsnamen der Nachricht, auf die Sie antworten oder die Sie weiterleiten. Die Webadresse wird vom Autor der Vorlage festgelegt, nicht von Quicktext. Es werden keine Daten an Quicktext oder dessen Autoren gesendet."
+  },
+  "quicktext.remoteBlocked.label": {
+    "message": "Quicktext hat eine Anfrage an „$P1$“ blockiert.\n\nDiese Vorlage verwendet das URL-Tag, das Daten aus Ihrer Nachricht an einen externen Server senden kann. Um dies zu erlauben, aktivieren Sie externe Anfragen in den Quicktext-Optionen (Add-ons-Manager → Quicktext → Optionen), wo Sie auch sehen können, was gesendet wird.",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
   },
   "quicktext.attachmentFile.label": {
     "message": "Anhang hinzufügen"
@@ -485,7 +502,11 @@
   },
   "migration.pageTitle": {
     "message": "Quicktext v$VERSION$ Migration",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.p1": {
     "message": "Dies ist der letzte Schritt eines langen Aktualisierungsprozesses, um Quicktext in eine moderne WebExtension umzuwandeln. Quicktext wird bald nicht mehr auf veraltete APIs und uneingeschränkten Zugriff auf Ihren Computer angewiesen sein, sondern vollständig innerhalb des modernen WebExtension-Frameworks arbeiten - ohne dass für jede neue Version von Thunderbird ein Update erforderlich ist."
@@ -498,7 +519,11 @@
   },
   "migration.intro.p2": {
     "message": "Moderne WebExtensions können nicht mehr direkt auf Ihr Dateisystem zugreifen. Daher werden Ihre $ITEMTYPE$-Definitionen jetzt in einem internen Quicktext-Speicher abgelegt, und alle Anhänge und Bilder, auf die Ihre Vorlagen verweisen, müssen ebenfalls in diesen Speicher kopiert werden.",
-    "placeholders": { "itemtype": { "content": "$1" } }
+    "placeholders": {
+      "itemtype": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.itemType.template": {
     "message": "Vorlagen"
@@ -508,7 +533,11 @@
   },
   "migration.intro.p3": {
     "message": "Nach der Migration können Sie zusätzliche $LINK$ installieren und Ihre gesamte Quicktext-Konfiguration verschieben, beispielsweise auf einen WebDAV-Server.",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.p3.linkText": {
     "message": "Speicher-Backends"
@@ -530,7 +559,11 @@
   },
   "migration.btn.startMigrationCount": {
     "message": "Migration starten ($COUNT$ Elemente)",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "migration.manual.intro": {
     "message": "Die unten aufgeführten Elemente können nicht automatisch migriert werden und erfordern manuelle Bearbeitung."
@@ -540,7 +573,11 @@
   },
   "migration.incompatible.description": {
     "message": "Diese Skripte verwenden veraltete Quicktext-v5-APIs, die nicht mehr verfügbar sind. Sie müssen mit der $LINK$ neu geschrieben werden.",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.incompatible.linkText": {
     "message": "modernen Skript-API"
@@ -550,7 +587,11 @@
   },
   "migration.filesystem.description": {
     "message": "Diese Vorlagen und Skripte verweisen auf Dateien in Ihrem lokalen Dateisystem, auf das WebExtensions nicht mehr direkt zugreifen können. Die referenzierten Dateien müssen in den Quicktext-Speicher kopiert und die Vorlagen entsprechend angepasst werden. Weitere Details finden Sie im $LINK$.",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.filesystem.linkText": {
     "message": "Leitfaden zu Speicherorten"
@@ -561,9 +602,15 @@
   "migration.dropped.description": {
     "message": "Wenn Sie zuvor einen lokalen Ordner zum Speichern Ihrer Vorlagen oder zum Teilen zwischen Computern verwendet haben, können Sie als Ersatz ein $VFSLINK$ installieren - beispielsweise den $WEBDAVLINK$, um Vorlagen auf einem WebDAV-Server zu speichern (ownCloud, Nextcloud usw.), oder den $HOMEFOLDERLINK$, um weiterhin einen Ordner auf Ihrem Computer zu verwenden.",
     "placeholders": {
-      "vfslink": { "content": "$1" },
-      "webdavlink": { "content": "$2" },
-      "homefolderlink": { "content": "$3" }
+      "vfslink": {
+        "content": "$1"
+      },
+      "webdavlink": {
+        "content": "$2"
+      },
+      "homefolderlink": {
+        "content": "$3"
+      }
     }
   },
   "migration.dropped.linkVfs": {
@@ -616,14 +663,24 @@
   },
   "migration.progress.backingUp": {
     "message": "Sicherung von $FILENAME$…",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "migration.progress.copying": {
     "message": "Kopiere $FILENAME$ ($CURRENT$/$TOTAL$)…",
     "placeholders": {
-      "filename": { "content": "$1" },
-      "current": { "content": "$2" },
-      "total": { "content": "$3" }
+      "filename": {
+        "content": "$1"
+      },
+      "current": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
     }
   },
   "migration.progress.rewriting": {
@@ -637,17 +694,29 @@
   },
   "migration.success": {
     "message": "Migration abgeschlossen. $COUNT$ Element(e) migriert.",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "migration.error.allFailed": {
     "message": "$FAILED$ Datei(en) konnten nicht kopiert werden. Die betroffenen Vorlagen wurden nicht verändert.",
-    "placeholders": { "failed": { "content": "$1" } }
+    "placeholders": {
+      "failed": {
+        "content": "$1"
+      }
+    }
   },
   "migration.error.partialFailed": {
     "message": "$MIGRATED$ Element(e) migriert, aber $FAILED$ Datei(en) konnten nicht kopiert werden. Die betroffenen Vorlagen wurden nicht verändert.",
     "placeholders": {
-      "migrated": { "content": "$1" },
-      "failed": { "content": "$2" }
+      "migrated": {
+        "content": "$1"
+      },
+      "failed": {
+        "content": "$2"
+      }
     }
   },
   "migration.btn.close": {

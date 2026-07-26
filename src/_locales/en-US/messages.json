@@ -502,7 +502,11 @@
   },
   "migration.pageTitle": {
     "message": "Quicktext v$VERSION$ Migration",
-    "placeholders": { "version": { "content": "$1" } }
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.p1": {
     "message": "This is the final step of a long update process to convert Quicktext into a modern WebExtension. Quicktext will soon no longer rely on legacy APIs and unrestricted access to your computer, but fully work within the modern WebExtension framework - no longer requiring an update for each new version of Thunderbird."
@@ -515,7 +519,11 @@
   },
   "migration.intro.p2": {
     "message": "Modern WebExtensions can no longer directly access your file system. As a result, your $ITEMTYPE$ definitions are now stored inside an internal Quicktext storage, and all attachments and images your templates reference need to be copied into that storage as well.",
-    "placeholders": { "itemtype": { "content": "$1" } }
+    "placeholders": {
+      "itemtype": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.itemType.template": {
     "message": "template"
@@ -525,7 +533,11 @@
   },
   "migration.intro.p3": {
     "message": "After migration, you may install additional $LINK$ and move your complete Quicktext configuration, for example to a WebDAV server.",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.intro.p3.linkText": {
     "message": "storage backends"
@@ -547,7 +559,11 @@
   },
   "migration.btn.startMigrationCount": {
     "message": "Start migration ($COUNT$ items)",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "migration.manual.intro": {
     "message": "The items listed below cannot be migrated automatically and require manual attention."
@@ -557,7 +573,11 @@
   },
   "migration.incompatible.description": {
     "message": "These scripts use deprecated Quicktext v5 APIs that are no longer available. They need to be rewritten using the $LINK$.",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.incompatible.linkText": {
     "message": "modern script API"
@@ -567,7 +587,11 @@
   },
   "migration.filesystem.description": {
     "message": "These templates and scripts reference files on your local filesystem, which is no longer directly accessible to WebExtensions. The referenced files need to be copied into the Quicktext storage and the templates need to be adjusted accordingly. See the $LINK$ for details.",
-    "placeholders": { "link": { "content": "$1" } }
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "migration.filesystem.linkText": {
     "message": "storage locations guide"
@@ -578,9 +602,15 @@
   "migration.dropped.description": {
     "message": "If you previously used a local folder to store your templates or to share them across computers, you can install a $VFSLINK$ as a replacement - for example the $WEBDAVLINK$ to store templates on a WebDAV server (ownCloud, Nextcloud, etc.), or the $HOMEFOLDERLINK$ to continue using a folder on your computer.",
     "placeholders": {
-      "vfslink": { "content": "$1" },
-      "webdavlink": { "content": "$2" },
-      "homefolderlink": { "content": "$3" }
+      "vfslink": {
+        "content": "$1"
+      },
+      "webdavlink": {
+        "content": "$2"
+      },
+      "homefolderlink": {
+        "content": "$3"
+      }
     }
   },
   "migration.dropped.linkVfs": {
@@ -633,14 +663,24 @@
   },
   "migration.progress.backingUp": {
     "message": "Backing up $FILENAME$…",
-    "placeholders": { "filename": { "content": "$1" } }
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
   },
   "migration.progress.copying": {
     "message": "Copying $FILENAME$ ($CURRENT$/$TOTAL$)…",
     "placeholders": {
-      "filename": { "content": "$1" },
-      "current": { "content": "$2" },
-      "total": { "content": "$3" }
+      "filename": {
+        "content": "$1"
+      },
+      "current": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
     }
   },
   "migration.progress.rewriting": {
@@ -654,17 +694,29 @@
   },
   "migration.success": {
     "message": "Migration complete. $COUNT$ item(s) migrated.",
-    "placeholders": { "count": { "content": "$1" } }
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
   },
   "migration.error.allFailed": {
     "message": "$FAILED$ file(s) failed to copy. The affected templates were left unchanged.",
-    "placeholders": { "failed": { "content": "$1" } }
+    "placeholders": {
+      "failed": {
+        "content": "$1"
+      }
+    }
   },
   "migration.error.partialFailed": {
     "message": "$MIGRATED$ item(s) migrated, but $FAILED$ file(s) failed to copy. The affected templates were left unchanged.",
     "placeholders": {
-      "migrated": { "content": "$1" },
-      "failed": { "content": "$2" }
+      "migrated": {
+        "content": "$1"
+      },
+      "failed": {
+        "content": "$2"
+      }
     }
   },
   "migration.btn.close": {

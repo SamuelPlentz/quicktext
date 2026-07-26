@@ -59,6 +59,75 @@
   "quicktext.HTML.label": {
     "message": "HTML"
   },
+  "quicktext.editor.bold": {
+    "message": "Fet"
+  },
+  "quicktext.editor.italic": {
+    "message": "Kursiv"
+  },
+  "quicktext.editor.underline": {
+    "message": "Understruken"
+  },
+  "quicktext.editor.strikethrough": {
+    "message": "Genomstruken"
+  },
+  "quicktext.editor.ul": {
+    "message": "Punktlista"
+  },
+  "quicktext.editor.ol": {
+    "message": "Numrerad lista"
+  },
+  "quicktext.editor.indent": {
+    "message": "Öka indrag"
+  },
+  "quicktext.editor.outdent": {
+    "message": "Minska indrag"
+  },
+  "quicktext.editor.align": {
+    "message": "Justering"
+  },
+  "quicktext.editor.alignLeft": {
+    "message": "Vänster"
+  },
+  "quicktext.editor.alignCenter": {
+    "message": "Centrera"
+  },
+  "quicktext.editor.alignRight": {
+    "message": "Höger"
+  },
+  "quicktext.editor.alignJustify": {
+    "message": "Marginaljustera"
+  },
+  "quicktext.editor.font": {
+    "message": "Teckensnitt"
+  },
+  "quicktext.editor.fontDefault": {
+    "message": "Standardteckensnitt"
+  },
+  "quicktext.editor.size": {
+    "message": "Teckenstorlek"
+  },
+  "quicktext.editor.sizeDefault": {
+    "message": "Standardstorlek"
+  },
+  "quicktext.editor.textColor": {
+    "message": "Textfärg"
+  },
+  "quicktext.editor.highlightColor": {
+    "message": "Överstrykningsfärg"
+  },
+  "quicktext.editor.link": {
+    "message": "Infoga länk"
+  },
+  "quicktext.editor.unlink": {
+    "message": "Ta bort länk"
+  },
+  "quicktext.editor.clear": {
+    "message": "Rensa formatering"
+  },
+  "quicktext.editor.linkPrompt": {
+    "message": "Ange länkens URL:"
+  },
   "quicktext.advanced.label": {
     "message": "Lagringsplatser"
   },

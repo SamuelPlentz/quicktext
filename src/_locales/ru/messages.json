@@ -59,6 +59,75 @@
   "quicktext.HTML.label": {
     "message": "HTML"
   },
+  "quicktext.editor.bold": {
+    "message": "Полужирный"
+  },
+  "quicktext.editor.italic": {
+    "message": "Курсив"
+  },
+  "quicktext.editor.underline": {
+    "message": "Подчёркнутый"
+  },
+  "quicktext.editor.strikethrough": {
+    "message": "Зачёркнутый"
+  },
+  "quicktext.editor.ul": {
+    "message": "Маркированный список"
+  },
+  "quicktext.editor.ol": {
+    "message": "Нумерованный список"
+  },
+  "quicktext.editor.indent": {
+    "message": "Увеличить отступ"
+  },
+  "quicktext.editor.outdent": {
+    "message": "Уменьшить отступ"
+  },
+  "quicktext.editor.align": {
+    "message": "Выравнивание"
+  },
+  "quicktext.editor.alignLeft": {
+    "message": "По левому краю"
+  },
+  "quicktext.editor.alignCenter": {
+    "message": "По центру"
+  },
+  "quicktext.editor.alignRight": {
+    "message": "По правому краю"
+  },
+  "quicktext.editor.alignJustify": {
+    "message": "По ширине"
+  },
+  "quicktext.editor.font": {
+    "message": "Шрифт"
+  },
+  "quicktext.editor.fontDefault": {
+    "message": "Шрифт по умолчанию"
+  },
+  "quicktext.editor.size": {
+    "message": "Размер шрифта"
+  },
+  "quicktext.editor.sizeDefault": {
+    "message": "Размер по умолчанию"
+  },
+  "quicktext.editor.textColor": {
+    "message": "Цвет текста"
+  },
+  "quicktext.editor.highlightColor": {
+    "message": "Цвет выделения"
+  },
+  "quicktext.editor.link": {
+    "message": "Вставить ссылку"
+  },
+  "quicktext.editor.unlink": {
+    "message": "Удалить ссылку"
+  },
+  "quicktext.editor.clear": {
+    "message": "Очистить форматирование"
+  },
+  "quicktext.editor.linkPrompt": {
+    "message": "Введите URL ссылки:"
+  },
   "quicktext.advanced.label": {
     "message": "Места хранения"
   },

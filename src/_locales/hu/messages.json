@@ -59,6 +59,75 @@
   "quicktext.HTML.label": {
     "message": "HTML"
   },
+  "quicktext.editor.bold": {
+    "message": "Félkövér"
+  },
+  "quicktext.editor.italic": {
+    "message": "Dőlt"
+  },
+  "quicktext.editor.underline": {
+    "message": "Aláhúzott"
+  },
+  "quicktext.editor.strikethrough": {
+    "message": "Áthúzott"
+  },
+  "quicktext.editor.ul": {
+    "message": "Felsorolás"
+  },
+  "quicktext.editor.ol": {
+    "message": "Számozott lista"
+  },
+  "quicktext.editor.indent": {
+    "message": "Behúzás növelése"
+  },
+  "quicktext.editor.outdent": {
+    "message": "Behúzás csökkentése"
+  },
+  "quicktext.editor.align": {
+    "message": "Igazítás"
+  },
+  "quicktext.editor.alignLeft": {
+    "message": "Balra"
+  },
+  "quicktext.editor.alignCenter": {
+    "message": "Középre"
+  },
+  "quicktext.editor.alignRight": {
+    "message": "Jobbra"
+  },
+  "quicktext.editor.alignJustify": {
+    "message": "Sorkizárt"
+  },
+  "quicktext.editor.font": {
+    "message": "Betűtípus"
+  },
+  "quicktext.editor.fontDefault": {
+    "message": "Alapértelmezett betűtípus"
+  },
+  "quicktext.editor.size": {
+    "message": "Betűméret"
+  },
+  "quicktext.editor.sizeDefault": {
+    "message": "Alapértelmezett méret"
+  },
+  "quicktext.editor.textColor": {
+    "message": "Szövegszín"
+  },
+  "quicktext.editor.highlightColor": {
+    "message": "Kiemelés színe"
+  },
+  "quicktext.editor.link": {
+    "message": "Hivatkozás beszúrása"
+  },
+  "quicktext.editor.unlink": {
+    "message": "Hivatkozás eltávolítása"
+  },
+  "quicktext.editor.clear": {
+    "message": "Formázás törlése"
+  },
+  "quicktext.editor.linkPrompt": {
+    "message": "Adja meg a hivatkozás URL-címét:"
+  },
   "quicktext.advanced.label": {
     "message": "Tárhely helyek"
   },

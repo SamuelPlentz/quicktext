@@ -59,6 +59,75 @@
   "quicktext.HTML.label": {
     "message": "HTML"
   },
+  "quicktext.editor.bold": {
+    "message": "太字"
+  },
+  "quicktext.editor.italic": {
+    "message": "斜体"
+  },
+  "quicktext.editor.underline": {
+    "message": "下線"
+  },
+  "quicktext.editor.strikethrough": {
+    "message": "取り消し線"
+  },
+  "quicktext.editor.ul": {
+    "message": "箇条書き"
+  },
+  "quicktext.editor.ol": {
+    "message": "番号付きリスト"
+  },
+  "quicktext.editor.indent": {
+    "message": "インデントを増やす"
+  },
+  "quicktext.editor.outdent": {
+    "message": "インデントを減らす"
+  },
+  "quicktext.editor.align": {
+    "message": "配置"
+  },
+  "quicktext.editor.alignLeft": {
+    "message": "左揃え"
+  },
+  "quicktext.editor.alignCenter": {
+    "message": "中央揃え"
+  },
+  "quicktext.editor.alignRight": {
+    "message": "右揃え"
+  },
+  "quicktext.editor.alignJustify": {
+    "message": "両端揃え"
+  },
+  "quicktext.editor.font": {
+    "message": "フォント"
+  },
+  "quicktext.editor.fontDefault": {
+    "message": "既定のフォント"
+  },
+  "quicktext.editor.size": {
+    "message": "フォントサイズ"
+  },
+  "quicktext.editor.sizeDefault": {
+    "message": "既定のサイズ"
+  },
+  "quicktext.editor.textColor": {
+    "message": "文字色"
+  },
+  "quicktext.editor.highlightColor": {
+    "message": "蛍光ペンの色"
+  },
+  "quicktext.editor.link": {
+    "message": "リンクを挿入"
+  },
+  "quicktext.editor.unlink": {
+    "message": "リンクを削除"
+  },
+  "quicktext.editor.clear": {
+    "message": "書式をクリア"
+  },
+  "quicktext.editor.linkPrompt": {
+    "message": "リンクの URL を入力してください:"
+  },
   "quicktext.advanced.label": {
     "message": "保存場所"
   },

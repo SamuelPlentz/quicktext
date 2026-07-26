@@ -555,6 +555,10 @@ fieldset legend {
 .var-separator { height: 1px; background: var(--border); margin: 2px 0; }
 
 .body-row { flex: 1; display: flex; flex-direction: column; margin: 6px 0; }
+/* The flex display above overrides the UA [hidden] rule, so restore it explicitly
+   (else the body-row / toolbar stay visible on groups and plain-text templates). */
+.body-row[hidden] { display: none; }
+.wysiwyg-toolbar[hidden] { display: none; }
 .body-row textarea {
   flex: 1;
   width: 100%;
@@ -565,6 +569,66 @@ fieldset legend {
   border: 1px solid var(--border);
   border-radius: 3px;
   padding: 4px;
+}
+
+/* WYSIWYG editor for text/html templates (Squire mounts into #text-body-html). */
+.body-row .wysiwyg {
+  flex: 1;
+  width: 100%;
+  min-height: 120px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 4px 6px;
+  background: var(--bg-input);
+  color: var(--text);
+  font-size: 13px;
+}
+.body-row .wysiwyg[contenteditable="false"] { background: var(--bg-disabled); }
+.body-row .wysiwyg:focus { outline: 1px solid var(--accent); }
+
+.wysiwyg-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+.wysiwyg-toolbar .wtb {
+  min-width: 26px;
+  height: 24px;
+  padding: 0 5px;
+  border: 1px solid var(--border-btn);
+  border-radius: 3px;
+  background: var(--bg-btn);
+  cursor: pointer;
+}
+.wysiwyg-toolbar .wtb:hover:not(:disabled) { background: var(--bg-btn-hover); }
+.wysiwyg-toolbar .wtb.active { background: var(--bg-selected); }
+.wysiwyg-toolbar .wtb-sep { width: 1px; align-self: stretch; background: var(--border); margin: 2px 3px; }
+.wysiwyg-toolbar .wtb-select { height: 24px; max-width: 110px; }
+.wysiwyg-toolbar .wtb-color {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 24px;
+  border: 1px solid var(--border-btn);
+  border-radius: 3px;
+  background: var(--bg-btn);
+  cursor: pointer;
+  position: relative;
+}
+.wysiwyg-toolbar .wtb-color input[type="color"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
 }
 
 #label-modifier { color: var(--text-muted); }

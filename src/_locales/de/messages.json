@@ -59,6 +59,75 @@
   "quicktext.HTML.label": {
     "message": "HTML"
   },
+  "quicktext.editor.bold": {
+    "message": "Fett"
+  },
+  "quicktext.editor.italic": {
+    "message": "Kursiv"
+  },
+  "quicktext.editor.underline": {
+    "message": "Unterstrichen"
+  },
+  "quicktext.editor.strikethrough": {
+    "message": "Durchgestrichen"
+  },
+  "quicktext.editor.ul": {
+    "message": "Aufzählung"
+  },
+  "quicktext.editor.ol": {
+    "message": "Nummerierte Liste"
+  },
+  "quicktext.editor.indent": {
+    "message": "Einzug vergrößern"
+  },
+  "quicktext.editor.outdent": {
+    "message": "Einzug verkleinern"
+  },
+  "quicktext.editor.align": {
+    "message": "Ausrichtung"
+  },
+  "quicktext.editor.alignLeft": {
+    "message": "Linksbündig"
+  },
+  "quicktext.editor.alignCenter": {
+    "message": "Zentriert"
+  },
+  "quicktext.editor.alignRight": {
+    "message": "Rechtsbündig"
+  },
+  "quicktext.editor.alignJustify": {
+    "message": "Blocksatz"
+  },
+  "quicktext.editor.font": {
+    "message": "Schriftart"
+  },
+  "quicktext.editor.fontDefault": {
+    "message": "Standardschriftart"
+  },
+  "quicktext.editor.size": {
+    "message": "Schriftgröße"
+  },
+  "quicktext.editor.sizeDefault": {
+    "message": "Standardgröße"
+  },
+  "quicktext.editor.textColor": {
+    "message": "Textfarbe"
+  },
+  "quicktext.editor.highlightColor": {
+    "message": "Hervorhebungsfarbe"
+  },
+  "quicktext.editor.link": {
+    "message": "Link einfügen"
+  },
+  "quicktext.editor.unlink": {
+    "message": "Link entfernen"
+  },
+  "quicktext.editor.clear": {
+    "message": "Formatierung entfernen"
+  },
+  "quicktext.editor.linkPrompt": {
+    "message": "Geben Sie die Link-URL ein:"
+  },
   "quicktext.advanced.label": {
     "message": "Speicherorte"
   },

@@ -59,6 +59,75 @@
   "quicktext.HTML.label": {
     "message": "HTML"
   },
+  "quicktext.editor.bold": {
+    "message": "Grassetto"
+  },
+  "quicktext.editor.italic": {
+    "message": "Corsivo"
+  },
+  "quicktext.editor.underline": {
+    "message": "Sottolineato"
+  },
+  "quicktext.editor.strikethrough": {
+    "message": "Barrato"
+  },
+  "quicktext.editor.ul": {
+    "message": "Elenco puntato"
+  },
+  "quicktext.editor.ol": {
+    "message": "Elenco numerato"
+  },
+  "quicktext.editor.indent": {
+    "message": "Aumenta rientro"
+  },
+  "quicktext.editor.outdent": {
+    "message": "Riduci rientro"
+  },
+  "quicktext.editor.align": {
+    "message": "Allineamento"
+  },
+  "quicktext.editor.alignLeft": {
+    "message": "Sinistra"
+  },
+  "quicktext.editor.alignCenter": {
+    "message": "Centro"
+  },
+  "quicktext.editor.alignRight": {
+    "message": "Destra"
+  },
+  "quicktext.editor.alignJustify": {
+    "message": "Giustificato"
+  },
+  "quicktext.editor.font": {
+    "message": "Carattere"
+  },
+  "quicktext.editor.fontDefault": {
+    "message": "Carattere predefinito"
+  },
+  "quicktext.editor.size": {
+    "message": "Dimensione carattere"
+  },
+  "quicktext.editor.sizeDefault": {
+    "message": "Dimensione predefinita"
+  },
+  "quicktext.editor.textColor": {
+    "message": "Colore testo"
+  },
+  "quicktext.editor.highlightColor": {
+    "message": "Colore evidenziazione"
+  },
+  "quicktext.editor.link": {
+    "message": "Inserisci collegamento"
+  },
+  "quicktext.editor.unlink": {
+    "message": "Rimuovi collegamento"
+  },
+  "quicktext.editor.clear": {
+    "message": "Cancella formattazione"
+  },
+  "quicktext.editor.linkPrompt": {
+    "message": "Inserisci l'URL del collegamento:"
+  },
   "quicktext.advanced.label": {
     "message": "Posizioni di archiviazione"
   },

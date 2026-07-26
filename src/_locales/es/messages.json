@@ -59,6 +59,75 @@
   "quicktext.HTML.label": {
     "message": "HTML"
   },
+  "quicktext.editor.bold": {
+    "message": "Negrita"
+  },
+  "quicktext.editor.italic": {
+    "message": "Cursiva"
+  },
+  "quicktext.editor.underline": {
+    "message": "Subrayado"
+  },
+  "quicktext.editor.strikethrough": {
+    "message": "Tachado"
+  },
+  "quicktext.editor.ul": {
+    "message": "Lista con viñetas"
+  },
+  "quicktext.editor.ol": {
+    "message": "Lista numerada"
+  },
+  "quicktext.editor.indent": {
+    "message": "Aumentar sangría"
+  },
+  "quicktext.editor.outdent": {
+    "message": "Disminuir sangría"
+  },
+  "quicktext.editor.align": {
+    "message": "Alineación"
+  },
+  "quicktext.editor.alignLeft": {
+    "message": "Izquierda"
+  },
+  "quicktext.editor.alignCenter": {
+    "message": "Centro"
+  },
+  "quicktext.editor.alignRight": {
+    "message": "Derecha"
+  },
+  "quicktext.editor.alignJustify": {
+    "message": "Justificado"
+  },
+  "quicktext.editor.font": {
+    "message": "Fuente"
+  },
+  "quicktext.editor.fontDefault": {
+    "message": "Fuente predeterminada"
+  },
+  "quicktext.editor.size": {
+    "message": "Tamaño de fuente"
+  },
+  "quicktext.editor.sizeDefault": {
+    "message": "Tamaño predeterminado"
+  },
+  "quicktext.editor.textColor": {
+    "message": "Color del texto"
+  },
+  "quicktext.editor.highlightColor": {
+    "message": "Color de resaltado"
+  },
+  "quicktext.editor.link": {
+    "message": "Insertar enlace"
+  },
+  "quicktext.editor.unlink": {
+    "message": "Quitar enlace"
+  },
+  "quicktext.editor.clear": {
+    "message": "Borrar formato"
+  },
+  "quicktext.editor.linkPrompt": {
+    "message": "Introduzca la URL del enlace:"
+  },
   "quicktext.advanced.label": {
     "message": "Ubicaciones de almacenamiento"
   },

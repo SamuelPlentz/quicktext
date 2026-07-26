@@ -59,6 +59,75 @@
   "quicktext.HTML.label": {
     "message": "HTML"
   },
+  "quicktext.editor.bold": {
+    "message": "Tučné"
+  },
+  "quicktext.editor.italic": {
+    "message": "Kurzíva"
+  },
+  "quicktext.editor.underline": {
+    "message": "Podtržené"
+  },
+  "quicktext.editor.strikethrough": {
+    "message": "Přeškrtnuté"
+  },
+  "quicktext.editor.ul": {
+    "message": "Odrážkový seznam"
+  },
+  "quicktext.editor.ol": {
+    "message": "Číslovaný seznam"
+  },
+  "quicktext.editor.indent": {
+    "message": "Zvětšit odsazení"
+  },
+  "quicktext.editor.outdent": {
+    "message": "Zmenšit odsazení"
+  },
+  "quicktext.editor.align": {
+    "message": "Zarovnání"
+  },
+  "quicktext.editor.alignLeft": {
+    "message": "Vlevo"
+  },
+  "quicktext.editor.alignCenter": {
+    "message": "Na střed"
+  },
+  "quicktext.editor.alignRight": {
+    "message": "Vpravo"
+  },
+  "quicktext.editor.alignJustify": {
+    "message": "Do bloku"
+  },
+  "quicktext.editor.font": {
+    "message": "Písmo"
+  },
+  "quicktext.editor.fontDefault": {
+    "message": "Výchozí písmo"
+  },
+  "quicktext.editor.size": {
+    "message": "Velikost písma"
+  },
+  "quicktext.editor.sizeDefault": {
+    "message": "Výchozí velikost"
+  },
+  "quicktext.editor.textColor": {
+    "message": "Barva textu"
+  },
+  "quicktext.editor.highlightColor": {
+    "message": "Barva zvýraznění"
+  },
+  "quicktext.editor.link": {
+    "message": "Vložit odkaz"
+  },
+  "quicktext.editor.unlink": {
+    "message": "Odebrat odkaz"
+  },
+  "quicktext.editor.clear": {
+    "message": "Vymazat formátování"
+  },
+  "quicktext.editor.linkPrompt": {
+    "message": "Zadejte URL odkazu:"
+  },
   "quicktext.advanced.label": {
     "message": "Umístění úložiště"
   },

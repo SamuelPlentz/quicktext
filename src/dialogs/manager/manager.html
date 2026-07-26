@@ -101,7 +101,49 @@
               </div>
             </div>
             <div class="template-only body-row">
+              <div id="wysiwyg-toolbar" class="wysiwyg-toolbar" hidden>
+                <button type="button" class="wtb" data-cmd="bold" data-i18n-title="quicktext.editor.bold"><b>B</b></button>
+                <button type="button" class="wtb" data-cmd="italic" data-i18n-title="quicktext.editor.italic"><i>I</i></button>
+                <button type="button" class="wtb" data-cmd="underline" data-i18n-title="quicktext.editor.underline"><u>U</u></button>
+                <button type="button" class="wtb" data-cmd="strikethrough" data-i18n-title="quicktext.editor.strikethrough"><s>S</s></button>
+                <span class="wtb-sep"></span>
+                <button type="button" class="wtb" data-cmd="ul" data-i18n-title="quicktext.editor.ul">&#8226;&#8801;</button>
+                <button type="button" class="wtb" data-cmd="ol" data-i18n-title="quicktext.editor.ol">1.</button>
+                <button type="button" class="wtb" data-cmd="indent" data-i18n-title="quicktext.editor.indent">&#8594;</button>
+                <button type="button" class="wtb" data-cmd="outdent" data-i18n-title="quicktext.editor.outdent">&#8592;</button>
+                <span class="wtb-sep"></span>
+                <select id="wtb-align" class="wtb-select" data-i18n-title="quicktext.editor.align">
+                  <option value="left" data-i18n-content="quicktext.editor.alignLeft"></option>
+                  <option value="center" data-i18n-content="quicktext.editor.alignCenter"></option>
+                  <option value="right" data-i18n-content="quicktext.editor.alignRight"></option>
+                  <option value="justify" data-i18n-content="quicktext.editor.alignJustify"></option>
+                </select>
+                <select id="wtb-font" class="wtb-select" data-i18n-title="quicktext.editor.font">
+                  <option value="" data-i18n-content="quicktext.editor.fontDefault"></option>
+                  <option value="Arial, sans-serif">Arial</option>
+                  <option value="Georgia, serif">Georgia</option>
+                  <option value="'Times New Roman', serif">Times New Roman</option>
+                  <option value="'Courier New', monospace">Courier New</option>
+                  <option value="Verdana, sans-serif">Verdana</option>
+                </select>
+                <select id="wtb-size" class="wtb-select" data-i18n-title="quicktext.editor.size">
+                  <option value="" data-i18n-content="quicktext.editor.sizeDefault"></option>
+                  <option value="10px">10</option>
+                  <option value="13px">13</option>
+                  <option value="16px">16</option>
+                  <option value="18px">18</option>
+                  <option value="24px">24</option>
+                </select>
+                <span class="wtb-sep"></span>
+                <label class="wtb-color" data-i18n-title="quicktext.editor.textColor">A<input type="color" id="wtb-textcolor" value="#000000"></label>
+                <label class="wtb-color" data-i18n-title="quicktext.editor.highlightColor">&#9608;<input type="color" id="wtb-highlightcolor" value="#ffff00"></label>
+                <span class="wtb-sep"></span>
+                <button type="button" class="wtb" data-cmd="link" data-i18n-title="quicktext.editor.link">&#128279;</button>
+                <button type="button" class="wtb" data-cmd="unlink" data-i18n-title="quicktext.editor.unlink">&#128279;&#10007;</button>
+                <button type="button" class="wtb" data-cmd="clear" data-i18n-title="quicktext.editor.clear">T&#10007;</button>
+              </div>
               <textarea id="text-body" disabled spellcheck="false"></textarea>
+              <div id="text-body-html" class="wysiwyg" hidden></div>
             </div>
             <table class="detail-table template-only">
               <tr>

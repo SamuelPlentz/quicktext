@@ -10,6 +10,7 @@ import * as storage from "/modules/storage.mjs";
 import * as utils from "/modules/utils.mjs";
 import * as menus from "/modules/menus.mjs";
 import * as vfs from "/vendor/vfs-client/vfs-client.mjs";
+import Squire from "/vendor/squire/squire.mjs";
 
 import { localizeDocument } from "/vendor/i18n.mjs";
 import { getTagsMenuStructure, getDateTimeMenuTitle } from "/modules/menuStructure.mjs";
@@ -21,6 +22,106 @@ const applyManaged = (el, isManaged) => {
   el.disabled = isManaged;
   el.title = isManaged ? i18n("quicktext.controlledViaManagedStorage.label") : "";
 };
+
+// ---------- HTML template WYSIWYG editor (Squire) ----------
+//
+// text/html templates are edited in a Squire rich-text editor (#text-body-html);
+// text/plain templates keep the raw <textarea id="text-body">. Exactly one is
+// visible, chosen by the template type. Squire has no built-in sanitizer, so we
+// give it one built on the official Sanitizer API (Element.setHTML), used for
+// both setHTML() and paste - imported template HTML is untrusted and this page
+// is privileged. Squire's getHTML() is stored verbatim as the template body.
+let htmlEditor = null;
+
+// Squire normalizes on setHTML (e.g. "john" -> "<div>john</div>"), so setHTML ->
+// getHTML is not identity. To avoid altering content the user never edited, we
+// remember the exact string loaded into the editor and whether it was edited
+// since; when unedited we return that string verbatim instead of getHTML().
+let squireLoadedText = "";
+let squireEdited = false;
+function currentHtmlBody() {
+  return squireEdited ? htmlEditor.getHTML() : squireLoadedText;
+}
+
+// Squire's mandated sanitize hook: parse+sanitize an HTML string into a fragment.
+function sanitizeToDOMFragment(html) {
+  const div = document.createElement("div");
+  div.setHTML(html || "");                 // Sanitizer API: strips scripts / on* / javascript: URLs
+  const frag = document.createDocumentFragment();
+  while (div.firstChild) frag.append(div.firstChild);
+  return frag;
+}
+
+// Show the raw <textarea> or the WYSIWYG (+ toolbar) for the given type and load
+// `text` into it. The stored string is not converted - switching type only
+// reinterprets the same body under the other type's semantics.
+function applyBodyMode(type, text) {
+  const isHtml = type === "text/html";
+  // A load or a type-switch is not a user edit.
+  squireEdited = false;
+  document.getElementById("text-body").hidden = isHtml;
+  document.getElementById("text-body-html").hidden = !isHtml;
+  document.getElementById("wysiwyg-toolbar").hidden = !isHtml;
+  if (isHtml) {
+    document.getElementById("text-body").value = "";
+    squireLoadedText = text || "";
+    htmlEditor?.setHTML(text || "");   // does not fire "input" (Squire sets _ignoreChange)
+  } else {
+    document.getElementById("text-body").value = text || "";
+    if (htmlEditor) htmlEditor.setHTML("");
+  }
+}
+
+// The current body string from whichever editor is active. Unedited HTML returns
+// the exact loaded string (not Squire's normalized getHTML()).
+function getBodyValue() {
+  return document.getElementById("sel-type").value === "text/html"
+    ? currentHtmlBody()
+    : document.getElementById("text-body").value;
+}
+
+// Type toggle: carry the current body across, reinterpreted under the new type.
+function switchBodyType(newType) {
+  const wasHtml = !document.getElementById("text-body-html").hidden;
+  const current = wasHtml ? currentHtmlBody() : document.getElementById("text-body").value;
+  applyBodyMode(newType, current);
+}
+
+// Reflect the caret's current formatting on the toggle buttons.
+function updateToolbarState() {
+  if (!htmlEditor) return;
+  const mark = (cmd, tag) => {
+    const btn = document.querySelector(`#wysiwyg-toolbar .wtb[data-cmd="${cmd}"]`);
+    if (btn) btn.classList.toggle("active", htmlEditor.hasFormat(tag));
+  };
+  mark("bold", "B");
+  mark("italic", "I");
+  mark("underline", "U");
+  mark("strikethrough", "S");
+}
+
+// Run a toolbar button command against the editor.
+async function runToolbarCommand(cmd) {
+  if (!htmlEditor) return;
+  switch (cmd) {
+    case "bold": htmlEditor.hasFormat("B") ? htmlEditor.removeBold() : htmlEditor.bold(); break;
+    case "italic": htmlEditor.hasFormat("I") ? htmlEditor.removeItalic() : htmlEditor.italic(); break;
+    case "underline": htmlEditor.hasFormat("U") ? htmlEditor.removeUnderline() : htmlEditor.underline(); break;
+    case "strikethrough": htmlEditor.hasFormat("S") ? htmlEditor.removeStrikethrough() : htmlEditor.strikethrough(); break;
+    case "ul": htmlEditor.makeUnorderedList(); break;
+    case "ol": htmlEditor.makeOrderedList(); break;
+    case "indent": htmlEditor.increaseQuoteLevel(); break;
+    case "outdent": htmlEditor.decreaseQuoteLevel(); break;
+    case "unlink": htmlEditor.removeLink(); break;
+    case "clear": htmlEditor.removeAllFormatting(); break;
+    case "link": {
+      const url = await showPrompt(i18n("quicktext.editor.linkPrompt"), "https://");
+      if (url) htmlEditor.makeLink(url.trim());
+      break;
+    }
+  }
+  htmlEditor.focus();
+}
 
 function makeUnique(name, arr) {
   const sanitized = name
@@ -993,7 +1094,7 @@ function commitTemplateEdits() {
   if (!bundle || bundle.isReadOnly) return;
   const tmpl = bundle.texts[gi]?.[ti];
   if (!tmpl) return;
-  tmpl.text = document.getElementById("text-body").value;
+  tmpl.text = getBodyValue();
   tmpl.type = document.getElementById("sel-type").value;
   tmpl.keyword = document.getElementById("text-keyword").value.replace(/\s/g, "");
   tmpl.subject = document.getElementById("text-subject").value;
@@ -1023,7 +1124,7 @@ function renderTemplateDetail() {
     const titleEl = document.getElementById("text-title");
     titleEl.value = selectedEntry?.name ?? selectedBundle?.storageName ?? "";
     titleEl.disabled = !selectedEntry || selectedEntry.type === "managed";
-    document.getElementById("text-body").value = "";
+    applyBodyMode("text/plain", "");
     return;
   }
 
@@ -1040,14 +1141,14 @@ function renderTemplateDetail() {
 
   if (isGroup) {
     document.getElementById("text-title").value = bundle.groups[gi].name;
-    document.getElementById("text-body").value = "";
+    applyBodyMode("text/plain", "");
   } else {
     const tmpl = bundle.texts[gi][ti];
     document.getElementById("text-title").value = tmpl.name;
-    document.getElementById("text-body").value = tmpl.text || "";
+    document.getElementById("sel-type").value = tmpl.type || "text/plain";
+    applyBodyMode(tmpl.type || "text/plain", tmpl.text || "");
     document.getElementById("text-keyword").value = tmpl.keyword || "";
     document.getElementById("text-subject").value = tmpl.subject || "";
-    document.getElementById("sel-type").value = tmpl.type || "text/plain";
     renderShortcutUI(tmpl.shortcut || "");
   }
 }
@@ -1063,6 +1164,11 @@ function setTemplateFieldsEnabled(enabled) {
     "text-shortcut-adv", "text-keyword", "text-subject", "btn-insert-tag"]) {
     const el = document.getElementById(id);
     if (el) el.disabled = !enabled;
+  }
+  const wysiwyg = document.getElementById("text-body-html");
+  if (wysiwyg) wysiwyg.contentEditable = enabled ? "true" : "false";
+  for (const el of document.querySelectorAll("#wysiwyg-toolbar button, #wysiwyg-toolbar select, #wysiwyg-toolbar input")) {
+    el.disabled = !enabled;
   }
 }
 
@@ -2593,8 +2699,18 @@ function updateDateTimeFlyOutMenus() {
 
 function insertVariable(varStr) {
   const subjectEl = document.getElementById("text-subject");
-  const bodyEl = document.getElementById("text-body");
-  const target = document.activeElement === subjectEl ? subjectEl : bodyEl;
+  // Subject field takes precedence when focused; otherwise the body - which is
+  // the WYSIWYG for text/html templates, else the raw textarea.
+  if (document.activeElement !== subjectEl
+      && document.getElementById("sel-type").value === "text/html"
+      && !document.getElementById("text-body-html").hidden) {
+    htmlEditor.focus();
+    htmlEditor.insertPlainText(`[[${varStr}]]`);
+    squireEdited = true;
+    markChanged(findBundle(state.selectedTemplateStorageUuid));
+    return;
+  }
+  const target = document.activeElement === subjectEl ? subjectEl : document.getElementById("text-body");
   const start = target.selectionStart;
   const end = target.selectionEnd;
   target.value = target.value.slice(0, start) + `[[${varStr}]]` + target.value.slice(end);
@@ -2899,10 +3015,27 @@ async function init() {
     markChanged(findBundle(uuid));
   };
 
+  // WYSIWYG editor for text/html templates.
+  htmlEditor = new Squire(document.getElementById("text-body-html"), { sanitizeToDOMFragment });
+  htmlEditor.addEventListener("input", () => { squireEdited = true; markSelectedBundleChanged(); });
+  htmlEditor.addEventListener("pathChange", updateToolbarState);
+  const toolbar = document.getElementById("wysiwyg-toolbar");
+  // Keep the editor selection when a toolbar button is pressed.
+  toolbar.addEventListener("mousedown", e => { if (e.target.closest(".wtb")) e.preventDefault(); });
+  toolbar.addEventListener("click", e => {
+    const btn = e.target.closest(".wtb");
+    if (btn) runToolbarCommand(btn.dataset.cmd);
+  });
+  document.getElementById("wtb-align").addEventListener("change", e => { htmlEditor.setTextAlignment(e.target.value); htmlEditor.focus(); });
+  document.getElementById("wtb-font").addEventListener("change", e => { if (e.target.value) htmlEditor.setFontFace(e.target.value); htmlEditor.focus(); });
+  document.getElementById("wtb-size").addEventListener("change", e => { if (e.target.value) htmlEditor.setFontSize(e.target.value); htmlEditor.focus(); });
+  document.getElementById("wtb-textcolor").addEventListener("input", e => htmlEditor.setTextColor(e.target.value));
+  document.getElementById("wtb-highlightcolor").addEventListener("input", e => htmlEditor.setHighlightColor(e.target.value));
+
   // Template detail fields
   document.getElementById("text-title").addEventListener("input", onTitleInput);
   document.getElementById("text-body").addEventListener("input", markSelectedBundleChanged);
-  document.getElementById("sel-type").addEventListener("change", markSelectedBundleChanged);
+  document.getElementById("sel-type").addEventListener("change", e => { switchBodyType(e.target.value); markSelectedBundleChanged(); });
   document.getElementById("sel-shortcut").addEventListener("change", markSelectedBundleChanged);
   document.getElementById("text-shortcut-adv").addEventListener("input", markSelectedBundleChanged);
   document.getElementById("text-keyword").addEventListener("input", e => {

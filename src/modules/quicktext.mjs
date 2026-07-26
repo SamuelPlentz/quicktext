@@ -259,16 +259,16 @@ export async function insertAttachmentFile(tabId, file) {
 
 // This function is called from outside and needs to use data of an existing
 // parser
-export async function getTag({ tabId, tag, variables }) {
+export async function getTag({ tabId, tag, variables, options }) {
   let qParser = await getQuicktextParser({ tabId })
-  return await qParser[`get_${tag.toLowerCase()}`](variables);
+  return await qParser[`get_${tag.toLowerCase()}`](variables, options);
 }
 
 // This function is called from outside and needs to use data of an existing
 // parser
-export async function processTag({ tabId, tag, variables }) {
+export async function processTag({ tabId, tag, variables, options }) {
   let qParser = await getQuicktextParser({ tabId })
-  return await qParser[`process_${tag.toLowerCase()}`](variables);
+  return await qParser[`process_${tag.toLowerCase()}`](variables, options);
 }
 
 // ---- TEMPLATE

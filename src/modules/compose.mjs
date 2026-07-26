@@ -137,10 +137,10 @@ export async function init() {
         return browser.identities[info.func](...info.params);
       // Sent by modules/quicktextParser.mjs (running in compose window context)
       case "processTag":
-        return quicktext.processTag({ tabId: info.tabId, tag: info.tag, variables: info.variables });
+        return quicktext.processTag({ tabId: info.tabId, tag: info.tag, variables: info.variables, options: info.options });
       // Sent by modules/quicktextParser.mjs (running in compose window context)
       case "getTag":
-        return quicktext.getTag({ tabId: info.tabId, tag: info.tag, variables: info.variables });
+        return quicktext.getTag({ tabId: info.tabId, tag: info.tag, variables: info.variables, options: info.options });
       default:
         return false;
     }

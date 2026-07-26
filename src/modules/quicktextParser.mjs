@@ -302,21 +302,25 @@ export class QuicktextParser {
                 })
               }
 
+              // A trailing plain-object argument is an options bag (tag
+              // variables are always strings), e.g. { nullOnAbort: true }.
+              // Split it off and forward it. With { nullOnAbort: true }, an
+              // aborted (cancelled) interactive tag resolves to null instead of
+              // the default "" - mirroring window.prompt(). Callers that want an
+              // exception can throw themselves when the result is null.
+              const callTag = (command, tag, args) => {
+                let options = {};
+                let last = args[args.length - 1];
+                if (args.length && typeof last === "object" && last !== null && !Array.isArray(last)) {
+                  options = args.pop();
+                }
+                return browser.runtime.sendMessage({ command, tabId, tag, variables: args, options });
+              };
               this.quicktext = {
                 tabId,
                 variables: sVariables,
-                processTag: (tag, ...variables) => browser.runtime.sendMessage({
-                  command: "processTag",
-                  tabId,
-                  tag,
-                  variables,
-                }),
-                getTag: (tag, ...variables) => browser.runtime.sendMessage({
-                  command: "getTag",
-                  tabId,
-                  tag,
-                  variables,
-                }),
+                processTag: (tag, ...variables) => callTag("processTag", tag, variables),
+                getTag: (tag, ...variables) => callTag("getTag", tag, variables),
               };
               
               ${script.script};
@@ -385,13 +389,13 @@ export class QuicktextParser {
             break;
           case "processTag":
             {
-              let processedTag = await this[`process_${message.tag.toLowerCase()}`](message.variables);
+              let processedTag = await this[`process_${message.tag.toLowerCase()}`](message.variables, message.options);
               port.postMessage({ command: "processedTag", processedTag });
             }
             break;
           case "getTag":
             {
-              let gotTag = await this[`get_${message.tag.toLowerCase()}`](message.variables);
+              let gotTag = await this[`get_${message.tag.toLowerCase()}`](message.variables, message.options);
               port.postMessage({ command: "gotTag", gotTag });
             }
             break;
@@ -720,7 +724,7 @@ export class QuicktextParser {
     return this.process_text(aVariables);
   }
 
-  async process_input(aVariables) {
+  async process_input(aVariables, options) {
     const inputState = `INPUT_${aVariables[0]}`;
     let states = await this.loadStates({
       [inputState]: { checked: false, data: "" }
@@ -745,19 +749,25 @@ export class QuicktextParser {
         });
       }
 
-      // Note: Empty is cancel.
+      // openPopup resolves to `undefined` on cancel/escape/close and to the
+      // entered string (possibly "") on OK. By default we keep the legacy
+      // behavior where both collapse to "". A script can opt in via
+      // `options.nullOnAbort` to distinguish a cancel: we return `null`,
+      // mirroring window.prompt() (null = cancel, "" = empty OK).
       if (rv) {
         states[inputState].data = rv;
         states[inputState].checked = true;
         await this.saveStates(states);
+      } else if (options?.nullOnAbort && rv === undefined) {
+        return null;
       }
 
     }
 
     return states[inputState].data;
   }
-  async get_input(aVariables) {
-    return this.process_input(aVariables);
+  async get_input(aVariables, options) {
+    return this.process_input(aVariables, options);
   }
 
   async process_alert(aVariables) {

@@ -8,7 +8,7 @@
           "update_link": "https://github.com/jobisoft/quicktext/releases/download/v6.9/quicktext_6_9_0_beta.xpi",
           "applications": {
             "gecko": {
-              "strict_min_version": "128.0"
+              "strict_min_version": "148.0"
             }
           }
         }

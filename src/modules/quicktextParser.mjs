@@ -18,6 +18,16 @@ const collapsingTags = [
   'ALERT', 'ATTACHMENT', 'HEADER'
 ]
 
+// Placeholders a resolved value's *stray* "[[" / "]]" are masked to before it is spliced into the
+// string, so they cannot be (mis)read as tag syntax on later re-parse passes. Private Use Area chars
+// (contain no brackets); introduced in `parseText`, removed again in `parse` after the loop, so they
+// never leave the parser. See `maskStrayBrackets`.
+const MASK_OPEN = "\uE000";
+const MASK_CLOSE = "\uE001";
+// Longest-first tag-name alternation, snapshotted once for the anchored matcher in `matchTagEnd`.
+const SORTED_TAG_ALT = allowedTags.slice().sort((a, b) => b.length - a.length).join("|");
+const ANCHORED_TAG_RE = new RegExp("^\\[\\[((" + SORTED_TAG_ALT + ")(\\_[a-z]+)?)", "i");
+
 // Possible states of `mActiveStorage`. Each template-backed state corresponds
 // 1:1 to a bundle `type`:
 // - VFS_TEMPLATE: bundle type "vfs" (OPFS or external). uuid identifies the
@@ -1260,6 +1270,10 @@ export class QuicktextParser {
 
   async parse(aStr) {
     try {
+      // Strip any pre-existing mask placeholders so a template can't smuggle one in (defensive; the
+      // masks are an internal artifact introduced/removed within this method).
+      aStr = aStr.replaceAll(MASK_OPEN, "").replaceAll(MASK_CLOSE, "");
+
       // Reparse the text until there is no difference in the text
       // or that we parse 100 times (so we don't make an infinitive loop)
       let oldStr;
@@ -1271,7 +1285,8 @@ export class QuicktextParser {
         aStr = await this.parseText(aStr);
       } while (aStr != oldStr && count < 20);
 
-      return aStr;
+      // Restore stray brackets that were masked while resolving tag values.
+      return unmaskBrackets(aStr);
     } catch (ex) {
       console.log(ex);
     }
@@ -1333,13 +1348,60 @@ export class QuicktextParser {
           typeof this["get_" + tagName] == "function" &&
           variable_limit >= 0 &&
           tags[i].variables.length >= variable_limit) {
-        value = await this["get_" + tagName](tags[i].variables);
+        // Variables were parsed out of the masked string; unmask them so a value that carried stray
+        // brackets reaches the getter (and any display it does, e.g. an INPUT prompt) as literal text.
+        value = await this["get_" + tagName](tags[i].variables.map(unmaskBrackets));
       }
-      aStr = utils.replaceText(tags[i].tag, value, aStr, { collapseLineBreaks: collapsingTags.includes(tags[i].tagName) });
+      // Mask stray "[[" / "]]" in the resolved value so inserted data can never restructure the
+      // template on a later pass (complete tags survive and still fire). Unmasked in parse() at the end.
+      aStr = utils.replaceText(tags[i].tag, maskStrayBrackets(value), aStr, { collapseLineBreaks: collapsingTags.includes(tags[i].tagName) });
     }
 
     return aStr;
   }
+}
+
+// If a *complete* recognized tag starts at `pos` in `str`, return the index just past its closing
+// "]]"; otherwise return -1. Uses the same close rule as getTags (argument runs to the first "]]";
+// single brackets are literal), so the two agree on what counts as a whole tag.
+function matchTagEnd(str, pos) {
+  const m = ANCHORED_TAG_RE.exec(str.slice(pos));
+  if (!m) return -1;
+  const nameEnd = pos + m[0].length;           // m[0] = "[[" + tagname(+_var)
+  if (str.substr(nameEnd, 2) == "]]") return nameEnd + 2;
+  if (str[nameEnd] == "=") {
+    const end = str.indexOf("]]", nameEnd + 1);
+    if (end != -1) return end + 2;
+  }
+  return -1;
+}
+
+// Mask a resolved value's *stray* brackets before it is spliced into the parse string. Complete tags
+// (`[[VERSION]]`, `[[TO=x]]`, …) are copied verbatim so intentional injection / nesting still fires;
+// every other "[[" and "]]" is replaced with a bracket-free placeholder so it can neither form nor
+// move a tag boundary on a later pass (also forbids assembling a tag from separate fragments). Lone
+// "[" / "]" are left as-is (already inert under the first-"]]" scanner). Reversed by unmaskBrackets.
+function maskStrayBrackets(str) {
+  if (typeof str !== "string" || !str) return str;
+  let out = "";
+  let i = 0;
+  const n = str.length;
+  while (i < n) {
+    if (str[i] == "[" && str[i + 1] == "[") {
+      const end = matchTagEnd(str, i);
+      if (end != -1) { out += str.slice(i, end); i = end; continue; }
+      out += MASK_OPEN; i += 2; continue;
+    }
+    if (str[i] == "]" && str[i + 1] == "]") {
+      out += MASK_CLOSE; i += 2; continue;
+    }
+    out += str[i]; i++;
+  }
+  return out;
+}
+
+function unmaskBrackets(str) {
+  return str.replaceAll(MASK_OPEN, "[[").replaceAll(MASK_CLOSE, "]]");
 }
 
 function getTags(aStr) {
@@ -1386,33 +1448,17 @@ function getTags(aStr) {
     }
     // If there are arguments we get them.
     else if (aStr[pos] == "=") {
-      // We go through until we find ]] but we must have went
-      // through the same amount of [ and ] before. So if there
-      // is an tag in the middle we just jump over it.
+      // The argument runs up to the first "]]" (before the next tag start, tracked by strLen).
+      // Only "]]" terminates - lone "[" / "]" and stray "[[" inside the argument are literal, so
+      // no unbalanced bracket (e.g. from inserted contact data) can desync the scan. Recognized
+      // nested tags are handled inner-first across re-parse passes via the strLen bound below.
       pos++;
-      let bracketCount = 0;
-      let ready = false;
-      let vars = "";
-      while (!ready && pos < strLen) {
-        if (aStr[pos] == "[")
-          bracketCount++;
-        if (aStr[pos] == "]") {
-          bracketCount--;
-          if (bracketCount == -1 && aStr[pos + 1] == "]") {
-            ready = true;
-            break;
-          }
-        }
-        vars += aStr[pos];
-        pos++;
-      }
-
-      // If we found the end we parse the arguments.
-      if (ready) {
+      const end = aStr.indexOf("]]", pos);
+      if (end != -1 && end + 2 <= strLen) {
+        const vars = aStr.substring(pos, end);
         tmpHit.tag += "=" + vars + "]]";
-        vars = vars.split("|");
-        for (let j = 0; j < vars.length; j++)
-          tmpHit.variables.push(vars[j]);
+        for (const v of vars.split("|"))
+          tmpHit.variables.push(v);
 
         // Adds the tag
         hits = addTag(hits, tmpHit);

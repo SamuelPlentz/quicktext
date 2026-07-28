@@ -58,7 +58,9 @@ export function replaceText(tag, value, text, { collapseLineBreaks }) {
     const escapedTag = escapeRegExp(tag);
 
     if (value != "") {
-        return text.replace(new RegExp(escapedTag, 'g'), value);
+        // Use a replacer function so "$" sequences in the value (e.g. "$&", "$1") are inserted
+        // literally instead of being interpreted as replacement patterns.
+        return text.replace(new RegExp(escapedTag, 'g'), () => value);
     }
 
     // If value is "", we collapse a leading spaces and optionally linebreaks. Do not use global mode

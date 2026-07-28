@@ -93,15 +93,9 @@
                 <td><input type="text" id="text-title" disabled style="width:100%"></td>
               </tr>
             </table>
-            <div class="template-only var-row">
-              <div style="flex:1"></div>
-              <div id="tmpl-menu-wrap">
-                <button id="btn-insert-tag" disabled data-i18n-content="quicktext.insertTag.label"></button>
-                <div id="insert-tag-menu" hidden></div>
-              </div>
-            </div>
             <div class="template-only body-row">
-              <div id="wysiwyg-toolbar" class="wysiwyg-toolbar" hidden>
+              <div id="wysiwyg-toolbar" class="wysiwyg-toolbar">
+                <div id="wysiwyg-format" hidden>
                 <button type="button" class="wtb" data-cmd="bold" data-i18n-title="quicktext.editor.bold"><b>B</b></button>
                 <button type="button" class="wtb" data-cmd="italic" data-i18n-title="quicktext.editor.italic"><i>I</i></button>
                 <button type="button" class="wtb" data-cmd="underline" data-i18n-title="quicktext.editor.underline"><u>U</u></button>
@@ -146,6 +140,12 @@
                 <button type="button" class="wtb" data-cmd="clear" data-i18n-title="quicktext.editor.clear">T&#10007;</button>
                 <span class="wtb-sep"></span>
                 <button type="button" id="wtb-source" class="wtb" data-cmd="source" data-i18n-title="quicktext.editor.source">&lt;/&gt;</button>
+                <span class="wtb-sep"></span>
+                </div>
+                <div id="tmpl-menu-wrap">
+                  <button id="btn-insert-tag" disabled data-i18n-content="quicktext.insertTag.label"></button>
+                  <div id="insert-tag-menu" hidden></div>
+                </div>
               </div>
               <textarea id="text-body" disabled spellcheck="false"></textarea>
               <div id="text-body-html" class="wysiwyg" hidden></div>

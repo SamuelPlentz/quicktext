@@ -85,7 +85,7 @@ function applyBodyMode(type, text) {
   document.getElementById("wtb-source")?.classList.remove("active");
   document.getElementById("text-body").hidden = isHtml;
   document.getElementById("text-body-html").hidden = !isHtml;
-  document.getElementById("wysiwyg-toolbar").hidden = !isHtml;
+  document.getElementById("wysiwyg-format").hidden = !isHtml;
   if (isHtml) {
     document.getElementById("text-body").value = "";
     squireLoadedText = text || "";
@@ -140,7 +140,7 @@ function setSourceMode(on) {
   document.getElementById("wtb-source").classList.toggle("active", on);
   // Formatting acts on the (hidden) Squire, so disable it while in source mode.
   for (const el of document.querySelectorAll(
-    "#wysiwyg-toolbar button:not([data-cmd='source']), #wysiwyg-toolbar select, #wysiwyg-toolbar .wtb-color input")) {
+    "#wysiwyg-format button:not([data-cmd='source']), #wysiwyg-format select, #wysiwyg-format .wtb-color input")) {
     el.disabled = on;
   }
 }

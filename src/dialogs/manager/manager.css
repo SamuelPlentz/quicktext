@@ -446,14 +446,9 @@ fieldset legend {
 .detail-table input[type=text], .detail-table select { width: 100%; }
 #sel-shortcut, #text-shortcut-adv { width: auto; }
 
-.var-row {
-  display: flex;
-  align-items: center;
-  margin: 6px 0 4px;
-}
-
-/* Templates & Scripts menu */
-#tmpl-menu-wrap { position: relative; display: inline-block; margin-right: 4px; }
+/* Insert-Tag button lives at the right end of the WYSIWYG toolbar. */
+#tmpl-menu-wrap { position: relative; display: inline-block; }
+#btn-insert-tag { height: 24px; padding: 0 6px; }
 #btn-insert-tag::after { content: " ▾"; }
 
 #insert-tag-menu {
@@ -601,9 +596,15 @@ fieldset legend {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: 2px;
   margin-bottom: 4px;
 }
+/* Transparent wrapper: the format buttons lay out directly in the toolbar's flex flow, so they wrap
+   WITH (not beside) the Insert-Tag button. Type-gated via [hidden] in plain-text mode - the id+attr
+   specificity beats display:contents so the group actually hides. */
+.wysiwyg-toolbar #wysiwyg-format { display: contents; }
+.wysiwyg-toolbar #wysiwyg-format[hidden] { display: none; }
 .wysiwyg-toolbar .wtb {
   min-width: 26px;
   height: 24px;

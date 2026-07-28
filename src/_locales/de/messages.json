@@ -116,6 +116,12 @@
   "quicktext.editor.highlightColor": {
     "message": "Hervorhebungsfarbe"
   },
+  "quicktext.editor.applyTextColor": {
+    "message": "Textfarbe anwenden"
+  },
+  "quicktext.editor.applyHighlightColor": {
+    "message": "Hervorhebungsfarbe anwenden"
+  },
   "quicktext.editor.link": {
     "message": "Link einfügen"
   },

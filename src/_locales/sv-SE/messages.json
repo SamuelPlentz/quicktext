@@ -116,6 +116,12 @@
   "quicktext.editor.highlightColor": {
     "message": "Överstrykningsfärg"
   },
+  "quicktext.editor.applyTextColor": {
+    "message": "Använd textfärg"
+  },
+  "quicktext.editor.applyHighlightColor": {
+    "message": "Använd överstrykningsfärg"
+  },
   "quicktext.editor.link": {
     "message": "Infoga länk"
   },

@@ -116,6 +116,12 @@
   "quicktext.editor.highlightColor": {
     "message": "Barva zvýraznění"
   },
+  "quicktext.editor.applyTextColor": {
+    "message": "Použít barvu textu"
+  },
+  "quicktext.editor.applyHighlightColor": {
+    "message": "Použít barvu zvýraznění"
+  },
   "quicktext.editor.link": {
     "message": "Vložit odkaz"
   },

@@ -116,6 +116,12 @@
   "quicktext.editor.highlightColor": {
     "message": "Kiemelés színe"
   },
+  "quicktext.editor.applyTextColor": {
+    "message": "Szövegszín alkalmazása"
+  },
+  "quicktext.editor.applyHighlightColor": {
+    "message": "Kiemelés színének alkalmazása"
+  },
   "quicktext.editor.link": {
     "message": "Hivatkozás beszúrása"
   },

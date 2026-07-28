@@ -116,6 +116,12 @@
   "quicktext.editor.highlightColor": {
     "message": "Colore evidenziazione"
   },
+  "quicktext.editor.applyTextColor": {
+    "message": "Applica colore testo"
+  },
+  "quicktext.editor.applyHighlightColor": {
+    "message": "Applica colore evidenziazione"
+  },
   "quicktext.editor.link": {
     "message": "Inserisci collegamento"
   },

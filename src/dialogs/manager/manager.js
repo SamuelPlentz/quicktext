@@ -39,6 +39,15 @@ let htmlEditor = null;
 // since; when unedited we return that string verbatim instead of getHTML().
 let squireLoadedText = "";
 let squireEdited = false;
+// Last color applied via each picker, re-applied by the direct "apply" toolbar buttons.
+// Seeded with sane defaults so the apply buttons work before the native picker is ever opened.
+let lastTextColor = "#ff0000";
+let lastHighlightColor = "#ffff00";
+// Near-black baseline the color inputs are reset to after each commit. <input type=color> only
+// fires "change" when the value differs from its current value, so re-arming to a value the user
+// is not about to pick lets them re-select the same color and still have it apply. Pure black is
+// avoided because it is a common text-color choice; "" / null would coerce to #000000.
+const COLOR_SENTINEL = "#010101";
 // Transient "show raw HTML source instead of the rendered view" flag for a
 // text/html template. Never stored per template - reset on every render.
 let sourceMode = false;
@@ -157,6 +166,8 @@ async function runToolbarCommand(cmd) {
     case "outdent": htmlEditor.decreaseQuoteLevel(); break;
     case "unlink": htmlEditor.removeLink(); break;
     case "clear": htmlEditor.removeAllFormatting(); break;
+    case "applyTextColor": htmlEditor.setTextColor(lastTextColor); break;
+    case "applyHighlightColor": htmlEditor.setHighlightColor(lastHighlightColor); break;
     case "link": {
       const url = await showPrompt(i18n("quicktext.editor.linkPrompt"), "https://");
       if (url) htmlEditor.makeLink(url.trim());
@@ -164,6 +175,24 @@ async function runToolbarCommand(cmd) {
     }
   }
   htmlEditor.focus();
+}
+
+// Wire a native <input type=color> picker and its paired direct-apply button. The picker's "change"
+// (commit) applies the color, records it as the last-used color for the apply button, shows it as the
+// apply button's swatch, and re-arms the input to COLOR_SENTINEL so committing the same color again
+// still fires. The apply button (a .wtb with data-cmd) re-applies the last color via runToolbarCommand.
+function wireColorPicker(inputId, applyBtnId, apply, get, store) {
+  const input = document.getElementById(inputId);
+  const applyBtn = document.getElementById(applyBtnId);
+  applyBtn.style.setProperty("--swatch-color", get());   // seed default red / yellow
+  input.addEventListener("change", e => {
+    const color = e.target.value;
+    apply(color);
+    store(color);
+    applyBtn.style.setProperty("--swatch-color", color);
+    input.value = COLOR_SENTINEL;                         // re-arm; re-selecting the same color still fires
+    htmlEditor.focus();
+  });
 }
 
 function makeUnique(name, arr) {
@@ -3072,8 +3101,10 @@ async function init() {
   document.getElementById("wtb-align").addEventListener("change", e => { htmlEditor.setTextAlignment(e.target.value); htmlEditor.focus(); });
   document.getElementById("wtb-font").addEventListener("change", e => { if (e.target.value) htmlEditor.setFontFace(e.target.value); htmlEditor.focus(); });
   document.getElementById("wtb-size").addEventListener("change", e => { if (e.target.value) htmlEditor.setFontSize(e.target.value); htmlEditor.focus(); });
-  document.getElementById("wtb-textcolor").addEventListener("input", e => htmlEditor.setTextColor(e.target.value));
-  document.getElementById("wtb-highlightcolor").addEventListener("input", e => htmlEditor.setHighlightColor(e.target.value));
+  wireColorPicker("wtb-textcolor", "wtb-textcolor-apply",
+    c => htmlEditor.setTextColor(c), () => lastTextColor, c => { lastTextColor = c; });
+  wireColorPicker("wtb-highlightcolor", "wtb-highlightcolor-apply",
+    c => htmlEditor.setHighlightColor(c), () => lastHighlightColor, c => { lastHighlightColor = c; });
 
   // Template detail fields
   document.getElementById("text-title").addEventListener("input", onTitleInput);

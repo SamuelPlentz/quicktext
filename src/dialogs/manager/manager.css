@@ -554,7 +554,7 @@ fieldset legend {
 
 .var-separator { height: 1px; background: var(--border); margin: 2px 0; }
 
-.body-row { flex: 1; display: flex; flex-direction: column; margin: 6px 0; }
+.body-row { flex: 1; display: flex; flex-direction: column; margin: 6px 0; min-height: 0; }
 /* The flex display above overrides the UA [hidden] rule, so restore it explicitly
    (else the body-row / toolbar stay visible on groups and plain-text templates). */
 .body-row[hidden] { display: none; }
@@ -588,6 +588,15 @@ fieldset legend {
 .body-row .wysiwyg[contenteditable="false"] { background: var(--bg-disabled); }
 .body-row .wysiwyg:focus { outline: 1px solid var(--accent); }
 
+/* The global reset (`* { margin:0; padding:0 }`) strips the default margins/padding off
+   Squire's block content, so lists lose their marker gutter and blockquote indent collapses
+   in the editing view. Revert to the UA defaults for editor content only. */
+.body-row .wysiwyg :where(ul, ol, li, blockquote, p, h1, h2, h3, h4, h5, h6, dl, dd, pre) {
+  margin: revert;
+  padding: revert;
+}
+.body-row .wysiwyg :where(ul, ol) { list-style: revert; }
+
 .wysiwyg-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -620,6 +629,22 @@ fieldset legend {
   cursor: pointer;
   position: relative;
 }
+/* Shared underline bar for the color pair. Picker = fixed rainbow ("pick any color");
+   apply = the last/selected color (--swatch-color, set from JS). */
+.wysiwyg-toolbar .wtb-apply { position: relative; }
+.wysiwyg-toolbar .wtb-color::after,
+.wysiwyg-toolbar .wtb-apply::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  pointer-events: none;
+}
+.wysiwyg-toolbar .wtb-color::after {
+  background: linear-gradient(90deg, #ff3b30, #ff9500, #ffcc00, #34c759, #007aff, #5856d6, #af52de);
+}
+.wysiwyg-toolbar .wtb-apply::after { background: var(--swatch-color, transparent); }
 .wysiwyg-toolbar .wtb-color input[type="color"] {
   position: absolute;
   inset: 0;

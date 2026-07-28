@@ -116,6 +116,12 @@
   "quicktext.editor.highlightColor": {
     "message": "蛍光ペンの色"
   },
+  "quicktext.editor.applyTextColor": {
+    "message": "文字色を適用"
+  },
+  "quicktext.editor.applyHighlightColor": {
+    "message": "蛍光ペンの色を適用"
+  },
   "quicktext.editor.link": {
     "message": "リンクを挿入"
   },

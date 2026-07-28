@@ -116,6 +116,12 @@
   "quicktext.editor.highlightColor": {
     "message": "Цвет выделения"
   },
+  "quicktext.editor.applyTextColor": {
+    "message": "Применить цвет текста"
+  },
+  "quicktext.editor.applyHighlightColor": {
+    "message": "Применить цвет выделения"
+  },
   "quicktext.editor.link": {
     "message": "Вставить ссылку"
   },

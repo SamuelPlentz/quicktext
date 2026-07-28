@@ -116,6 +116,12 @@
   "quicktext.editor.highlightColor": {
     "message": "Highlight color"
   },
+  "quicktext.editor.applyTextColor": {
+    "message": "Apply text color"
+  },
+  "quicktext.editor.applyHighlightColor": {
+    "message": "Apply highlight color"
+  },
   "quicktext.editor.link": {
     "message": "Insert link"
   },

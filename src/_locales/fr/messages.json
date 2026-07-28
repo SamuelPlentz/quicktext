@@ -116,6 +116,12 @@
   "quicktext.editor.highlightColor": {
     "message": "Couleur de surlignage"
   },
+  "quicktext.editor.applyTextColor": {
+    "message": "Appliquer la couleur du texte"
+  },
+  "quicktext.editor.applyHighlightColor": {
+    "message": "Appliquer la couleur de surlignage"
+  },
   "quicktext.editor.link": {
     "message": "Insérer un lien"
   },

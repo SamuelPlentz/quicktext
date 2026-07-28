@@ -55,10 +55,19 @@ function currentHtmlBody() {
   return squireEdited ? htmlEditor.getHTML() : squireLoadedText;
 }
 
+// Sanitizer for Squire's setHTML hook. Starts from the safe default (still strips <script>, event
+// handlers and javascript: URLs - setHTML always enforces that regardless of config) and additionally
+// allows `style` and `class`, which Squire uses for text/background color, font, size and alignment.
+// The default allow-list drops both, which was stripping every inline style on load and on the
+// source<->view toggle.
+const editorSanitizer = new Sanitizer();
+editorSanitizer.allowAttribute("style");
+editorSanitizer.allowAttribute("class");
+
 // Squire's mandated sanitize hook: parse+sanitize an HTML string into a fragment.
 function sanitizeToDOMFragment(html) {
   const div = document.createElement("div");
-  div.setHTML(html || "");                 // Sanitizer API: strips scripts / on* / javascript: URLs
+  div.setHTML(html || "", { sanitizer: editorSanitizer });
   const frag = document.createDocumentFragment();
   while (div.firstChild) frag.append(div.firstChild);
   return frag;
@@ -165,7 +174,7 @@ async function runToolbarCommand(cmd) {
     case "indent": htmlEditor.increaseQuoteLevel(); break;
     case "outdent": htmlEditor.decreaseQuoteLevel(); break;
     case "unlink": htmlEditor.removeLink(); break;
-    case "clear": htmlEditor.removeAllFormatting(); break;
+    case "clear": clearFormatting(); break;
     case "applyTextColor": htmlEditor.setTextColor(lastTextColor); break;
     case "applyHighlightColor": htmlEditor.setHighlightColor(lastHighlightColor); break;
     case "link": {
@@ -175,6 +184,24 @@ async function runToolbarCommand(cmd) {
     }
   }
   htmlEditor.focus();
+}
+
+// Clear all inline formatting. Squire's removeAllFormatting no-ops on a collapsed caret (it only
+// strips a non-empty range), so for that case insert a zero-width space, strip formatting from a
+// range around it, then park the caret after it - subsequent typing is then unformatted, while any
+// already-typed formatted text before the caret is left untouched. This is the same U+200B idiom
+// Squire uses internally for Bold-off; it cleans up stray ZWS on the next key/cursor move.
+function clearFormatting() {
+  const range = htmlEditor.getSelection();
+  if (!range || !range.collapsed) { htmlEditor.removeAllFormatting(); return; }
+  const zws = document.createTextNode("​");
+  range.insertNode(zws);
+  const around = document.createRange();
+  around.selectNode(zws);
+  htmlEditor.removeAllFormatting(around);   // unwraps every inline format around the ZWS
+  const after = htmlEditor.getSelection();   // range around the now block-level ZWS
+  after.collapse(false);                     // caret after it, at block level
+  htmlEditor.setSelection(after);
 }
 
 // Wire a native <input type=color> picker and its paired direct-apply button. The picker's "change"

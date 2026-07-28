@@ -125,6 +125,9 @@
   "quicktext.editor.clear": {
     "message": "Limpar formatação"
   },
+  "quicktext.editor.source": {
+    "message": "Mostrar código-fonte HTML"
+  },
   "quicktext.editor.linkPrompt": {
     "message": "Digite a URL do link:"
   },

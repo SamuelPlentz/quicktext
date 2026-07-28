@@ -125,6 +125,9 @@
   "quicktext.editor.clear": {
     "message": "Formázás törlése"
   },
+  "quicktext.editor.source": {
+    "message": "HTML-forrás megjelenítése"
+  },
   "quicktext.editor.linkPrompt": {
     "message": "Adja meg a hivatkozás URL-címét:"
   },

@@ -125,6 +125,9 @@
   "quicktext.editor.clear": {
     "message": "Cancella formattazione"
   },
+  "quicktext.editor.source": {
+    "message": "Mostra sorgente HTML"
+  },
   "quicktext.editor.linkPrompt": {
     "message": "Inserisci l'URL del collegamento:"
   },

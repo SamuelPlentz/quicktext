@@ -39,6 +39,9 @@ let htmlEditor = null;
 // since; when unedited we return that string verbatim instead of getHTML().
 let squireLoadedText = "";
 let squireEdited = false;
+// Transient "show raw HTML source instead of the rendered view" flag for a
+// text/html template. Never stored per template - reset on every render.
+let sourceMode = false;
 function currentHtmlBody() {
   return squireEdited ? htmlEditor.getHTML() : squireLoadedText;
 }
@@ -57,8 +60,11 @@ function sanitizeToDOMFragment(html) {
 // reinterprets the same body under the other type's semantics.
 function applyBodyMode(type, text) {
   const isHtml = type === "text/html";
-  // A load or a type-switch is not a user edit.
+  // A load or a type-switch is not a user edit, and always resets to the
+  // rendered view (source mode is transient, never carried across templates).
   squireEdited = false;
+  sourceMode = false;
+  document.getElementById("wtb-source")?.classList.remove("active");
   document.getElementById("text-body").hidden = isHtml;
   document.getElementById("text-body-html").hidden = !isHtml;
   document.getElementById("wysiwyg-toolbar").hidden = !isHtml;
@@ -73,9 +79,11 @@ function applyBodyMode(type, text) {
 }
 
 // The current body string from whichever editor is active. Unedited HTML returns
-// the exact loaded string (not Squire's normalized getHTML()).
+// the exact loaded string (not Squire's normalized getHTML()); in source mode the
+// textarea holds the raw HTML source.
 function getBodyValue() {
-  return document.getElementById("sel-type").value === "text/html"
+  const isHtml = document.getElementById("sel-type").value === "text/html";
+  return isHtml && !sourceMode
     ? currentHtmlBody()
     : document.getElementById("text-body").value;
 }
@@ -85,6 +93,38 @@ function switchBodyType(newType) {
   const wasHtml = !document.getElementById("text-body-html").hidden;
   const current = wasHtml ? currentHtmlBody() : document.getElementById("text-body").value;
   applyBodyMode(newType, current);
+}
+
+// Toggle the raw-HTML source view for a text/html template. Transient (reset by
+// applyBodyMode on the next render). Reuses the plain textarea as the source
+// editor - editing there edits the live body, and Save persists it via
+// getBodyValue(); toggling back just renders the (edited) source, no auto-save.
+function setSourceMode(on) {
+  if (document.getElementById("sel-type").value !== "text/html") { sourceMode = false; return; }
+  sourceMode = on;
+  const ta = document.getElementById("text-body");
+  const wy = document.getElementById("text-body-html");
+  if (on) {
+    ta.value = currentHtmlBody();
+    ta.hidden = false;
+    wy.hidden = true;
+    ta.focus();
+  } else {
+    const html = ta.value;
+    squireLoadedText = html;
+    squireEdited = false;
+    htmlEditor.setHTML(html);   // render the edited source; no commit/save
+    ta.value = "";
+    ta.hidden = true;
+    wy.hidden = false;
+    htmlEditor.focus();
+  }
+  document.getElementById("wtb-source").classList.toggle("active", on);
+  // Formatting acts on the (hidden) Squire, so disable it while in source mode.
+  for (const el of document.querySelectorAll(
+    "#wysiwyg-toolbar button:not([data-cmd='source']), #wysiwyg-toolbar select, #wysiwyg-toolbar .wtb-color input")) {
+    el.disabled = on;
+  }
 }
 
 // Reflect the caret's current formatting on the toggle buttons.
@@ -103,6 +143,9 @@ function updateToolbarState() {
 // Run a toolbar button command against the editor.
 async function runToolbarCommand(cmd) {
   if (!htmlEditor) return;
+  // Source toggle swaps to the raw textarea and focuses it itself - return before
+  // the htmlEditor.focus() below (Squire is hidden in source mode).
+  if (cmd === "source") { setSourceMode(!sourceMode); return; }
   switch (cmd) {
     case "bold": htmlEditor.hasFormat("B") ? htmlEditor.removeBold() : htmlEditor.bold(); break;
     case "italic": htmlEditor.hasFormat("I") ? htmlEditor.removeItalic() : htmlEditor.italic(); break;

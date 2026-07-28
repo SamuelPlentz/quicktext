@@ -125,6 +125,9 @@
   "quicktext.editor.clear": {
     "message": "Vymazat formátování"
   },
+  "quicktext.editor.source": {
+    "message": "Zobrazit HTML zdroj"
+  },
   "quicktext.editor.linkPrompt": {
     "message": "Zadejte URL odkazu:"
   },

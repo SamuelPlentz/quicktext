@@ -125,6 +125,9 @@
   "quicktext.editor.clear": {
     "message": "書式をクリア"
   },
+  "quicktext.editor.source": {
+    "message": "HTML ソースを表示"
+  },
   "quicktext.editor.linkPrompt": {
     "message": "リンクの URL を入力してください:"
   },

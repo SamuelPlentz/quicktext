@@ -125,6 +125,9 @@
   "quicktext.editor.clear": {
     "message": "Formatierung entfernen"
   },
+  "quicktext.editor.source": {
+    "message": "HTML-Quelltext anzeigen"
+  },
   "quicktext.editor.linkPrompt": {
     "message": "Geben Sie die Link-URL ein:"
   },

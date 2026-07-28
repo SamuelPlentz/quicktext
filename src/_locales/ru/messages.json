@@ -125,6 +125,9 @@
   "quicktext.editor.clear": {
     "message": "Очистить форматирование"
   },
+  "quicktext.editor.source": {
+    "message": "Показать HTML-код"
+  },
   "quicktext.editor.linkPrompt": {
     "message": "Введите URL ссылки:"
   },

@@ -111,16 +111,16 @@
     "message": "Standardgröße"
   },
   "quicktext.editor.textColor": {
-    "message": "Textfarbe"
+    "message": "Textfarbe auswählen und anwenden"
   },
   "quicktext.editor.highlightColor": {
-    "message": "Hervorhebungsfarbe"
+    "message": "Hervorhebungsfarbe auswählen und anwenden"
   },
   "quicktext.editor.applyTextColor": {
-    "message": "Textfarbe anwenden"
+    "message": "Zuletzt verwendete Textfarbe anwenden"
   },
   "quicktext.editor.applyHighlightColor": {
-    "message": "Hervorhebungsfarbe anwenden"
+    "message": "Zuletzt verwendete Hervorhebungsfarbe anwenden"
   },
   "quicktext.editor.link": {
     "message": "Link einfügen"

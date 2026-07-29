@@ -111,16 +111,16 @@
     "message": "Standardstorlek"
   },
   "quicktext.editor.textColor": {
-    "message": "Textfärg"
+    "message": "Välj och använd textfärg"
   },
   "quicktext.editor.highlightColor": {
-    "message": "Överstrykningsfärg"
+    "message": "Välj och använd överstrykningsfärg"
   },
   "quicktext.editor.applyTextColor": {
-    "message": "Använd textfärg"
+    "message": "Använd senast använda textfärg"
   },
   "quicktext.editor.applyHighlightColor": {
-    "message": "Använd överstrykningsfärg"
+    "message": "Använd senast använda överstrykningsfärg"
   },
   "quicktext.editor.link": {
     "message": "Infoga länk"

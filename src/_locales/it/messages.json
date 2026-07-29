@@ -111,16 +111,16 @@
     "message": "Dimensione predefinita"
   },
   "quicktext.editor.textColor": {
-    "message": "Colore testo"
+    "message": "Seleziona e applica il colore del testo"
   },
   "quicktext.editor.highlightColor": {
-    "message": "Colore evidenziazione"
+    "message": "Seleziona e applica il colore di evidenziazione"
   },
   "quicktext.editor.applyTextColor": {
-    "message": "Applica colore testo"
+    "message": "Applica l'ultimo colore del testo usato"
   },
   "quicktext.editor.applyHighlightColor": {
-    "message": "Applica colore evidenziazione"
+    "message": "Applica l'ultimo colore di evidenziazione usato"
   },
   "quicktext.editor.link": {
     "message": "Inserisci collegamento"

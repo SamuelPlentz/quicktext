@@ -111,16 +111,16 @@
     "message": "Tamanho padrão"
   },
   "quicktext.editor.textColor": {
-    "message": "Cor do texto"
+    "message": "Selecionar e aplicar cor do texto"
   },
   "quicktext.editor.highlightColor": {
-    "message": "Cor de realce"
+    "message": "Selecionar e aplicar cor de realce"
   },
   "quicktext.editor.applyTextColor": {
-    "message": "Aplicar cor do texto"
+    "message": "Aplicar a última cor do texto usada"
   },
   "quicktext.editor.applyHighlightColor": {
-    "message": "Aplicar cor de realce"
+    "message": "Aplicar a última cor de realce usada"
   },
   "quicktext.editor.link": {
     "message": "Inserir link"

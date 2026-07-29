@@ -111,16 +111,16 @@
     "message": "Výchozí velikost"
   },
   "quicktext.editor.textColor": {
-    "message": "Barva textu"
+    "message": "Vybrat a použít barvu textu"
   },
   "quicktext.editor.highlightColor": {
-    "message": "Barva zvýraznění"
+    "message": "Vybrat a použít barvu zvýraznění"
   },
   "quicktext.editor.applyTextColor": {
-    "message": "Použít barvu textu"
+    "message": "Použít naposledy použitou barvu textu"
   },
   "quicktext.editor.applyHighlightColor": {
-    "message": "Použít barvu zvýraznění"
+    "message": "Použít naposledy použitou barvu zvýraznění"
   },
   "quicktext.editor.link": {
     "message": "Vložit odkaz"

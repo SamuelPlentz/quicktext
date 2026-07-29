@@ -111,16 +111,16 @@
     "message": "Taille par défaut"
   },
   "quicktext.editor.textColor": {
-    "message": "Couleur du texte"
+    "message": "Sélectionner et appliquer la couleur du texte"
   },
   "quicktext.editor.highlightColor": {
-    "message": "Couleur de surlignage"
+    "message": "Sélectionner et appliquer la couleur de surlignage"
   },
   "quicktext.editor.applyTextColor": {
-    "message": "Appliquer la couleur du texte"
+    "message": "Appliquer la dernière couleur du texte utilisée"
   },
   "quicktext.editor.applyHighlightColor": {
-    "message": "Appliquer la couleur de surlignage"
+    "message": "Appliquer la dernière couleur de surlignage utilisée"
   },
   "quicktext.editor.link": {
     "message": "Insérer un lien"

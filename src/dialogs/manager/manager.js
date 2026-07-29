@@ -90,6 +90,7 @@ function applyBodyMode(type, text) {
     document.getElementById("text-body").value = "";
     squireLoadedText = text || "";
     htmlEditor?.setHTML(text || "");   // does not fire "input" (Squire sets _ignoreChange)
+    updateToolbarState();              // paint toggle/color-button state for the freshly loaded body
   } else {
     document.getElementById("text-body").value = text || "";
     if (htmlEditor) htmlEditor.setHTML("");
@@ -145,6 +146,56 @@ function setSourceMode(on) {
   }
 }
 
+// Distinct inline color values present at the caret or across the current selection, for
+// styleProp = "color" (text) or "backgroundColor" (highlight). Squire stores colors as inline styles
+// on <span class="color|highlight">, so we read the nearest ancestor with that style set. Returned
+// values are normalized CSS strings (e.g. "rgb(255, 0, 0)"), usable directly as a swatch/gradient.
+function collectColors(styleProp) {
+  if (!htmlEditor) return [];
+  const root = document.getElementById("text-body-html");
+  const effectiveColor = node => {
+    let el = node instanceof Element ? node : node.parentElement;
+    while (el && el !== root) {
+      const v = el.style && el.style[styleProp];
+      if (v) return v;
+      el = el.parentElement;
+    }
+    return "";
+  };
+  const range = htmlEditor.getSelection();
+  if (!range) return [];
+  if (range.collapsed) {
+    const c = effectiveColor(range.startContainer);
+    return c ? [c] : [];
+  }
+  const container = range.commonAncestorContainer;
+  if (container.nodeType === Node.TEXT_NODE) {
+    const c = effectiveColor(container);
+    return c ? [c] : [];
+  }
+  const colors = new Set();
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+  let n;
+  while ((n = walker.nextNode())) {
+    if (!n.nodeValue || !n.nodeValue.trim() || !range.intersectsNode(n)) continue;
+    const c = effectiveColor(n);
+    if (c) colors.add(c);
+  }
+  return [...colors];
+}
+
+// Paint a direct-color button from the colors currently in effect: active + shows the color(s) when
+// present (a gradient if several), inactive + shows the last-used color when none.
+function updateColorButton(applyBtnId, colors, lastColor) {
+  const btn = document.getElementById(applyBtnId);
+  if (!btn) return;
+  btn.classList.toggle("active", colors.length > 0);
+  const swatch = colors.length === 0 ? lastColor
+    : colors.length === 1 ? colors[0]
+    : `linear-gradient(90deg, ${colors.join(", ")})`;
+  btn.style.setProperty("--swatch-color", swatch);
+}
+
 // Reflect the caret's current formatting on the toggle buttons.
 function updateToolbarState() {
   if (!htmlEditor) return;
@@ -156,6 +207,9 @@ function updateToolbarState() {
   mark("italic", "I");
   mark("underline", "U");
   mark("strikethrough", "S");
+  mark("link", "A");
+  updateColorButton("wtb-textcolor-apply", collectColors("color"), lastTextColor);
+  updateColorButton("wtb-highlightcolor-apply", collectColors("backgroundColor"), lastHighlightColor);
 }
 
 // Run a toolbar button command against the editor.
@@ -173,17 +227,28 @@ async function runToolbarCommand(cmd) {
     case "ol": htmlEditor.makeOrderedList(); break;
     case "indent": htmlEditor.increaseQuoteLevel(); break;
     case "outdent": htmlEditor.decreaseQuoteLevel(); break;
-    case "unlink": htmlEditor.removeLink(); break;
     case "clear": clearFormatting(); break;
-    case "applyTextColor": htmlEditor.setTextColor(lastTextColor); break;
-    case "applyHighlightColor": htmlEditor.setHighlightColor(lastHighlightColor); break;
+    case "applyTextColor":
+      collectColors("color").length ? htmlEditor.setTextColor(null) : htmlEditor.setTextColor(lastTextColor);
+      break;
+    case "applyHighlightColor":
+      collectColors("backgroundColor").length ? htmlEditor.setHighlightColor(null) : htmlEditor.setHighlightColor(lastHighlightColor);
+      break;
     case "link": {
-      const url = await showPrompt(i18n("quicktext.editor.linkPrompt"), "https://");
-      if (url) htmlEditor.makeLink(url.trim());
+      // Toggle: in a link -> remove it; otherwise prompt for a URL and create it.
+      if (htmlEditor.hasFormat("A")) {
+        htmlEditor.removeLink();
+      } else {
+        const url = await showPrompt(i18n("quicktext.editor.linkPrompt"), "https://");
+        if (url) htmlEditor.makeLink(url.trim());
+      }
       break;
     }
   }
   htmlEditor.focus();
+  // Re-derive the toolbar from the (now-settled) editor state. Commands change formatting, and
+  // pathChange alone doesn't reliably reflect that, so refresh explicitly here.
+  updateToolbarState();
 }
 
 // Clear all inline formatting. Squire's removeAllFormatting no-ops on a collapsed caret (it only
@@ -216,9 +281,10 @@ function wireColorPicker(inputId, applyBtnId, apply, get, store) {
     const color = e.target.value;
     apply(color);
     store(color);
-    applyBtn.style.setProperty("--swatch-color", color);
     input.value = COLOR_SENTINEL;                         // re-arm; re-selecting the same color still fires
     htmlEditor.focus();
+    // Repaint the swatch/active-state from the editor (caret is now inside the new color).
+    updateToolbarState();
   });
 }
 

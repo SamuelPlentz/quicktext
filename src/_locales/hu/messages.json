@@ -111,16 +111,16 @@
     "message": "Alapértelmezett méret"
   },
   "quicktext.editor.textColor": {
-    "message": "Szövegszín"
+    "message": "Szövegszín kiválasztása és alkalmazása"
   },
   "quicktext.editor.highlightColor": {
-    "message": "Kiemelés színe"
+    "message": "Kiemelés színének kiválasztása és alkalmazása"
   },
   "quicktext.editor.applyTextColor": {
-    "message": "Szövegszín alkalmazása"
+    "message": "Legutóbb használt szövegszín alkalmazása"
   },
   "quicktext.editor.applyHighlightColor": {
-    "message": "Kiemelés színének alkalmazása"
+    "message": "Legutóbb használt kiemelésszín alkalmazása"
   },
   "quicktext.editor.link": {
     "message": "Hivatkozás beszúrása"

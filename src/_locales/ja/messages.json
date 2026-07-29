@@ -111,16 +111,16 @@
     "message": "既定のサイズ"
   },
   "quicktext.editor.textColor": {
-    "message": "文字色"
+    "message": "文字色を選択して適用"
   },
   "quicktext.editor.highlightColor": {
-    "message": "蛍光ペンの色"
+    "message": "蛍光ペンの色を選択して適用"
   },
   "quicktext.editor.applyTextColor": {
-    "message": "文字色を適用"
+    "message": "最後に使用した文字色を適用"
   },
   "quicktext.editor.applyHighlightColor": {
-    "message": "蛍光ペンの色を適用"
+    "message": "最後に使用した蛍光ペンの色を適用"
   },
   "quicktext.editor.link": {
     "message": "リンクを挿入"

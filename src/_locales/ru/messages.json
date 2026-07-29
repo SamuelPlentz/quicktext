@@ -111,16 +111,16 @@
     "message": "Размер по умолчанию"
   },
   "quicktext.editor.textColor": {
-    "message": "Цвет текста"
+    "message": "Выбрать и применить цвет текста"
   },
   "quicktext.editor.highlightColor": {
-    "message": "Цвет выделения"
+    "message": "Выбрать и применить цвет выделения"
   },
   "quicktext.editor.applyTextColor": {
-    "message": "Применить цвет текста"
+    "message": "Применить последний использованный цвет текста"
   },
   "quicktext.editor.applyHighlightColor": {
-    "message": "Применить цвет выделения"
+    "message": "Применить последний использованный цвет выделения"
   },
   "quicktext.editor.link": {
     "message": "Вставить ссылку"

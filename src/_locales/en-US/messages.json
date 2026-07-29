@@ -111,16 +111,16 @@
     "message": "Default size"
   },
   "quicktext.editor.textColor": {
-    "message": "Text color"
+    "message": "Select and apply text color"
   },
   "quicktext.editor.highlightColor": {
-    "message": "Highlight color"
+    "message": "Select and apply highlight color"
   },
   "quicktext.editor.applyTextColor": {
-    "message": "Apply text color"
+    "message": "Apply last used text color"
   },
   "quicktext.editor.applyHighlightColor": {
-    "message": "Apply highlight color"
+    "message": "Apply last used highlight color"
   },
   "quicktext.editor.link": {
     "message": "Insert link"

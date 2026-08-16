@@ -1,0 +1,815 @@
+{
+  "quicktext.options.intro": {
+    "message": "Z wyjątkiem poniższego ustawienia prywatności, wszystkie ustawienia Quicktext można zarządzać i konfigurować w Menedżerze Quicktext, wraz z szablonami i skryptami."
+  },
+  "quicktext.remoteRequests.legend": {
+    "message": "Żądania zdalne"
+  },
+  "quicktext.remoteRequests.label": {
+    "message": "Zezwól szablonom na nawiązywanie połączeń z serwerami zdalnymi i wysyłanie do nich danych (tag URL)"
+  },
+  "quicktext.remoteRequests.description": {
+    "message": "To ustawienie jest domyślnie wyłączone. Gdy jest wyłączone, funkcja Quicktext blokuje każde żądanie wysyłane przez tag URL i żadne dane nie opuszczają komputera. Po włączeniu tej opcji szablon wykorzystujący tag URL nawiąże połączenie z adresem internetowym określonym w tym szablonie i może wysłać do niego następujące dane, w zależności od tego, o co prosi szablon: odbiorców wiadomości (Do, DW, UDW), tożsamość nadawcy, temat, aktualnie zaznaczony fragment tekstu, aktualną zawartość schowka, nazwy i rozmiary załączników oraz nagłówki i nazwy załączników wiadomości, na którą odpowiadasz lub którą przekazujesz dalej. Adres internetowy wybiera autor szablonu, a nie Quicktext. Żadne dane nie są wysyłane do Quicktext ani do jego autorów."
+  },
+  "quicktext.remoteBlocked.label": {
+    "message": "Quicktext zablokował żądanie skierowane do „$P1$”.\n\nTen szablon wykorzystuje tag URL, który umożliwia wysyłanie danych z wiadomości na zdalny serwer. Aby to umożliwić, należy włączyć opcję zdalnych żądań w ustawieniach Quicktext (Menedżer dodatków → Quicktext → Opcje), gdzie można również sprawdzić, jakie dane są wysyłane.",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
+  },
+  "quicktext.attachmentFile.label": {
+    "message": "Dodaj załącznik"
+  },
+  "quicktext.controlledViaManagedStorage.label": {
+    "message": "Kontrola poprzez zarządzaną pamięć masową"
+  },
+  "quicktext.date.label": {
+    "message": "Data ($P1$)",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
+  },
+  "quicktext.group.label": {
+    "message": "Grupa"
+  },
+  "quicktext.inputText.label": {
+    "message": "Wprowadź wartość $P1$",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
+  },
+  "quicktext.insertImage.label": {
+    "message": "Wybierz plik graficzny do wstawienia"
+  },
+  "quicktext.newGroup.label": {
+    "message": "Nowa grupa"
+  },
+  "quicktext.newScript.label": {
+    "message": "Nowy skrypt"
+  },
+  "quicktext.newTemplate.label": {
+    "message": "Nowy szablon"
+  },
+  "quicktext.HTML.label": {
+    "message": "HTML"
+  },
+  "quicktext.editor.bold": {
+    "message": "Pogrubienie"
+  },
+  "quicktext.editor.italic": {
+    "message": "Kursywa"
+  },
+  "quicktext.editor.underline": {
+    "message": "Podkreślenie"
+  },
+  "quicktext.editor.strikethrough": {
+    "message": "Przekreślenie"
+  },
+  "quicktext.editor.ul": {
+    "message": "Lista punktowa"
+  },
+  "quicktext.editor.ol": {
+    "message": "Lista numerowana"
+  },
+  "quicktext.editor.indent": {
+    "message": "Zwiększ wcięcie"
+  },
+  "quicktext.editor.outdent": {
+    "message": "Zmniejsz wcięcie"
+  },
+  "quicktext.editor.align": {
+    "message": "Wyrównanie"
+  },
+  "quicktext.editor.alignLeft": {
+    "message": "Lewo"
+  },
+  "quicktext.editor.alignCenter": {
+    "message": "Wyśrodkowanie"
+  },
+  "quicktext.editor.alignRight": {
+    "message": "Prawo"
+  },
+  "quicktext.editor.alignJustify": {
+    "message": "Wyrównanie"
+  },
+  "quicktext.editor.font": {
+    "message": "Czcionka"
+  },
+  "quicktext.editor.fontDefault": {
+    "message": "Domyślna czcionka"
+  },
+  "quicktext.editor.size": {
+    "message": "Rozmiar czcionki"
+  },
+  "quicktext.editor.sizeDefault": {
+    "message": "Domyślny rozmiar"
+  },
+  "quicktext.editor.textColor": {
+    "message": "Wybierz i zastosuj kolor tekstu"
+  },
+  "quicktext.editor.highlightColor": {
+    "message": "Wybierz i zastosuj kolor wyróżnienia"
+  },
+  "quicktext.editor.applyTextColor": {
+    "message": "Zastosuj ostatnio używany kolor tekstu"
+  },
+  "quicktext.editor.applyHighlightColor": {
+    "message": "Zastosuj ostatnio używany kolor wyróżnienia"
+  },
+  "quicktext.editor.link": {
+    "message": "Wstaw łącze"
+  },
+  "quicktext.editor.unlink": {
+    "message": "Usuń łącze"
+  },
+  "quicktext.editor.clear": {
+    "message": "Wyczyść formatowanie"
+  },
+  "quicktext.editor.source": {
+    "message": "Pokaż kod źródłowy HTML"
+  },
+  "quicktext.editor.linkPrompt": {
+    "message": "Wprowadź adres URL linku:"
+  },
+  "quicktext.advanced.label": {
+    "message": "Miejsca przechowywania"
+  },
+  "quicktext.accesskey.advanced": {
+    "message": "a"
+  },
+  "quicktext.accesskey.addGroup": {
+    "message": "p"
+  },
+  "quicktext.accesskey.addScript": {
+    "message": "t"
+  },
+  "quicktext.accesskey.addTemplate": {
+    "message": "l"
+  },
+  "quicktext.accesskey.close": {
+    "message": "c"
+  },
+  "quicktext.accesskey.communityScripts": {
+    "message": "s"
+  },
+  "quicktext.accesskey.general": {
+    "message": "g"
+  },
+  "quicktext.accesskey.help": {
+    "message": "p"
+  },
+  "quicktext.accesskey.remove": {
+    "message": "v"
+  },
+  "quicktext.accesskey.resetCounter": {
+    "message": "u"
+  },
+  "quicktext.accesskey.updateCounter": {
+    "message": "d"
+  },
+  "quicktext.accesskey.save": {
+    "message": "s"
+  },
+  "quicktext.accesskey.scripts": {
+    "message": "s"
+  },
+  "quicktext.accesskey.templates": {
+    "message": "t"
+  },
+  "quicktext.accesskey.exportTemplates": {
+    "message": "e"
+  },
+  "quicktext.accesskey.importTemplates": {
+    "message": "i"
+  },
+  "quicktext.storageList.confirmDiscard.label": {
+    "message": "Wszelkie niezapisane zmiany w obszarze pamięci „$1” zostaną odrzucone. Czy chcesz kontynuować?"
+  },
+  "quicktext.buttons.addConfig.label": {
+    "message": "Dodaj"
+  },
+  "quicktext.addGroup.label": {
+    "message": "Dodaj grupę"
+  },
+  "quicktext.addScript.label": {
+    "message": "Dodaj skrypt"
+  },
+  "quicktext.addTemplate.label": {
+    "message": "Dodaj szablon"
+  },
+  "quicktext.altKey.label": {
+    "message": "Alt"
+  },
+  "quicktext.attachments.label": {
+    "message": "Załączniki"
+  },
+  "quicktext.cellularnumber.label": {
+    "message": "Numer telefonu komórkowego"
+  },
+  "quicktext.clipboard.label": {
+    "message": "Schowek"
+  },
+  "quicktext.close.label": {
+    "message": "Zamknij"
+  },
+  "quicktext.collapseSetting.label": {
+    "message": "Zwiń grupę, jeśli zawiera tylko jeden szablon"
+  },
+  "quicktext.controlKey.label": {
+    "message": "Ctrl"
+  },
+  "quicktext.counter.label": {
+    "message": "Licznik"
+  },
+  "quicktext.cursor.label": {
+    "message": "Ustaw pozycję kursora"
+  },
+  "quicktext.custom1.label": {
+    "message": "Niestandardowy 1"
+  },
+  "quicktext.custom2.label": {
+    "message": "Niestandardowy 2"
+  },
+  "quicktext.custom3.label": {
+    "message": "Niestandardowy 3"
+  },
+  "quicktext.custom4.label": {
+    "message": "Niestandardowy 4"
+  },
+  "quicktext.dateTime.label": {
+    "message": "Data/Czas"
+  },
+  "quicktext.defaultImport.label": {
+    "message": "Import"
+  },
+  "quicktext.defaultImport.legend": {
+    "message": "Importowanie szablonów i skryptów w trybie tylko do odczytu"
+  },
+  "quicktext.defaultImport.description": {
+    "message": "Zarządzaj importami szablonów i skryptów z serwerów zdalnych w trybie tylko do odczytu. Pozycje określone w polityce przedsiębiorstwa są oznaczone symbolem kłódki i nie można zmieniać ich nazw ani ich usuwać."
+  },
+  "quicktext.accesskey.defaultImport": {
+    "message": "I"
+  },
+  "quicktext.defaultImport.rename.prompt": {
+    "message": "Nazwa tego domyślnego importu:"
+  },
+  "quicktext.defaultImport.confirmRemove.label": {
+    "message": "Usuń domyślny import \"$1\"?"
+  },
+  "quicktext.defaultImport.invalidUrl.label": {
+    "message": "Wprowadź poprawny adres URL w formacie http(s)."
+  },
+  "quicktext.defaultImport.duplicate.label": {
+    "message": "Ten adres URL importu znajduje się już na liście jako \"$1\"."
+  },
+  "quicktext.defaultImport.columns.name": {
+    "message": "Nazwa"
+  },
+  "quicktext.defaultImport.columns.url": {
+    "message": "URL"
+  },
+  "quicktext.defaultImport.columns.status": {
+    "message": "Status"
+  },
+  "quicktext.displayname.label": {
+    "message": "Nazwa wyświetlana"
+  },
+  "quicktext.email.label": {
+    "message": "Email"
+  },
+  "quicktext.enterKey.label": {
+    "message": "Enter"
+  },
+  "quicktext.export.label": {
+    "message": "Eksport"
+  },
+  "quicktext.f11Key.label": {
+    "message": "F11"
+  },
+  "quicktext.f12Key.label": {
+    "message": "F12"
+  },
+  "quicktext.f2Key.label": {
+    "message": "F2"
+  },
+  "quicktext.f4Key.label": {
+    "message": "F4"
+  },
+  "quicktext.f5Key.label": {
+    "message": "F5"
+  },
+  "quicktext.f8Key.label": {
+    "message": "F8"
+  },
+  "quicktext.faxnumber.label": {
+    "message": "Numer faksu"
+  },
+  "quicktext.filename.label": {
+    "message": "Nazwa pliku"
+  },
+  "quicktext.filenameAndSize.label": {
+    "message": "Nazwa pliku i rozmiar"
+  },
+  "quicktext.firstname.label": {
+    "message": "Imię"
+  },
+  "quicktext.from.label": {
+    "message": "Od"
+  },
+  "quicktext.fullname.label": {
+    "message": "Pełne imię i nazwisko"
+  },
+  "quicktext.general.label": {
+    "message": "Ogólne informacje"
+  },
+  "quicktext.getScript.label": {
+    "message": "Zainstaluj skrypty społecznościowe"
+  },
+  "quicktext.header.label": {
+    "message": "Dodaj nagłówek (Do, DW, DWU)"
+  },
+  "quicktext.help.label": {
+    "message": "Pomoc"
+  },
+  "quicktext.scripthelp.label": {
+    "message": "Niekompatybilny skrypt"
+  },
+  "quicktext.image.label": {
+    "message": "Wstaw obraz (osadzony)"
+  },
+  "quicktext.import.label": {
+    "message": "Import"
+  },
+  "quicktext.input.label": {
+    "message": "Wartość wprowadzona przez użytkownika w oknie monitu"
+  },
+  "quicktext.insertAs.label": {
+    "message": "Wstaw jako"
+  },
+  "quicktext.insertTextFromFileAsHTML.label": {
+    "message": "Wstaw plik jako HTML"
+  },
+  "quicktext.insertTextFromFileAsText.label": {
+    "message": "Wstaw plik jako tekst"
+  },
+  "quicktext.insertfile.label": {
+    "message": "Wstaw treść tekstową lub HTML"
+  },
+  "quicktext.jobtitle.label": {
+    "message": "Stanowisko"
+  },
+  "quicktext.keyword.label": {
+    "message": "Słowo kluczowe"
+  },
+  "quicktext.keywordKeySetting.label": {
+    "message": "czyli klucz, którego chcę użyć do aktywacji słowa kluczowego"
+  },
+  "quicktext.label": {
+    "message": "Quicktext"
+  },
+  "quicktext.lastname.label": {
+    "message": "Nazwisko"
+  },
+  "quicktext.metaKey.label": {
+    "message": "Meta"
+  },
+  "quicktext.modifierSetting.label": {
+    "message": "to modyfikator, którego chcę używać w skrótach klawiaturowych"
+  },
+  "quicktext.nickname.label": {
+    "message": "Pseudonim"
+  },
+  "quicktext.none.label": {
+    "message": "Brak"
+  },
+  "quicktext.orgatt.label": {
+    "message": "Informacje o oryginalnym załączniku"
+  },
+  "quicktext.orgheader.label": {
+    "message": "Oryginalne informacje w nagłówku"
+  },
+  "quicktext.other.label": {
+    "message": "Inne"
+  },
+  "quicktext.storageLocations.label": {
+    "message": "Miejsca przechowywania szablonów i skryptów"
+  },
+  "quicktext.storageLocations.description": {
+    "message": "Zarządzaj dostępnymi lokalizacjami przechowywania danych i kontroluj, które szablony i skrypty są włączone do użytku. Lokalizacje przechowywania danych tylko do odczytu oraz lokalizacja przechowywania danych zarządzana centralnie są oznaczone jako zablokowane."
+  },
+  "quicktext.storage.managed.label": {
+    "message": "Zarządzane"
+  },
+  "quicktext.storage.managed.location": {
+    "message": "Zarządzana pamięć masowa"
+  },
+  "quicktext.storage.providerUnavailable.label": {
+    "message": "Usługodawca niedostępny"
+  },
+  "quicktext.storage.connectionUnavailable.label": {
+    "message": "Połączenie niedostępne"
+  },
+  "quicktext.storageList.columns.name": {
+    "message": "Nazwa"
+  },
+  "quicktext.storageList.columns.connection": {
+    "message": "Miejsce przechowywania"
+  },
+  "quicktext.storageList.columns.path": {
+    "message": "Ścieżka"
+  },
+  "quicktext.storageList.duplicate.label": {
+    "message": "Ta konfiguracja pamięci masowej znajduje się już na liście jako \"$1\"."
+  },
+  "quicktext.buttons.renameStorage.label": {
+    "message": "Zmień nazwę"
+  },
+  "quicktext.buttons.browseStorage.label": {
+    "message": "Przeglądaj"
+  },
+  "quicktext.storageList.readOnly.label": {
+    "message": "Tylko do odczytu"
+  },
+  "quicktext.storageList.rename.prompt": {
+    "message": "Nowa nazwa tego miejsca przechowywania:"
+  },
+  "quicktext.storageList.rename.badChars": {
+    "message": "Nazwa nie może zawierać następujących znaków: \"|\", \"[[\" lub \"]]\"."
+  },
+  "quicktext.storageList.rename.duplicate": {
+    "message": "AWpis o nazwie \"$1\" już istnieje."
+  },
+  "quicktext.remove.label": {
+    "message": "Usuń"
+  },
+  "quicktext.resetcounter.label": {
+    "message": "Zresetuj licznik"
+  },
+  "quicktext.updatecounter.label": {
+    "message": "Licznik aktualizacji"
+  },
+  "quicktext.updatecounter.prompt": {
+    "message": "Wprowadź nową wartość licznika:"
+  },
+  "quicktext.showToolbarLabel.label": {
+    "message": "Pokaż etykietę „Quicktext” na przycisku paska narzędzi"
+  },
+  "quicktext.showContextMenu.label": {
+    "message": "Pokaż menu „Quicktext” po kliknięciu prawym przyciskiem myszy"
+  },
+  "quicktext.save.label": {
+    "message": "Zapisz"
+  },
+  "quicktext.script.label": {
+    "message": "Skrypt"
+  },
+  "quicktext.scripts.label": {
+    "message": "Skrypty"
+  },
+  "quicktext.selection.label": {
+    "message": "Zaznaczenie"
+  },
+  "quicktext.settings.label": {
+    "message": "Ustawienia"
+  },
+  "quicktext.settings.title": {
+    "message": "Manager Quicktext"
+  },
+  "quicktext.shortcut.label": {
+    "message": "Skrót"
+  },
+  "quicktext.shortcutTypeAdv.label": {
+    "message": "Aby korzystać ze skrótów, wybierz tryb zaawansowany"
+  },
+  "quicktext.spaceKey.label": {
+    "message": "Space"
+  },
+  "quicktext.subject.label": {
+    "message": "Temat"
+  },
+  "quicktext.tabKey.label": {
+    "message": "Tab"
+  },
+  "quicktext.templates.label": {
+    "message": "Szablony"
+  },
+  "quicktext.text.label": {
+    "message": "Tekst"
+  },
+  "quicktext.title.label": {
+    "message": "Tytuł"
+  },
+  "quicktext.to.label": {
+    "message": "Do"
+  },
+  "quicktext.insertVariable.label": {
+    "message": "Wstaw zmienną"
+  },
+  "quicktext.version.label": {
+    "message": "Wersja Thunderbird"
+  },
+  "quicktext.workphone.label": {
+    "message": "Numer służbowy"
+  },
+  "quicktext.confirmRemove.label": {
+    "message": "Czy na pewno chcesz usunąć „$P1$”?",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
+  },
+  "quicktext.scriptError.label": {
+    "message": "W skrypcie Quicktext wystąpił błąd:"
+  },
+  "quicktext.scriptNotFound.label": {
+    "message": "Nie znaleziono skryptu Quicktext „$P1$”!",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
+  },
+  "quicktext.template.label": {
+    "message": "Szablon"
+  },
+  "quicktext.time.label": {
+    "message": "Czas ($P1$)",
+    "placeholders": {
+      "P1": {
+        "content": "$1"
+      }
+    }
+  },
+  "quicktext.prompt.addUrl.label": {
+    "message": "Wpisz adres URL:"
+  },
+  "quicktext.advanced.description": {
+    "message": "Quicktext może uzyskiwać dostęp do szablonów i skryptów z dodatkowych systemów przechowywania danych (na przykład serwerów WebDAV lub lokalnego folderu domowego) za pośrednictwem dodatków dostarczających obsługę VFS. Podczas dodawania nowej lokalizacji przechowywania danych można skorzystać z dowolnego zainstalowanego dostawcy VFS."
+  },
+  "quicktext.buttons.searchVfsProviders.label": {
+    "message": "Wyszukaj dostawców usług VFS"
+  },
+  "extensionDescription": {
+    "message": "Dodaje pasek narzędzi z nieograniczoną liczbą fragmentów tekstu do szybkiego wstawiania. Możliwe jest również używanie zmiennych, takich jak [[TO=firstname]]. Zawiera opcje konfiguracyjne dla wszystkich funkcji."
+  },
+  "quicktext.mode.file.label": {
+    "message": "Odczytaj z pliku lokalnego"
+  },
+  "quicktext.mode.url.label": {
+    "message": "Odczyt z adresu URL"
+  },
+  "quicktext.mode.vfs.label": {
+    "message": "Odczyt z pamięci"
+  },
+  "quicktext.insertTag.label": {
+    "message": "Wstaw tag"
+  },
+  "quicktext.variablesGroup.label": {
+    "message": "Zmienne"
+  },
+  "quicktext.dialog.addImport.label": {
+    "message": "Dodaj import"
+  },
+  "migration.pageTitle": {
+    "message": "Migracja Quicktext v$VERSION$",
+    "placeholders": {
+      "version": {
+        "content": "$1"
+      }
+    }
+  },
+  "migration.intro.p1": {
+    "message": "Jest to ostatni etap długiego procesu aktualizacji mającego na celu przekształcenie Quicktext w nowoczesne rozszerzenie WebExtension. Wkrótce Quicktext nie będzie już korzystał ze starszych interfejsów API ani nie będzie wymagał nieograniczonego dostępu do komputera, lecz będzie w pełni działał w ramach nowoczesnej struktury WebExtension – dzięki czemu nie będzie już konieczna aktualizacja przy każdej nowej wersji Thunderbirda."
+  },
+  "migration.intro.quote": {
+    "message": "Dziękuję wszystkim moim beta-testerom za nieustające wsparcie i cierpliwość, dzięki którym ta zmiana stała się możliwa. Wasze opinie były nieocenione!"
+  },
+  "migration.intro.quoteAttribution": {
+    "message": "- John Bieling, twórca Quicktext"
+  },
+  "migration.intro.p2": {
+    "message": "Nowoczesne rozszerzenia WebExtensions nie mają już bezpośredniego dostępu do systemu plików. W związku z tym definicje $ITEMTYPE$ są teraz przechowywane w wewnętrznej pamięci Quicktext, a wszystkie załączniki i obrazy, do których odwołują się szablony, również muszą zostać skopiowane do tej pamięci.",
+    "placeholders": {
+      "itemtype": {
+        "content": "$1"
+      }
+    }
+  },
+  "migration.intro.itemType.template": {
+    "message": "szablon"
+  },
+  "migration.intro.itemType.templateAndScript": {
+    "message": "szablon i skrypt"
+  },
+  "migration.intro.p3": {
+    "message": "Po migracji można zainstalować dodatkowe pliki $LINK$ oraz przenieść całą konfigurację Quicktext, na przykład na serwer WebDAV.",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
+  },
+  "migration.intro.p3.linkText": {
+    "message": "systemy pamięci masowej"
+  },
+  "migration.section.autoMigration": {
+    "message": "Automatyczna migracja"
+  },
+  "migration.section.manualMigration": {
+    "message": "Konieczna jest ręczna migracja"
+  },
+  "migration.section.droppedSources": {
+    "message": "Usunięto źródła konfiguracji"
+  },
+  "migration.auto.intro": {
+    "message": "Następujące szablony można przenieść automatycznie. Pliki lokalne zostaną skopiowane do wewnętrznej pamięci Quicktext, a wszystkie tagi w szablonach odwołujące się do tych plików zostaną odpowiednio dostosowane."
+  },
+  "migration.btn.startMigration": {
+    "message": "Rozpocznij migrację szablonów"
+  },
+  "migration.btn.startMigrationCount": {
+    "message": "Rozpocznij migrację ($COUNT$ elementów)",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "migration.manual.intro": {
+    "message": "Wymienione poniżej elementy nie mogą zostać przeniesione automatycznie i wymagają ręcznej interwencji."
+  },
+  "migration.incompatible.title": {
+    "message": "Niekompatybilne skrypty"
+  },
+  "migration.incompatible.description": {
+    "message": "Skrypty te korzystają z wycofanych interfejsów API Quicktext v5, które nie są już dostępne. Należy je przepisać z wykorzystaniem $LINK$.",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
+  },
+  "migration.incompatible.linkText": {
+    "message": "nowoczesny interfejs API skryptów"
+  },
+  "migration.filesystem.title": {
+    "message": "Przestarzały sposób dostępu do systemu plików"
+  },
+  "migration.filesystem.description": {
+    "message": "Te szablony i skrypty odwołują się do plików znajdujących się w lokalnym systemie plików, do którego rozszerzenia WebExtensions nie mają już bezpośredniego dostępu. Pliki, do których się odwołują, należy skopiować do magazynu Quicktext, a szablony odpowiednio dostosować. Szczegółowe informacje można znaleźć pod adresem $LINK$.",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
+  },
+  "migration.filesystem.linkText": {
+    "message": "przewodnik po miejscach przechowywania"
+  },
+  "migration.dropped.intro": {
+    "message": "Poniższe źródła konfiguracji opierały się na bezpośrednim dostępie do systemu plików, który nie jest już dostępny w nowoczesnych rozszerzeniach WebExtensions."
+  },
+  "migration.dropped.description": {
+    "message": "Jeśli wcześniej korzystałeś z folderu lokalnego do przechowywania szablonów lub udostępniania ich na różnych komputerach, możesz zainstalować zmienną $VFSLINK$ jako zamiennik — na przykład $WEBDAVLINK$ do przechowywania szablonów na serwerze WebDAV (ownCloud, Nextcloud itp.) lub $HOMEFOLDERLINK$, aby nadal korzystać z folderu na swoim komputerze.",
+    "placeholders": {
+      "vfslink": {
+        "content": "$1"
+      },
+      "webdavlink": {
+        "content": "$2"
+      },
+      "homefolderlink": {
+        "content": "$3"
+      }
+    }
+  },
+  "migration.dropped.linkVfs": {
+    "message": "Zaplecze pamięci masowej VFS"
+  },
+  "migration.dropped.linkWebdav": {
+    "message": "Dostawca WebDAV"
+  },
+  "migration.dropped.linkHomefolder": {
+    "message": "dostawca lokalnego folderu domowego"
+  },
+  "migration.btn.dontShowAgain": {
+    "message": "Nie pokazuj już tego raportu"
+  },
+  "migration.reason.deprecatedFilesystem": {
+    "message": "Przestarzały bezpośredni dostęp do systemu plików"
+  },
+  "migration.reason.deprecatedApi": {
+    "message": "Niezgodny interfejs API Quicktext v5"
+  },
+  "migration.label.fileImport": {
+    "message": "Import oparty na plikach"
+  },
+  "migration.label.fileStorage": {
+    "message": "Pamięć masowa oparta na plikach"
+  },
+  "migration.desc.fileImport": {
+    "message": "Ta funkcja importu odczytywała szablony z pliku lokalnego przy każdym uruchomieniu. Rozszerzenia WebExtensions nie mają już bezpośredniego dostępu do lokalnego systemu plików."
+  },
+  "migration.desc.fileStorage": {
+    "message": "Szablony i skrypty były odczytywane z tego lokalnego folderu. Rozszerzenia WebExtensions nie mają już bezpośredniego dostępu do lokalnego systemu plików."
+  },
+  "migration.source.enterprisePolicy": {
+    "message": "polityka przedsiębiorstwa"
+  },
+  "migration.source.imported": {
+    "message": "importowane"
+  },
+  "migration.readonlyNote.both": {
+    "message": "Niektóre z tych pozycji pochodzą z importowanych adresów URL lub zasad przedsiębiorstwa. W celu ich aktualizacji prosimy o kontakt z odpowiednimi osobami odpowiedzialnymi za ich utrzymanie."
+  },
+  "migration.readonlyNote.imported": {
+    "message": "Niektóre z tych pozycji pochodzą z importów adresów URL. Aby je zaktualizować, skontaktuj się z osobą odpowiedzialną za źródło importu."
+  },
+  "migration.readonlyNote.managed": {
+    "message": "Niektóre z tych elementów są udostępniane w ramach polityki firmowej. Aby je zaktualizować, skontaktuj się z administratorem."
+  },
+  "migration.progress.preparing": {
+    "message": "Przygotowywanie migracji…"
+  },
+  "migration.progress.backingUp": {
+    "message": "Tworzenie kopii zapasowej $FILENAME$…",
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      }
+    }
+  },
+  "migration.progress.copying": {
+    "message": "Kopiowanie $FILENAME$ ($CURRENT$/$TOTAL$)…",
+    "placeholders": {
+      "filename": {
+        "content": "$1"
+      },
+      "current": {
+        "content": "$2"
+      },
+      "total": {
+        "content": "$3"
+      }
+    }
+  },
+  "migration.progress.rewriting": {
+    "message": "Przepisywanie tagów…"
+  },
+  "migration.progress.saving": {
+    "message": "Zapisywanie zmian…"
+  },
+  "migration.progress.updating": {
+    "message": "Aktualizacja wyników wykrywania…"
+  },
+  "migration.success": {
+    "message": "Migracja zakończona. Przeniesiono $COUNT$ element(ów).",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "migration.error.allFailed": {
+    "message": "$FAILED$ Nie udało się skopiować plików. Dotyczy to szablonów, które pozostały bez zmian.",
+    "placeholders": {
+      "failed": {
+        "content": "$1"
+      }
+    }
+  },
+  "migration.error.partialFailed": {
+    "message": "Przeniesiono $MIGRATED$ elementów, ale nie udało się skopiować $FAILED$ plików. Szablony, których to dotyczyło, pozostały bez zmian.",
+    "placeholders": {
+      "migrated": {
+        "content": "$1"
+      },
+      "failed": {
+        "content": "$2"
+      }
+    }
+  },
+  "migration.btn.close": {
+    "message": "Zamknij"
+  },
+  "migration.btn.ok": {
+    "message": "OK"
+  },
+  "migration.btn.learnStorage": {
+    "message": "Wyjaśnienie lokalizacji pamięci masowej"
+  },
+  "migration.btn.learnJourney": {
+    "message": "Droga do WebExtension"
+  },
+  "migration.alert.managerOpen": {
+    "message": "Przed rozpoczęciem migracji należy zamknąć program Quicktext Manager."
+  }
+}

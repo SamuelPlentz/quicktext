@@ -1362,16 +1362,29 @@ export class QuicktextParser {
 }
 
 // If a *complete* recognized tag starts at `pos` in `str`, return the index just past its closing
-// "]]"; otherwise return -1. Uses the same close rule as getTags (argument runs to the first "]]";
-// single brackets are literal), so the two agree on what counts as a whole tag.
+// "]]"; otherwise return -1. Single brackets stay literal.
+//
+// The argument of an =tag may itself contain nested recognized tags, e.g.
+// `[[URL=https://host/?id=[[VERSION]]]]`. Scanning to the *first* "]]" would stop at the inner
+// tag's closer and report `[[URL=...[[VERSION]]` as the whole tag - leaving the outer tag's real
+// "]]" behind to be masked as a stray, which then prevents the URL tag from ever closing on a later
+// pass (#630/#636). So the scan steps over each nested recognized tag as a unit and only accepts a
+// "]]" that closes THIS tag. Lone brackets and unrecognized "[[" remain literal, as in the flat case.
 function matchTagEnd(str, pos) {
   const m = ANCHORED_TAG_RE.exec(str.slice(pos));
   if (!m) return -1;
   const nameEnd = pos + m[0].length;           // m[0] = "[[" + tagname(+_var)
   if (str.substr(nameEnd, 2) == "]]") return nameEnd + 2;
   if (str[nameEnd] == "=") {
-    const end = str.indexOf("]]", nameEnd + 1);
-    if (end != -1) return end + 2;
+    let i = nameEnd + 1;
+    while (i < str.length) {
+      if (str[i] == "]" && str[i + 1] == "]") return i + 2;
+      if (str[i] == "[" && str[i + 1] == "[") {
+        const inner = matchTagEnd(str, i);   // a nested recognized tag: skip it whole
+        if (inner != -1) { i = inner; continue; }
+      }
+      i++;
+    }
   }
   return -1;
 }

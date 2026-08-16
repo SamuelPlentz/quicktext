@@ -55,14 +55,18 @@ function currentHtmlBody() {
   return squireEdited ? htmlEditor.getHTML() : squireLoadedText;
 }
 
-// Sanitizer for Squire's setHTML hook. Starts from the safe default (still strips <script>, event
-// handlers and javascript: URLs - setHTML always enforces that regardless of config) and additionally
-// allows `style` and `class`, which Squire uses for text/background color, font, size and alignment.
-// The default allow-list drops both, which was stripping every inline style on load and on the
-// source<->view toggle.
-const editorSanitizer = new Sanitizer();
-editorSanitizer.allowAttribute("style");
-editorSanitizer.allowAttribute("class");
+// Sanitizer for Squire's setHTML hook. A block-list config (only `removeElements` given, no
+// `elements`/`attributes` allow-list) keeps ALL other HTML - obsolete/uncommon elements like <font>,
+// tables, and arbitrary presentational attributes (style/class/face/color/…) - so templates render
+// faithfully in the editor. The default `new Sanitizer()` is a restrictive allow-list that silently
+// drops those (e.g. a <font face="monospace"> wrapper made whole templates disappear, #633).
+// setHTML() still enforces the XSS-safe baseline regardless of config - it always strips
+// <script>/<iframe>/<object>/<embed>, on* event handlers and javascript: URLs - so relaxing the
+// allow-list does not re-enable script execution. Listing the unsafe elements below is belt-and-braces
+// and marks this explicitly as a block-list (allow-everything-else) config.
+const editorSanitizer = new Sanitizer({
+  removeElements: ["script", "iframe", "object", "embed", "frame", "frameset", "base"],
+});
 
 // Squire's mandated sanitize hook: parse+sanitize an HTML string into a fragment.
 function sanitizeToDOMFragment(html) {

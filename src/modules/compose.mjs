@@ -198,16 +198,16 @@ export async function init() {
     area: "auto",
     watchedPrefs: ["templates", "managedStorage", "popup", "menuCollapse", "storageLocations", "defaultImport", "providerAvailability"],
     listener: async (_events) => {
-      // Throw away the menu.
+      // Throw away the menu and rebuild it from the current templates.
+      // Rebuild unconditionally, matching the initial build above: the earlier
+      // `if (popup)` guard left the compose picker torn down but not rebuilt -
+      // empty until restart - after any template/script edit when the "show
+      // popup" option was off (#634).
       for (let entry of composeMenuEntries.reverse()) {
         await messenger.menus.remove(entry);
       }
       composeMenuEntries = [];
-
-      const popup = await storage.getPref("popup");
-      if (popup) {
-        await menus.processMenuData(composeMenuEntries, await getComposeBodyMenuData());
-      }
+      await menus.processMenuData(composeMenuEntries, await getComposeBodyMenuData());
     }
   })
 }

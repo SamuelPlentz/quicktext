@@ -38,7 +38,8 @@
       "16": "assets/icon16.png",
       "24": "assets/icon24.png",
       "32": "assets/icon.png"
-    }
+    },
+    "allowed_spaces": []
   },
   "permissions": [
     "storage",

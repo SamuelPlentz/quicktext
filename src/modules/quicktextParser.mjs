@@ -1404,7 +1404,7 @@ function unmaskBrackets(str) {
   return str.replaceAll(MASK_OPEN, "[[").replaceAll(MASK_CLOSE, "]]");
 }
 
-function getTags(aStr) {
+export function getTags(aStr) {
   // We only get the beginning of the tag.
   // This is because we want to handle recursive use of tags.
   // Sorting to test for longer tags first (ATTACHMENT vs ATT).

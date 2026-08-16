@@ -68,6 +68,31 @@
       }
     }
 
+    /* Developer Bridge panel */
+    .bridge-row { display: flex; align-items: center; gap: .5em; flex-wrap: wrap; margin: .5em 0; }
+    .bridge-row #bridge-status { min-width: 10em; }
+    .bridge-row #bridge-status.bridge-on { color: #157a3a; }
+    .bridge-hint { margin: .25em 0; opacity: .8; font-size: .9em; }
+    .bridge-hint.bridge-err { color: #b3261e; opacity: 1; }
+    #bridge-toggle, .btn-ghost {
+      padding: 3px 12px; border: 1px solid rgba(128,128,128,.5);
+      border-radius: 4px; background: transparent; color: inherit;
+      font-size: 13px; cursor: pointer;
+    }
+    #bridge-toggle:hover, .btn-ghost:hover { background: rgba(128,128,128,.15); }
+    .bridge-example {
+      margin: .25em 0 .75em; padding: .6em .8em; overflow-x: auto;
+      background: rgba(128,128,128,.12); border-radius: 4px;
+      font-family: monospace; font-size: .85em; white-space: pre;
+    }
+    .bridge-activity {
+      max-height: 20em; overflow-y: auto; margin: .25em 0 0; padding: 0;
+      list-style: none; font-family: monospace; font-size: .85em;
+    }
+    .bridge-activity li { padding: .15em 0; border-bottom: 1px solid rgba(128,128,128,.2); }
+    .bridge-activity li.bridge-err { color: #b3261e; }
+    .bridge-activity li.bridge-empty { opacity: .7; }
+
   </style>
 </head>
 
@@ -81,6 +106,47 @@
       <span id="lbl-chk-remote-requests" data-i18n-content="quicktext.remoteRequests.label"></span>
     </label>
     <p id="remote-requests-disclosure" data-i18n-content="quicktext.remoteRequests.description"></p>
+  </fieldset>
+
+  <!-- Developer Bridge: beta/dev builds only. Revealed by options.js when the
+       running build carries the nativeMessaging permission (absent from ATN). -->
+  <fieldset id="bridge-section" hidden>
+    <legend>Developer Bridge</legend>
+
+    <p style="opacity:.8; font-size:.9em; margin:.25em 0">
+      Lets a local script drive Quicktext's live template parser for debugging
+      and regression tests, over a loopback socket (127.0.0.1:47656,
+      token-guarded).
+    </p>
+
+    <div class="bridge-row">
+      <strong id="bridge-status">—</strong>
+      <span id="bridge-link-detail" class="bridge-hint" hidden></span>
+      <button id="bridge-toggle" type="button">Enable</button>
+      <button id="bridge-download" class="btn-ghost" type="button" hidden>Download installer (.zip)</button>
+      <button id="bridge-uninstall" class="btn-ghost" type="button" hidden>Download uninstaller</button>
+    </div>
+
+    <p id="bridge-download-hint" class="bridge-hint" hidden>
+      Download the bundle, unzip it, and run <code>bash install.sh</code> to
+      register the helper (Python 3 required). Then enable the bridge and restart
+      Thunderbird.
+    </p>
+    <p id="bridge-message" class="bridge-hint" hidden></p>
+    <p id="bridge-stale" class="bridge-hint bridge-err" hidden>
+      The installed helper is a different version than this build expects.
+      Re-download the installer.
+    </p>
+    <p id="bridge-endpoint" class="bridge-hint" hidden></p>
+
+    <div id="bridge-usage" hidden>
+      <p class="bridge-hint">Drive it from a shell:</p>
+      <pre id="bridge-example" class="bridge-example"></pre>
+      <p id="bridge-allowed" class="bridge-hint"></p>
+    </div>
+
+    <p class="bridge-hint" style="margin-bottom:0"><strong>Activity</strong></p>
+    <ul id="bridge-activity" class="bridge-activity"></ul>
   </fieldset>
 
   <div style="text-align:center">

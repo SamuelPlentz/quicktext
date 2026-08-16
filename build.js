@@ -13,16 +13,24 @@ function gitBlobSha(buf) {
 }
 
 // Deep-merge `overlay` onto a clone of `base`: nested plain objects merge
-// recursively, everything else (scalars, arrays) is replaced by the overlay.
+// recursively, arrays are unioned, everything else is replaced by the overlay.
 // `base` is never mutated, and its key order is preserved (overlay-only keys
 // are appended), which keeps a merged manifest's diff clean.
+//
+// Unioning arrays is what lets `beta/manifest.json` ask for the one extra
+// permission it needs (nativeMessaging) by naming only that. Replacing would
+// mean restating the whole `permissions` list, and the copy would then silently
+// fall behind every time src/manifest.json gained an entry.
 function isPlainObject(v) {
   return v !== null && typeof v === "object" && !Array.isArray(v);
 }
 function deepMerge(base, overlay) {
   const out = Array.isArray(base) ? [...base] : { ...base };
   for (const [k, v] of Object.entries(overlay)) {
-    out[k] = isPlainObject(out[k]) && isPlainObject(v) ? deepMerge(out[k], v) : v;
+    if (isPlainObject(out[k]) && isPlainObject(v)) out[k] = deepMerge(out[k], v);
+    else if (Array.isArray(out[k]) && Array.isArray(v))
+      out[k] = [...out[k], ...v.filter((item) => !out[k].includes(item))];
+    else out[k] = v;
   }
   return out;
 }
@@ -88,6 +96,13 @@ function zip(sources, destFile, exclude = [], overrides = {}) {
     for (const name of fs.readdirSync(sources)) collect(path.join(sources, name), name);
   } else {
     for (const src of sources) collect(src, src);
+  }
+
+  // An override whose path was not collected has no file on disk under
+  // `sources` - it is an overlay-only addition. Give it an entry of its own;
+  // the read below takes its bytes from `overrides` and never touches `full`.
+  for (const rel of Object.keys(overrides)) {
+    if (!files.some((f) => f.rel === rel)) files.push({ full: null, rel });
   }
 
   const parts = [];
@@ -185,20 +200,81 @@ async function fetchJSON(url) {
   return JSON.parse(buf.toString("utf8"));
 }
 
-async function main() {
-  // `npm run dev` (node build.js --dev) runs the same preparation steps but
-  // emits an unpacked add-on in dev/ instead of packaged XPIs in dist/.
-  const dev = process.argv.includes("--dev");
+// Root-level folder mirroring `src/`, applied on top of it for the beta and dev
+// builds only (never the ATN build). A beta-only feature - here, the developer
+// bridge - therefore lives entirely in `beta/` and cannot reach the ATN xpi.
+// See collectOverlay for the merge rules.
+const OVERLAY_DIR = "beta";
 
+/**
+ * Read the overlay folder into a map of `src/`-relative path -> bytes, ready to
+ * hand to zip() as `overrides`.
+ *
+ *   *.json  - deep-merged onto its src/ counterpart when there is one, so an
+ *             overlay file only has to carry what it changes: a manifest with
+ *             just name + update_url + the extra permission. With no counterpart
+ *             it is added whole.
+ *   others  - added as-is, and only when src/ has no such file. A silent shadow
+ *             is the one failure here that would be painful to track down later,
+ *             so it is an error rather than a replace.
+ *
+ * Returns {} when the overlay folder is absent.
+ */
+function collectOverlay(overlayDir, srcDir) {
+  const out = {};
+  if (!fs.existsSync(overlayDir)) return out;
+
+  function walk(dir, rel) {
+    for (const name of fs.readdirSync(dir)) {
+      // Running the Python helper from the overlay leaves one of these behind,
+      // and it would then be packaged. Nothing else here is generated.
+      if (name === "__pycache__") continue;
+      const full = path.join(dir, name);
+      const childRel = rel ? `${rel}/${name}` : name;
+      if (fs.statSync(full).isDirectory()) {
+        walk(full, childRel);
+        continue;
+      }
+      const srcPath = path.join(srcDir, childRel);
+      const shadows = fs.existsSync(srcPath);
+      if (name.endsWith(".json")) {
+        const overlay = JSON.parse(fs.readFileSync(full, "utf8"));
+        const merged = shadows
+          ? deepMerge(JSON.parse(fs.readFileSync(srcPath, "utf8")), overlay)
+          : overlay;
+        out[childRel] = Buffer.from(JSON.stringify(merged, null, 2) + "\n", "utf8");
+      } else {
+        if (shadows) {
+          throw new Error(
+            `${overlayDir}/${childRel} would replace ${srcDir}/${childRel}. ` +
+            `The overlay may add files and merge JSON, but never shadow a source file.`
+          );
+        }
+        out[childRel] = fs.readFileSync(full);
+      }
+    }
+  }
+
+  walk(overlayDir, "");
+  return out;
+}
+
+async function main() {
+  // `npm run build` emits all three XPIs into dist/:
+  //   - quicktext_<v>_atn.xpi   ATN release: src/ as-is, no overlay.
+  //   - quicktext_<v>_beta.xpi  GitHub beta: src/ + the beta/ overlay (adds
+  //                             update_url, the "Beta" name, the bridge).
+  //   - quicktext_dev.xpi       the beta build under a stable filename, its
+  //                             add-on name stamped with the build time so you
+  //                             can see which build actually reloaded.
   const { version } = JSON.parse(fs.readFileSync("package.json", "utf8"));
   const manifest = JSON.parse(fs.readFileSync("src/manifest.json", "utf8"));
   manifest.version = version;
   fs.writeFileSync("src/manifest.json", JSON.stringify(manifest, null, 2) + "\n");
   console.log(`Set manifest version to ${version}`);
 
-  const outDir = dev ? "dev" : "dist";
-  console.log(`Cleaning output directory (${outDir}) ...`);
-  rm(outDir);
+  console.log("Cleaning output directory (dist) ...");
+  rm("dist");
 
   console.log("Fetching latest vfs-client from GitHub ...");
   const repoPath = "modules/vfs-toolkit/vfs-client";
@@ -259,35 +335,56 @@ async function main() {
   fs.writeFileSync(vendorMdPath, vendorMd);
   console.log(`  Updated VENDOR.md with commit ${sha}`);
 
-  if (dev) {
-    // Emit the live code unpacked, ready to load as a temporary add-on.
-    console.log("Copying src to dev/ (unpacked) ...");
-    fs.cpSync("src", "dev", { recursive: true });
-    console.log("Dev build finished. Load the unpacked add-on from the 'dev' folder.");
-    https.globalAgent.destroy();
-    return;
-  }
+  const overlay = collectOverlay(OVERLAY_DIR, "src");
+  const overlayCount = Object.keys(overlay).length;
 
   const xpiVersion = version.replace(/\./g, "_");
 
-  // ATN build: the on-disk manifest as-is (no update_url, plain name).
+  // ATN build: the on-disk manifest as-is (no update_url, plain name), no
+  // overlay. The bridge lives entirely in beta/, so it is absent here.
   const atnName = `quicktext_${xpiVersion}_atn.xpi`;
   console.log(`Creating ATN extension file (dist/${atnName}) ...`);
   zip("src", `dist/${atnName}`);
 
-  // GitHub build (the beta release): same tree, but manifest.json deep-merged
-  // with the overlay (adds gecko.update_url for self-hosted auto-update,
-  // overrides the name to "Quicktext Beta").
-  const overlayPath = "manifest_beta.json";
-  if (!fs.existsSync(overlayPath)) {
-    throw new Error(`Missing ${overlayPath}, required for the beta XPI.`);
+  // GitHub build (the beta release): src/ with the beta/ overlay applied. At
+  // minimum that is beta/manifest.json (update_url + the "Beta" name +
+  // nativeMessaging); the rest of the overlay is the bridge, beta-only by
+  // construction.
+  if (!overlay["manifest.json"]) {
+    throw new Error(`Missing ${OVERLAY_DIR}/manifest.json, required for the beta XPI.`);
   }
-  const overlay = JSON.parse(fs.readFileSync(overlayPath, "utf8"));
-  const betaManifest = deepMerge(manifest, overlay);
-  const betaManifestBuf = Buffer.from(JSON.stringify(betaManifest, null, 2) + "\n", "utf8");
   const betaName = `quicktext_${xpiVersion}_beta.xpi`;
-  console.log(`Creating beta (GitHub) extension file (dist/${betaName}) ...`);
-  zip("src", `dist/${betaName}`, [], { "manifest.json": betaManifestBuf });
+  console.log(
+    `Creating beta (GitHub) extension file (dist/${betaName}), ` +
+    `${overlayCount} overlay file(s) ...`
+  );
+  zip("src", `dist/${betaName}`, [], overlay);
+
+  // The dev build: the beta overlay under a filename that never changes
+  // (dist/quicktext_dev.xpi), so a reload resolves the same path across version
+  // bumps - which is what a reload during development needs.
+  //
+  // Its add-on name keeps the beta manifest's name and appends the build time,
+  // because the version alone cannot say which build is loaded: two builds
+  // minutes apart share a version, and an add-on that failed to reload looks
+  // exactly like one that did. The Add-ons Manager shows this name, so the
+  // answer is visible without unpacking anything. Local time, not UTC: this is
+  // read next to a wall clock, to answer "is the add-on running what I just
+  // built?".
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const stamp =
+    `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ` +
+    `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const devOverlay = { ...overlay };
+  const devManifest = JSON.parse(devOverlay["manifest.json"].toString("utf8"));
+  devManifest.name = `${devManifest.name} (dev ${stamp})`;
+  devOverlay["manifest.json"] = Buffer.from(
+    JSON.stringify(devManifest, null, 2) + "\n",
+    "utf8"
+  );
+  console.log(`Creating dev extension file (dist/quicktext_dev.xpi) — "${devManifest.name}" ...`);
+  zip("src", "dist/quicktext_dev.xpi", [], devOverlay);
 
   console.log("Build finished. Output is in the 'dist' folder.");
   https.globalAgent.destroy();

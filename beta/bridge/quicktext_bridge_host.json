@@ -1,0 +1,7 @@
+{
+  "name": "quicktext_bridge_host",
+  "description": "Loopback HTTP bridge to Quicktext's internal parser RPC (beta/dev builds only)",
+  "path": "/path/to/quicktext_bridge_host.py",
+  "type": "stdio",
+  "allowed_extensions": ["{8845E3B3-E8FB-40E2-95E9-EC40294818C4}"]
+}

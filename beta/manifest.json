@@ -4,5 +4,6 @@
       "update_url": "https://raw.githubusercontent.com/jobisoft/quicktext/refs/heads/Main/updates.json"
     }
   },
-  "name": "Quicktext Beta"
+  "name": "Quicktext Beta",
+  "permissions": ["nativeMessaging"]
 }

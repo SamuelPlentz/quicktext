@@ -151,3 +151,14 @@ if (deprecatedResults.templates.length > 0
     url: browser.runtime.getURL("/dialogs/migration/migration.html"),
   });
 }
+
+// Developer bridge (beta/dev builds only). The module lives in the beta/ overlay
+// and is absent from the ATN xpi, so this import throws-and-is-ignored there;
+// where it exists it stays dark until switched on in the options page. See
+// beta/modules/bridge.mjs.
+try {
+  const bridge = await import("../modules/bridge.mjs");
+  await bridge.initBackground();
+} catch (ex) {
+  // No bridge in this build (or it failed to start) — nothing to do.
+}

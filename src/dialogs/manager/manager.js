@@ -3196,7 +3196,19 @@ async function init() {
     if (btn) runToolbarCommand(btn.dataset.cmd);
   });
   document.getElementById("wtb-align").addEventListener("change", e => { htmlEditor.setTextAlignment(e.target.value); htmlEditor.focus(); });
-  document.getElementById("wtb-font").addEventListener("change", e => { if (e.target.value) htmlEditor.setFontFace(e.target.value); htmlEditor.focus(); });
+  document.getElementById("wtb-font").addEventListener("change", e => {
+    const family = e.target.value;
+    if (family) {
+      // Not setFontFace(): that hard-appends ", sans-serif". Set the family
+      // exactly, tagged with "font" (Squire's default classNames.fontFamily) so
+      // Squire keeps detecting and replacing these spans.
+      htmlEditor.changeFormat(
+        { tag: "SPAN", attributes: { class: "font", style: `font-family: ${family};` } },
+        { tag: "SPAN", attributes: { class: "font" } },
+      );
+    }
+    htmlEditor.focus();
+  });
   document.getElementById("wtb-size").addEventListener("change", e => { if (e.target.value) htmlEditor.setFontSize(e.target.value); htmlEditor.focus(); });
   wireColorPicker("wtb-textcolor", "wtb-textcolor-apply",
     c => htmlEditor.setTextColor(c), () => lastTextColor, c => { lastTextColor = c; });
